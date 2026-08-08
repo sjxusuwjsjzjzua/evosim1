@@ -1,0 +1,6 @@
+# Bulk headless-experiment output. Individual runs are cheap to regenerate
+# from a build + seed + CFG patch (the sim is fully deterministic per seed —
+# see headless.js). Promote the specific log a LEDGER row or scorecard is
+# based on into the repo root, same as the phone-run logs, instead of
+# committing the whole runs/ tree.
+/runs/

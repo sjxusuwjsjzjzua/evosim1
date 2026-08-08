@@ -220,30 +220,35 @@ but it silently drops that plant from detection meanwhile.
 
 ## 4. The iteration cycle
 
-### What the owner does
-Runs the current HTML on a phone, exports the run log (JSON), and brings it back.
-Long runs are the constraint — anything under ~900 sim-days can't see a
-carnivory sweep, which historically starts around day 800.
+**As of the headless tooling (`headless.js`/`experiment.js`, see `CLAUDE.md`
+§7), Claude runs the experiments.** The owner's job is to approve a proposed
+change and prediction before it runs, and to read the report after — not to
+carry a build to their phone. The owner can still run a build by hand any time
+(spot checks, or to watch it) — the log from that works exactly the same way
+through the steps below, `headless.js` just means it no longer has to be the
+only way a run happens. Long runs are still the constraint that matters:
+anything under ~900 sim-days can't see a carnivory sweep, which historically
+starts around day 800, and true stationarity has needed hundreds of sim-years
+(v0.42 ran 367). Prefer the longest run that's practical over a short one.
 
 ### What Claude does, in order
 
-**Step 1 — copy the log locally first.** Uploads have vanished mid-conversation
-more than once.
+**Step 0 — get the change and prediction approved first.** Nothing in this
+cycle starts without a written, falsifiable prediction the owner has signed
+off on. This is the step automation does not remove (`CLAUDE.md` rule 1).
 
-**Step 2 — confirm what actually ran.** The log carries a `cfg` block. Check it
-before anything else, because config patches sometimes don't get loaded and the
-run isn't what you think:
-```python
-d['version'], d['seed'], d['tick']/d['ticksPerDay'], d['cfg']
+**Step 1 — run it.**
 ```
+node experiment.js --build evosim-v0_47_0.html --days <n> --label <name> \
+    [--cfg patch.json] [--n 3]
+```
+Writes `runs/<name>/seed-*.json`, `manifest.json`, and `digest.txt` (the
+`analyze.py` cross-seed table, already generated — no need to re-run it by
+hand unless re-reading a specific file). Confirm what actually ran before
+reading further, same as ever — `manifest.json` and each log's own `cfg` block
+say so; config patches sometimes don't apply the way you expect.
 
-**Step 3 — run the digest.**
-```
-python3 analyze.py log1.json [log2.json log3.json]
-```
-Multiple files print the cross-seed table, which is the part that matters most.
-
-**Step 4 — read it in this order, and stop early if a gate fails:**
+**Step 2 — read the digest in this order, and stop early if a gate fails:**
 
 1. **CONSERVATION** — matter drift and `caps seen`. A cap that binds means a
    bound is doing the selecting and nothing below is what it looks like.
@@ -258,23 +263,31 @@ Multiple files print the cross-seed table, which is the part that matters most.
    magnitude / structural / correctly-pinned.
 7. **ENERGY, ACTION BUDGET, TROPHIC LEDGER, HISTOGRAMS, LINEAGES.**
 
-**Step 5 — write the scorecard against the previous version's prediction.**
-State plainly which predictions hit and which missed. A missed prediction means
-the diagnosis was wrong, not that the constant needs to be bigger.
+**Step 3 — write the scorecard against the prediction that was approved for
+this run.** State plainly which predictions hit and which missed. A missed
+prediction means the diagnosis was wrong, not that the constant needs to be
+bigger.
 
-**Step 6 — decide config vs code.** Constants are a CFG patch; only a change of
-*shape* — a formula, a cost curve, a mechanism — earns a new HTML. See
-`CLAUDE.md` rule 6 for the patch envelope.
+**Step 4 — add the row to `LEDGER.md`**, and promote the specific logs that
+row is based on into the repo root, same convention as the phone-run logs —
+`runs/` is gitignored scratch space; a run is cheap to reproduce from its seed
+since the sim is fully deterministic per seed (`headless.js` proves this by
+construction: same script, same seed, same `tick()` loop the browser runs).
 
-**Step 7 — ship, with a written prediction.** One structural change per version.
-Falsifiable, named genes, named thresholds, across 3 seeds. `node check.js
-<build>` before shipping. Then add a row to `LEDGER.md`.
+**Step 5 — report back, and stop.** The scorecard, plus **one plain-language
+paragraph on what happened in that world this iteration** — what the
+population actually did and why it matters, not a restatement of the table —
+and a proposed next change with its own prediction. Then wait for the owner.
+No iteration ships past this point without their word.
 
-### The one thing that will bite you in Claude Code
+### The one thing that will still bite you
 
-You have node and a filesystem, so running the sim is now *easy* — which makes
-rule 1 harder to keep, not easier. `check.js` deliberately prints no statistic.
-Do not build a second harness that does.
+`headless.js`/`experiment.js` make running the sim *easy* — that was true and
+dangerous even before they existed, and it does not stop being dangerous now
+that it's sanctioned. The discipline that keeps it honest is Step 0: a
+prediction on record before the run, one change at a time, no quietly trying a
+few variants to see which looks better. `check.js` still prints no statistic,
+on purpose — it checks the code resolves, nothing about the ecology.
 
 ---
 

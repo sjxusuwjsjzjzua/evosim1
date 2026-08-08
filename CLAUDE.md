@@ -20,17 +20,25 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
 | `check.js` | correctness harness. `node check.js <build.html>` |
+| `headless.js` | runs a build outside the browser. `node headless.js --build <html> --seed <n> --days <n> [--cfg patch.json]` — see §7 below. |
+| `experiment.js` | runs N seeds through `headless.js` and feeds them to `analyze.py` in one shot. `node experiment.js --build <html> --days <n> --label <name> [--cfg patch.json] [--n 3]` |
 
 ## Hard rules
 
-1. **NEVER run the sim to test a change.** Not headless, not in a harness, not
-   "just to see." It is far too compute-expensive, and a short run answers a
-   different question: populations shift with every change, so end-state counts
-   are not comparable between versions. `check.js` proves the code *resolves*;
-   it prints no statistic on purpose. Reason the change through against the
-   **last log**, then ship the file. Profiling a *performance* change is the
-   one exception, and even then measure a fixed sim-day count, not a tail.
-   (This is invariant 6b in the file header.)
+1. **Every run still needs a written, falsifiable prediction before it starts** —
+   named genes, named thresholds, across 3 seeds. **What changed since v0.47 is
+   who presses go, not the discipline.** Runs used to require the owner to carry
+   a build to their phone and bring a log back; `headless.js`/`experiment.js`
+   (§7) now let Claude run them directly. That removes file-shuttling, not the
+   reason rule 1 existed: a short run answers a different question than a long
+   one (populations shift with every change, so end-state counts across
+   different lengths are still not comparable), and "run it, look, tweak,
+   run it again" is curve-fitting, not diagnosis. The rule going forward:
+   **reason the change through against the last log and write the prediction
+   down before the experiment runs**, same as when it took a phone. Never loop
+   silently on a hunch — every run is tied to a prediction someone can point to
+   afterward and say hit or miss. `check.js` still proves the code *resolves*
+   before any of this; it prints no statistic on purpose.
 
 2. **Run `node check.js <build>` after every edit.** A syntax check is not a
    correctness check and a call check is not an identifier check.
@@ -61,11 +69,45 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 8. **DO NOT widen a gene bound to fix a pin.** Tried in v0.43, reverted in
    v0.44. A rail moves; it does not go away.
 
-9. **The owner runs the build on a phone** and brings back a JSON log. Keep it
-   single-file, no build step, no dependencies, touch-first.
+9. **The shipped build stays single-file, no build step, no dependencies,
+   touch-first** — the owner can still run it by hand on a phone any time, and
+   nothing about `headless.js` changes that file. Headless execution reads the
+   HTML as data (extracts the `<script>`, runs it in a Node `vm` context) and
+   never forks or rewrites it. If a change ever makes the build unable to run
+   standalone in a browser again, that change is wrong regardless of what the
+   headless tool reports.
 
 ## Before touching a constant
 
 Read `HANDOFF.md` §2 — the pin taxonomy (`p<2` / `p=2` / `p>2`) and pivot
 discipline. They are the two things that made the difference in the last chat
 and they answer most "why is this gene railed" questions without a run.
+
+## 7. Automated iteration (since the headless tooling)
+
+The owner's job is now to **approve or redirect between iterations**, not to
+carry logs back and forth. One iteration, done by Claude, looks like:
+
+1. Propose one structural change (or, in a diagnostic step, a CFG arm — see
+   the k_confusion:0 isolation arm for the model) with a written, falsifiable
+   prediction across 3 seeds, same as rule 1 always required.
+2. Get the owner's go-ahead on the proposal (this step doesn't disappear).
+3. `node experiment.js --build <html> --days <n> --cfg <patch.json>
+   --label <name>` — runs 3 seeds, writes `runs/<name>/seed-*.json`,
+   `runs/<name>/manifest.json`, `runs/<name>/digest.txt`.
+4. Read the digest, not the raw logs. Score the prediction (hit / miss /
+   can't-tell) using `HANDOFF.md` §4's order, stopping early if the
+   stationarity gate fails.
+5. Add the row to `LEDGER.md`. Promote the specific logs that row is based on
+   into the repo root (same convention as the phone-run logs) — `runs/` itself
+   is gitignored, it's scratch space, individual runs are cheap to regenerate
+   from a seed since the sim is fully deterministic per seed.
+6. Report back: the scorecard, plus **one paragraph in plain language on what
+   happened in that world this iteration** — not a table, an actual account of
+   what the population did and why it matters — and a proposed next change
+   with its own prediction. Then stop and wait. This step is the one that
+   doesn't automate away: no iteration ships past this point without the
+   owner's word.
+
+Nothing here licenses trying several changes to see which "worked" — one
+proposed change, one prediction, one experiment, one verdict, every time.
