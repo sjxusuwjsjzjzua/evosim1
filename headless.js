@@ -16,9 +16,28 @@
  * of the file. If a future build changes that block, this throws instead of
  * silently running the wrong thing — update ANCHOR to match.
  *
+ * A long run is a black box until it finishes, which is dangerous for
+ * exactly the reason rule 1 exists — so this writes real state out while it
+ * runs, through two plain files (not a debugger port, not a signal into a
+ * busy synchronous loop, both of which are unreliable mid-tick-loop):
+ *
+ *   <out>.progress.json  — rewritten every --progress-days sim-days with
+ *                           {tick, days, plants, animals, elapsedSec, ticksPerSec}.
+ *                           `cat` it any time; stale data older than a couple
+ *                           of these intervals means the process died.
+ *   <out>.stop            — touch this file to request a graceful stop.
+ *                           Checked every 256 ticks (cheap). The run then
+ *                           finishes exactly like it hit its day budget:
+ *                           full logGenes(), full JSON, `headless.stopRequested:
+ *                           true` in the output. No output is EVER written
+ *                           before the loop ends one way or another, so an
+ *                           impatient `kill` (not this file) still loses
+ *                           everything — use the stop file instead.
+ *
  * Usage:
  *   node headless.js --build evosim-v0_47_0.html --seed 1337 --days 1200 \
- *        [--cfg patch.json] [--out runs/foo/] [--max-ticks N] [--no-autohalt]
+ *        [--cfg patch.json] --out runs/foo/seed-1337.json \
+ *        [--progress-days 20] [--max-ticks N] [--no-autohalt]
  *
  * --cfg accepts either a raw {"k_confusion":0} diff or a full
  * {"kind":"evosim-cfg",...,"cfg":{...}} patch file — either shape works.
@@ -70,7 +89,7 @@ function makeStub() {
   return new Proxy(target, handler);
 }
 
-function buildSandbox() {
+function buildSandbox({ onProgress, shouldStop }) {
   const sandbox = {
     console,
     document: makeStub(),
@@ -87,6 +106,10 @@ function buildSandbox() {
     URL: { createObjectURL: () => '', revokeObjectURL: () => {} },
     Blob: function Blob() {},
     FileReader: function FileReader() { this.readAsText = () => {}; },
+    // Real Node callbacks the injected driver uses to talk to the outside
+    // world without ever needing to interrupt the tick loop mid-flight.
+    __reportProgress: onProgress,
+    __shouldStop: shouldStop,
   };
   return sandbox;
 }
@@ -97,7 +120,7 @@ function extractScript(html) {
   return m[1];
 }
 
-function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt }) {
+function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays }) {
   if (!script.includes(ANCHOR)) {
     throw new Error(
       'headless.js ANCHOR text not found in the build. The trailing init ' +
@@ -110,13 +133,24 @@ function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt }) 
 // ==== headless driver (injected by headless.js, not part of the build) ====
 Object.assign(CFG, ${JSON.stringify(overrides)});
 buildWorld();
-let __haltedEarly = false;
+let __haltedEarly = false, __stopRequested = false;
 {
   const __tpd = TPD();
+  const __t0 = performance.now();
   const __maxTicks = ${maxTicks != null ? Number(maxTicks) : `Math.round(${JSON.stringify(days)} * __tpd)`};
   const __autohalt = ${autohalt ? 'true' : 'false'};
+  const __progressEvery = Math.max(1, Math.round(${JSON.stringify(progressDays)} * __tpd));
   for (let __i = 0; __i < __maxTicks; __i++) {
     tick();
+    if ((__i & 255) === 0 && __shouldStop()) { __haltedEarly = true; __stopRequested = true; break; }
+    if (W.tick % __progressEvery === 0) {
+      const __el = (performance.now() - __t0) / 1000;
+      __reportProgress({
+        tick: W.tick, days: +(W.tick / __tpd).toFixed(2), targetDays: ${JSON.stringify(days ?? null)},
+        plants: ST.pop, animals: ST.apop, elapsedSec: +__el.toFixed(1),
+        ticksPerSec: __el > 0 ? +(W.tick / __el).toFixed(0) : null, done: false,
+      });
+    }
     if (__autohalt && LOG.aGone && !ST.apop &&
         (W.tick - LOG.aGoneTick) > CFG.haltAfterDays * __tpd) { __haltedEarly = true; break; }
   }
@@ -146,8 +180,9 @@ const __data = {
   carnivoryHistogram: { bins: CARNBINS, series: LOG.carn },
   heightHistogram: { bins: HGTBINS, series: LOG.hgt },
   deathAgeHistogram: { bins: DAGEBINS, note: 'age at death in quarters of maturityAge', series: LOG.dage },
-  headless: { tool: 'headless.js', haltedEarly: __haltedEarly }
+  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested }
 };
+__reportProgress({ tick: W.tick, days: +(W.tick / TPD()).toFixed(2), plants: ST.pop, animals: ST.apop, done: true });
 JSON.stringify(__data);
 `;
   return script.replace(ANCHOR, driver);
@@ -162,8 +197,8 @@ function loadCfgOverrides(cfgPath) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.build || args.seed === undefined || (args.days === undefined && args['max-ticks'] === undefined)) {
-    console.error('usage: node headless.js --build <html> --seed <n> --days <n> ' +
-                   '[--cfg patch.json] [--out path] [--max-ticks n] [--no-autohalt]');
+    console.error('usage: node headless.js --build <html> --seed <n> --days <n> --out <path> ' +
+                   '[--cfg patch.json] [--progress-days 20] [--max-ticks n] [--no-autohalt]');
     process.exit(1);
   }
   const buildPath = args.build;
@@ -172,12 +207,26 @@ function main() {
   const maxTicks = args['max-ticks'] !== undefined ? Number(args['max-ticks']) : undefined;
   const cfgOverrides = loadCfgOverrides(args.cfg);
   const autohalt = !args['no-autohalt'];
+  const progressDays = args['progress-days'] !== undefined ? Number(args['progress-days']) : 20;
+
+  // outPath has to be known BEFORE the run starts now — progress/stop files
+  // live next to it. Final tick count is no longer part of the default name.
+  let outPath = args.out || `evosim-log-s${seed}.json`;
+  if (outPath.endsWith('/')) outPath = path.join(outPath, `evosim-log-s${seed}.json`);
+  fs.mkdirSync(path.dirname(outPath) || '.', { recursive: true });
+  const progressPath = outPath + '.progress.json';
+  const stopPath = outPath + '.stop';
+  if (fs.existsSync(stopPath)) fs.unlinkSync(stopPath); // stale from a reused path
 
   const html = fs.readFileSync(buildPath, 'utf8');
   const script = extractScript(html);
-  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt });
+  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays });
 
-  const sandbox = buildSandbox();
+  const onProgress = (info) => {
+    try { fs.writeFileSync(progressPath, JSON.stringify(info)); } catch (e) { /* best-effort */ }
+  };
+  const shouldStop = () => { try { return fs.existsSync(stopPath); } catch (e) { return false; } };
+  const sandbox = buildSandbox({ onProgress, shouldStop });
   const context = vm.createContext(sandbox);
   const t0 = Date.now();
   let jsonText;
@@ -190,20 +239,14 @@ function main() {
   const elapsed = (Date.now() - t0) / 1000;
 
   const data = JSON.parse(jsonText);
-  let outPath = args.out;
-  const defaultName = `evosim-log-s${data.seed}-t${data.tick}.json`;
-  if (!outPath) outPath = defaultName;
-  else if (outPath.endsWith('/') || (fs.existsSync(outPath) && fs.statSync(outPath).isDirectory())) {
-    fs.mkdirSync(outPath, { recursive: true });
-    outPath = path.join(outPath, defaultName);
-  } else {
-    fs.mkdirSync(path.dirname(outPath) || '.', { recursive: true });
-  }
   fs.writeFileSync(outPath, jsonText);
+  if (fs.existsSync(stopPath)) fs.unlinkSync(stopPath);
 
   const days_ = data.tick / data.ticksPerDay;
   console.error(`seed ${data.seed}: ${data.tick} ticks = ${days_.toFixed(1)} days in ${elapsed.toFixed(1)}s ` +
-                `(${(data.tick / elapsed).toFixed(0)} ticks/s) -> ${outPath}`);
+                `(${(data.tick / elapsed).toFixed(0)} ticks/s)${data.headless.stopRequested ? ' [STOPPED EARLY by request]' : ''}` +
+                `${data.headless.haltedEarly && !data.headless.stopRequested ? ' [AUTOHALTED: fauna extinct, no recovery]' : ''}` +
+                ` -> ${outPath}`);
 }
 
 main();
