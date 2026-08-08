@@ -20,25 +20,31 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
 | `check.js` | correctness harness. `node check.js <build.html>` |
-| `headless.js` | runs a build outside the browser. `node headless.js --build <html> --seed <n> --days <n> [--cfg patch.json]` — see §7 below. |
+| `headless.js` | runs a build outside the browser. `node headless.js --build <html> --seed <n> --days <n> --out <path> [--cfg patch.json] [--progress-days 20]` — see §7 below. Writes `<out>.progress.json` while it runs; touch `<out>.stop` to end it early with a still-valid, still-complete log. |
 | `experiment.js` | runs N seeds through `headless.js` and feeds them to `analyze.py` in one shot. `node experiment.js --build <html> --days <n> --label <name> [--cfg patch.json] [--n 3]` |
+| `.github/workflows/experiment.yml` | same thing on GitHub-hosted runners instead of the session sandbox — one seed per runner (real parallelism), free, doesn't need a session open. `workflow_dispatch` only; must be on `main` to trigger via API. |
 
 ## Hard rules
 
-1. **Every run still needs a written, falsifiable prediction before it starts** —
-   named genes, named thresholds, across 3 seeds. **What changed since v0.47 is
-   who presses go, not the discipline.** Runs used to require the owner to carry
-   a build to their phone and bring a log back; `headless.js`/`experiment.js`
-   (§7) now let Claude run them directly. That removes file-shuttling, not the
-   reason rule 1 existed: a short run answers a different question than a long
-   one (populations shift with every change, so end-state counts across
-   different lengths are still not comparable), and "run it, look, tweak,
-   run it again" is curve-fitting, not diagnosis. The rule going forward:
-   **reason the change through against the last log and write the prediction
-   down before the experiment runs**, same as when it took a phone. Never loop
-   silently on a hunch — every run is tied to a prediction someone can point to
-   afterward and say hit or miss. `check.js` still proves the code *resolves*
-   before any of this; it prints no statistic on purpose.
+1. **Every run still needs a written, falsifiable prediction on record before it
+   starts** — named genes, named thresholds, across 3 seeds. **What changed
+   since v0.47 is who presses go, and for one tier of run, when — not the
+   discipline.** Runs used to require the owner to carry a build to their phone
+   and bring a log back; `headless.js`/`experiment.js`/the GitHub Actions
+   workflow (§7) now let Claude run them directly, on request or (for the
+   narrow "diagnostic" tier §7 defines) automatically. That removes
+   file-shuttling and, for that one tier, removes the per-run wait — it does
+   not remove the reason rule 1 existed: a short run answers a different
+   question than a long one (populations shift with every change, so end-state
+   counts across different lengths are still not comparable), and "run it,
+   look, tweak, run it again" is curve-fitting, not diagnosis. The rule going
+   forward: **reason the change through and write the prediction down before
+   any experiment runs**, same as when it took a phone — auto-chaining a
+   diagnostic tier only ever executes a prediction already on record, it never
+   originates one. Never loop silently on a hunch — every run is tied to a
+   prediction someone can point to afterward and say hit or miss. `check.js`
+   still proves the code *resolves* before any of this; it prints no statistic
+   on purpose.
 
 2. **Run `node check.js <build>` after every edit.** A syntax check is not a
    correctness check and a call check is not an identifier check.
@@ -85,29 +91,56 @@ and they answer most "why is this gene railed" questions without a run.
 
 ## 7. Automated iteration (since the headless tooling)
 
-The owner's job is now to **approve or redirect between iterations**, not to
-carry logs back and forth. One iteration, done by Claude, looks like:
+Two tiers, decided 2026-08-08. The difference is whether a run can fire
+without the owner watching, not whether it needs a prediction — every run
+needs one either way.
 
-1. Propose one structural change (or, in a diagnostic step, a CFG arm — see
-   the k_confusion:0 isolation arm for the model) with a written, falsifiable
-   prediction across 3 seeds, same as rule 1 always required.
-2. Get the owner's go-ahead on the proposal (this step doesn't disappear).
-3. `node experiment.js --build <html> --days <n> --cfg <patch.json>
-   --label <name>` — runs 3 seeds, writes `runs/<name>/seed-*.json`,
-   `runs/<name>/manifest.json`, `runs/<name>/digest.txt`.
-4. Read the digest, not the raw logs. Score the prediction (hit / miss /
+**Tier A — diagnostic, auto-chains, no per-run wait.** A run belongs here only
+if it executes a prediction *already on record*, originating nothing new:
+extra seeds filling out an approved 3-seed protocol, an isolation arm the last
+analysis already called for (the k_confusion:0 arm is the template), a
+replication of a result that looked too clean on n=1. These can run back to
+back — start the next one the moment the last digest is read — without asking
+first each time.
+
+**Tier B — gated, needs the owner's word before it runs.** Anything that
+originates a new hypothesis: a new CFG constant nobody has proposed before, and
+*always* any change to `evosim-v0_47_0.html` itself (a new formula, cost
+curve, mechanism — rule 6's definition of a *shape* change). These stop and
+wait for approval before the run that tests them starts, same as always.
+
+One iteration, done by Claude, looks like:
+
+1. Propose the change with a written, falsifiable prediction across 3 seeds
+   (rule 1/3). If it's Tier B, get the owner's go-ahead before step 2.
+2. Run it — whichever is fastest and least contended:
+   - `node experiment.js --build <html> --days <n> --cfg <patch.json>
+     --label <name>` locally (competes with this session's own CPU), or
+   - the `evosim experiment` GitHub Actions workflow (§ Files table) for real
+     per-seed parallelism that costs no sandbox CPU or tokens while it runs —
+     preferred once it's reachable via `main`.
+   Either way: writes `runs/<name>/seed-*.json` (local) or per-seed artifacts
+   (Actions), plus a digest. A run that's taking too long can be stopped
+   gracefully via `<out>.stop` — it still finishes through the normal
+   logGenes()+JSON path, just short; check `<out>.progress.json` instead of
+   guessing.
+3. Read the digest, not the raw logs. Score the prediction (hit / miss /
    can't-tell) using `HANDOFF.md` §4's order, stopping early if the
    stationarity gate fails.
-5. Add the row to `LEDGER.md`. Promote the specific logs that row is based on
+4. Add the row to `LEDGER.md`. Promote the specific logs that row is based on
    into the repo root (same convention as the phone-run logs) — `runs/` itself
    is gitignored, it's scratch space, individual runs are cheap to regenerate
    from a seed since the sim is fully deterministic per seed.
-6. Report back: the scorecard, plus **one paragraph in plain language on what
+5. Report back: the scorecard, plus **one paragraph in plain language on what
    happened in that world this iteration** — not a table, an actual account of
-   what the population did and why it matters — and a proposed next change
-   with its own prediction. Then stop and wait. This step is the one that
-   doesn't automate away: no iteration ships past this point without the
-   owner's word.
+   what the population did and why it matters. Tier A: fold this into a batch
+   update and keep going to the next queued diagnostic run without waiting.
+   Tier B, or whenever the diagnostic queue is empty and the next step would
+   originate something new: propose the next change with its own prediction,
+   then **stop and wait**. A code change never ships past this point without
+   the owner's word, regardless of tier.
 
 Nothing here licenses trying several changes to see which "worked" — one
-proposed change, one prediction, one experiment, one verdict, every time.
+proposed change, one prediction, one experiment, one verdict, every time. What
+auto-chains is executing an already-approved plan faster, never deciding what
+the plan is.

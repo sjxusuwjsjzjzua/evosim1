@@ -220,33 +220,46 @@ but it silently drops that plant from detection meanwhile.
 
 ## 4. The iteration cycle
 
-**As of the headless tooling (`headless.js`/`experiment.js`, see `CLAUDE.md`
-§7), Claude runs the experiments.** The owner's job is to approve a proposed
-change and prediction before it runs, and to read the report after — not to
-carry a build to their phone. The owner can still run a build by hand any time
-(spot checks, or to watch it) — the log from that works exactly the same way
-through the steps below, `headless.js` just means it no longer has to be the
-only way a run happens. Long runs are still the constraint that matters:
-anything under ~900 sim-days can't see a carnivory sweep, which historically
-starts around day 800, and true stationarity has needed hundreds of sim-years
-(v0.42 ran 367). Prefer the longest run that's practical over a short one.
+**As of the headless tooling (`headless.js`/`experiment.js`/the GitHub Actions
+workflow, see `CLAUDE.md` §7), Claude runs the experiments.** §7 splits runs
+into two tiers: **Tier A (diagnostic — extra seeds, an isolation arm already
+called for, a replication)** auto-chains without waiting on the owner between
+runs; **Tier B (a new CFG hypothesis, or anything touching
+`evosim-v0_47_0.html`)** always stops for approval before it runs. The owner's
+job either way is to approve what originates a run, not to carry a build to
+their phone or to click go on every mechanical follow-through. The owner can
+still run a build by hand any time (spot checks, or to watch it) — that log
+works exactly the same way through the steps below. Long runs are still the
+constraint that matters: anything under ~900 sim-days can't see a carnivory
+sweep, which historically starts around day 800, and true stationarity has
+needed hundreds of sim-years (v0.42 ran 367). Prefer the longest run that's
+practical over a short one — a run taking too long is a reason to stop it
+early with `<out>.stop` (see `headless.js`'s header) or move it to GitHub
+Actions, not a reason to quietly shorten the day target without saying so.
 
 ### What Claude does, in order
 
-**Step 0 — get the change and prediction approved first.** Nothing in this
-cycle starts without a written, falsifiable prediction the owner has signed
-off on. This is the step automation does not remove (`CLAUDE.md` rule 1).
+**Step 0 — get the change and prediction on record, and approved if it's Tier
+B.** Nothing in this cycle starts without a written, falsifiable prediction.
+Tier A only ever executes a prediction that's already on record from a prior
+approval; it never originates one. This is the step automation does not
+remove (`CLAUDE.md` rule 1).
 
 **Step 1 — run it.**
 ```
 node experiment.js --build evosim-v0_47_0.html --days <n> --label <name> \
     [--cfg patch.json] [--n 3]
 ```
-Writes `runs/<name>/seed-*.json`, `manifest.json`, and `digest.txt` (the
-`analyze.py` cross-seed table, already generated — no need to re-run it by
-hand unless re-reading a specific file). Confirm what actually ran before
-reading further, same as ever — `manifest.json` and each log's own `cfg` block
-say so; config patches sometimes don't apply the way you expect.
+or, for real per-seed parallelism at no sandbox cost, trigger the `evosim
+experiment` GitHub Actions workflow with the same arguments (needs the
+workflow file on `main`; ask the owner if it isn't there yet). Writes
+`runs/<name>/seed-*.json`, `manifest.json`, and `digest.txt` locally, or a
+per-seed artifact plus a digest artifact on Actions. Watch `<out>.progress.json`
+during a long run instead of guessing how far along it is, and use `<out>.stop`
+to end one early with a still-valid, still-complete log rather than `kill`ing
+it and getting nothing back. Confirm what actually ran before reading
+further, same as ever — the manifest and each log's own `cfg` block say so;
+config patches sometimes don't apply the way you expect.
 
 **Step 2 — read the digest in this order, and stop early if a gate fails:**
 
@@ -274,11 +287,15 @@ row is based on into the repo root, same convention as the phone-run logs —
 since the sim is fully deterministic per seed (`headless.js` proves this by
 construction: same script, same seed, same `tick()` loop the browser runs).
 
-**Step 5 — report back, and stop.** The scorecard, plus **one plain-language
-paragraph on what happened in that world this iteration** — what the
-population actually did and why it matters, not a restatement of the table —
-and a proposed next change with its own prediction. Then wait for the owner.
-No iteration ships past this point without their word.
+**Step 5 — report, and stop unless the next step is already-approved Tier A.**
+The scorecard, plus **one plain-language paragraph on what happened in that
+world this iteration** — what the population actually did and why it matters,
+not a restatement of the table. If the next queued run is Tier A (already
+approved, nothing new originated), fold this into a running batch update and
+start it without waiting. The moment the next step would be Tier B — a new
+hypothesis, or any change to `evosim-v0_47_0.html` — propose it with its own
+prediction and **stop and wait**. No code change ever ships without the
+owner's word, regardless of tier.
 
 ### The one thing that will still bite you
 
