@@ -220,30 +220,48 @@ but it silently drops that plant from detection meanwhile.
 
 ## 4. The iteration cycle
 
-### What the owner does
-Runs the current HTML on a phone, exports the run log (JSON), and brings it back.
-Long runs are the constraint — anything under ~900 sim-days can't see a
-carnivory sweep, which historically starts around day 800.
+**As of the headless tooling (`headless.js`/`experiment.js`/the GitHub Actions
+workflow, see `CLAUDE.md` §7), Claude runs the experiments.** §7 splits runs
+into two tiers: **Tier A (diagnostic — extra seeds, an isolation arm already
+called for, a replication)** auto-chains without waiting on the owner between
+runs; **Tier B (a new CFG hypothesis, or anything touching
+`evosim-v0_47_0.html`)** always stops for approval before it runs. The owner's
+job either way is to approve what originates a run, not to carry a build to
+their phone or to click go on every mechanical follow-through. The owner can
+still run a build by hand any time (spot checks, or to watch it) — that log
+works exactly the same way through the steps below. Long runs are still the
+constraint that matters: anything under ~900 sim-days can't see a carnivory
+sweep, which historically starts around day 800, and true stationarity has
+needed hundreds of sim-years (v0.42 ran 367). Prefer the longest run that's
+practical over a short one — a run taking too long is a reason to stop it
+early with `<out>.stop` (see `headless.js`'s header) or move it to GitHub
+Actions, not a reason to quietly shorten the day target without saying so.
 
 ### What Claude does, in order
 
-**Step 1 — copy the log locally first.** Uploads have vanished mid-conversation
-more than once.
+**Step 0 — get the change and prediction on record, and approved if it's Tier
+B.** Nothing in this cycle starts without a written, falsifiable prediction.
+Tier A only ever executes a prediction that's already on record from a prior
+approval; it never originates one. This is the step automation does not
+remove (`CLAUDE.md` rule 1).
 
-**Step 2 — confirm what actually ran.** The log carries a `cfg` block. Check it
-before anything else, because config patches sometimes don't get loaded and the
-run isn't what you think:
-```python
-d['version'], d['seed'], d['tick']/d['ticksPerDay'], d['cfg']
+**Step 1 — run it.**
 ```
+node experiment.js --build evosim-v0_47_0.html --days <n> --label <name> \
+    [--cfg patch.json] [--n 3]
+```
+or, for real per-seed parallelism at no sandbox cost, trigger the `evosim
+experiment` GitHub Actions workflow with the same arguments (needs the
+workflow file on `main`; ask the owner if it isn't there yet). Writes
+`runs/<name>/seed-*.json`, `manifest.json`, and `digest.txt` locally, or a
+per-seed artifact plus a digest artifact on Actions. Watch `<out>.progress.json`
+during a long run instead of guessing how far along it is, and use `<out>.stop`
+to end one early with a still-valid, still-complete log rather than `kill`ing
+it and getting nothing back. Confirm what actually ran before reading
+further, same as ever — the manifest and each log's own `cfg` block say so;
+config patches sometimes don't apply the way you expect.
 
-**Step 3 — run the digest.**
-```
-python3 analyze.py log1.json [log2.json log3.json]
-```
-Multiple files print the cross-seed table, which is the part that matters most.
-
-**Step 4 — read it in this order, and stop early if a gate fails:**
+**Step 2 — read the digest in this order, and stop early if a gate fails:**
 
 1. **CONSERVATION** — matter drift and `caps seen`. A cap that binds means a
    bound is doing the selecting and nothing below is what it looks like.
@@ -258,23 +276,35 @@ Multiple files print the cross-seed table, which is the part that matters most.
    magnitude / structural / correctly-pinned.
 7. **ENERGY, ACTION BUDGET, TROPHIC LEDGER, HISTOGRAMS, LINEAGES.**
 
-**Step 5 — write the scorecard against the previous version's prediction.**
-State plainly which predictions hit and which missed. A missed prediction means
-the diagnosis was wrong, not that the constant needs to be bigger.
+**Step 3 — write the scorecard against the prediction that was approved for
+this run.** State plainly which predictions hit and which missed. A missed
+prediction means the diagnosis was wrong, not that the constant needs to be
+bigger.
 
-**Step 6 — decide config vs code.** Constants are a CFG patch; only a change of
-*shape* — a formula, a cost curve, a mechanism — earns a new HTML. See
-`CLAUDE.md` rule 6 for the patch envelope.
+**Step 4 — add the row to `LEDGER.md`**, and promote the specific logs that
+row is based on into the repo root, same convention as the phone-run logs —
+`runs/` is gitignored scratch space; a run is cheap to reproduce from its seed
+since the sim is fully deterministic per seed (`headless.js` proves this by
+construction: same script, same seed, same `tick()` loop the browser runs).
 
-**Step 7 — ship, with a written prediction.** One structural change per version.
-Falsifiable, named genes, named thresholds, across 3 seeds. `node check.js
-<build>` before shipping. Then add a row to `LEDGER.md`.
+**Step 5 — report, and stop unless the next step is already-approved Tier A.**
+The scorecard, plus **one plain-language paragraph on what happened in that
+world this iteration** — what the population actually did and why it matters,
+not a restatement of the table. If the next queued run is Tier A (already
+approved, nothing new originated), fold this into a running batch update and
+start it without waiting. The moment the next step would be Tier B — a new
+hypothesis, or any change to `evosim-v0_47_0.html` — propose it with its own
+prediction and **stop and wait**. No code change ever ships without the
+owner's word, regardless of tier.
 
-### The one thing that will bite you in Claude Code
+### The one thing that will still bite you
 
-You have node and a filesystem, so running the sim is now *easy* — which makes
-rule 1 harder to keep, not easier. `check.js` deliberately prints no statistic.
-Do not build a second harness that does.
+`headless.js`/`experiment.js` make running the sim *easy* — that was true and
+dangerous even before they existed, and it does not stop being dangerous now
+that it's sanctioned. The discipline that keeps it honest is Step 0: a
+prediction on record before the run, one change at a time, no quietly trying a
+few variants to see which looks better. `check.js` still prints no statistic,
+on purpose — it checks the code resolves, nothing about the ecology.
 
 ---
 

@@ -141,9 +141,9 @@ def digest(path):
         parts = []
         for k in ('plants', 'pAdults', 'bio', 'animals'):
             if k not in c: continue
-            w = c[k][s:] if k != 'animals' else c[k][max(first or 0, n+s):]
-            if not w: continue
-            parts.append('%s %.2fx' % (k, max(w)/max(1e-9, min(w))))
+            win = c[k][s:] if k != 'animals' else c[k][max(first or 0, n+s):]
+            if not win: continue
+            parts.append('%s %.2fx' % (k, max(win)/max(1e-9, min(win))))
         P('  ' + '   '.join(parts))
 
     # ---- demography
@@ -186,9 +186,12 @@ def digest(path):
         ph = c['ePhoto'][-1]
         ai = sum(c[k][-1] for k in ('ePlant', 'eFlesh', 'eCarrion') if k in c)
         P('  animal intake %.3f%% of gross photosynthesis' % (100*ai/ph if ph else 0))
-        P('  of animal intake: plant %.2f%%  carrion %.3f%%  flesh %.3f%%  toxin cost %.1f%%' %
-          (100*c['ePlant'][-1]/ai, 100*c['eCarrion'][-1]/ai, 100*c['eFlesh'][-1]/ai,
-           100*c.get('eToxin', [0])[-1]/ai))
+        if ai:
+            P('  of animal intake: plant %.2f%%  carrion %.3f%%  flesh %.3f%%  toxin cost %.1f%%' %
+              (100*c['ePlant'][-1]/ai, 100*c['eCarrion'][-1]/ai, 100*c['eFlesh'][-1]/ai,
+               100*c.get('eToxin', [0])[-1]/ai))
+        else:
+            P('  of animal intake: n/a (no intake yet)')
     if d.get('upkeep'):
         u = d['upkeep'][-1]['terms']; t = sum(v for k, v in u.items() if k != 'gain')
         P('  plant upkeep: ' + ' '.join('%s %.0f%%' % (k, 100*v/t)
