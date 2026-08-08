@@ -1,0 +1,8 @@
+{
+  "kind": "evosim-cfg",
+  "formatVersion": 36,
+  "version": "0.47.0",
+  "base": "evosim-v0_47_0.html",
+  "note": "k_confusion isolation arm: disables L47-3's confusion divisor (1+k*(n-1) -> 1) to separate the herding mechanism from L47-1/L47-2 before scoring the units-currency fix. Recommended in LEDGER v0.47 section. The one shipped-default log cleared so far (s1337, 30y, non-stationary) tripped the L47-1 falsifier (eToxin fell to 11.1% against the 17.2% baseline) and left the Tier-1 carnivory question open (carnivory mean 0.09-0.10, corr(aSize,carnivory) -0.79, not weakened; actAppr ~0% of budget despite socialAttraction unpinning). Run 3 seeds, same build, k_confusion 0 only, before touching any code.",
+  "cfg": { "k_confusion": 0 }
+}
