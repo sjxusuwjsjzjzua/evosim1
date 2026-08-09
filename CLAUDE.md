@@ -26,22 +26,38 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 ## Hard rules
 
-1. **Every run still needs a written, falsifiable prediction on record before it
-   starts** — named genes, named thresholds, across 3 seeds. **What changed
-   since v0.47 is who presses go, and for one tier of run, when — not the
-   discipline.** Runs used to require the owner to carry a build to their phone
-   and bring a log back; `headless.js`/`experiment.js`/the GitHub Actions
-   workflow (§7) now let Claude run them directly, on request or (for the
-   narrow "diagnostic" tier §7 defines) automatically. That removes
-   file-shuttling and, for that one tier, removes the per-run wait — it does
-   not remove the reason rule 1 existed: a short run answers a different
-   question than a long one (populations shift with every change, so end-state
-   counts across different lengths are still not comparable), and "run it,
-   look, tweak, run it again" is curve-fitting, not diagnosis. The rule going
-   forward: **reason the change through and write the prediction down before
-   any experiment runs**, same as when it took a phone — auto-chaining a
-   diagnostic tier only ever executes a prediction already on record, it never
-   originates one. Never loop silently on a hunch — every run is tied to a
+1. **Compute is not the constraint.** CPU/wall-clock time — this session's own
+   sandbox, or GitHub Actions — costs neither tokens nor the owner's attention;
+   only reading a result back into the conversation does. Earlier phrasing of
+   this rule called runs "too compute-expensive" — that was true when a run
+   meant the owner carrying a build to their phone and it stopped being true
+   the day `headless.js` shipped. Don't hold back on running something because
+   it costs machine time.
+
+   **What compute being free does not change: every run that tests a biology
+   hypothesis still needs a written, falsifiable prediction on record before it
+   starts** — named genes, named thresholds, across 3 seeds. This was never
+   actually a cost-control measure — the original v0.36 entry in `LEDGER.md`
+   ("13 changes... unattributable") is what the rule protects against: a short
+   run answers a different question than a long one (populations shift with
+   every change, so end-state counts across different lengths are still not
+   comparable), and "run it, look, tweak, run it again" is curve-fitting, not
+   diagnosis, no matter how cheap each individual run is. Free compute makes
+   that failure mode *easier* to fall into, not harder — reason the change
+   through and write the prediction down before any experiment runs, same as
+   when it took a phone. §7's Tier A/B split governs who has to approve a run
+   before it fires; it does not touch whether a prediction has to exist.
+
+   **The standing exception: measuring, not hypothesizing.** A profiling pass
+   — clocking where CPU time goes over a fixed sim-day count to find a real
+   inefficiency, the same category as the `[L47-6]` performance work already
+   in v0.47 — needs no prediction and no per-run approval, because it isn't a
+   claim about the ecology; it's a stopwatch. Run these freely. The moment a
+   profiling finding turns into a proposed *code change*, rule 3/6 apply to
+   that change like any other, and it ships with its own prediction that the
+   change moves speed only, not any ecological statistic.
+
+   Never loop silently on a hunch — every biology-testing run is tied to a
    prediction someone can point to afterward and say hit or miss. `check.js`
    still proves the code *resolves* before any of this; it prints no statistic
    on purpose.
