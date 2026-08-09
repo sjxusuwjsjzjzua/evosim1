@@ -1,0 +1,53 @@
+seed-4002.json   v0.47.0  seed 4002  560 days = 14.0 years  97 cols
+
+-- CONSERVATION --
+  matter 6955 -> 6955   drift 0.000000%
+  caps seen [0, 1]   <<A BOUND IS DOING THE SELECTING, nothing below means what it looks like
+  plant  germ 579713  deaths 543572  standing 36700  residual -559 (founders + reseeds)
+  animal born 20107  deaths 19308  standing 0
+  life support: pReseed 0  aReseed 1180 (net off day 320, 240 unaided days)
+
+-- TRAJECTORY (window means) --
+    day   eat/gr   recr  plants pAdults animals pPerTile  pOcc    lai pLocked aAccess  aSeen pHeight  aSize
+      5    0.000  0.256     787     179      0    2.1  0.18  0.071   0.000   0.000   0.00   0.038   0.00
+     40    0.000  0.263    7101    1855      0   10.2  0.32  0.317   0.000   0.000   0.00   0.040   0.00
+     75    0.000  0.187   22674    6547      0   22.7  0.48  0.720   0.000   0.000   0.00   0.038   0.00
+    110    0.000  0.148   41334   13149      0   33.8  0.60  1.089   0.000   0.000   0.00   0.038   0.00
+    145    0.000  0.116   52178   18625      0   37.6  0.68  1.329   0.000   0.000   0.00   0.040   0.00
+    180    0.000  0.054   60703   22004      0   40.5  0.74  1.458   0.000   0.000   0.00   0.041   0.00
+    215    0.000  0.061   55285   23190      0   35.4  0.77  1.440   0.000   0.000   0.00   0.044   0.00
+    250    1.095  0.080   54441   23423     83   34.2  0.79  1.403   0.195   0.508   0.37   0.044   2.00
+    285    3.966  0.084   39625    9862   2193   33.0  0.55  0.691   0.135   0.870   6.34   0.030   3.74
+    320    0.103  0.646    2491     188     17   17.9  0.07  0.361   0.122   0.906   0.77   0.036   2.36
+    355    0.000  0.314    4860    1181      1   20.6  0.11  0.639   0.042   0.249   0.29   0.043   0.40
+    390    0.000  0.239   11340    3436      0   30.0  0.18  0.930   0.000   0.000   0.00   0.040   0.00
+    425    0.000  0.190   19842    6827      0   36.6  0.26  1.159   0.000   0.000   0.00   0.039   0.00
+    460    0.000  0.157   28003   10861      0   39.8  0.35  1.349   0.000   0.000   0.00   0.040   0.00
+    495    0.000  0.134   36275   15316      0   40.5  0.45  1.444   0.000   0.000   0.00   0.041   0.00
+    530    0.000  0.108   45098   19850      0   42.4  0.53  1.551   0.000   0.000   0.00   0.042   0.00
+
+-- STATIONARITY GATE --
+  plants +424.15% bio +606.73% soil -343.17% per 100 samples, last third  <<DRIFTING, NOT STATIONARY
+
+-- DEMOGRAPHY --
+  mean death age 1.2 d   maturityAge 5.4 d   ratio 0.22   <<DIES BEFORE BREEDING
+  aDeadStarve 18880 (97.8%)   aDeadKilled 422 (2.2%)
+  animal era (60 samples from day 265): mean 268  HARMONIC 6  min 0  max 5844   <<DRIFT REGIME
+  41 of 60 animal-era samples have ZERO animals. THE FAUNA WENT EXTINCT.
+  births/animal-lifetime (R0) 0.28   [18927 births, mean N 845, 555 d, life 7.0 d]   <<R0 < 1: NOT VIABLE
+
+-- REFUGE --
+  pLocked  p10 0.009  median 0.227  p90 0.365
+  worst 30-day fall  -0.326  starting day 275   <<REFUGE COLLAPSING
+  corr(aSize, pLocked) +0.310
+
+-- TROPHIC LEDGER --
+  corpse mass produced 33362   eaten 16885 (50.6%)   rotted 16477
+  attacks 3689   kills 422   scavenge events 59581
+
+NOTE: reconstructed from GitHub Actions job logs (mcp__github__get_job_logs),
+not the raw JSON -- the artifact zip lives on productionresultssa11.blob.core.windows.net,
+which this sandbox's egress policy blocks (confirmed via /root/.ccr proxy status,
+policy denial not a transient failure). Raw log unavailable until re-generated
+locally (same seed+cfg is deterministic) or the workflow is changed to commit
+logs to git instead of blob-storage artifacts.
