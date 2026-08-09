@@ -32,16 +32,24 @@ count.
   directly means neither confirms nor overturns the old result — it means the
   3-seed protocol isn't optional here, it's the only way to know which seed
   is the outlier. See §3 Tier 1, item 1.
-- **New, not one of the six v0.47 predictions: the `k_confusion:0` isolation
-  arm looks like a real, clean result in its own right.** Three of three
-  `k_confusion:0` seeds sampled now show severe population failure (two
-  extinct, one in freefall when a wall-clock budget cut it off mid-collapse);
-  two of two default-arm seeds sampled are stable at their own cutoffs. The
-  isolation patch changes exactly one constant, so this isn't confounded with
-  anything else in v0.47. It fell out of trying to isolate L47-1/L47-2 from
-  L47-3, not out of a hypothesis anyone set out to test — see LEDGER.md's
-  v0.47 Scorecard, 2nd pass, for the full numbers. Candidate for the next
-  Tier B proposal once the missing default-arm seed lands.
+- **The `k_confusion:0` isolation-arm finding, revisited: complicated by the
+  third default-arm seed, not confirmed.** The default-arm 3-seed set is now
+  complete (1337, 4001, 4002) alongside 3 `k_confusion:0` seeds, closing the
+  last gap in the v0.47 protocol — but seed 4002's default-arm run does not
+  fit the "stable" pattern the first two default seeds showed. It hit its
+  wall-clock budget at day 302 (fauna arrived day 265, so only a 37-day-old,
+  still-reseed-subsidized population) showing the same *flavor* of failure
+  as the isolation arm: refuge collapsing (`pLocked` 30-day fall -0.197),
+  R0 0.11, 98.5% of deaths by starvation — despite `k_confusion` being ON.
+  The confound (a third the length of the other two seeds, entirely inside
+  the reseed subsidy window, one plant slot bound hit) is large enough that
+  this **cannot be scored as confirming or refuting** the isolation-arm
+  result — it can only be read as "the next step is a longer run of this
+  seed past its cutoff, or a look at 1337/4001's own first 40 days with
+  fauna, not a new seed." See LEDGER.md's v0.47 Scorecard, 3rd pass, for
+  the full numbers and reasoning. Still not one of the six original
+  predictions; still a Tier B candidate, but a weaker one than it looked
+  after the second pass.
 - **Plant/animal arms races** in height-vs-reach and toxicity-vs-resistance.
 - **Matter conservation** to 0.000000% on most runs.
 - **Demography, mixed since v0.47.** The 1200-day default seed-1337 run has
@@ -195,15 +203,22 @@ that. Two follow-ups worth making habit:
 
 ### Tier 1 — do these next
 
-**1. Finish the interrupted v0.47 protocol.** `LEDGER.md`'s "Scorecard" (under
-"v0.47 — external audit pass") scored what exists: one full-length seed
-(1337 default, not stationary), two extinct isolation-arm seeds (1337 and
-4002 at `k_confusion:0`), and three seeds' worth of compute lost outright to
-an Actions timeout bug (now fixed in v0.48 tooling). Missing before this can
-be scored honestly: seeds 4001/4002 default to completion, seed 4001
-`k_confusion:0`. This is **Tier A** — it executes an already-approved 3-seed
-x 2-arm protocol, originates nothing new — and can run on `evosim-v0_49_0.html`
-without further approval (v0.48 is RNG-neutral vs v0.47, verified).
+**1. The v0.47 protocol's seed count is complete; its data quality is not.**
+`LEDGER.md`'s "Scorecard, 3rd pass" (under "v0.47 — external audit pass") now
+has the full 3-seed default arm (1337, 4001, 4002) and 3 `k_confusion:0`
+seeds. But seed 4002 default only reached day 302 (wall-clock cutoff) with
+fauna 37 days old and still inside the reseed-subsidy window — not a peer of
+1337 (1200d) or 4001 (930d). Its gene-frequency snapshot (`eToxin`,
+carnivory histogram, `actAppr`) is usable at the same weight as the other
+two; its population-dynamics numbers (R0, refuge collapse) are not, and are
+exactly what would be needed to settle item 2 below. **Next step, Tier A
+(extends an already-approved seed's run, originates nothing new) but
+requires the owner's go-ahead per this session's explicit instruction not to
+act on the k_confusion:0 finding further without it:** either resume seed
+4002 past its wall-clock cutoff on `evosim-v0_49_0.html` (now cheap — v0.49's
+occupied-slot fix removes the exact tax that cut this run short), or pull
+1337/4001's own first-40-days-with-fauna window from their existing raw JSON
+to check whether they looked this rough too before stabilizing.
 
 L47-4/5/6 are performance-only claims and **must not move any ecological
 statistic**. If they do, something in the build depends on slot ordering or
@@ -213,12 +228,14 @@ draw ordering and that is a bug worth finding.
 scored as own `mass^0.667`–`mass^1` while ATTACK was scale-free in own mass,
 so the collapse of `size` from 5.07 to 1.09 cut the *perceived* value of
 grazing ~3x against hunting with no change to any actual payoff — and both
-historic omnivory sweeps happened alongside shrinking size. What exists so
-far (two `k_confusion:0` seeds, both extinct; one default seed, not
-stationary) neither confirms nor overturns this — `corr(aSize, carnivory)`
-stayed strongly negative (-0.79) in the default run, consistent with the
-concern but not conclusive at n=1. Item 1's missing seeds are what would
-settle it.
+historic omnivory sweeps happened alongside shrinking size. What exists now
+(three `k_confusion:0` seeds, all failing; three default seeds, two stable-
+at-cutoff and one too short/subsidized to read) still neither confirms nor
+overturns this — `corr(aSize, carnivory)` stayed strongly negative (-0.79) in
+the 1337 default run, consistent with the concern but not conclusive across
+seeds that disagree on where carnivory even lands (near-zero in 1337/4002,
+moderate in 4001). Item 1's follow-up (a longer seed-4002 read, or the
+early-window check) is what would settle it.
 
 **3. The `AN.risk`-EWMA hypothesis for `actAppr` staying near 0% is
 untested.** See §1. Worth checking directly in the next `k_confusion`-default

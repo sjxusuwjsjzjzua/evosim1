@@ -26,7 +26,7 @@ at Ne ≈ 100 an unpredicted result is indistinguishable from noise.
 | 0.38 | reach allometry: `reach = k*size^0.333`, k pivoted to 0.0731 | median `pLocked` >= 0.55 in >=2 of 3 | 1 (control arm only) | CFG patch path VERIFIED end to end — log cfg showed 0.025/1.0, export echoed both. Treatment arm still untested. Control at 805d: no extinction, harmonic N 87, pLocked 0.533, aSize still +25.4%/100d. |
 | 0.39 | carnivory unblock: body radius on attack/scavenge reach, attack score linear in carnivory, stall + bail-out on pursuit | flesh+carrion >= 1% of animal intake; attacks/day > 1; no runaway predation collapse | 3 | headless 260d animal era: attacks 4447, kills 309, flesh+carrion **1.14%** of intake (was 0.1%) |
 | 0.38x | reach allometry: `reach = k*size^0.333`, k pivoted to 0.0731 so reach is unchanged at founder size 5 | median `pLocked` >= 0.55 in >=2 of 3 seeds; no fauna extinction in 3 seeds x 900 d; `corr(aSize,pLocked)` weakens above -0.5 | 3 | |
-| 0.47 | **six changes, external audit.** toxin model unified (L47-1); arbiter put in one currency (L47-2); confusion effect + `AN.risk` so grouping pays (L47-3); slot compaction + high-water trim (L47-4); memcpy+geometric mutation (L47-5); render throttle, tile-culled draw, precomputed cover, `P.h` cache (L47-6) | see the six predictions below | 4 seeds so far (4002-default in flight) | see Scorecard, 2nd pass — L47-1/2 seed-dependent (can't-tell), L47-3 mixed (`actAppr` clean miss 3/3), L47-4/5/6 can't-tell; **k_confusion:0 isolation arm 3/3 seeds failing vs default arm 2/2 stable — not one of the six predictions, flagged as next Tier B candidate** |
+| 0.47 | **six changes, external audit.** toxin model unified (L47-1); arbiter put in one currency (L47-2); confusion effect + `AN.risk` so grouping pays (L47-3); slot compaction + high-water trim (L47-4); memcpy+geometric mutation (L47-5); render throttle, tile-culled draw, precomputed cover, `P.h` cache (L47-6) | see the six predictions below | default-arm 3-seed set complete (1337, 4001, 4002); 3 `k_confusion:0` seeds | see Scorecard, 3rd pass — L47-1/2 still seed-dependent (2-of-3 leaning, not closed), L47-3's `actAppr` clean miss now 4/4, `socialAttraction` weaker than first pass suggested; L47-4/5/6 can't-tell; **k_confusion:0 isolation-arm finding complicated, not confirmed or refuted — seed 4002's short, subsidy-window default-arm run showed the same failure flavor as the isolation arm despite confusion being ON, confound too large to score either way** |
 | 0.48 | performance/mechanical only, no ecological claim. Extinction halt fires now (was gated on `!CFG.animalReseedDays`, always false at default config) (L0.48-1); `CFG` aliased to a local `C` in `updatePlant`/`senseDecide`/`reachOf`/`carrionDigest`/`grazeYield`/`plantScore` — the two functions profiling found responsible for 58% of JS time, 17.5% of it in global-lookup builtins (L0.48-2) | trajectory identical to v0.47 for the same seed at the same tick (proves RNG-neutral by construction — no `rng()` call site touched, no formula changed); ticks/sec measurably higher on a fixed sim-day count; no gene mean or population statistic moves beyond seed noise | 1 exact-match (seed 1337, 300d) | **PASS.** 0 of 97 columns differ, all 60 samples, genes/events byte-identical between v0.47 and v0.48 on seed 1337. 315→322 ticks/s (contended, directional only). See `## v0.48` below. |
 | 0.49 | performance/mechanical only, no ecological claim intended. `P.hi`/`AN.hi` are a high-water mark that only grows, so rebuildCanopy/buildPlantIndex/buildAnimalIndex/updatePlants/updateAnimals paid for a run's largest-ever population for the rest of the run even after a crash back down. All five now scan `P.occIdx`/`AN.occIdx`, compact occupied-slot lists maintained incrementally (L0.49-1) | ticks/sec rises at high population, falls or is flat at low/moderate population (bookkeeping overhead not yet repaid); matter conservation exact in both arms; **not** RNG-exact (order-sensitive scans + stagger reassignment) but no consistent directional bias across seeds | 2 seeds x 300d, uncontended (1337, 4001), both `k_confusion:0` | **Mixed, as predicted going in.** Seed 1337 (peaks ~15-17k plants): 320→248 ticks/s, **28% slower** — hi/occupied gap never exceeded ~1.8x in this window. Seed 4001 (peaks ~43-47k plants): 79→120 ticks/s, **52% faster**, matter leak (0.013%) disappeared entirely (0.000000%). Only 8-10 of 97 columns matched exactly on either seed; population outcomes swung hard in *opposite* directions per seed (1337: 361→2390 animal births, life support net firing 234→0 times; 4001: 1506→260 births, net already at 0 both times) — large, but not one-directional, consistent with RNG-path chaos rather than a systematic bias. See `## v0.49` below. |
 
@@ -1103,6 +1103,115 @@ zero-filled until the first `rebuildCanopy`, so cover is 0 for the first
   the `d2 > sr2` test uses live coordinates — but it silently drops that plant
   from detection for up to `plantStagger` ticks.
 - **`nNear` includes corpses.** See L47-3.
+
+### Scorecard — third pass, written 2026-08-09
+
+Closes out the default-arm 3-seed set: seed 4002 default (`kc-arm-default-
+retry2`, GitHub Actions, v0.48.0) landed as a real raw JSON — no reconstruction
+needed this time, the digest glob fix held. Promoted as
+`evosim-log-s4002-default-t302d.json` / `evosim-digest-s4002-default-t302d.txt`.
+
+**This seed is the weakest of the three and should not be read as equal-weight
+to 1337/4001.** It hit `--max-wall-min 165` at day **302** — a third to a
+quarter the length of 1337 (1200d) and 4001 (930d) — because it ran on
+v0.48.0, before the v0.49 occupied-slot fix, at a standing population large
+enough (~55-64k plants, up to 9,326 animals) to pay the full P.hi/AN.hi tax
+the whole time. Two additional caveats specific to this run, neither seen in
+1337 or 4001's digests:
+
+- **`caps seen [0, 1]`** — a slot bound was hit at some point (bit 0: plant
+  slots), vs. `[0]` clean in both other default-arm seeds. Some part of this
+  trajectory is bound-limited, not purely selection.
+- **Fauna arrived very late (day 265) and the run ended 37 days later, day
+  302 — entirely inside the `aReseed` subsidy window** (net off day 320, "0
+  unaided days" per the digest). Every animal that existed in this run's
+  entire history did so with active artificial restocking still running.
+  Demography numbers below are read with that in mind, not as a clean
+  self-sustaining test.
+
+**STATIONARITY GATE fails hard** — plants/bio/animals/soil all still moving,
+animals **+2626.67%/100 samples** in the last third (population went
+135->4004->9326 in the last ~40 days). Per HANDOFF.md §4's read order this
+run is scored the same way 1337 and 4001 already were: a transient snapshot,
+not a settled result. All three default-arm seeds have now failed this gate
+— none of the three protocol runs has actually reached stationarity yet.
+
+- **L47-1 (toxin) — still can't-tell, now 2-of-3 toward "rises."** `eToxin`
+  **30.0%** of intake, matching 4001's 30.5% rise, not 1337's 11.1% fall.
+  Two seeds now show the predicted rise, one shows the opposite. Still not a
+  repeating pattern strong enough to score outright, but the balance shifted.
+- **L47-2 (carnivory) — still seed-dependent, now 2-of-3 toward "stays low."**
+  Histogram `[9244, 79, 2, 1, 0,...]` — near-zero, matching 1337, not 4001's
+  moderate-carnivory read. `corr(aSize, carnivory)` was not computed for this
+  seed (needs the raw JSON's per-tick series; not run here to keep this pass
+  short). Two of three seeds sampled now sit near zero — leaning toward "the
+  v0.39/v0.42 omnivory sweeps don't reproduce at this build," but one still-
+  moderate seed (4001) keeps this open rather than closed.
+- **L47-3 — `actAppr` now a clean miss on four of four seeds.** 0.02% of the
+  action budget (rounds to the same 0.0% as the other three). No seed sampled
+  so far has cleared the >1% falsifier. `socialAttraction` stayed PINNED 84%
+  at min here (sel +0.00215, barely moving) — closer to 4001's flat read than
+  1337's clear unpinning. Two of four samples now show little to no movement;
+  the "unpins with real predation" half of the prediction is weaker than the
+  first pass suggested, not stronger.
+- **L47-4/5/6 — still can't-tell**, and this run is the wrong one to lean on
+  for it regardless: it's the one seed that already shows a bound being hit
+  (`caps seen [0,1]`), so a same-seed v0.46 control would be needed before
+  drawing any performance-only conclusion from it specifically.
+- **The `k_confusion:0` isolation-arm finding gets genuinely complicated,
+  not confirmed and not refuted.** The second pass called two default-arm
+  seeds "stable, still growing" against three failing `k_confusion:0` seeds.
+  This third default-arm seed does **not** fit that pattern — it shows the
+  same *flavor* of failure the isolation arm showed: refuge collapsing
+  (`pLocked` worst 30-day fall **-0.197**, `corr(aSize, pLocked)` **-0.572**),
+  R0 **0.11**, mean death age **0.5d** against maturityAge 6.4d (ratio
+  **0.09**, worse than any number in this table so far), 98.5% of deaths by
+  starvation. Read literally next to the isolation arm's numbers (1337 kc0:
+  extinct; 4002 kc0: extinct; 4001 kc0: R0 0.72, refuge fall -0.502; and now
+  4001 **default**: R0 1.00) this seed's default-arm R0 of 0.11 is *worse*
+  than 4001's own `k_confusion:0` arm. But the confound above is real and
+  large — this is a 37-day-old, reseed-subsidized fauna population, not a
+  930-1200 day established one, and none of the other seeds have a
+  directly comparable early window on record to check whether *they* also
+  looked this rough right after fauna first arrived. **This cannot be scored
+  as "confirms" or "refutes" the isolation-arm finding — it can only be
+  scored as "the comparison needs an apples-to-apples early window from the
+  other seeds, or a longer run of this one, before it means anything."**
+  Flagging this explicitly rather than either dropping the caveat (which
+  would overclaim the isolation-arm result) or dropping the new data point
+  (which would hide a real complication) — this is exactly the kind of
+  thing rule 5 exists for: don't calibrate anything against this run's
+  demography numbers alone.
+
+**Net: the default-arm 3-seed set is now complete by seed count (1337, 4001,
+4002), but not complete by data quality** — 4002's short, bound-hitting,
+subsidy-window run is not a peer of the other two, and its most striking
+number (the R0/refuge collapse) is exactly the one most compromised by that.
+The clean reads from this pass are the gene-frequency snapshots (`actAppr`
+now 4/4 clean miss, `eToxin`/`carnivory` both now 2-of-3 leaning one way
+without closing) — the population-dynamics reads need a longer version of
+this seed, not a new seed, before they can be trusted.
+
+**In plain language:** this world's plants bloomed on schedule — half a
+million germinations, a canopy that closed in by day 165 — but animals
+didn't show up until day 265, a full third of the way through even this
+short run, and the moment they did, they overshot. From 135 animals to over
+9,000 in about forty days, eating into a plant refuge that had been sitting
+untouched and stable near half its biomass locked away from grazing. By the
+time the run's compute budget ran out, that refuge was collapsing and almost
+every animal that had ever been born in this world had already starved to
+death before it was old enough to breed. It looks, on its face, exactly like
+the population crashes seen when the herding-confusion mechanism was turned
+off — except this run had that mechanism turned *on*. Whether that means the
+confusion mechanism isn't actually what's saving the other seeds, or whether
+every population in this simulation goes through a rough overshoot right
+after fauna first establishes and the confusion mechanism only matters for
+what happens *after* that rough patch, is exactly the open question this
+pass can't answer with the data in hand. It needs either a longer run of
+this same seed past its wall-clock cutoff, or a look at what 1337 and 4001
+were doing in their own first forty days with fauna — not a new seed.
+
+---
 
 ### Scorecard — second pass, written 2026-08-09
 
