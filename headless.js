@@ -166,6 +166,13 @@ let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
         tick: W.tick, days: +(W.tick / __tpd).toFixed(2), targetDays: ${JSON.stringify(days ?? null)},
         plants: ST.pop, animals: ST.apop, elapsedSec: +__el.toFixed(1),
         ticksPerSec: __el > 0 ? +(W.tick / __el).toFixed(0) : null, done: false,
+        // diagnostic only, not part of the shipped log shape: P.hi/AN.hi are
+        // the slot high-water marks several per-tick loops scan up to
+        // (rebuildCanopy, buildPlantIndex, buildAnimalIndex, updatePlants,
+        // updateAnimals) -- watching them next to live plants/animals shows
+        // directly whether a run is paying for a past population peak it has
+        // since dropped from, not just its current live count.
+        plantsHi: P.hi, animalsHi: AN.hi,
       });
     }
     if (__autohalt && LOG.aGone && !ST.apop &&
