@@ -128,7 +128,15 @@ jobs:
       - name: analyze.py cross-seed digest
         run: |
           ls -la logs/
-          python3 analyze.py logs/seed-*.json | tee digest.txt
+          # NOT logs/seed-*.json -- that glob also matches each run's own
+          # seed-*.json.progress.json (bash only checks the string ENDS in
+          # .json, which "...progress.json" does too), so analyze.py got a
+          # progress stub as its second argument and crashed with
+          # `KeyError: 'cols'` immediately after the first real log's
+          # digest printed. Exclude the progress files explicitly instead
+          # of trying to out-clever the glob.
+          shopt -s extglob
+          python3 analyze.py logs/seed-!(*progress).json | tee digest.txt
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.label }}-digest
