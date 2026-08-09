@@ -34,10 +34,21 @@
  *                           impatient `kill` (not this file) still loses
  *                           everything — use the stop file instead.
  *
+ * --max-wall-min is the same idea but self-service: a run whose population
+ * survives (so autohalt never fires) can take wildly different real time to
+ * reach the same day count depending on the seed's bloom/bust history —
+ * confirmed the hard way when a 1000-day target timed out a 180-minute
+ * GitHub Actions job with zero output, because headless.js only wrote its
+ * result at the very end. Set this a few minutes under whatever wall-clock
+ * ceiling the caller is actually bound by (a CI job timeout, a session
+ * budget) and a run always comes back with a complete, valid log for
+ * whatever day it reached — `headless.stopRequested`/`wallClockExceeded` in
+ * the output say which limit actually applied.
+ *
  * Usage:
  *   node headless.js --build evosim-v0_47_0.html --seed 1337 --days 1200 \
  *        [--cfg patch.json] --out runs/foo/seed-1337.json \
- *        [--progress-days 20] [--max-ticks N] [--no-autohalt]
+ *        [--progress-days 20] [--max-ticks N] [--no-autohalt] [--max-wall-min 165]
  *
  * --cfg accepts either a raw {"k_confusion":0} diff or a full
  * {"kind":"evosim-cfg",...,"cfg":{...}} patch file — either shape works.
@@ -120,7 +131,7 @@ function extractScript(html) {
   return m[1];
 }
 
-function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays }) {
+function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin }) {
   if (!script.includes(ANCHOR)) {
     throw new Error(
       'headless.js ANCHOR text not found in the build. The trailing init ' +
@@ -133,16 +144,22 @@ function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, pr
 // ==== headless driver (injected by headless.js, not part of the build) ====
 Object.assign(CFG, ${JSON.stringify(overrides)});
 buildWorld();
-let __haltedEarly = false, __stopRequested = false;
+let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
 {
   const __tpd = TPD();
   const __t0 = performance.now();
   const __maxTicks = ${maxTicks != null ? Number(maxTicks) : `Math.round(${JSON.stringify(days)} * __tpd)`};
   const __autohalt = ${autohalt ? 'true' : 'false'};
   const __progressEvery = Math.max(1, Math.round(${JSON.stringify(progressDays)} * __tpd));
+  const __maxWallMs = ${maxWallMin != null ? Number(maxWallMin) * 60000 : 'null'};
   for (let __i = 0; __i < __maxTicks; __i++) {
     tick();
-    if ((__i & 255) === 0 && __shouldStop()) { __haltedEarly = true; __stopRequested = true; break; }
+    if ((__i & 255) === 0) {
+      if (__shouldStop()) { __haltedEarly = true; __stopRequested = true; break; }
+      if (__maxWallMs != null && (performance.now() - __t0) > __maxWallMs) {
+        __haltedEarly = true; __wallExceeded = true; break;
+      }
+    }
     if (W.tick % __progressEvery === 0) {
       const __el = (performance.now() - __t0) / 1000;
       __reportProgress({
@@ -180,7 +197,7 @@ const __data = {
   carnivoryHistogram: { bins: CARNBINS, series: LOG.carn },
   heightHistogram: { bins: HGTBINS, series: LOG.hgt },
   deathAgeHistogram: { bins: DAGEBINS, note: 'age at death in quarters of maturityAge', series: LOG.dage },
-  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested }
+  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested, wallClockExceeded: __wallExceeded }
 };
 __reportProgress({ tick: W.tick, days: +(W.tick / TPD()).toFixed(2), plants: ST.pop, animals: ST.apop, done: true });
 JSON.stringify(__data);
@@ -198,7 +215,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.build || args.seed === undefined || (args.days === undefined && args['max-ticks'] === undefined)) {
     console.error('usage: node headless.js --build <html> --seed <n> --days <n> --out <path> ' +
-                   '[--cfg patch.json] [--progress-days 20] [--max-ticks n] [--no-autohalt]');
+                   '[--cfg patch.json] [--progress-days 20] [--max-ticks n] [--no-autohalt] [--max-wall-min n]');
     process.exit(1);
   }
   const buildPath = args.build;
@@ -208,6 +225,7 @@ function main() {
   const cfgOverrides = loadCfgOverrides(args.cfg);
   const autohalt = !args['no-autohalt'];
   const progressDays = args['progress-days'] !== undefined ? Number(args['progress-days']) : 20;
+  const maxWallMin = args['max-wall-min'] !== undefined ? Number(args['max-wall-min']) : undefined;
 
   // outPath has to be known BEFORE the run starts now — progress/stop files
   // live next to it. Final tick count is no longer part of the default name.
@@ -220,7 +238,7 @@ function main() {
 
   const html = fs.readFileSync(buildPath, 'utf8');
   const script = extractScript(html);
-  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays });
+  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin });
 
   const onProgress = (info) => {
     try { fs.writeFileSync(progressPath, JSON.stringify(info)); } catch (e) { /* best-effort */ }
@@ -243,10 +261,12 @@ function main() {
   if (fs.existsSync(stopPath)) fs.unlinkSync(stopPath);
 
   const days_ = data.tick / data.ticksPerDay;
+  let tag = '';
+  if (data.headless.stopRequested) tag = ' [STOPPED EARLY by request]';
+  else if (data.headless.wallClockExceeded) tag = ' [STOPPED: wall-clock budget hit, target day count not reached]';
+  else if (data.headless.haltedEarly) tag = ' [AUTOHALTED: fauna extinct, no recovery]';
   console.error(`seed ${data.seed}: ${data.tick} ticks = ${days_.toFixed(1)} days in ${elapsed.toFixed(1)}s ` +
-                `(${(data.tick / elapsed).toFixed(0)} ticks/s)${data.headless.stopRequested ? ' [STOPPED EARLY by request]' : ''}` +
-                `${data.headless.haltedEarly && !data.headless.stopRequested ? ' [AUTOHALTED: fauna extinct, no recovery]' : ''}` +
-                ` -> ${outPath}`);
+                `(${(data.tick / elapsed).toFixed(0)} ticks/s)${tag} -> ${outPath}`);
 }
 
 main();

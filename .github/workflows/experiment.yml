@@ -70,11 +70,18 @@ jobs:
           mkdir -p out
           CFG_ARGS=""
           if [ -n "${{ inputs.cfg }}" ]; then CFG_ARGS="--cfg ${{ inputs.cfg }}"; fi
+          # --max-wall-min sits under the job's own 180-min timeout (line above:
+          # timeout-minutes: 180) with margin for checkout/setup/upload. Without
+          # this, a run whose population survives to the timeout produces
+          # nothing at all -- headless.js only writes output once, at the end,
+          # so a hard-killed job returns zero data for the ~3 hours it ran.
+          # Learned this the expensive way; see LEDGER.md.
           node headless.js \
             --build "${{ inputs.build }}" \
             --seed "${{ matrix.seed }}" \
             --days "${{ inputs.days }}" \
             --progress-days "${{ inputs.progress_days }}" \
+            --max-wall-min 165 \
             $CFG_ARGS \
             --out "out/seed-${{ matrix.seed }}.json"
       - uses: actions/upload-artifact@v4
