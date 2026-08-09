@@ -1104,6 +1104,65 @@ zero-filled until the first `rebuildCanopy`, so cover is 0 for the first
   from detection for up to `plantStagger` ticks.
 - **`nNear` includes corpses.** See L47-3.
 
+### Addendum to the third pass — pre-fauna plant state, written 2026-08-09
+
+Free follow-up on the open question the third pass left hanging (did 1337/
+4001 look like 4002 in their own first 40 days with fauna) — answerable
+directly from raw JSON already in the repo, no new run needed. Only 1337 has
+one (4001's is still blob-storage-blocked); the comparison is 1337 vs 4002.
+
+**The two seeds' plant communities were on completely different trajectories
+before a single animal existed, let alone after:**
+
+|  | day 260 plants | day 260 `pOcc` | day 260 `lai` | `caps` seen, days 215-265 |
+|---|---|---|---|---|
+| 1337 default | 8,206 | 0.21 | 0.71 | 0 (never) |
+| 4002 default | 53,180 | 0.79 | 1.42 | 1 (bit 0 — plant slots) repeatedly |
+
+4002's flora was already **~10x** 1337's standing count and **already sitting
+at its `maxPlants` slot cap** well before day 265 — `caps=1` shows up
+starting day 215, fifty days before fauna arrive. This is a pure plant-side,
+pre-fauna difference; it cannot be an effect of animal behaviour, confusion
+mechanics, or anything L47-3 touches, because no animal exists yet in either
+trace at that point.
+
+**Once fauna do arrive (day 265 in both, exactly — the reseed schedule
+isn't seed-randomized), the two seeds diverge just as sharply:**
+
+|  | day 265 animals | day 265 `pLocked` | day 300-305 animals | day 300-305 `pLocked` |
+|---|---|---|---|---|
+| 1337 default | 115 | 0.834 | 120-128 | 0.894-0.908 (rising) |
+| 4002 default | 45 | 0.392 | 9,326 | 0.245 (falling) |
+
+1337's small founding population stays small and its refuge strengthens.
+4002's founding population — smaller at the start (45 vs 115) but sitting on
+top of ~10x the food and a refuge already less than half as deep — explodes
+200x in 35 days and its refuge keeps collapsing.
+
+**This changes the read on the k_confusion:0 finding again, and this time in
+a specific, testable direction.** The obvious candidate explanation is not
+"the confusion mechanism doesn't actually protect populations" (the third
+pass's tentative complication) — it's that **seed 4002's plant community
+happened to grow far larger than 1337's before fauna ever arrived, likely
+running into the `maxPlants` slot cap on its own, and that oversized,
+capped food base is what let a tiny founding population explode past
+whatever the confusion mechanism could dampen.** If true, this would also
+explain why the `k_confusion:0` arm failed on *every* seed tried (a smaller
+food base makes any given confusion setting matter less, not more, when the
+real lever is how much standing biomass existed before predation started) —
+but that inference needs checking, not assuming.
+
+**Not acted on — this is a new hypothesis nobody proposed before this
+addendum, so it's Tier B by CLAUDE.md's rule regardless of how compelling
+the numbers look.** Candidate falsifiable prediction for the next Tier B
+proposal: **pre-fauna plant standing count / cap status (not `k_confusion`)
+predicts boom-bust outcome.** Testable by comparing pre-fauna plant
+trajectories across more seeds (cheap — needs raw JSON, not a new run, for
+any seed already logged) and, if the pattern holds, by testing whether
+lowering `maxPlants` or otherwise capping pre-fauna plant growth changes the
+outcome independent of `k_confusion`. Proposed to the owner in this
+session; awaiting a decision before any new run or CFG patch tests it.
+
 ### Scorecard — third pass, written 2026-08-09
 
 Closes out the default-arm 3-seed set: seed 4002 default (`kc-arm-default-

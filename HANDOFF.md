@@ -44,12 +44,27 @@ count.
   The confound (a third the length of the other two seeds, entirely inside
   the reseed subsidy window, one plant slot bound hit) is large enough that
   this **cannot be scored as confirming or refuting** the isolation-arm
-  result — it can only be read as "the next step is a longer run of this
-  seed past its cutoff, or a look at 1337/4001's own first 40 days with
-  fauna, not a new seed." See LEDGER.md's v0.47 Scorecard, 3rd pass, for
-  the full numbers and reasoning. Still not one of the six original
-  predictions; still a Tier B candidate, but a weaker one than it looked
-  after the second pass.
+  result on its own. See LEDGER.md's v0.47 Scorecard, 3rd pass, for the
+  full numbers and reasoning.
+- **Free follow-up (addendum to the 3rd pass) found a more specific
+  candidate explanation, still untested.** 1337's raw JSON — the only other
+  seed with one on disk — shows a completely different pre-fauna plant
+  trajectory than 4002: at day 260, **8,206** plants / `pOcc` 0.21 for 1337
+  vs **53,180** plants / `pOcc` 0.79 for 4002, with 4002 already sitting at
+  its `maxPlants` slot cap (`caps=1`) from day 215 on, fifty days before any
+  animal exists. That is a pure plant-side difference no animal-behaviour
+  mechanism (confusion or otherwise) can explain. Leading candidate: **the
+  boom-bust isn't about `k_confusion` at all — it's that seed 4002 grew an
+  oversized, capped food base before fauna arrived, and that's what let a
+  tiny founding population explode past whatever protection existed.** This
+  would also explain the isolation arm's 3-for-3 failure rate (a smaller
+  pre-fauna food base makes `k_confusion`'s setting matter less either way).
+  **Not acted on — new hypothesis, Tier B, proposed to the owner and
+  awaiting a decision before any run or CFG patch tests it.** A resumed
+  seed-4002 long read on v0.49 (`kc-arm-default-v49-longread`, Tier A,
+  already queued) is running to at least get this seed to a comparable
+  length to 1337/4001, independent of whether the plant-cap hypothesis is
+  pursued.
 - **Plant/animal arms races** in height-vs-reach and toxicity-vs-resistance.
 - **Matter conservation** to 0.000000% on most runs.
 - **Demography, mixed since v0.47.** The 1200-day default seed-1337 run has
