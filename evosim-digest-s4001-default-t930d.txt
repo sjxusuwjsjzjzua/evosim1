@@ -1,0 +1,235 @@
+seed-4001.json   v0.47.0  seed 4001  930 days = 23.2 years  97 cols
+
+-- CONSERVATION --
+  matter 7533 -> 7534   drift 0.013275%   <<LEAK
+  caps seen [0]
+  plant  germ 429466  deaths 422786  standing 7438  residual -758 (founders + reseeds)
+  animal born 21583  deaths 22025  standing 173
+  life support: pReseed 225  aReseed 0 (net off day 320, 610 unaided days)
+
+-- TRAJECTORY (window means) --
+    day   eat/gr   recr  plants pAdults animals pPerTile  pOcc    lai pLocked aAccess  aSeen pHeight  aSize
+      5    0.000  0.109     567      64      0    2.9  0.08  0.125   0.000   0.000   0.00   0.035   0.00
+     70    0.000  0.079    6576     773      0   15.4  0.20  0.660   0.000   0.000   0.00   0.031   0.00
+    135    0.000  0.059   18160    2638      0   25.3  0.35  1.242   0.000   0.000   0.00   0.028   0.00
+    200    0.058  0.055   27974    5086      0   28.3  0.49  1.580   0.000   0.000   0.00   0.031   0.00
+    265    1.669  0.064   27022    3861    832   24.3  0.54  1.162   0.246   0.933   1.47   0.032   4.53
+    330    1.212  0.061    4836     404    302   11.4  0.21  0.445   0.431   0.899   1.46   0.060   4.24
+    395    1.074  0.036    5963     717    368   16.0  0.18  0.623   0.528   0.781   2.68   0.075   3.59
+    460    0.743  0.051    2095     164     80   13.1  0.08  0.440   0.425   0.750   2.09   0.094   7.97
+    525    0.767  0.049    6449     375    100   26.3  0.12  0.681   0.252   0.848   0.91   0.081  14.80
+    590    0.670  0.056   12055     754    102   30.9  0.19  0.878   0.096   0.928   0.79   0.075  14.86
+    655    0.842  0.062   11648    1194    123   22.4  0.26  0.881   0.037   0.967   0.74   0.067  15.41
+    720    0.568  0.055    8179    1496     74   16.0  0.25  0.928   0.022   0.967   0.74   0.041  15.30
+    785    1.718  0.053    7728    1470    181   17.3  0.22  0.925   0.039   0.976   1.45   0.049  15.81
+    850    0.905  0.076    4912     231     94   28.2  0.09  0.708   0.081   0.959   0.68   0.100  15.50
+    915    0.583  0.077    6215     284    116   30.4  0.10  0.751   0.078   0.957   0.70   0.099  15.05
+
+-- STATIONARITY (last third, percent change per 100 days) --
+  plants -165.0%   pAdults -151.2%   bio -169.6%   lai -39.5%   pOcc -155.4%   pPerTile +28.0%   animals +46.0%   pHeight +91.6%   aSize +2.4%   pEscape +0.0%   pLocked +162.5%   soil +18.2%
+  NOT STATIONARY on plants, bio, lai, animals
+
+-- SEASONAL (last 400 days, max/min) --
+  plants 394.17x   pAdults 6430.00x   bio 1676.89x   animals 834.50x
+
+-- DEMOGRAPHY (cumulative) --
+  plant  germ 429466 -> mature 25046 (0.0583)  ok
+  plant  deaths: eaten 182139  starved 240452  senescent 195  age 0
+  animal born 21583  starved 15278  senescent 53  killed 6694  attacks 291426  scav 29194
+  animal aRate/aUpkeep 1.44  ok   aFeedFrac 0.48  aJuvFrac 0.62  aDeathAge 6.5
+  animal pop, animal era (134 samples from day 265): mean 222  HARMONIC 47  min 2  max 1669   <<DRIFT REGIME
+
+-- ENERGY --
+  animal intake 9.078% of gross photosynthesis
+  of animal intake: plant 97.29%  carrion 0.249%  flesh 2.463%  toxin cost 30.5%
+  plant upkeep: base 2% mass 9% leaf 18% height 3% root 3% regrow 1% photoCost 47% longevity 16%
+  plant gain/upkeep 3.73
+  growth limited by: N 18%  E 82%  M 0%
+
+-- STANDING BANDS (last 200 samples) --
+  aAccess     0.650  <<HIGH   (realised browse)
+  pEscape     0.019  <<LOW   (refuge, by plant count)
+  pLocked     0.152  <<LOW   (refuge, by BIOMASS - trust this one)
+  pPerTile   20.065  ok   (two plants must share a tile or no shading)
+  aSeen       0.923  ok   (animal-animal encounters per look)
+  eaten/grown   0.745  ok   (grazing pressure)
+
+-- GENE FLAGS --
+  [plant]  n=8547
+    height               sel +0.0243; moved 0.082->0.437
+    canopySpread         CV 0.033
+    toughness            moved 0.0926->0.326
+    toxicity             moved 0.05->0.328
+    fibre                sel +0.0145; moved 0.139->0.235
+    regrowthRate         sel +0.00612; moved 0.16->0.26
+    seedCount            sel +0.647
+    seedEnergy           moved 43.5->78.8
+    dispersalRange       sel -1.95
+    germinationDelay     PINNED 74% at min; sel +15.1; moved 1.78e+03->586
+    shadeTolerance       sel +0.0105
+    allocGrowth          sel +0.0223
+    allocDefence         moved 0.0949->0.157
+    allocStorage         sel -0.00825
+    ageShiftGrowth       sel -0.00751
+    ageShiftDefence      sel -0.0277
+    ageShiftRepro        sel -0.0128
+    ageShiftStorage      sel +0.00961; moved -0.0316->-0.051
+    seasonShiftGrowth    sel +0.0314; moved 0.186->0.021
+    seasonShiftDefence   sel -0.0112; moved -0.0159->-0.026
+    seasonShiftRepro     sel -0.0192; moved 0.0916->-0.0348
+    seasonShiftStorage   sel +0.00558; moved -0.134->-0.0261
+    maturityMass         sel +1.17; moved 12.2->25.4
+    lifespan             sel -6e+03
+    senescenceRate       sel +0.0384
+    pollenRange          sel +0.25
+    selfingTolerance     sel +0.00553
+    pathogenResistance   sel -0.00922
+    immunity0            sel -0.0256
+    immunity1            sel -0.0216
+    immunity2            moved 0.357->0.732
+    immunity3            sel -0.0204
+    mutationRate         sel +0.00458; moved 0.0311->0.15
+    mutationScale        sel +0.0196
+  [animal]  n=203
+    size                 PINNED 76% at max; sel -0.914; moved 5.05->15
+    maxSpeed             sel -0.0675; moved 0.252->0.845
+    acceleration         sel -0.024; moved 0.228->0.406
+    armour               sel -0.0227; moved 0.101->0.295
+    biteForce            sel -0.191; moved 1.16->3.22
+    senseRange           sel -0.667
+    senseAcuity          sel +0.0103
+    camouflage           sel -0.0261
+    carnivory            sel -0.0137
+    fibreTolerance       sel +0.0187
+    toxinResistance      moved 0.162->0.291
+    energyCapacity       sel -0.107
+    metabolicRate        sel +0.0106
+    maturityAge          PINNED 94% at min; sel +1.02e+03; moved 1.06e+04->2.75e+03
+    lifespan             PINNED 68% at min; sel +1.58e+04; moved 1.92e+05->6.55e+04
+    senescenceRate       sel -0.0516; moved 0.321->0.903
+    birthMassFraction    PINNED 81% at min; sel +0.0139; moved 0.211->0.027
+    tag1                 sel +0.0369; moved 0.627->0.202
+    tag2                 sel -0.0137
+    pathogenResistance   sel +0.00716
+    immunity1            PINNED 58% at max; sel -0.0314
+    immunity2            PINNED 55% at min; sel +0.0112; moved 0.238->0.072
+    immunity3            sel +0.0107
+    thermalTolerance     PINNED 61% at min; sel +0.0129; moved 0.208->0.064
+    mutationRate         sel -0.0193; moved 0.116->0.226
+    aggression           sel +0.0174
+    hungerUrgency        CV 0.050
+    preySizeRatio        sel -0.0521; moved 0.596->1.48
+    preySizeTolerance    sel +0.0118
+    plantAttraction      PINNED 67% at max; CV 0.044
+    meatAttraction       PINNED 55% at min; sel -0.00561
+    carrionAttraction    PINNED 74% at min; sel +0.00757; moved 0.0666->0.0249
+    socialAttraction     sel +0.00336
+    socialRadius         sel +0.663
+    kinRecognition       sel +0.0167
+    explorationBias      sel -0.0319
+    restThreshold        sel +0.0149; moved 0.269->0.0731
+    ambushTendency       sel -0.0189; moved 0.161->0.397
+    pursuitPersistence   sel -14.3; moved 14.3->124
+    matingThreshold      sel -0.0209
+    offspringCount       sel -0.419
+    offspringInvestment  moved 0.311->1.03
+    parentalCare         sel -286; moved 201->2.55e+03
+    climbing             sel -0.0461; moved 0.173->0.857
+    >> DRIFT PROOF: inert gene(s) at a bound: immunity1, immunity2
+
+-- HISTOGRAMS (last) --
+  height               [4587, 2004, 338, 196, 167, 119, 27, 0, 0, 0, 0, 0]
+  carnivory            [0, 0, 0, 2, 84, 80, 5, 2, 0, 0, 0, 0]
+  deathAge             [29, 26, 1, 1, 1, 1, 0, 23]
+
+-- LINEAGES --
+  plant   9 names, 6 persisting >=5 snapshots
+    Julral          15 snaps  peak 20306
+                     8 snaps  peak 955
+    Lundil           8 snaps  peak 4573
+    Umbther          7 snaps  peak 16028
+    Dramyr           6 snaps  peak 3768
+    Saosi            5 snaps  peak 4853
+  animal  8 names, 2 persisting >=5 snapshots   <<MOSTLY PHANTOM
+                     9 snaps  peak 39
+    Caetha           6 snaps  peak 191
+  plant tree: 11 entries, 11 distinct (name,parent)
+
+-- STATIONARITY GATE --------------------------------------------------------
+  plants      -165.01 %/100 samples over last third  <<DRIFTING
+  bio         -169.65 %/100 samples over last third  <<DRIFTING
+  animals      +45.98 %/100 samples over last third  <<DRIFTING
+  soil         +18.16 %/100 samples over last third  <<DRIFTING
+  >> NOT STATIONARY (plants, bio, animals, soil). Gene means below are a SNAPSHOT OF A
+  >> TRANSIENT. Do not compare them against another version.
+
+-- DEMOGRAPHY ---------------------------------------------------------------
+  mean death age 6.5 d   maturityAge 5.7 d   ratio 1.13   ok
+  aDeadStarve     15278   69.4%
+  aDeadSen            53    0.2%
+  aDeadAge            0    0.0%
+  aDeadKilled      6694   30.4%
+  non-starvation mortality 30.63%
+  juvenile fraction 0.62
+  births/animal-lifetime (R0) 1.00   [21583 births, mean N 222, 925 d, life 9.5 d]   <<R0 < 1: NOT VIABLE, food is not the diagnosis
+
+-- EFFECTIVE POPULATION (inert-gene diversity) -------------------------------
+  plant   inert sd now 0.49x its early value  (FALLING, 8 genes)   <<DIVERSITY BEING LOST
+           lowest: immunity1 0.26x,  immunity0 0.31x,  immunity3 0.37x
+  animal  inert sd now 1.38x its early value  (rising, 10 genes)
+           lowest: mateChoosiness 0.40x,  immunity0 0.84x,  immunity2 0.88x
+  mutation injects variance every generation; if this is flat or falling,
+  drift is removing it faster and Ne is far below census N.
+
+-- REFUGE -------------------------------------------------------------------
+  pLocked  p10 0.022  median 0.146  p90 0.512
+  worst 30-day fall  -0.290  starting day 425   <<REFUGE COLLAPSING
+  corr(aSize, pLocked) -0.838   size is eating the refuge
+
+-- ACTION BUDGET ------------------------------------------------------------
+  actGraze     146.67   91.6%
+  actAttack      4.19    2.6%
+  actWander      3.61    2.3%
+  actFlee        3.17    2.0%
+  actRest        1.24    0.8%
+  actScav        1.07    0.7%
+  actAppr        0.24    0.2%
+  >> 92% of the budget is ONE action. No behavioural variety exists;
+  >> every behaviour gene outside that act is unselected.
+
+-- TROPHIC LEDGER -----------------------------------------------------------
+  corpse mass produced 24229   eaten 5015 (20.7%)   rotted 19214
+  >> carrion is not being FOUND. Check sense range against mean animal
+  >> spacing and corpse half-life before touching any carrion constant.
+  ePlant        2.14e+07  97.288% of intake
+  eCarrion     5.467e+04   0.249% of intake
+  eFlesh       5.417e+05   2.463% of intake
+  attacks 291426   kills 6694   scavenge events 29194
+  energy per scavenge event 1.87
+
+-- GENE BOUNDS --------------------------------------------------------------
+  plant   germinationDelay       74% at min   <<BOUND IS SELECTING
+  animal  maturityAge            94% at min   <<BOUND IS SELECTING
+  animal  birthMassFraction      81% at min   <<BOUND IS SELECTING
+  animal  size                   76% at max   <<BOUND IS SELECTING
+  animal  carrionAttraction      74% at min   <<BOUND IS SELECTING
+  animal  lifespan               68% at min   <<BOUND IS SELECTING
+  animal  plantAttraction        67% at max   <<BOUND IS SELECTING
+  animal  thermalTolerance       61% at min   <<BOUND IS SELECTING
+  animal  immunity1              58% at max   <<BOUND IS SELECTING
+  animal  meatAttraction         55% at min   <<BOUND IS SELECTING
+  animal  immunity2              55% at min   <<BOUND IS SELECTING
+
+-- SELECTION READOUT HEALTH -------------------------------------------------
+  plant   n   8547   mature    418 (5%)
+  animal  n    203   mature      9 (4%)
+    immunity2            pinned at MIN, sel +   <<FECUNDITY AND VIABILITY DISAGREE
+  sel is FECUNDITY only. Viability selection is excluded, and viability is
+  most of all mortality. Read it as "who is breeding", never as direction.
+
+[reconstructed from the "kc-arm-default-retry" Actions run's digest-job console
+log (job 93197703150), not the raw JSON -- the artifact sits on Azure blob
+storage, which this sandbox's egress policy blocks. Run stopped at 930d via
+--max-wall-min 165, not extinction or day-target (headless.wallClockExceeded:
+true) -- population still growing at cutoff (animals +46.0%/100d), unlike the
+kc0-arm seeds. Ran on v0.47.0.]
