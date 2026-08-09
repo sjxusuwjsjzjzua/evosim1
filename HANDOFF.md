@@ -17,22 +17,28 @@ count.
 
 ---
 
-## 1. Current state — v0.47.0
+## 1. Current state — v0.48.0
 
 **Achieved and replicated:**
 
 - **Herbivory** emerged, obviously.
-- **Omnivory emerged twice on independent seeds.** v0.39 seed 5723: carnivory
-  swept to 0.269 while herbivory stayed 0.988, with a coherent ecomorph
-  (senseRange 16.8→47.2, preySizeRatio 0.86→2.46, size 2.1→1.74, maturityAge
-  down 4.6x, socialAttraction purged). v0.42 seed 3012 held it for 367 sim-years
-  with **all 207 animals in one carnivory histogram bin** and corpse recovery at
-  70.2%. This is the project's headline result — **and v0.47 [L47-2] puts a
-  question mark on it. See §3 Tier 1.**
+- **Omnivory emerged twice on independent seeds** (v0.39 seed 5723, v0.42
+  seed 3012, the latter holding for 367 sim-years with all 207 animals in one
+  carnivory histogram bin). This is the project's headline result — **and it
+  is currently on the hook, not confirmed for the current build. See §3
+  Tier 1, item 1.** The v0.47 protocol meant to re-test it is incomplete: one
+  full-length seed and two extinct isolation-arm seeds exist, not the
+  planned 3-seed x 2-arm set. In what does exist, carnivory mean stayed low
+  (0.09–0.10) and `corr(aSize, carnivory)` stayed strongly negative (-0.79) —
+  neither confirms nor overturns the old result yet.
 - **Plant/animal arms races** in height-vs-reach and toxicity-vs-resistance.
 - **Matter conservation** to 0.000000% on most runs.
-- **Demography fixed:** mean death age 12.4 d against maturityAge 4.2 d, ratio
-  2.95. It was 0.65 at v0.36.
+- **Demography, mixed since v0.47.** The 1200-day default seed-1337 run has
+  mean death age 12.1 d against maturityAge 36.0 d (ratio 0.34, "dies before
+  breeding") and R0 1.06 — better than extinct, worse than the v0.42 ratio of
+  2.95 this line used to cite. The run is **not stationary** (animals still
+  +32.7%/100d at the end), so treat this as a mid-transient snapshot, not a
+  result.
 - **Possible plant speciation, uninvestigated:** v0.42 seed 3012's height
   histogram is bimodal — `[12,7,0,0,0,0,0,16,20,10,7,2]`, 19 plants low, 55
   high, nothing between. Understory vs canopy. Nobody has checked whether the
@@ -40,21 +46,44 @@ count.
 
 **Not achieved:**
 
-- **Herding.** Was impossible by construction until v0.47 — `socialAttraction`
-  appeared only as a cost, with no dilution, vigilance or confusion anywhere in
-  the model, behind an absorbing `> 0.02` gate. [L47-3] gives it a mechanism.
-  Untested.
+- **Herding, partially mechanised, not confirmed working.** `socialAttraction`
+  was impossible to select for by construction before v0.47 — appeared only
+  as a cost, absorbing `>0.02` gate, no dilution/vigilance/confusion anywhere
+  in the model. [L47-3] gave it a confusion mechanism and an `AN.risk` EWMA.
+  Result so far: `socialAttraction` mean rose to 0.235 with 0% pinned at min
+  in a run with real predation — the purge stopped — but `actAppr` (the act
+  that would express grouping-for-safety behaviourally) stayed ~0.0% of the
+  action budget, missing its own >1% falsifier. Leading hypothesis, untested:
+  `AN.risk`'s EWMA smooths out the threat signal that would make APPROACH
+  worth it, so GRAZE (always available) structurally outcompetes it even
+  though the underlying gene isn't purged anymore.
 - **Speciation is not properly testable.** Reproduction is still asexual;
   crossover was "phase 5" and never built. Lineages are k-means instrumentation,
   not reproductive isolation.
-- **Effective population.** Harmonic N runs 90–340 against a target of 500.
-  Everything is still partly drift.
-- **Behavioural monoculture.** 96% of the action budget was GRAZE at v0.46.
-  [L47-2] is the first serious attempt at the cause.
+- **Effective population.** Harmonic N was 215 in the healthiest available
+  v0.47-era log, still under the 500 target, and the run wasn't stationary so
+  even that number is a transient reading.
+- **Behavioural monoculture, improved but not solved.** GRAZE fell from 96%
+  (v0.46) to 92.2% of the action budget in the same run — non-graze share
+  roughly doubled (3.8% → 7.8%) but is still far from the ≥20% target.
 
-**v0.47 is unrun.** It is six changes from an external audit: one bug fix, two
-biology changes, three performance. Full rationale and all six predictions are
-in `LEDGER.md` under "v0.47 — external audit pass".
+**v0.48 is a mechanical/tooling version, not a biology version** — it fixed a
+bug that silently disabled the extinction halt at default config ([L0.48-1])
+and a performance win in the two hottest functions ([L0.48-2]), verified
+RNG-neutral against v0.47 on an exact-match diff. It changed no formula, no
+constant, no gene. **The v0.47 biology questions above are still open** and
+carry forward unchanged into v0.48 — finishing that interrupted 3-seed
+protocol (Tier A: it executes an already-approved plan, originates nothing
+new) is the natural next run. Full writeups: `LEDGER.md`, "v0.47 — external
+audit pass" and its "Scorecard" subsection, and "v0.48 — extinction-halt fix
++ global-lookup caching".
+
+One more open question, found reading the code rather than a run, not yet
+acted on: ATTACK's arbiter weight is `0.5 + meatAttraction` (floor 0.5,
+`meatAttraction` ∈ [0,1]) while GRAZE and SCAVENGE use their attraction genes
+unfloored — predation structurally can't fully switch off the way herbivory
+and scavenging can. Owner hasn't said whether this is intentional; flagged,
+not touched.
 
 ---
 
@@ -142,77 +171,88 @@ that. Two follow-ups worth making habit:
 
 ### Tier 1 — do these next
 
-**1. Score the six v0.47 predictions.** They are written out in `LEDGER.md`
-("v0.47 — external audit pass"), one per change, with the falsifier for each.
-Recommended run order:
+**1. Finish the interrupted v0.47 protocol.** `LEDGER.md`'s "Scorecard" (under
+"v0.47 — external audit pass") scored what exists: one full-length seed
+(1337 default, not stationary), two extinct isolation-arm seeds (1337 and
+4002 at `k_confusion:0`), and three seeds' worth of compute lost outright to
+an Actions timeout bug (now fixed in v0.48 tooling). Missing before this can
+be scored honestly: seeds 4001/4002 default to completion, seed 4001
+`k_confusion:0`. This is **Tier A** — it executes an already-approved 3-seed
+x 2-arm protocol, originates nothing new — and can run on `evosim-v0_48_0.html`
+without further approval (v0.48 is RNG-neutral vs v0.47, verified).
 
-- 3 seeds with a `{"cfg":{"k_confusion":0}}` patch — scores L47-1 (toxin) and
-  L47-2 (arbiter currency) with the herding mechanism off.
-- then 3 seeds with `k_confusion` at its default 0.060 — scores L47-3.
+L47-4/5/6 are performance-only claims and **must not move any ecological
+statistic**. If they do, something in the build depends on slot ordering or
+draw ordering and that is a bug worth finding.
 
-L47-4/5/6 are performance only and **must not move any ecological statistic**.
-If they do, something in the build depends on slot ordering or draw ordering and
-that is a bug worth finding.
+**2. The omnivory result is still on the hook.** [L47-2] found that GRAZE
+scored as own `mass^0.667`–`mass^1` while ATTACK was scale-free in own mass,
+so the collapse of `size` from 5.07 to 1.09 cut the *perceived* value of
+grazing ~3x against hunting with no change to any actual payoff — and both
+historic omnivory sweeps happened alongside shrinking size. What exists so
+far (two `k_confusion:0` seeds, both extinct; one default seed, not
+stationary) neither confirms nor overturns this — `corr(aSize, carnivory)`
+stayed strongly negative (-0.79) in the default run, consistent with the
+concern but not conclusive at n=1. Item 1's missing seeds are what would
+settle it.
 
-**2. The omnivory result is on the hook.** [L47-2] found that GRAZE scored as
-own `mass^0.667`–`mass^1` while ATTACK was scale-free in own mass, so the
-collapse of `size` from 5.07 to 1.09 cut the *perceived* value of grazing ~3x
-against hunting with no change to any actual payoff — and both omnivory sweeps
-happened alongside shrinking size. If carnivory does not survive v0.47 on 3
-seeds, the headline result needs restating, not defending. Check
-`corr(aSize, carnivory)` explicitly.
+**3. The `AN.risk`-EWMA hypothesis for `actAppr` staying near 0% is
+untested.** See §1. Worth checking directly in the next `k_confusion`-default
+log rather than guessing further — plot `AN.risk` against attack events in
+the same window and see whether it ever clears whatever threshold would make
+APPROACH competitive with GRAZE.
 
-**3. `maturityAge` still pinned 98% at min, and the v0.44 fix disabled itself.**
-The mass gate (`mass >= 0.60*size`) made large size slow to breed, so `size`
-collapsed to 1.09 and the gate became trivially satisfiable. v0.45's fixed
-`a_base` should put a floor under size and restore the gate's bite — **check
-this in the next log.** If `size` is healthy and `maturityAge` is *still*
-railed, the gate is the wrong mechanism entirely and needs replacing, not
-repairing. The honest alternative is that breeding small should produce
-offspring with poor survival, and currently it doesn't: newborn provisioning is
-`offspringInvestment * nbUp`, so a tiny newborn gets the same *days* of reserve
-as a big one. Being born small is free.
+**4. `maturityAge`'s status needs a direct check, not more inherited
+assumptions.** Older versions of this doc said it was "pinned 98% at min."
+The most recent log (seed 1337 default, 1200d) shows mean `maturityAge` 36.0
+d against mean death age 12.1 d — animals dying well before that, which is a
+different problem (see the demography line in §1) and doesn't by itself say
+whether the gene is railed, since `analyze.py`'s GENE BOUNDS section for that
+run doesn't list `maturityAge` among the pinned genes at all. Don't assume
+either the old "pinned at min" finding or its opposite — check the next
+log's GENE BOUNDS section directly before reasoning further about the mass
+gate (`mass >= 0.60*size`) or newborn provisioning.
 
-**4. Raise effective population above 500.** Everything below is partly
-unmeasurable until this happens. It moved 87 → 338 via the `k_photoCost` cut,
-which was the single biggest win of the last chat, so productivity is the lever
-that works. The v0.47 performance work should also make longer runs cheap enough
-that this is measurable over more generations.
+**5. Raise effective population above 500.** Harmonic N was 215 in the most
+recent usable log (not stationary, so read as a floor not a ceiling). It
+moved 87 → 338 once before, via the `k_photoCost` cut — productivity is the
+lever that has worked historically. v0.48's performance fix should make
+longer runs cheap enough that this is measurable over more generations.
 
 ### Tier 2 — real science, currently blocked
 
-**5. Sexual reproduction / per-gene crossover.** Long-planned, never built.
+**6. Sexual reproduction / per-gene crossover.** Long-planned, never built.
 Without it there is no biological species concept and the speciation half of the
 mission is untestable. This is the largest genuinely outstanding feature.
 
-**6. Investigate the bimodal plant height in v0.42 seed 3012.** Check whether
+**7. Investigate the bimodal plant height in v0.42 seed 3012.** Check whether
 the two clusters are separated in the lineage tree. If they are, that's
 speciation and it hasn't been claimed.
 
-**7. Detection is re-rolled every think.** P(never detected) over a residence
+**8. Detection is re-rolled every think.** P(never detected) over a residence
 time is `(1-p)^n`, so `camouflage` and `senseAcuity` saturate and are much
 weaker than their formulas suggest. Fixing it means per-animal detection memory
 — a real feature, not a patch. **Know this before tuning either gene.**
 
 ### Tier 3 — held on purpose, with reasons
 
-**8. Plant height superlinear cost.** Proposed when height was 30% of plant
+**9. Plant height superlinear cost.** Proposed when height was 30% of plant
 upkeep in v0.42. It is **10%** in v0.44 with `pHeight` 0.339, not railed. Acting
 now would break rule 5 — calibrating against a superseded run.
 
-**9. `carrionFloor` 0.30.** Analysis said it subsidises scavenging and destroys
+**10. `carrionFloor` 0.30.** Analysis said it subsidises scavenging and destroys
 the marginal return on low carnivory. But the v0.39 omnivory sweep happened
 *with* the floor at 0.3, so the diagnosis is at least incomplete. Do not touch
 until something else forces it.
 
-**10. Matter leak.** 0.0157% in v0.42, 0.000000% in v0.44 and v0.46. Either
-fixed incidentally or the runs were too short. Watch on the next long run rather
-than hunting a leak that may not exist.
+**11. Matter leak.** 0.0157% in v0.42, 0.000000% since v0.44 including v0.48's
+verification run. Either fixed incidentally or the runs were too short. Watch
+on the next long run rather than hunting a leak that may not exist.
 
-**11. Prune the inert genes** (8 plant, 7 animal). Cheap tokens and cheap
+**12. Prune the inert genes** (8 plant, 7 animal). Cheap tokens and cheap
 memory, but they are the Ne meter — keep at least four per kingdom if you cut.
 
-**12. Cosmetic debt.** `laiOf()` is dead code after [L47-6]. `PIDX` can file a
+**13. Cosmetic debt.** `laiOf()` is dead code after [L47-6]. `PIDX` can file a
 recycled slot under a stale tile for up to `plantStagger` ticks — self-correcting,
 but it silently drops that plant from detection meanwhile.
 
@@ -221,11 +261,12 @@ but it silently drops that plant from detection meanwhile.
 ## 4. The iteration cycle
 
 **As of the headless tooling (`headless.js`/`experiment.js`/the GitHub Actions
-workflow, see `CLAUDE.md` §7), Claude runs the experiments.** §7 splits runs
-into two tiers: **Tier A (diagnostic — extra seeds, an isolation arm already
-called for, a replication)** auto-chains without waiting on the owner between
-runs; **Tier B (a new CFG hypothesis, or anything touching
-`evosim-v0_47_0.html`)** always stops for approval before it runs. The owner's
+workflow, see `CLAUDE.md`'s "Automated iteration" section), Claude runs the
+experiments.** That section splits runs into two tiers: **Tier A (diagnostic —
+extra seeds, an isolation arm already called for, a replication)** auto-chains
+without waiting on the owner between runs; **Tier B (a new CFG hypothesis, or
+anything touching `evosim-v0_48_0.html`)** always stops for approval before it
+runs. The owner's
 job either way is to approve what originates a run, not to carry a build to
 their phone or to click go on every mechanical follow-through. The owner can
 still run a build by hand any time (spot checks, or to watch it) — that log
@@ -247,7 +288,7 @@ remove (`CLAUDE.md` rule 1).
 
 **Step 1 — run it.**
 ```
-node experiment.js --build evosim-v0_47_0.html --days <n> --label <name> \
+node experiment.js --build evosim-v0_48_0.html --days <n> --label <name> \
     [--cfg patch.json] [--n 3]
 ```
 or, for real per-seed parallelism at no sandbox cost, trigger the `evosim
@@ -293,7 +334,7 @@ world this iteration** — what the population actually did and why it matters,
 not a restatement of the table. If the next queued run is Tier A (already
 approved, nothing new originated), fold this into a running batch update and
 start it without waiting. The moment the next step would be Tier B — a new
-hypothesis, or any change to `evosim-v0_47_0.html` — propose it with its own
+hypothesis, or any change to `evosim-v0_48_0.html` — propose it with its own
 prediction and **stop and wait**. No code change ever ships without the
 owner's word, regardless of tier.
 
@@ -312,21 +353,27 @@ on purpose — it checks the code resolves, nothing about the ecology.
 
 Check every version. This is the answer to "are we still on mission".
 
-| | target | v0.36 | v0.42 (367 yr) | v0.47 |
+The v0.47/v0.48 column is **one seed (1337, default config, 1200d), not
+stationary** — the interrupted protocol (§3 Tier 1 item 1) never produced the
+3-seed set this table wants. Read it as a transient snapshot, not a verdict,
+and finish that protocol before trusting it further. v0.48 changed no
+formula or constant, so this column is unchanged from v0.47.
+
+| | target | v0.36 | v0.42 (367 yr) | v0.47/v0.48 (n=1, not stationary) |
 |---|---|---|---|---|
-| harmonic animal N | ≥ 500 | 100 | 91 | — |
-| mean death age / maturityAge | ≥ 1.0 | 0.65 | **2.95** | — |
-| births / animal-lifetime (R0) | > 1.0 | — | — | — |
-| deaths by age or predation | ≥ 20% | 0.07% | 1.83% | — |
-| carnivory mean | ≥ 0.20 | 0.072 | **0.288** | — |
-| flesh + carrion, share of intake | ≥ 5% | 0.1% | 0.85% | — |
-| `aSeen` | ≥ 1.0 | 0.36 | **7.03** | — |
-| non-graze action share | ≥ 20% | 3% | 3.8% | — |
-| `socialAttraction` mean | not railed at 0 | 0 | 0 | — |
-| `pLocked` | 0.5–0.85 | — | 0.996 | — |
-| inert-gene sd | rising | falling | flat | — |
-| genes pinned at a bound | 0 | — | 14 | — |
-| stationary at end of run | yes | no | no | — |
+| harmonic animal N | ≥ 500 | 100 | 91 | 215 |
+| mean death age / maturityAge | ≥ 1.0 | 0.65 | **2.95** | 0.34 (12.1d / 36.0d) |
+| births / animal-lifetime (R0) | > 1.0 | — | — | **1.06** |
+| deaths by age or predation | ≥ 20% | 0.07% | 1.83% | 36.5% (killed) + 0.0% (age) |
+| carnivory mean | ≥ 0.20 | 0.072 | **0.288** | low — histogram-dominated near zero (369/371 animals in the bottom bin); not printed as a scalar |
+| flesh + carrion, share of intake | ≥ 5% | 0.1% | 0.85% | 0.26% |
+| `aSeen` | ≥ 1.0 | 0.36 | **7.03** | 0.36 |
+| non-graze action share | ≥ 20% | 3% | 3.8% | 7.8% |
+| `socialAttraction` mean | not railed at 0 | 0 | 0 | **0.235, 0% pinned at min** |
+| `pLocked` | 0.5–0.85 | — | 0.996 | 0.969 (median) |
+| inert-gene sd | rising | falling | flat | plant flat (ceiling), animal falling |
+| genes pinned at a bound | 0 | — | 14 | 4 explicitly flagged PINNED (fibre, toughness, toxicity, pathogenResistance) + several more 20-27% at a bound |
+| stationary at end of run | yes | no | no | **no** — plants/bio/animals/soil all still drifting |
 
 ---
 

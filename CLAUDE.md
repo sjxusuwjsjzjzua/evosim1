@@ -15,52 +15,28 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 | file | what it is |
 |---|---|
-| `evosim-v0_47_0.html` | the build. Single file, no build step, runs on a phone. |
+| `evosim-v0_48_0.html` | the build. Single file, no build step, runs on a phone. Bump the filename every version — delete the superseded one once its results are captured in `LEDGER.md`. |
 | `LEDGER.md` | rationale + the version log with predictions and outcomes. |
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
 | `check.js` | correctness harness. `node check.js <build.html>` |
-| `headless.js` | runs a build outside the browser. `node headless.js --build <html> --seed <n> --days <n> --out <path> [--cfg patch.json] [--progress-days 20]` — see §7 below. Writes `<out>.progress.json` while it runs; touch `<out>.stop` to end it early with a still-valid, still-complete log. |
+| `headless.js` | runs a build outside the browser. `node headless.js --build <html> --seed <n> --days <n> --out <path> [--cfg patch.json] [--progress-days 20] [--max-wall-min <n>]` — see the Automated iteration section below. Writes `<out>.progress.json` while it runs; touch `<out>.stop` to end it early with a still-valid, still-complete log; `--max-wall-min` does the same automatically at a wall-clock budget, so a run that hits it still returns partial results instead of nothing. |
 | `experiment.js` | runs N seeds through `headless.js` and feeds them to `analyze.py` in one shot. `node experiment.js --build <html> --days <n> --label <name> [--cfg patch.json] [--n 3]` |
-| `.github/workflows/experiment.yml` | same thing on GitHub-hosted runners instead of the session sandbox — one seed per runner (real parallelism), free, doesn't need a session open. `workflow_dispatch` only; must be on `main` to trigger via API. |
+| `.github/workflows/experiment.yml` | same thing on GitHub-hosted runners instead of the session sandbox — one seed per runner (real parallelism), free, doesn't need a session open. Trigger via the Actions tab or `actions_run_trigger`. Results land two ways: as a downloadable artifact, and pushed to a per-seed scratch branch `runs/<label>/seed-<seed>` (fetchable with plain `git` — artifacts sit on blob storage this sandbox's egress policy blocks, so the branch is the reliable path for Claude). |
 
 ## Hard rules
 
-1. **Compute is not the constraint.** CPU/wall-clock time — this session's own
-   sandbox, or GitHub Actions — costs neither tokens nor the owner's attention;
-   only reading a result back into the conversation does. Earlier phrasing of
-   this rule called runs "too compute-expensive" — that was true when a run
-   meant the owner carrying a build to their phone and it stopped being true
-   the day `headless.js` shipped. Don't hold back on running something because
-   it costs machine time.
-
-   **What compute being free does not change: every run that tests a biology
-   hypothesis still needs a written, falsifiable prediction on record before it
-   starts** — named genes, named thresholds, across 3 seeds. This was never
-   actually a cost-control measure — the original v0.36 entry in `LEDGER.md`
-   ("13 changes... unattributable") is what the rule protects against: a short
-   run answers a different question than a long one (populations shift with
-   every change, so end-state counts across different lengths are still not
-   comparable), and "run it, look, tweak, run it again" is curve-fitting, not
-   diagnosis, no matter how cheap each individual run is. Free compute makes
-   that failure mode *easier* to fall into, not harder — reason the change
-   through and write the prediction down before any experiment runs, same as
-   when it took a phone. §7's Tier A/B split governs who has to approve a run
-   before it fires; it does not touch whether a prediction has to exist.
-
-   **The standing exception: measuring, not hypothesizing.** A profiling pass
-   — clocking where CPU time goes over a fixed sim-day count to find a real
-   inefficiency, the same category as the `[L47-6]` performance work already
-   in v0.47 — needs no prediction and no per-run approval, because it isn't a
-   claim about the ecology; it's a stopwatch. Run these freely. The moment a
-   profiling finding turns into a proposed *code change*, rule 3/6 apply to
-   that change like any other, and it ships with its own prediction that the
-   change moves speed only, not any ecological statistic.
-
-   Never loop silently on a hunch — every biology-testing run is tied to a
-   prediction someone can point to afterward and say hit or miss. `check.js`
-   still proves the code *resolves* before any of this; it prints no statistic
-   on purpose.
+1. **Compute is not the constraint; unattributed conclusions are.** CPU time
+   (this sandbox, or GitHub Actions) costs no tokens and no attention, so run
+   things freely — but every run that tests a biology hypothesis still needs a
+   written, falsifiable prediction on record before it starts, same as when a
+   run meant carrying a build to a phone. Free compute makes "run it, look,
+   tweak, run it again" *easier* to fall into, not a reason to allow it.
+   Exception: a pure profiling pass (clocking CPU time to find an
+   inefficiency, no ecological claim) needs neither a prediction nor per-run
+   approval — it's a stopwatch, not an experiment. The Automated iteration
+   section below governs who approves a run firing; it never waives the
+   prediction itself.
 
 2. **Run `node check.js <build>` after every edit.** A syntax check is not a
    correctness check and a call check is not an identifier check.
@@ -105,11 +81,15 @@ Read `HANDOFF.md` §2 — the pin taxonomy (`p<2` / `p=2` / `p>2`) and pivot
 discipline. They are the two things that made the difference in the last chat
 and they answer most "why is this gene railed" questions without a run.
 
-## 7. Automated iteration (since the headless tooling)
+## Automated iteration: Tier A / Tier B
 
-Two tiers, decided 2026-08-08. The difference is whether a run can fire
-without the owner watching, not whether it needs a prediction — every run
-needs one either way.
+(Not "rule 7" — this is the workflow the hard rules above operate inside, not
+another rule in the numbered list. Referenced elsewhere as "the Tier A/B
+section" or "CLAUDE.md's Automated iteration section", never "§7", to avoid
+colliding with hard rule 7 above.)
+
+Two tiers. The difference is whether a run can fire without the owner
+watching, not whether it needs a prediction — every run needs one either way.
 
 **Tier A — diagnostic, auto-chains, no per-run wait.** A run belongs here only
 if it executes a prediction *already on record*, originating nothing new:
@@ -121,7 +101,7 @@ first each time.
 
 **Tier B — gated, needs the owner's word before it runs.** Anything that
 originates a new hypothesis: a new CFG constant nobody has proposed before, and
-*always* any change to `evosim-v0_47_0.html` itself (a new formula, cost
+*always* any change to the shipped HTML itself (a new formula, cost
 curve, mechanism — rule 6's definition of a *shape* change). These stop and
 wait for approval before the run that tests them starts, same as always.
 
@@ -132,9 +112,9 @@ One iteration, done by Claude, looks like:
 2. Run it — whichever is fastest and least contended:
    - `node experiment.js --build <html> --days <n> --cfg <patch.json>
      --label <name>` locally (competes with this session's own CPU), or
-   - the `evosim experiment` GitHub Actions workflow (§ Files table) for real
-     per-seed parallelism that costs no sandbox CPU or tokens while it runs —
-     preferred once it's reachable via `main`.
+   - the `evosim experiment` GitHub Actions workflow (Files table above) for
+     real per-seed parallelism that costs no sandbox CPU or tokens while it
+     runs — preferred for anything long or multi-seed.
    Either way: writes `runs/<name>/seed-*.json` (local) or per-seed artifacts
    (Actions), plus a digest. A run that's taking too long can be stopped
    gracefully via `<out>.stop` — it still finishes through the normal
@@ -156,7 +136,5 @@ One iteration, done by Claude, looks like:
    then **stop and wait**. A code change never ships past this point without
    the owner's word, regardless of tier.
 
-Nothing here licenses trying several changes to see which "worked" — one
-proposed change, one prediction, one experiment, one verdict, every time. What
-auto-chains is executing an already-approved plan faster, never deciding what
-the plan is.
+What auto-chains is executing an already-approved plan faster — never
+deciding what the plan is.

@@ -9,7 +9,7 @@ name: evosim experiment
 # run_workflow) once this file is on the default branch — GitHub only
 # recognizes workflow_dispatch inputs for workflows present there.
 #
-# Does not touch evosim-v0_47_0.html and does not ship anything by itself:
+# Does not touch evosim-v0_48_0.html and does not ship anything by itself:
 # it writes a JSON log per seed, same shape exportLog() writes on the phone.
 # Someone (owner or Claude) still reads the digest and decides what happens
 # next.
@@ -29,7 +29,7 @@ on:
     inputs:
       build:
         description: 'Build file to run'
-        default: 'evosim-v0_47_0.html'
+        default: 'evosim-v0_48_0.html'
         required: true
       seeds:
         description: 'Comma-separated seeds, e.g. 4001,4002,4003'
