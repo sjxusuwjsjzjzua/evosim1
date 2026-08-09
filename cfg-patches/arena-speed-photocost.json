@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Same arena-speed cap as the baseline arm, plus k_photoCost 0.004->0.012 (3x) -- direct respiration-cost lever on plant carrying capacity, tested independent of any cap. Prediction: pre-fauna standing plant count settles measurably below 25000 (cap stops binding, caps stays [0] through day 260) instead of slamming into the new cap the way it slammed into 90000. A miss (caps still hits 1 pre-fauna) means the slot cap is the actual constraint at this scale regardless of respiration cost.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012}}
