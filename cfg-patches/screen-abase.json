@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"SCREEN, not confirmation. a_base 0.012->0.008 (33% cheaper base animal upkeep) -- more mouths survive per unit plant biomass, testing whether that raises grazing pressure enough to crop plants. Same 25k/11k arena as the other arms this round.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"a_base":0.008}}

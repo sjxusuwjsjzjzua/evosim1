@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"SCREEN, not confirmation. carrionFloor 0.30->0.10 -- HANDOFF Tier 3 item 10 flagged this as possibly subsidizing scavenging over real predation but held pending something forcing the question; this batch is that something. Prediction: attacks/kills rise as scavenging's free floor shrinks.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"carrionFloor":0.10}}
