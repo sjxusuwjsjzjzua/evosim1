@@ -10,9 +10,19 @@ name: evosim experiment
 # recognizes workflow_dispatch inputs for workflows present there.
 #
 # Does not touch evosim-v0_47_0.html and does not ship anything by itself:
-# it writes a JSON log per seed as a downloadable artifact, same shape
-# exportLog() writes on the phone. Someone (owner or Claude) still reads the
-# digest and decides what happens next.
+# it writes a JSON log per seed, same shape exportLog() writes on the phone.
+# Someone (owner or Claude) still reads the digest and decides what happens
+# next.
+#
+# Results land two ways: as a downloadable artifact (for a human via the
+# Actions UI) AND pushed to a per-seed scratch branch runs/<label>/seed-<seed>
+# (for Claude to fetch via plain git, since artifacts live on Azure blob
+# storage, which the Claude Code sandbox's egress policy blocks -- confirmed
+# the hard way after a batch of results were stuck undownloadable). Each
+# matrix job gets its own branch name so parallel seeds can never conflict
+# pushing. These branches are scratch, same convention as the gitignored
+# local runs/ directory -- safe to delete once a result's been promoted into
+# the repo proper.
 
 on:
   workflow_dispatch:
@@ -56,6 +66,8 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    permissions:
+      contents: write   # needed to push the per-seed results branch below
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +101,18 @@ jobs:
           name: ${{ inputs.label }}-seed-${{ matrix.seed }}
           path: out/
           retention-days: 30
+      - name: push result to a per-seed scratch branch
+        run: |
+          BR="runs/${{ inputs.label }}/seed-${{ matrix.seed }}"
+          git config user.name "evosim-actions-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan "$BR"
+          git rm -rf --quiet . || true
+          cp "out/seed-${{ matrix.seed }}.json" .
+          [ -f "out/seed-${{ matrix.seed }}.json.progress.json" ] && cp "out/seed-${{ matrix.seed }}.json.progress.json" . || true
+          git add "seed-${{ matrix.seed }}.json" "seed-${{ matrix.seed }}.json.progress.json" 2>/dev/null || git add "seed-${{ matrix.seed }}.json"
+          git commit -m "evosim experiment: ${{ inputs.label }} seed ${{ matrix.seed }}"
+          git push --force origin "$BR"
 
   digest:
     needs: run
