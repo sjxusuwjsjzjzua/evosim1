@@ -27,6 +27,7 @@ at Ne ≈ 100 an unpredicted result is indistinguishable from noise.
 | 0.39 | carnivory unblock: body radius on attack/scavenge reach, attack score linear in carnivory, stall + bail-out on pursuit | flesh+carrion >= 1% of animal intake; attacks/day > 1; no runaway predation collapse | 3 | headless 260d animal era: attacks 4447, kills 309, flesh+carrion **1.14%** of intake (was 0.1%) |
 | 0.38x | reach allometry: `reach = k*size^0.333`, k pivoted to 0.0731 so reach is unchanged at founder size 5 | median `pLocked` >= 0.55 in >=2 of 3 seeds; no fauna extinction in 3 seeds x 900 d; `corr(aSize,pLocked)` weakens above -0.5 | 3 | |
 | 0.47 | **six changes, external audit.** toxin model unified (L47-1); arbiter put in one currency (L47-2); confusion effect + `AN.risk` so grouping pays (L47-3); slot compaction + high-water trim (L47-4); memcpy+geometric mutation (L47-5); render throttle, tile-culled draw, precomputed cover, `P.h` cache (L47-6) | see the six predictions below | 3 | |
+| 0.48 | performance/mechanical only, no ecological claim. Extinction halt fires now (was gated on `!CFG.animalReseedDays`, always false at default config) (L0.48-1); `CFG` aliased to a local `C` in `updatePlant`/`senseDecide`/`reachOf`/`carrionDigest`/`grazeYield`/`plantScore` — the two functions profiling found responsible for 58% of JS time, 17.5% of it in global-lookup builtins (L0.48-2) | trajectory identical to v0.47 for the same seed at the same tick (proves RNG-neutral by construction — no `rng()` call site touched, no formula changed); ticks/sec measurably higher on a fixed sim-day count; no gene mean or population statistic moves beyond seed noise | 1 exact-match (seed 1337, 300d) | **PASS.** 0 of 97 columns differ, all 60 samples, genes/events byte-identical between v0.47 and v0.48 on seed 1337. 315→322 ticks/s (contended, directional only). See `## v0.48` below. |
 
 ---
 
@@ -1101,3 +1102,151 @@ zero-filled until the first `rebuildCanopy`, so cover is 0 for the first
   the `d2 > sr2` test uses live coordinates — but it silently drops that plant
   from detection for up to `plantStagger` ticks.
 - **`nNear` includes corpses.** See L47-3.
+
+### Scorecard — first pass, incomplete, written 2026-08-09
+
+The full 3-seed protocol this section calls for was never cleanly completed.
+What exists: seed 1337 at default config (1200d, not stationary), seed 1337
+at `k_confusion:0` (2495d, fauna extinct unaided at day ~680), and seed 4002
+at `k_confusion:0` (560d, fauna extinct — reconstructed from a GitHub Actions
+job log, not the raw JSON, after the artifact landed on blob storage this
+sandbox's egress policy blocks). Two more seeds (4001/4002 default, 4001
+`k_confusion:0`) were lost outright to a 180-minute Actions timeout that
+produced zero output — `headless.js` only wrote results at the end of a run,
+so a hard-killed job returned nothing for ~3 hours of compute. Fixed in v0.48
+tooling (a wall-clock safety budget that always returns partial output), too
+late for this batch. Scoring what exists rather than waiting on a re-run that
+hasn't happened yet:
+
+- **L47-1 (toxin unified) — MISS.** `eToxin` fell to 11.1% of intake (seed
+  1337 default), against the 17.2% baseline it was predicted to rise from.
+  This is the falsifier stated above, tripped directly: "if `eToxin` falls
+  instead, the diagnosis is wrong."
+- **L47-2 (one currency) — open, leaning concerning, not resolved.**
+  Non-graze action share did rise (3.8% baseline to 7.7-12% across the seed
+  1337 default run) — a real hit on that half. But carnivory mean stayed low
+  (0.09-0.10, well under both the ≥0.20 target and the 0.288 historic sweep)
+  and `corr(aSize, carnivory)` stayed strongly negative (-0.79) rather than
+  weakening. Two of two `k_confusion:0` seeds sampled (1337, 4002) went
+  extinct, both preceded by a large, chaotic pre-fauna plant bloom (seed 4002
+  peaked at 60,703 plants by day 180) and near-immediate starvation once
+  fauna arrived (seed 4002: mean death age 1.2d against maturityAge 5.4d, R0
+  0.28). That is a repeating pattern on two independent seeds, which by
+  invariant 12 ("believe nothing that does not repeat") is worth taking
+  seriously — but it does not by itself distinguish whether `k_confusion:0`
+  causes the collapse or whether the default arm would show the same thing
+  given the missing seeds. **The Tier-1 question — did the headline omnivory
+  result survive, or was it substantially a units artifact — is still open.**
+  Finishing the interrupted 3-seed protocol on both arms is the next
+  diagnostic step, not a new hypothesis.
+- **L47-3 (confusion + `AN.risk`) — mixed.** `socialAttraction` mean rose to
+  0.235 with 0% pinned at min in a run with real predation (7351 kills,
+  seed 1337 default) — a clean hit on "the gene stops being purged." But
+  `actAppr` stayed ~0.0% of the action budget against a >1% falsifier — a
+  clean miss on that half. Plausible reason, found by reasoning through the
+  code rather than a run: `AN.risk` is a slow EWMA (smoothing factor ~0.04
+  per decide cycle) of a threat signal that is itself rare and brief, so its
+  *current* value is usually far below the peak that triggered it, while
+  GRAZE's opportunity is available every think — APPROACH may be structurally
+  outcompeted by a always-available action even when the underlying gene
+  isn't purged. Untested; a hypothesis, not a finding. Separately, code
+  reading turned up an unexplained asymmetry: ATTACK's arbiter weight is
+  `0.5 + meatAttraction` (floor at 0.5, meatAttraction ∈ [0,1]) while GRAZE
+  and SCAVENGE use their attraction genes unfloored — predation structurally
+  cannot fully switch off the way herbivory and scavenging can. Not in the
+  L47-2 rationale above; owner has not yet said whether this is intentional.
+  Flagged, not touched.
+- **L47-4/5/6 (performance only) — can't-tell.** No v0.46 control log exists
+  in the repo to diff against, so the "no ecological effect" claim is
+  unverified rather than confirmed. Nothing anomalous in the seed 1337
+  default log (matter conservation clean, no caps triggered). The seed 4002
+  `k_confusion:0` log *did* trip a cap (`caps seen [0, 1]`) — plausibly
+  downstream of that run's extreme plant bloom rather than evidence against
+  these three changes specifically, but it means that log's gene-level
+  detail should be read with the same caution the cap-trip flag always
+  implies, independent of anything about L47-4/5/6.
+
+**Net: score this as incomplete, not as six results.** The honest state is
+one full-length seed, two extinct isolation-arm seeds, and three seeds' worth
+of compute lost to a tooling bug now fixed. Re-running the missing pieces —
+seeds 4001/4002 default to completion, seed 4001 `k_confusion:0` — is Tier A
+under CLAUDE.md's Automated iteration section (it executes this already-approved protocol, originates
+nothing new) once the current v0.48 batch's own runs are out of the way.
+
+---
+
+## v0.48 — extinction-halt fix + global-lookup caching
+
+Two changes, both performance/mechanical, neither an ecological claim —
+following straight from auditing the actual project this session, not from
+scoring the v0.47 predictions above (that scorecard is unrelated to why
+these shipped).
+
+### [L0.48-1] — the extinction halt never fired
+
+```js
+if (LOG.aGone && !ST.apop && !CFG.animalReseedDays && !LOG.halted
+    && W.tick - LOG.aGoneTick > CFG.haltAfterDays*TPD()){
+```
+
+`!CFG.animalReseedDays` required that *constant* to be falsy. It defaults to
+60 and nothing in the shipped build ever changes it, so this condition could
+never be true at default config, regardless of how long a world sat
+animal-free. This is exactly the bug the comment above it describes fixing
+("seed 6175 ran 3,800 animal-free days... half the run producing nothing")
+— it just never actually worked. `headless.js`'s own autohalt (`!ST.apop`
+with no reseed-days gate at all) never had this bug; this brings the shipped
+build in line with it. One clause dropped, nothing else touched.
+
+### [L0.48-2] — the two hottest functions were re-resolving a global 20+ times a call
+
+A `--prof` pass over a fixed 300-sim-day run (seed 4001, default config —
+chosen to cross both the plant bloom and the day-260 fauna arrival) found
+`updatePlant` and `senseDecide` responsible for **58% of all JS execution
+time** between them, with V8's `LoadGlobalIC`/`LoadIC` builtins alone
+accounting for **17.5%**. `CFG` is a top-level `const`, referenced by name
+~20-25 times per `updatePlant` call and ~24 times directly in `senseDecide`
+(more via the scoring helpers it calls up to `senseCap` times per candidate)
+— and it never changes mid-run; only `buildWorld()` assigns it, before
+`tick()` ever runs. Re-resolving the global binding on every one of those
+reads was pure overhead the existing code already avoided for other
+frequently-read state (`W.n`, `W.tileArea`, `P.genome` were already aliased
+to locals at the top of `updatePlant`; `CFG` was the omission). Fix: alias
+`CFG` to a local `C` once per call in `updatePlant`, `senseDecide`, and the
+small scoring helpers those call — `reachOf`, `carrionDigest`, `grazeYield`,
+`plantScore` — and read `C.foo` instead of `CFG.foo` everywhere in those six
+functions. No formula changed, no `rng()`/`gauss()` call site touched.
+`updateAnimal` (2.7% of JS time) and `rebuildCanopy` (5.2%) were left alone —
+real but well below the two dominant functions, and widening scope raises
+diff size/risk for a return that isn't where the profile pointed.
+
+**Prediction:** trajectory identical to v0.47 for the same seed at the same
+tick (RNG-neutral by construction); ticks/sec measurably higher on a fixed
+sim-day count; no gene mean or population statistic moves beyond seed noise.
+
+**Verification: PASS, exactly.** Seed 1337, 300 days, v0.47 vs v0.48: 0 of 97
+`cols` differ across all 60 samples, gene snapshots byte-identical, event log
+byte-identical, final matter/plants/animals identical. 315→322 ticks/s
+(contended with another job running alongside it — directional, not a clean
+benchmark, but consistent with the hypothesis).
+
+### A structural naming problem, found while writing this section, worth knowing about
+
+Every `[Lnn]` tag before v0.37 is a flat, ever-incrementing sequence (now
+past L66). Since v0.37, a version that bundles several changes tags them
+`L<version>-<index>` instead — `L37-1`, `L47-1`..`L47-6`, and this version's
+`L0.48-1`/`L0.48-2`. **These two schemes share one integer space, and the
+flat sequence has already grown past both 47 and 48** — there is a real,
+pre-existing bare `[L47]` (line ~1835 in the source, about growth/breeding
+order) and a real bare `[L48]` (line ~1872, about clutch-cost hoisting),
+both unrelated to the v0.47 audit or this version, both from years before
+either. `L47-1..6` already silently collided with the older bare `[L47]`;
+adding bare `L48-1`/`L48-2` would have collided with the older bare `[L48]`
+too, which is why this version's tags are `L0.48-1`/`L0.48-2` instead — the
+version string itself, not just its integer, so a dot makes it un-collidable
+with the flat sequence forever. Not fixing the existing `L47-1..6` /
+`[L47]` collision retroactively — those already shipped, `grep` for the
+exact bracketed string still resolves each one unambiguously, and rewriting
+six already-referenced tags for a cosmetic problem is not worth the risk.
+Going forward: **any new version-bundle tag should use the `L<major>.<minor>`
+form** (`L0.49-1`, not `L49-1`) so this stops happening.

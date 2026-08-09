@@ -10,7 +10,7 @@
  * not the judgment half.
  *
  * Usage:
- *   node experiment.js --build evosim-v0_47_0.html --days 1200 --label my-run \
+ *   node experiment.js --build evosim-v0_48_0.html --days 1200 --label my-run \
  *        [--cfg patch.json] [--seeds 1337,2222,3333] [--base-seed 1000] [--n 3] \
  *        [--no-autohalt]
  *
@@ -37,7 +37,7 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const build = args.build || 'evosim-v0_47_0.html';
+  const build = args.build || 'evosim-v0_48_0.html';
   const days = args.days;
   if (!days) { console.error('need --days'); process.exit(1); }
   const label = args.label || `run-${Date.now()}`;

@@ -1,10 +1,13 @@
 <!--
   EVOLUTION SIMULATOR — single self-contained HTML file, canvas 2D, no build step
-  version 0.47.0  ·  2026-08-08  ·  formatVersion 36
+  version 0.48.0  ·  2026-08-09  ·  formatVersion 36
 
-  Version history is in CHANGELOG.md. Per-gene accounting is in GENE-LEDGER.md.
-  The spec is DESIGN.md; section numbers there are referenced from code comments
-  (`design 6.1`) and are stable. Current state and open questions: STATE.md.
+  Version history, per-gene accounting and rationale are all in LEDGER.md,
+  indexed by the [Lnn] tags below (CHANGELOG.md/GENE-LEDGER.md/DESIGN.md/
+  STATE.md were consolidated into LEDGER.md and HANDOFF.md at v0.37 and no
+  longer exist — a few stray "design N.N" comments predate that and are dead
+  references now, not a live spec). Current state and open questions:
+  HANDOFF.md.
 
   INVARIANTS. Every one of these was learned by breaking it, most of them twice.
 
@@ -24,14 +27,17 @@
    6. CHECK ACHIEVABLE RANGES, NOT JUST FORMULA SHAPES. A correct mechanism at
       the wrong scale does nothing: reach vs height, seed dormancy, rootDepth,
       k_heightMass — twice.
-   6b. DO NOT RUN THIS SIM IN A HEADLESS HARNESS TO TEST A CHANGE.
-       It is far too compute-expensive, and a short headless run answers a
-       different question than the one being asked: populations shift with
-       every change, so wall-clock and end-state counts are not comparable
-       between versions. The owner runs the file and returns a log. Syntax-
-       check the script block, reason the change through against the LAST
-       log, ship the file. Profiling for a PERFORMANCE change is the one
-       exception, and even then measure a fixed sim-day count, not a tail.
+   6b. RUNNING THE SIM COSTS COMPUTE, NOT TOKENS, SINCE v0.47's HEADLESS
+       TOOLING — this invariant used to forbid it outright on cost grounds;
+       that stopped being true. What still holds: a short run answers a
+       different question than a long one, so end-state counts across
+       different lengths are never comparable, and every run that tests a
+       biology hypothesis needs a written, falsifiable prediction on record
+       BEFORE it starts — free compute makes fishing for a result easier to
+       fall into, not harder. Profiling for a PERFORMANCE change needs
+       neither prediction nor approval — measure a fixed sim-day count, not
+       a tail, and a resulting code change gets its own prediction (moves
+       speed only) same as anything else.
    7. NEVER CALIBRATE A CONSTANT AGAINST A STATISTIC MEASURED IN A BROKEN RUN.
       k_reach 0.060 came from a mean height measured in a collapsed flora.
    8. WHATEVER CAPS THE POPULATION IS WHAT DOES THE SELECTING. Slot pools are a
@@ -73,6 +79,12 @@
       founder. Any range set wide "to be safe" and asymmetric about the founder
       will drag that gene whenever Ne is small. size .2-40 pulled toward 20.1.
       Check the midpoint of every range you widen.
+
+  v0.48.0: performance/mechanical only, no ecological claim either change —
+  extinction halt actually fires now, was gated on a condition that was
+  always false at default config [L0.48-1]; CFG/W/P/AN aliased to locals in the
+  two hottest functions found by profiling, cutting repeated global-scope
+  lookups [L0.48-2]. Rationale and verification in LEDGER.md.
 
   v0.47.0: arbiter put in one currency [L47-2]; confusion effect + AN.risk so
   grouping has a payoff [L47-3]; toxin model unified between perception and
@@ -275,7 +287,7 @@
 // 1. CONFIG — everything tunable lives here. EVERY k_ IS A GUESS.
 //==========================================================================
 // FORMAT_VERSION tracks the SAVE SCHEMA, not the build.  [L01]
-const VERSION = '0.47.0', FORMAT_VERSION = 36;
+const VERSION = '0.48.0', FORMAT_VERSION = 36;
 
 const CFG = {
   // ---- world (rebuild required) ----
@@ -1153,6 +1165,15 @@ function updateSeed(i, step){
 }
 
 function updatePlant(i, step){
+  // C aliases CFG for this call: CFG never changes mid-run (only buildWorld()
+  // re-assigns its fields, before any tick runs), so re-resolving the global
+  // binding on every one of the ~25 CFG.* reads below was pure overhead.
+  // Profiling a 300-day run found LoadGlobalIC/LoadIC costing 17.5% of all JS
+  // time with this function and senseDecide together 58% of it — this alone
+  // does not touch W/P/AN, which hold per-tick mutable state and are already
+  // partly aliased below (G, t, n, A); worth revisiting if the profile still
+  // shows global-lookup cost after this. No formula changed. [L0.48-2]
+  const C = CFG;
   const G = P.genome, g = i*PGENES, t = P.tile[i], n = W.n, A = W.tileArea;
   const ty = (t/n)|0;
   const mass = P.mass[i];
@@ -1170,42 +1191,42 @@ function updatePlant(i, step){
   if (bw < myW){
     // grew past the last canopy rebuild: fall back to the honest value
     bw = myW;
-    inter = relLight*(1 - Math.exp(-CFG.k_shade*Math.max(W.canopy[cb], leaf)/A));
+    inter = relLight*(1 - Math.exp(-C.k_shade*Math.max(W.canopy[cb], leaf)/A));
   }
   const myFrac = bw > 0 ? inter*(myW/bw) : 0;
   const tol = G[g+PG.shadeTolerance];
   const photoEff = pe0
-                 * (1 - CFG.k_shadeCost*tol)
-                 * (1 + tol*(1-relLight)*CFG.k_shadeGain);
+                 * (1 - C.k_shadeCost*tol)
+                 * (1 + tol*(1-relLight)*C.k_shadeGain);
   const light = W.lightBase[t]*W.latF[ty]*W.lightMulNow;  // [L42-3]
   // Poor ground is poor ground: dryness and altitude scale what a plant can
   // actually make of the light it catches.
-  const gain = light*A*myFrac*photoEff*CFG.k_photo*W.fert[t];
+  const gain = light*A*myFrac*photoEff*C.k_photo*W.fert[t];
 
   // fraction of this plant's leaf actually intercepting light [L40-1]
   const litFrac = leaf > 0 ? Math.min(1, myFrac*A/leaf) : 1;
-  const photoLeaf = leaf*(CFG.k_darkResp + (1-CFG.k_darkResp)*litFrac);
+  const photoLeaf = leaf*(C.k_darkResp + (1-C.k_darkResp)*litFrac);
 
   const life = G[g+PG.lifespan];
   let sen = 1;
   if (P.age[i] > life) sen = Math.min(20, 1 + G[g+PG.senescenceRate]*(P.age[i]-life)/life);
 
-  const upkeep = (CFG.k_base
-    + CFG.k_mass*m75
-    + CFG.k_leaf*leaf
-    + CFG.k_height*h*h*mass
-    + CFG.k_root*G[g+PG.rootDepth]*G[g+PG.rootDepth]*mass   // B1: quadratic
-    + CFG.k_regrowCost*G[g+PG.regrowthRate]*G[g+PG.regrowthRate]*mass
-    + CFG.k_photoCost*pe0*pe0*photoLeaf // quadratic, or efficiency pins to a rail
+  const upkeep = (C.k_base
+    + C.k_mass*m75
+    + C.k_leaf*leaf
+    + C.k_height*h*h*mass
+    + C.k_root*G[g+PG.rootDepth]*G[g+PG.rootDepth]*mass   // B1: quadratic
+    + C.k_regrowCost*G[g+PG.regrowthRate]*G[g+PG.regrowthRate]*mass
+    + C.k_photoCost*pe0*pe0*photoLeaf // quadratic, or efficiency pins to a rail
     // B2+B3: disposable soma, as the animals have always had.  [L22]
-    + CFG.k_longevity*life*m75/(G[g+PG.senescenceRate] + 0.2))*sen;
+    + C.k_longevity*life*m75/(G[g+PG.senescenceRate] + 0.2))*sen;
   if ((i & 63) === 0){
-    UPK[0] += CFG.k_base*sen;              UPK[1] += CFG.k_mass*m75*sen;
-    UPK[2] += CFG.k_leaf*leaf*sen;         UPK[3] += CFG.k_height*h*h*mass*sen;
-    UPK[4] += CFG.k_root*G[g+PG.rootDepth]*G[g+PG.rootDepth]*mass*sen;
-    UPK[5] += CFG.k_regrowCost*G[g+PG.regrowthRate]*G[g+PG.regrowthRate]*mass*sen;
-    UPK[6] += CFG.k_photoCost*pe0*pe0*photoLeaf*sen;
-    UPK[7] += CFG.k_longevity*life*m75/(G[g+PG.senescenceRate]+0.2)*sen; UPK[8] += gain;
+    UPK[0] += C.k_base*sen;              UPK[1] += C.k_mass*m75*sen;
+    UPK[2] += C.k_leaf*leaf*sen;         UPK[3] += C.k_height*h*h*mass*sen;
+    UPK[4] += C.k_root*G[g+PG.rootDepth]*G[g+PG.rootDepth]*mass*sen;
+    UPK[5] += C.k_regrowCost*G[g+PG.regrowthRate]*G[g+PG.regrowthRate]*mass*sen;
+    UPK[6] += C.k_photoCost*pe0*pe0*photoLeaf*sen;
+    UPK[7] += C.k_longevity*life*m75/(G[g+PG.senescenceRate]+0.2)*sen; UPK[8] += gain;
     UPKN++;
   }
 
@@ -1215,7 +1236,7 @@ function updatePlant(i, step){
   if (P.energy[i] <= 0 || P.age[i] > life*3){
     // MUTUALLY EXCLUSIVE chain: recent grazing marks "eaten", past lifespan marks senescence, everything else is shaded out.  [L23]
     if      (P.age[i] > life*3) W.pDeadAge++;
-    else if (P.bit[i] > 0 && W.tick - P.bit[i] < CFG.ticksPerDay*2) W.pDeadEat++;
+    else if (P.bit[i] > 0 && W.tick - P.bit[i] < C.ticksPerDay*2) W.pDeadEat++;
     else if (P.age[i] > life) W.pDeadSen++;
     else W.pDeadStarve++;
     killPlant(i); return;
@@ -1230,27 +1251,27 @@ function updatePlant(i, step){
   if (a0<0) a0=0; if (a1<0) a1=0; if (a2<0) a2=0; if (a3<0) a3=0;
   // a plant must at least double from a seedling before it can breed, or
   // maturityMass evolves below seedlingMass and every sprout is born adult
-  const matM = Math.max(CFG.seedlingMass*2,
+  const matM = Math.max(C.seedlingMass*2,
                         Math.min(G[g+PG.maturityMass], G[g+PG.maxMass]));
   const mature = P.mass[i] >= matM;
   if (!mature){ a0 += a2; a2 = 0; }
   const sum = a0+a1+a2+a3;
   if (sum > 0){ a0/=sum; a1/=sum; a2/=sum; a3/=sum; } else { a3 = 1; }
 
-  const reserve = a3*CFG.k_storage*upkeep*CFG.ticksPerDay;
+  const reserve = a3*C.k_storage*upkeep*C.ticksPerDay;
   const surplus = P.energy[i] - reserve;
   if (surplus > 0){
     const room = G[g+PG.maxMass] - mass;
     const gEn = surplus*a0;
     if (room > 0 && gEn > 0){
-      const cap = CFG.k_uptake*G[g+PG.rootDepth]*p75(mass)*step;
+      const cap = C.k_uptake*G[g+PG.rootDepth]*p75(mass)*step;
       const nAvail = Math.min(cap, W.nutrient[t]);
       // Compensatory regrowth: a recently cropped plant rebuilds cheaply,
       // because the roots and meristems it is regrowing from are still there.
-      const epm = (P.bit[i] > 0 && W.tick - P.bit[i] < CFG.ticksPerDay*CFG.regrowDays)
-        ? CFG.energyPerMass*(1 - CFG.k_regrow*G[g+PG.regrowthRate])
-        : CFG.energyPerMass;
-      const byE = gEn/epm, byN = nAvail/CFG.nutrientPerMass;
+      const epm = (P.bit[i] > 0 && W.tick - P.bit[i] < C.ticksPerDay*C.regrowDays)
+        ? C.energyPerMass*(1 - C.k_regrow*G[g+PG.regrowthRate])
+        : C.energyPerMass;
+      const byE = gEn/epm, byN = nAvail/C.nutrientPerMass;
       const dM = Math.min(byE, byN, room);
       // which of the three actually bound? light-limited and nutrient-limited
       // worlds behave completely differently and I could not tell them apart
@@ -1258,7 +1279,7 @@ function updatePlant(i, step){
       if (dM > 0){
         P.mass[i] = mass + dM; W.grown += dM;
         P.energy[i] -= dM*epm;
-        W.nutrient[t] -= dM*CFG.nutrientPerMass;
+        W.nutrient[t] -= dM*C.nutrientPerMass;
       }
     }
     // DEFENCE. allocDefence finally has a job: realized defence is what the plant actually paid for, over what its genes ask for.  [L24]
@@ -1266,7 +1287,7 @@ function updatePlant(i, step){
     if (dEn > 0){
       P.energy[i] -= dEn;
       const tg = G[g+PG.toughness], tx = G[g+PG.toxicity], fb = G[g+PG.fibre];
-      const need = (CFG.k_toughCost*tg*tg + CFG.k_toxCost*tx*tx + CFG.k_fibreCost*fb*fb)*mass*step;
+      const need = (C.k_toughCost*tg*tg + C.k_toxCost*tx*tx + C.k_fibreCost*fb*fb)*mass*step;
       const got = need > 1e-9 ? clamp(dEn/need, 0, 1) : 1;
       P.defence[i] = P.defence[i]*0.75 + got*0.25;
     } else P.defence[i] *= 0.9;
@@ -1279,7 +1300,7 @@ function updatePlant(i, step){
 
   if (mature && P.repro[i] > 0){
     const sE = G[g+PG.seedEnergy], disp = G[g+PG.dispersalRange];
-    const costPer = sE + CFG.k_disperse*disp*disp;   // B7: quadratic
+    const costPer = sE + C.k_disperse*disp*disp;   // B7: quadratic
     let want = Math.min(G[g+PG.seedCount]|0, (P.repro[i]/costPer)|0);
     while (want-- > 0){
       if (!spawnSeed(i, sE, disp)) break;
@@ -1441,9 +1462,9 @@ function wrapDelta(d){ return d - W.size*Math.round(d/W.size); }
 // already under weak positive selection (0.134 -> 0.346), and it is bounded by
 // the k_climbC*climbing^2 cost that already exists. [L43-2]
 function reachOf(g){
-  const G = AN.genome;
-  return CFG.k_reach*Math.pow(Math.max(0.05, G[g+AG.size]), CFG.reachMassPow)
-         *(1 + CFG.k_climbReach*G[g+AG.climbing]);
+  const C = CFG, G = AN.genome;   // [L0.48-2]
+  return C.k_reach*Math.pow(Math.max(0.05, G[g+AG.size]), C.reachMassPow)
+         *(1 + C.k_climbReach*G[g+AG.climbing]);
 }
 // a length, so mass^(1/3) — same rule as reach. [L39-1]
 function radiusOf(i){ return CFG.k_bodyRadius*Math.cbrt(Math.max(0.05, AN.mass[i])); }
@@ -1455,7 +1476,8 @@ function accessOf(j, reach){
 }
 // Energy per tick this animal would actually get from this plant, all three defences and reach included.  [L31]
 function carrionDigest(carn){
-  return CFG.carrionFloor + (1 - CFG.carrionFloor)*carn;
+  const C = CFG;   // [L0.48-2]
+  return C.carrionFloor + (1 - C.carrionFloor)*carn;
 }
 function toxLoss(toxRaw, meal){
   return meal*CFG.toxMaxLoss*toxRaw/(toxRaw + meal + 1e-9);
@@ -1467,26 +1489,28 @@ function satiateBite(i, g, perMass){
   return Math.max(0, cap - AN.energy[i])/perMass;
 }
 function grazeYield(i, j, herb, fibreTol, toxRes, reach){
+  const C = CFG;   // [L0.48-2]
   const pg = j*PGENES, def = P.defence[j], g = i*AGENES;
   const tough  = P.genome[pg+PG.toughness]*def;
-  const digest = herb/(1 + CFG.k_fibreBite*P.genome[pg+PG.fibre]*def*(1-fibreTol));
-  const meal   = CFG.tissueValue*Math.max(0, digest);
-  const toxRaw = P.genome[pg+PG.toxicity]*def*CFG.k_toxinHarm/(1 + toxRes);  // [L47-1]
-  let bite = CFG.k_intake*Math.pow(AN.genome[g+AG.metabolicRate], CFG.metPow)
-             *AN.genome[g+AG.biteForce]*Math.pow(AN.mass[i], CFG.biteMassPow)
-             /(1 + CFG.k_toughBite*tough)*accessOf(j, reach);
+  const digest = herb/(1 + C.k_fibreBite*P.genome[pg+PG.fibre]*def*(1-fibreTol));
+  const meal   = C.tissueValue*Math.max(0, digest);
+  const toxRaw = P.genome[pg+PG.toxicity]*def*C.k_toxinHarm/(1 + toxRes);  // [L47-1]
+  let bite = C.k_intake*Math.pow(AN.genome[g+AG.metabolicRate], C.metPow)
+             *AN.genome[g+AG.biteForce]*Math.pow(AN.mass[i], C.biteMassPow)
+             /(1 + C.k_toughBite*tough)*accessOf(j, reach);
   bite = Math.min(bite, P.mass[j]);
   return Math.max(0, bite*(meal - toxLoss(toxRaw, meal)));
 }
 // MARGINAL VALUE THEOREM, properly: choose a patch by its expected gain, leave it by its marginal rate.  [L33]
 function plantScore(j, d, herb, fibreTol, toxRes, pa, hunger){
+  const C = CFG;   // [L0.48-2]
   const pg = j*PGENES, def = P.defence[j];
-  const digest = herb/(1 + CFG.k_fibreBite*P.genome[pg+PG.fibre]*def*(1-fibreTol));
-  const meal   = digest*CFG.tissueValue;
-  const toxRaw = P.genome[pg+PG.toxicity]*def*CFG.k_toxinHarm/(1 + toxRes);  // [L47-1]
+  const digest = herb/(1 + C.k_fibreBite*P.genome[pg+PG.fibre]*def*(1-fibreTol));
+  const meal   = digest*C.tissueValue;
+  const toxRaw = P.genome[pg+PG.toxicity]*def*C.k_toxinHarm/(1 + toxRes);  // [L47-1]
   const net    = meal - toxLoss(toxRaw, meal);        // energy per unit mass
   if (net <= 0) return 0;
-  let bite = ABITEC/(1 + CFG.k_toughBite*P.genome[pg+PG.toughness]*def)
+  let bite = ABITEC/(1 + C.k_toughBite*P.genome[pg+PG.toughness]*def)
              *accessOf(j, AREACH);
   if (bite > P.mass[j]) bite = P.mass[j];
   if (bite <= 1e-9) return 0;
@@ -1504,46 +1528,52 @@ let BANNED = -1;
 // ---- sense + decide. Scans tiles nearest-first and stops after senseCap
 // detections, so senseRange has a saturating benefit against a quadratic cost.
 function senseDecide(i){
+  // C aliases CFG for this call — see updatePlant [L0.48-2]. This is the
+  // single hottest function in the build by profile share (33.5% of JS
+  // time with its inlined helpers), and had 24 direct CFG.* references
+  // plus more inside plantScore/grazeYield/accessOf/reachOf/carrionDigest,
+  // called up to senseCap times per candidate.
+  const C = CFG;
   const G = AN.genome, g = i*AGENES;
   const sr = G[g+AG.senseRange], sr2 = sr*sr;
   const ax = AN.x[i], ay = AN.y[i], mass = AN.mass[i];
   // capacity is DAYS OF UPKEEP, not mass. Denominating it in mass gave a founder a capacity of 3.75 against 40 starting...  [L34]
-  const cap = Math.max(1e-6, G[g+AG.energyCapacity]*AN.up[i]*CFG.ticksPerDay);
+  const cap = Math.max(1e-6, G[g+AG.energyCapacity]*AN.up[i]*C.ticksPerDay);
   const hunger = clamp(1 - AN.energy[i]/cap, 0, 1)*G[g+AG.hungerUrgency] + 0.05;
   // C2: an animal has a preferred time of day. On-phase it senses well;  [L35]
-  let dp = Math.abs((W.tick % CFG.ticksPerDay)/CFG.ticksPerDay - G[g+AG.activityPhase]);
+  let dp = Math.abs((W.tick % C.ticksPerDay)/C.ticksPerDay - G[g+AG.activityPhase]);
   if (dp > 0.5) dp = 1 - dp;
   const onPhase = 1 - dp*2;
   const acuity = G[g+AG.senseAcuity]*(0.55 + 0.45*onPhase), herb = G[g+AG.herbivory];
   const fibreTol = G[g+AG.fibreTolerance], toxRes = G[g+AG.toxinResistance];
   const carn = G[g+AG.carnivory];
   AREACH = reachOf(g);
-  ABITEC = CFG.k_intake*Math.pow(G[g+AG.metabolicRate], CFG.metPow)
-           *G[g+AG.biteForce]*Math.pow(mass, CFG.biteMassPow);
+  ABITEC = C.k_intake*Math.pow(G[g+AG.metabolicRate], C.metPow)
+           *G[g+AG.biteForce]*Math.pow(mass, C.biteMassPow);
   ASPD = Math.max(0.02, G[g+AG.maxSpeed]);
-  AGUT = Math.max(1e-3, mass*CFG.gutCapMult);
+  AGUT = Math.max(1e-3, mass*C.gutCapMult);
   // flesh mass per tick before armour. ATTACK and SCAVENGE are MVT rates now,
   // exactly like GRAZE, so they need the same handling-rate term. [L47-2]
-  AATKC = CFG.k_attack*Math.pow(G[g+AG.metabolicRate], CFG.metPow)
+  AATKC = C.k_attack*Math.pow(G[g+AG.metabolicRate], C.metPow)
           *G[g+AG.biteForce]*p75(mass);
   let riskMax = 0;
   BANNED = -1;
-  if (AN.stall[i] > CFG.stallLimit){        // give up on what you cannot reach
+  if (AN.stall[i] > C.stallLimit){        // give up on what you cannot reach
     BANNED = AN.tgt[i]; AN.tgt[i] = -1; AN.stall[i] = 0; AN.pursue[i] = 0;
   }
   // A hunt has to survive re-deciding. pursuitPersistence has sat unread in the genome since phase 3;  [L36]
   if (AN.pursue[i] > 0){
-    AN.pursue[i] -= CFG.animalThink;
+    AN.pursue[i] -= C.animalThink;
     const p = AN.tgt[i];
     // ESCAPE HATCHES. This used to return before the hunger and threat checks
     // with nothing but pursuitPersistence (up to 500 ticks) to end it, so any
     // animal that picked ATTACK could lose a sim-day for nothing — which is
     // real purifying selection on aggression and duly drove it to ~0.1. Break
     // the chase if it is not closing, or if the chase is starving us. [L39-3]
-    const starving = AN.energy[i] < CFG.pursuitBailEnergy*AN.up[i]*CFG.ticksPerDay;
+    const starving = AN.energy[i] < C.pursuitBailEnergy*AN.up[i]*C.ticksPerDay;
     if (AN.act[i] === ACT_ATTACK && p >= 0 && AN.stage[p] === ALIVE
         && AN.stam[i] > G[g+AG.restThreshold]
-        && AN.stall[i] < CFG.stallLimit && !starving) return;
+        && AN.stall[i] < C.stallLimit && !starving) return;
     AN.pursue[i] = 0; AN.stall[i] = 0;
   }
   const tx0 = (ax/W.tileSize)|0, ty0 = (ay/W.tileSize)|0;
@@ -1551,7 +1581,7 @@ function senseDecide(i){
   // Plants and animals get SEPARATE detection budgets.  [L37]
 
   const nW = W.n;
-  for (let c = 0; c < TOFFD.length && (found < CFG.senseCap || foundA < CFG.senseCap); c++){
+  for (let c = 0; c < TOFFD.length && (found < C.senseCap || foundA < C.senseCap); c++){
     if ((TOFFD[c]-1)*W.tileSize > sr) break;
     // offsets are bounded by the sense radius in tiles, always < nW, so one
     // conditional replaces two modulos on the hottest line in the build
@@ -1562,14 +1592,14 @@ function senseDecide(i){
     const aS = AIDX.start[t], aE = AIDX.start[t+1];
     if (pS === pE && aS === aE) continue;    // empty tile: nothing to cover [L47-6]
     const cover = W.cover[t];                                          // [L47-6]
-    for (let k = pS; k < pE && found < CFG.senseCap; k++){
+    for (let k = pS; k < pE && found < C.senseCap; k++){
       const j = PIDX.items[k];
       if (P.stage[j] !== 2) continue;
       const dx = wrapDelta(P.x[j]-ax), dy = wrapDelta(P.y[j]-ay);
       const d2 = dx*dx+dy*dy; if (d2 > sr2) continue;
       const d = Math.sqrt(d2);
       // A plant's visibility scales with its bulk. Without this term a 0.5-mass seedling was exactly as findable as a 184-mass...  [L38]
-      const pm = P.mass[j], vis = pm/(pm + CFG.visMass);
+      const pm = P.mass[j], vis = pm/(pm + C.visMass);
       if (rng() > clamp((sr-d)/sr, 0, 1)*acuity*(1-cover*0.6)*vis) continue;
       if (j === BANNED) continue;   // a banned plant no longer spends budget
       found++;
@@ -1578,7 +1608,7 @@ function senseDecide(i){
     }
     // Animals are always scanned now, not only when social.  [L39]
     const nNear = aE - aS;          // tile crowding, for the confusion effect
-    for (let k = aS; k < aE && foundA < CFG.senseCap; k++){
+    for (let k = aS; k < aE && foundA < C.senseCap; k++){
       const j = AIDX.items[k];
       if (j === i || !AN.stage[j]) continue;   // corpses included: scavengers need them
       const dx = wrapDelta(AN.x[j]-ax), dy = wrapDelta(AN.y[j]-ay);
@@ -1607,7 +1637,7 @@ function senseDecide(i){
       // [L47-2]
       if (AN.stage[j] === CORPSE){
         // carrion: no armour, no retaliation, no chase, and it does not run
-        const cv = carrionDigest(carn)*CFG.meatValue*CFG.carrionValue;
+        const cv = carrionDigest(carn)*C.meatValue*C.carrionValue;
         const rateC = AATKC*cv;
         if (rateC > 1e-12){
           const patchC = (omass < AGUT ? omass : AGUT)*cv;
@@ -1621,20 +1651,20 @@ function senseDecide(i){
       for (let q = 0; q < 3; q++){ const dd = G[g+AG.tag0+q]-G[og+AG.tag0+q]; td += dd*dd; }
       const kin = 1 - Math.sqrt(td/3);
       // crowding around THIS target, shared by ATTACK and APPROACH
-      const crowd = CFG.k_confusion*(nNear > 1 ? nNear-1 : 0);
+      const crowd = C.k_confusion*(nNear > 1 ? nNear-1 : 0);
 
       // prey. sizeMatch is a Gaussian on the mass ratio, so specialists on
       // small prey, generalists and giant-killers all fall out of one term.
       const ratio = omass/Math.max(0.05, mass);
       const z = (ratio - G[g+AG.preySizeRatio])/Math.max(0.05, G[g+AG.preySizeTolerance]);
       const sizeMatch = Math.exp(-z*z);
-      const mv = carn*CFG.meatValue;                    // energy per unit flesh
+      const mv = carn*C.meatValue;                    // energy per unit flesh
       // AGGRESSION IS RISK TOLERANCE, NOT APPETITE, and retaliation is a
       // RATE, charged per bite tick — so it now subtracts from the intake rate
       // instead of from a per-mass value. [L39-2] [L47-2]
-      const retal = G[og+AG.biteForce]*G[og+AG.aggression]*CFG.k_retal
+      const retal = G[og+AG.biteForce]*G[og+AG.aggression]*C.k_retal
                     *(1 - 0.9*G[g+AG.aggression]);
-      const rateA = AATKC*mv/((1 + CFG.k_armEff*G[og+AG.armour])*(1 + crowd)) - retal;
+      const rateA = AATKC*mv/((1 + C.k_armEff*G[og+AG.armour])*(1 + crowd)) - retal;
       if (rateA > 1e-12){
         const patchA = (omass < AGUT ? omass : AGUT)*mv;
         // travel time to a target that is itself moving. Fast prey is far
@@ -1649,9 +1679,9 @@ function senseDecide(i){
       // threat, as an AVOIDED LOSS RATE: the flesh they take per tick, valued
       // at what it cost to build. Absolute energy per tick, like everything
       // else — so it no longer carries a spurious 1/own-mass term.
-      const threatR = CFG.k_attack*G[og+AG.biteForce]*p75(omass)
-                      *G[og+AG.carnivory]*G[og+AG.aggression]*CFG.energyPerMassA
-                      /(1 + CFG.k_armEff*G[g+AG.armour]);
+      const threatR = C.k_attack*G[og+AG.biteForce]*p75(omass)
+                      *G[og+AG.carnivory]*G[og+AG.aggression]*C.energyPerMassA
+                      /(1 + C.k_armEff*G[g+AG.armour]);
       if (threatR > 1e-12){
         const closeT = G[og+AG.maxSpeed] - 0.6*G[g+AG.maxSpeed];
         const ex = threatR/(1 + d/(closeT > 0.05 ? closeT : 0.05));
@@ -1674,14 +1704,14 @@ function senseDecide(i){
     }
   }
   // remembered threat exposure, the denominator APPROACH is measured against
-  AN.risk[i] += (riskMax - AN.risk[i])*CFG.riskEwma*CFG.animalThink;   // [L47-3]
+  AN.risk[i] += (riskMax - AN.risk[i])*C.riskEwma*C.animalThink;   // [L47-3]
   if (AN.stam[i] < G[g+AG.restThreshold]) { bestAct = ACT_REST; bestT = -1; bestS = 1e9; }
   else if (bestT < 0){ bestAct = ACT_WANDER; }
   // Marginal value theorem: stay while this plant beats your own running mean intake.  [L42]
   W.seenA += foundA; W.seenN++;
   const cur = AN.tgt[i];
   if (AN.act[i] === ACT_GRAZE && cur >= 0 && P.stage[cur] === 2 && cur !== bestT){
-    if (grazeYield(i, cur, herb, fibreTol, toxRes, AREACH) >= AN.rate[i]*CFG.mvtLeave) return;
+    if (grazeYield(i, cur, herb, fibreTol, toxRes, AREACH) >= AN.rate[i]*C.mvtLeave) return;
     W.abandons++;
   }
   if (bestAct === ACT_ATTACK && bestT !== AN.tgt[i]) AN.pursue[i] = G[g+AG.pursuitPersistence];
@@ -1852,7 +1882,7 @@ function updateAnimal(i){
   if (v > 0.02) AN.stam[i] = Math.max(0, AN.stam[i] - CFG.staminaDrain*v/Math.max(0.01, G[g+AG.maxSpeed]));
   else AN.stam[i] = Math.min(1, AN.stam[i] + CFG.staminaRecover*0.5);
 
-  // --- metabolise (design 6.3). Every term curves up faster than its benefit.
+  // --- metabolise. Every term curves up faster than its benefit (invariant 3).
   const m75 = p75(mass);
   const life = G[g+AG.lifespan];
   let sen = 1;
@@ -3253,9 +3283,12 @@ function logSample(){
     LOG.aGone = 1; LOG.aGoneTick = W.tick; logEvent('animals-extinct');
   }
   // TERMINAL HALT. Seed 6175 ran 3,800 animal-free days after its fauna died
-  // at day ~3900 — half the run producing nothing. If the net is off and the
-  // fauna has been gone for haltAfterDays with no reseed, stop. [L43-1]
-  if (LOG.aGone && !ST.apop && !CFG.animalReseedDays && !LOG.halted
+  // at day ~3900 — half the run producing nothing. If the fauna has been gone
+  // for haltAfterDays with no reseed, stop. [L43-1] The `!CFG.animalReseedDays`
+  // clause here required that CONSTANT to be 0 — it never was (default 60), so
+  // this never fired at default config regardless of how long a world sat
+  // animal-free; headless.js's own autohalt never had this bug. [L0.48-1]
+  if (LOG.aGone && !ST.apop && !LOG.halted
       && W.tick - LOG.aGoneTick > CFG.haltAfterDays*TPD()){
     LOG.halted = 1; logEvent('run-halted-fauna-extinct');
     paused = true;
