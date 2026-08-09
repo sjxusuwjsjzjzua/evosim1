@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"SCREEN. Combines k_photoCost 0.012 with carrionFloor 0.10, the mildest and longest-surviving of the three overshoot arms (R0 0.52, actAppr 2.2%) on its own. Best odds of the three combo arms.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"carrionFloor":0.10}}
