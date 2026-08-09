@@ -47,18 +47,20 @@ count.
   result on its own. See LEDGER.md's v0.47 Scorecard, 3rd pass, for the
   full numbers and reasoning.
 - **Free follow-up (addendum to the 3rd pass) found a more specific
-  candidate explanation, still untested.** 1337's raw JSON — the only other
-  seed with one on disk — shows a completely different pre-fauna plant
-  trajectory than 4002: at day 260, **8,206** plants / `pOcc` 0.21 for 1337
-  vs **53,180** plants / `pOcc` 0.79 for 4002, with 4002 already sitting at
-  its `maxPlants` slot cap (`caps=1`) from day 215 on, fifty days before any
-  animal exists. That is a pure plant-side difference no animal-behaviour
-  mechanism (confusion or otherwise) can explain. Leading candidate: **the
-  boom-bust isn't about `k_confusion` at all — it's that seed 4002 grew an
-  oversized, capped food base before fauna arrived, and that's what let a
-  tiny founding population explode past whatever protection existed.** This
-  would also explain the isolation arm's 3-for-3 failure rate (a smaller
-  pre-fauna food base makes `k_confusion`'s setting matter less either way).
+  candidate explanation, still untested.** (Corrected same session — the
+  first version misread the 1337 `k_confusion:0` log as its default-arm
+  log; see LEDGER.md's addendum note.) 1337's correct default-arm raw JSON
+  shows a different pre-fauna plant trajectory than 4002: at day 260,
+  **15,619** plants / `pOcc` 0.30 for 1337 vs **53,180** plants / `pOcc`
+  0.79 for 4002, with 4002 repeatedly sitting at its `maxPlants` slot cap
+  in the run-up to day 265 while 1337 never hit it once. That is a pure
+  plant-side difference no animal-behaviour mechanism (confusion or
+  otherwise) can explain. Leading candidate: **the boom-bust isn't about
+  `k_confusion` at all — it's that seed 4002 grew an oversized, capped food
+  base before fauna arrived, and that's what let a tiny founding population
+  explode past whatever protection existed.** This would also explain the
+  isolation arm's 3-for-3 failure rate (a smaller pre-fauna food base makes
+  `k_confusion`'s setting matter less either way).
   **Not acted on — new hypothesis, Tier B, proposed to the owner and
   awaiting a decision before any run or CFG patch tests it.** A resumed
   seed-4002 long read on v0.49 (`kc-arm-default-v49-longread`, Tier A,

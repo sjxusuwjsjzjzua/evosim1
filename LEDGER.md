@@ -1105,39 +1105,51 @@ zero-filled until the first `rebuildCanopy`, so cover is 0 for the first
 - **`nNear` includes corpses.** See L47-3.
 
 ### Addendum to the third pass — pre-fauna plant state, written 2026-08-09
+(corrected same day — see note)
 
 Free follow-up on the open question the third pass left hanging (did 1337/
 4001 look like 4002 in their own first 40 days with fauna) — answerable
 directly from raw JSON already in the repo, no new run needed. Only 1337 has
 one (4001's is still blob-storage-blocked); the comparison is 1337 vs 4002.
 
-**The two seeds' plant communities were on completely different trajectories
-before a single animal existed, let alone after:**
+**Correction:** the first version of this addendum read
+`evosim-log-s1337-t1199603.json` as the 1337 default-arm run. It is not —
+its own `cfg.k_confusion` is 0, making it the 1337 **`k_confusion:0`**
+isolation-arm log (2499d, matches the previously-recorded near-extinction
+numbers: harmonic N 55, min population 0, mean death age 0.0d). The correct
+default-arm file is `evosim-log-s1337-t577507.json` (`k_confusion` 0.06,
+1203d, matches the standing scorecard's R0 1.06 / harmonic N 215 / death age
+12.1d). Numbers below are corrected against the right file. The qualitative
+finding survives the correction; the magnitudes below replace the wrong
+first-pass ones.
+
+**The two seeds' plant communities were on different trajectories before a
+single animal existed, let alone after:**
 
 |  | day 260 plants | day 260 `pOcc` | day 260 `lai` | `caps` seen, days 215-265 |
 |---|---|---|---|---|
-| 1337 default | 8,206 | 0.21 | 0.71 | 0 (never) |
-| 4002 default | 53,180 | 0.79 | 1.42 | 1 (bit 0 — plant slots) repeatedly |
+| 1337 default | 15,619 | 0.30 | 1.22 | 0 (never) |
+| 4002 default | 53,180 | 0.79 | 1.42 | 1 (bit 0 — plant slots), 6 of 11 samples |
 
-4002's flora was already **~10x** 1337's standing count and **already sitting
-at its `maxPlants` slot cap** well before day 265 — `caps=1` shows up
-starting day 215, fifty days before fauna arrive. This is a pure plant-side,
-pre-fauna difference; it cannot be an effect of animal behaviour, confusion
-mechanics, or anything L47-3 touches, because no animal exists yet in either
-trace at that point.
+4002's flora was already **~3.4x** 1337's standing count and **repeatedly
+sitting at its `maxPlants` slot cap** in the run-up to day 265 (`caps=1` on
+6 of the 11 five-day samples from day 215 on) while 1337 never hit it once.
+This is a pure plant-side, pre-fauna difference; it cannot be an effect of
+animal behaviour, confusion mechanics, or anything L47-3 touches, because no
+animal exists yet in either trace at that point.
 
 **Once fauna do arrive (day 265 in both, exactly — the reseed schedule
 isn't seed-randomized), the two seeds diverge just as sharply:**
 
 |  | day 265 animals | day 265 `pLocked` | day 300-305 animals | day 300-305 `pLocked` |
 |---|---|---|---|---|
-| 1337 default | 115 | 0.834 | 120-128 | 0.894-0.908 (rising) |
+| 1337 default | 209 | 0.808 | 134-142 | 0.820-0.835 (stable) |
 | 4002 default | 45 | 0.392 | 9,326 | 0.245 (falling) |
 
-1337's small founding population stays small and its refuge strengthens.
-4002's founding population — smaller at the start (45 vs 115) but sitting on
-top of ~10x the food and a refuge already less than half as deep — explodes
-200x in 35 days and its refuge keeps collapsing.
+1337's founding population settles down to ~130 and its refuge holds steady
+near 0.82-0.84. 4002's founding population — smaller at the start (45 vs
+209) but sitting on top of ~3.4x the food and a refuge already less than
+half as deep — explodes 200x in 35 days and its refuge keeps collapsing.
 
 **This changes the read on the k_confusion:0 finding again, and this time in
 a specific, testable direction.** The obvious candidate explanation is not
