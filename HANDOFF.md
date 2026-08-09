@@ -17,7 +17,7 @@ count.
 
 ---
 
-## 1. Current state — v0.48.0
+## 1. Current state — v0.49.0
 
 **Achieved and replicated:**
 
@@ -78,16 +78,29 @@ count.
   (v0.46) to 92.2% of the action budget in the same run — non-graze share
   roughly doubled (3.8% → 7.8%) but is still far from the ≥20% target.
 
-**v0.48 is a mechanical/tooling version, not a biology version** — it fixed a
-bug that silently disabled the extinction halt at default config ([L0.48-1])
-and a performance win in the two hottest functions ([L0.48-2]), verified
-RNG-neutral against v0.47 on an exact-match diff. It changed no formula, no
-constant, no gene. **The v0.47 biology questions above are still open** and
-carry forward unchanged into v0.48 — finishing that interrupted 3-seed
-protocol (Tier A: it executes an already-approved plan, originates nothing
-new) is the natural next run. Full writeups: `LEDGER.md`, "v0.47 — external
-audit pass" and its "Scorecard" subsection, and "v0.48 — extinction-halt fix
-+ global-lookup caching".
+**v0.48 and v0.49 are both mechanical/tooling versions, not biology
+versions.** v0.48 fixed a bug that silently disabled the extinction halt at
+default config ([L0.48-1]) and a performance win in the two hottest
+functions ([L0.48-2]), verified RNG-neutral against v0.47 on an exact-match
+diff. v0.49 replaced the five hottest per-tick loops' `0..P.hi`/`0..AN.hi`
+scan with a compact occupied-slot list ([L0.49-1]) — a run no longer pays
+forever for its largest-ever population once it's crashed back down.
+**Unlike v0.48, v0.49 is *not* RNG-exact** — verified instead on matter
+conservation (exact in both arms) and the absence of a *consistent*
+directional bias across two independent seeds, since two of the five
+converted loops feed order-sensitive detection scans. Individual-seed
+population outcomes moved a lot and in opposite directions per seed — read
+the full verification in `LEDGER.md` before treating either seed's specific
+numbers as informative on their own. Neither version changed a formula, a
+constant, or a gene. **The v0.47 biology questions above are still open**
+and carry forward unchanged — finishing that interrupted 3-seed protocol
+(Tier A: it executes an already-approved plan, originates nothing new) is
+the natural next run, and can run on v0.49 exactly as it would have on v0.48
+now that the wall-clock-bound seeds won't be held back by the high-water-mark
+slowdown. Full writeups: `LEDGER.md`, "v0.47 — external audit pass" and its
+"Scorecard" subsections, "v0.48 — extinction-halt fix + global-lookup
+caching", and "v0.49 — occupied-slot lists replace the P.hi/AN.hi scan
+bound".
 
 One more open question, found reading the code rather than a run, not yet
 acted on: ATTACK's arbiter weight is `0.5 + meatAttraction` (floor 0.5,
@@ -189,7 +202,7 @@ that. Two follow-ups worth making habit:
 an Actions timeout bug (now fixed in v0.48 tooling). Missing before this can
 be scored honestly: seeds 4001/4002 default to completion, seed 4001
 `k_confusion:0`. This is **Tier A** — it executes an already-approved 3-seed
-x 2-arm protocol, originates nothing new — and can run on `evosim-v0_48_0.html`
+x 2-arm protocol, originates nothing new — and can run on `evosim-v0_49_0.html`
 without further approval (v0.48 is RNG-neutral vs v0.47, verified).
 
 L47-4/5/6 are performance-only claims and **must not move any ecological
@@ -276,7 +289,7 @@ workflow, see `CLAUDE.md`'s "Automated iteration" section), Claude runs the
 experiments.** That section splits runs into two tiers: **Tier A (diagnostic —
 extra seeds, an isolation arm already called for, a replication)** auto-chains
 without waiting on the owner between runs; **Tier B (a new CFG hypothesis, or
-anything touching `evosim-v0_48_0.html`)** always stops for approval before it
+anything touching `evosim-v0_49_0.html`)** always stops for approval before it
 runs. The owner's
 job either way is to approve what originates a run, not to carry a build to
 their phone or to click go on every mechanical follow-through. The owner can
@@ -299,7 +312,7 @@ remove (`CLAUDE.md` rule 1).
 
 **Step 1 — run it.**
 ```
-node experiment.js --build evosim-v0_48_0.html --days <n> --label <name> \
+node experiment.js --build evosim-v0_49_0.html --days <n> --label <name> \
     [--cfg patch.json] [--n 3]
 ```
 or, for real per-seed parallelism at no sandbox cost, trigger the `evosim
@@ -345,7 +358,7 @@ world this iteration** — what the population actually did and why it matters,
 not a restatement of the table. If the next queued run is Tier A (already
 approved, nothing new originated), fold this into a running batch update and
 start it without waiting. The moment the next step would be Tier B — a new
-hypothesis, or any change to `evosim-v0_48_0.html` — propose it with its own
+hypothesis, or any change to `evosim-v0_49_0.html` — propose it with its own
 prediction and **stop and wait**. No code change ever ships without the
 owner's word, regardless of tier.
 

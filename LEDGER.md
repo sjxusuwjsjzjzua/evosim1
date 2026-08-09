@@ -28,6 +28,7 @@ at Ne ≈ 100 an unpredicted result is indistinguishable from noise.
 | 0.38x | reach allometry: `reach = k*size^0.333`, k pivoted to 0.0731 so reach is unchanged at founder size 5 | median `pLocked` >= 0.55 in >=2 of 3 seeds; no fauna extinction in 3 seeds x 900 d; `corr(aSize,pLocked)` weakens above -0.5 | 3 | |
 | 0.47 | **six changes, external audit.** toxin model unified (L47-1); arbiter put in one currency (L47-2); confusion effect + `AN.risk` so grouping pays (L47-3); slot compaction + high-water trim (L47-4); memcpy+geometric mutation (L47-5); render throttle, tile-culled draw, precomputed cover, `P.h` cache (L47-6) | see the six predictions below | 4 seeds so far (4002-default in flight) | see Scorecard, 2nd pass — L47-1/2 seed-dependent (can't-tell), L47-3 mixed (`actAppr` clean miss 3/3), L47-4/5/6 can't-tell; **k_confusion:0 isolation arm 3/3 seeds failing vs default arm 2/2 stable — not one of the six predictions, flagged as next Tier B candidate** |
 | 0.48 | performance/mechanical only, no ecological claim. Extinction halt fires now (was gated on `!CFG.animalReseedDays`, always false at default config) (L0.48-1); `CFG` aliased to a local `C` in `updatePlant`/`senseDecide`/`reachOf`/`carrionDigest`/`grazeYield`/`plantScore` — the two functions profiling found responsible for 58% of JS time, 17.5% of it in global-lookup builtins (L0.48-2) | trajectory identical to v0.47 for the same seed at the same tick (proves RNG-neutral by construction — no `rng()` call site touched, no formula changed); ticks/sec measurably higher on a fixed sim-day count; no gene mean or population statistic moves beyond seed noise | 1 exact-match (seed 1337, 300d) | **PASS.** 0 of 97 columns differ, all 60 samples, genes/events byte-identical between v0.47 and v0.48 on seed 1337. 315→322 ticks/s (contended, directional only). See `## v0.48` below. |
+| 0.49 | performance/mechanical only, no ecological claim intended. `P.hi`/`AN.hi` are a high-water mark that only grows, so rebuildCanopy/buildPlantIndex/buildAnimalIndex/updatePlants/updateAnimals paid for a run's largest-ever population for the rest of the run even after a crash back down. All five now scan `P.occIdx`/`AN.occIdx`, compact occupied-slot lists maintained incrementally (L0.49-1) | ticks/sec rises at high population, falls or is flat at low/moderate population (bookkeeping overhead not yet repaid); matter conservation exact in both arms; **not** RNG-exact (order-sensitive scans + stagger reassignment) but no consistent directional bias across seeds | 2 seeds x 300d, uncontended (1337, 4001), both `k_confusion:0` | **Mixed, as predicted going in.** Seed 1337 (peaks ~15-17k plants): 320→248 ticks/s, **28% slower** — hi/occupied gap never exceeded ~1.8x in this window. Seed 4001 (peaks ~43-47k plants): 79→120 ticks/s, **52% faster**, matter leak (0.013%) disappeared entirely (0.000000%). Only 8-10 of 97 columns matched exactly on either seed; population outcomes swung hard in *opposite* directions per seed (1337: 361→2390 animal births, life support net firing 234→0 times; 4001: 1506→260 births, net already at 0 both times) — large, but not one-directional, consistent with RNG-path chaos rather than a systematic bias. See `## v0.49` below. |
 
 ---
 
@@ -1298,3 +1299,123 @@ exact bracketed string still resolves each one unambiguously, and rewriting
 six already-referenced tags for a cosmetic problem is not worth the risk.
 Going forward: **any new version-bundle tag should use the `L<major>.<minor>`
 form** (`L0.49-1`, not `L49-1`) so this stops happening.
+
+---
+
+## v0.49 — occupied-slot lists replace the P.hi/AN.hi scan bound
+
+### [L0.49-1] — a run pays for its largest-ever population forever, not its current one
+
+Found investigating a real complaint: a world holding a *steady* 14-20k live
+plants was running at a fraction of a same-population world that had never
+exceeded that count. Root cause was already half-documented in [L47-4]'s own
+comment ("P.hi/AN.hi never come back down") but the consequence hadn't been
+traced through: five per-tick loops — `rebuildCanopy`, `buildPlantIndex`,
+`buildAnimalIndex`, `updatePlants`, `updateAnimals` — scanned `0..P.hi` /
+`0..AN.hi`, and `P.hi`/`AN.hi` are a high-water mark that only ever grows
+within a run (the existing top-trim only removes a fully-empty *suffix*; one
+long-lived survivor near a historical peak index blocks it indefinitely).
+`buildAnimalIndex` was the worst case — it runs unstaggered, every tick, two
+full passes.
+
+Confirmed empirically before writing any code: a diagnostic (`plantsHi`/
+`animalsHi` added to `headless.js`'s own progress output, not the shipped
+build) on an uncontended run showed live plants swing 23,163 → 14,577 →
+13,844 → 19,842 over 30 sim-days while `plantsHi` sat frozen at 26,584 the
+entire time, with the instantaneous tick rate dropping in lockstep with the
+gap, not with the live count.
+
+**The fix:** `P.occIdx`/`AN.occIdx` — compact arrays of currently-occupied
+slots (seed or live for plants; alive or corpse for animals, matching
+exactly what `buildAnimalIndex`/`updateAnimals` need), maintained
+incrementally: push on `allocSlot`/`allocAnimal`, O(1) swap-remove on
+`releaseSlot`/`freeAnimal`. Every place that used to push directly onto the
+free list (five sites, mostly founder-placement failures and one
+scavenge-consumed-corpse case) now routes through those two functions so the
+bookkeeping can't drift out of sync. **No organism's slot index ever
+changes** — `AN.tgt` and every other index-based cross-reference stays valid
+throughout an organism's life — only the *order* the five loops visit
+organisms in does, since swap-remove doesn't preserve insertion order.
+
+**Why this isn't RNG-exact, laid out before running anything:** two of the
+five loops (`buildPlantIndex`, `buildAnimalIndex`) feed `PIDX`/`AIDX`, which
+`senseDecide` scans with early-stopping once `senseCap` candidates are
+found — a different insertion order changes which candidates get evaluated
+and in what sequence, which changes the `rng()` draw sequence from that
+point on. Separately, `updatePlants`' stagger loop now strides over
+*position* in `P.occIdx` rather than raw slot index, so a plant dying as a
+direct result of its own update this tick can swap an unvisited slot into an
+already-visited position — skipped for one stagger cycle, never lost,
+self-corrects next cycle. `updateAnimals` isn't strided (it's a full pass
+every tick; think-scheduling still keys off each animal's own slot index,
+unchanged) but the same swap-remove-during-iteration hazard applies when one
+animal's action kills a *different* animal mid-pass (confirmed a real,
+existing case: `ACT_SCAVENGE` finishing off a corpse frees a slot elsewhere
+in the list). Worst case in both loops is one skipped or double-processed
+tick for one organism — bounded, rare, self-correcting, but enough to shift
+the global RNG sequence permanently from that point on.
+
+**Prediction:** ticks/sec rises measurably at high population (the pathology
+this targets) and doesn't regress badly at low population; matter
+conservation holds exactly in both arms; trajectories will **not** be
+RNG-exact, but no gene mean or population statistic should show a
+*consistent, one-directional* shift across independent seeds — chaotic
+divergence in either direction is expected and acceptable, a systematic bias
+in one direction would not be.
+
+**Verification.** Two seeds, 300 days each, `k_confusion:0` (a reliable
+bloom, and CFG-unrelated to this change), each run solo (no CPU contention)
+on the unmodified v0.48.0 build and this change, same seed both times:
+
+| | seed 1337 (peaks ~15-17k plants) | seed 4001 (peaks ~43-47k plants) |
+|---|---|---|
+| wall-clock, 300d | 450.2s → 580.4s (**28% slower**) | 1825.4s → 1201.0s (**34% faster**) |
+| ticks/sec | 320 → 248 | 79 → **120** (52% higher) |
+| matter conservation | 6819→6819 both (exact) | 7533→7534 (0.013% leak) → 7533→7533 (exact) |
+| columns identical / 97 | 10 | 8 |
+| animal births | 361 → 2390 | 1506 → 260 |
+| life-support net fired | 234 → **0** | 0 → 0 |
+
+Matter conservation — the one hard invariant that has to hold regardless of
+RNG path — holds exactly in every run, and the tiny leak in seed 4001's
+unmodified run disappeared rather than worsened. Performance is exactly the
+mixed picture predicted: a real, substantial win at the population scale the
+fix targets (44-47k, where the `P.hi`-vs-live gap is large), and a real
+regression at a scale where that gap stays modest (the per-birth/death
+bookkeeping — one swap-remove per event — is a fixed tax that doesn't pay
+for itself until the gap does). Neither seed went through a full bloom-bust
+cycle in 300 days (that happens later for both, per existing `k_confusion:0`
+data), so the *worst*-case pre-fix scenario (a busted population still
+paying for its peak) wasn't directly re-created here — the diagnostic run
+above stands in for that instead, on the unmodified build alone.
+
+The population outcomes moved by a lot in absolute terms and in **opposite
+directions** on the two seeds (seed 1337's fauna did dramatically better
+after the fix — zero life-support interventions against 234 before; seed
+4001's did worse — 260 births against 1506 before). Read alone, either
+result would be alarming. Read together, they're the signature of chaotic
+RNG-path sensitivity, not a systematic bug: a directional bias would show
+the *same* arm doing better on both seeds, not opposite arms winning on
+different seeds. This is the same category of change [L47-4]'s slot
+compaction and [L47-5]'s inheritance rewrite already made and shipped —
+order changes, draw sequence changes, individual-seed outcomes are not
+comparable to their pre-change counterparts, but aggregate/statistical
+behavior across seeds is the thing that has to stay put, and by that
+standard this passes.
+
+**Shipped as v0.49.0, not folded into v0.48.0**, per rule 3 — a separate
+structural change gets its own version and its own row, even though v0.48
+was mechanical too.
+
+### Known limitation, not fixed this pass
+
+The regression at modest population (seed 1337, -28%) is real and
+unaddressed. The fixed per-event cost of maintaining `P.occIdx`/`AN.occIdx`
+doesn't scale with the `hi`-vs-occupied gap, so at low inflation it's pure
+overhead. Worth revisiting only if it turns out to matter in practice — most
+runs of interest are exactly the large/inflated-population regime this
+targets, and the fix can't be *worse* than the pre-v0.49 behavior once a
+world has actually busted (a scan of a smaller occupied list is never slower
+than a scan of a larger `hi`-bounded one), so the downside is bounded to
+runs that stay small and never bloom, which are already the cheapest runs
+regardless.
