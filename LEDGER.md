@@ -26,7 +26,7 @@ at Ne ≈ 100 an unpredicted result is indistinguishable from noise.
 | 0.38 | reach allometry: `reach = k*size^0.333`, k pivoted to 0.0731 | median `pLocked` >= 0.55 in >=2 of 3 | 1 (control arm only) | CFG patch path VERIFIED end to end — log cfg showed 0.025/1.0, export echoed both. Treatment arm still untested. Control at 805d: no extinction, harmonic N 87, pLocked 0.533, aSize still +25.4%/100d. |
 | 0.39 | carnivory unblock: body radius on attack/scavenge reach, attack score linear in carnivory, stall + bail-out on pursuit | flesh+carrion >= 1% of animal intake; attacks/day > 1; no runaway predation collapse | 3 | headless 260d animal era: attacks 4447, kills 309, flesh+carrion **1.14%** of intake (was 0.1%) |
 | 0.38x | reach allometry: `reach = k*size^0.333`, k pivoted to 0.0731 so reach is unchanged at founder size 5 | median `pLocked` >= 0.55 in >=2 of 3 seeds; no fauna extinction in 3 seeds x 900 d; `corr(aSize,pLocked)` weakens above -0.5 | 3 | |
-| 0.47 | **six changes, external audit.** toxin model unified (L47-1); arbiter put in one currency (L47-2); confusion effect + `AN.risk` so grouping pays (L47-3); slot compaction + high-water trim (L47-4); memcpy+geometric mutation (L47-5); render throttle, tile-culled draw, precomputed cover, `P.h` cache (L47-6) | see the six predictions below | 3 | |
+| 0.47 | **six changes, external audit.** toxin model unified (L47-1); arbiter put in one currency (L47-2); confusion effect + `AN.risk` so grouping pays (L47-3); slot compaction + high-water trim (L47-4); memcpy+geometric mutation (L47-5); render throttle, tile-culled draw, precomputed cover, `P.h` cache (L47-6) | see the six predictions below | 4 seeds so far (4002-default in flight) | see Scorecard, 2nd pass — L47-1/2 seed-dependent (can't-tell), L47-3 mixed (`actAppr` clean miss 3/3), L47-4/5/6 can't-tell; **k_confusion:0 isolation arm 3/3 seeds failing vs default arm 2/2 stable — not one of the six predictions, flagged as next Tier B candidate** |
 | 0.48 | performance/mechanical only, no ecological claim. Extinction halt fires now (was gated on `!CFG.animalReseedDays`, always false at default config) (L0.48-1); `CFG` aliased to a local `C` in `updatePlant`/`senseDecide`/`reachOf`/`carrionDigest`/`grazeYield`/`plantScore` — the two functions profiling found responsible for 58% of JS time, 17.5% of it in global-lookup builtins (L0.48-2) | trajectory identical to v0.47 for the same seed at the same tick (proves RNG-neutral by construction — no `rng()` call site touched, no formula changed); ticks/sec measurably higher on a fixed sim-day count; no gene mean or population statistic moves beyond seed noise | 1 exact-match (seed 1337, 300d) | **PASS.** 0 of 97 columns differ, all 60 samples, genes/events byte-identical between v0.47 and v0.48 on seed 1337. 315→322 ticks/s (contended, directional only). See `## v0.48` below. |
 
 ---
@@ -1103,7 +1103,98 @@ zero-filled until the first `rebuildCanopy`, so cover is 0 for the first
   from detection for up to `plantStagger` ticks.
 - **`nNear` includes corpses.** See L47-3.
 
-### Scorecard — first pass, incomplete, written 2026-08-09
+### Scorecard — second pass, written 2026-08-09
+
+Supersedes the first pass below (kept for the record of how the data arrived,
+not because its verdicts still stand as written). Two more seeds landed:
+4001 default and 4001 `k_confusion:0`, both retry-batch runs, both stopped by
+`--max-wall-min 165` rather than the day target or extinction (`headless.
+wallClockExceeded: true` in both) — real data, just not the longest possible
+read on either seed. Both raw JSONs are still stuck behind the same
+blob-storage block as before; both digests here are reconstructed from the
+Actions job log the same way `evosim-digest-s4002-kc0-t560d.txt` was, and
+promoted as `evosim-digest-s4001-default-t930d.txt` /
+`evosim-digest-s4001-kc0-t785d.txt`. Seed 4002 default is still missing —
+its Actions job also hit the digest-step glob bug below and its own retry is
+running now (`kc-arm-default-retry2`, single seed, v0.48.0 build — RNG-
+identical to v0.47.0 per the verified diff, so it slots into this comparison
+without asterisks). This section will get a third pass once that lands
+rather than holding the whole write-up for it.
+
+**Tooling note, not a biology finding:** both retry-batch digest jobs
+crashed with `KeyError: 'cols'` immediately after printing their first
+seed's digest. Root cause: `logs/seed-*.json` also matches each run's own
+`seed-*.json.progress.json` (bash only checks the string *ends* in `.json`,
+which the progress stub does too), so `analyze.py` choked on the second
+argument. Fixed in the workflow (an extglob exclusion). Neither seed's
+actual simulation output was affected — this only broke the auto-generated
+digest artifact, recovered here from the job's console log instead.
+
+- **L47-1 (toxin unified) — now conflicting, not a clean miss.** Seed 1337
+  default: `eToxin` 11.1% of intake (fell, misses the "rises" prediction).
+  Seed 4001 default: `eToxin` **30.5%** of intake — a clear rise past the
+  17.2% baseline, the opposite result on the same arm. Two seeds, one hit one
+  miss, is not a repeating pattern either direction — this needs the third
+  default seed (4002, in flight) before it can be scored at all. Recorded as
+  **can't-tell**, not miss.
+- **L47-2 (one currency) — still open, and now visibly seed-dependent.**
+  Seed 1337 default's carnivory histogram was dominated by the near-zero bin
+  (`[2, 369, ...]`). Seed 4001 default's is **not** — `[0, 0, 0, 2, 84, 80, 5,
+  2, ...]`, 164 of 173 standing animals sitting in the two moderate-carnivory
+  bins, `carnivory` gene at `sel -0.0137` (roughly flat, not still climbing
+  or falling hard). That is a real population sitting at moderate carnivory,
+  not near zero — on the same build, same arbiter fix, different seed. The
+  two seeds disagree on where carnivory lands as directly as they disagree on
+  toxin cost. `corr(aSize, carnivory)` was only computed for seed 1337 (needs
+  the raw JSON, which exists for that seed and doesn't for 4001/4001kc0/4002)
+  so it can't be checked against the new data yet. **Verdict unchanged from
+  the first pass — still open — but "carnivory stayed low" is no longer an
+  accurate summary of what's been seen; say "seed-dependent" instead.**
+- **L47-3 (confusion + `AN.risk`) — still mixed, `actAppr` now a clean miss
+  on three of three seeds.** `actAppr` share: 0.0% (seed 1337 default), 0.2%
+  (seed 4001 default), 0.0% (seed 4001 `k_confusion:0`) — all under the >1%
+  falsifier, no exceptions. The `socialAttraction`-unpinning half is weaker
+  than the first pass suggested: seed 4001 default shows no reported `moved`
+  value for `socialAttraction` at all (below `analyze.py`'s move-reporting
+  threshold), unlike seed 1337's clear 0.235 rise. One seed unpinned it
+  clearly, one didn't move it much — not yet a repeating result either way.
+  The `AN.risk`-EWMA hypothesis and the ATTACK-floor asymmetry from the first
+  pass are unchanged: still untested, still flagged, still not acted on.
+- **L47-4/5/6 (performance only) — still can't-tell**, same reasoning as the
+  first pass. Seed 4001 default and seed 4001 `k_confusion:0` both show
+  `caps seen [0]` (clean), consistent with "no effect" but not proof of it
+  without a same-seed v0.46 control.
+- **The `k_confusion:0` isolation arm — the one clear result in this batch,
+  and it isn't one of the six predictions.** Three of three `k_confusion:0`
+  seeds now show severe population failure: 1337 extinct ~day 680, 4002
+  extinct ~day 560, and 4001 — not confirmed extinct, but in freefall when
+  the wall-clock budget cut it off at day 785 (`animals -299.7%/100d` in the
+  last third, `pLocked`'s worst 30-day fall -0.502, R0 0.72, mean death age
+  4.7d **below** maturityAge 5.1d). Against that, two of two default-arm
+  seeds sampled so far are stable at their own cutoffs: seed 1337 (1200d,
+  animals +32.7%/100d, still growing) and seed 4001 (930d, animals
+  +46.0%/100d, still growing). `control-v0_47-k_confusion0.json` changes
+  exactly one constant (`k_confusion: 0`, nothing else), so this is a clean,
+  well-isolated comparison, not a confound: **disabling the confusion
+  mechanism is associated with population collapse across every seed tried
+  so far, and leaving it on is associated with stability across every seed
+  tried so far.** This is n=3 vs n=2 on a comparison nobody set out to run
+  for its own sake — it fell out of trying to isolate L47-1/L47-2 from
+  L47-3 — but by invariant 12 ("believe nothing that does not repeat") a
+  5-for-5 split this clean is worth taking seriously rather than waiting on
+  a seventh seed to say so. Not one of the six original predictions, so it
+  doesn't get a hit/miss/can't-tell tag — it gets flagged as a candidate
+  finding for the next Tier B proposal instead. See below.
+
+**Net: still not a clean six-result scorecard, but no longer mostly holes
+either.** State now: two default-arm seeds (stable, disagreeing on toxin/
+carnivory specifics), three `k_confusion:0` seeds (uniformly failing), one
+seed still in flight (4002 default). L47-1 and L47-3's `socialAttraction`
+half went from "scored" to "can't-tell" on more data, which is the point of
+running more seeds before trusting n=1 — a miss on more data means the first
+pass's diagnosis was drawn too early, not that this pass's is wrong.
+
+### Scorecard — first pass, incomplete, written 2026-08-09 (superseded above)
 
 The full 3-seed protocol this section calls for was never cleanly completed.
 What exists: seed 1337 at default config (1200d, not stationary), seed 1337
@@ -1115,63 +1206,14 @@ sandbox's egress policy blocks). Two more seeds (4001/4002 default, 4001
 produced zero output — `headless.js` only wrote results at the end of a run,
 so a hard-killed job returned nothing for ~3 hours of compute. Fixed in v0.48
 tooling (a wall-clock safety budget that always returns partial output), too
-late for this batch. Scoring what exists rather than waiting on a re-run that
-hasn't happened yet:
+late for this batch.
 
-- **L47-1 (toxin unified) — MISS.** `eToxin` fell to 11.1% of intake (seed
-  1337 default), against the 17.2% baseline it was predicted to rise from.
-  This is the falsifier stated above, tripped directly: "if `eToxin` falls
-  instead, the diagnosis is wrong."
-- **L47-2 (one currency) — open, leaning concerning, not resolved.**
-  Non-graze action share did rise (3.8% baseline to 7.7-12% across the seed
-  1337 default run) — a real hit on that half. But carnivory mean stayed low
-  (0.09-0.10, well under both the ≥0.20 target and the 0.288 historic sweep)
-  and `corr(aSize, carnivory)` stayed strongly negative (-0.79) rather than
-  weakening. Two of two `k_confusion:0` seeds sampled (1337, 4002) went
-  extinct, both preceded by a large, chaotic pre-fauna plant bloom (seed 4002
-  peaked at 60,703 plants by day 180) and near-immediate starvation once
-  fauna arrived (seed 4002: mean death age 1.2d against maturityAge 5.4d, R0
-  0.28). That is a repeating pattern on two independent seeds, which by
-  invariant 12 ("believe nothing that does not repeat") is worth taking
-  seriously — but it does not by itself distinguish whether `k_confusion:0`
-  causes the collapse or whether the default arm would show the same thing
-  given the missing seeds. **The Tier-1 question — did the headline omnivory
-  result survive, or was it substantially a units artifact — is still open.**
-  Finishing the interrupted 3-seed protocol on both arms is the next
-  diagnostic step, not a new hypothesis.
-- **L47-3 (confusion + `AN.risk`) — mixed.** `socialAttraction` mean rose to
-  0.235 with 0% pinned at min in a run with real predation (7351 kills,
-  seed 1337 default) — a clean hit on "the gene stops being purged." But
-  `actAppr` stayed ~0.0% of the action budget against a >1% falsifier — a
-  clean miss on that half. Plausible reason, found by reasoning through the
-  code rather than a run: `AN.risk` is a slow EWMA (smoothing factor ~0.04
-  per decide cycle) of a threat signal that is itself rare and brief, so its
-  *current* value is usually far below the peak that triggered it, while
-  GRAZE's opportunity is available every think — APPROACH may be structurally
-  outcompeted by a always-available action even when the underlying gene
-  isn't purged. Untested; a hypothesis, not a finding. Separately, code
-  reading turned up an unexplained asymmetry: ATTACK's arbiter weight is
-  `0.5 + meatAttraction` (floor at 0.5, meatAttraction ∈ [0,1]) while GRAZE
-  and SCAVENGE use their attraction genes unfloored — predation structurally
-  cannot fully switch off the way herbivory and scavenging can. Not in the
-  L47-2 rationale above; owner has not yet said whether this is intentional.
-  Flagged, not touched.
-- **L47-4/5/6 (performance only) — can't-tell.** No v0.46 control log exists
-  in the repo to diff against, so the "no ecological effect" claim is
-  unverified rather than confirmed. Nothing anomalous in the seed 1337
-  default log (matter conservation clean, no caps triggered). The seed 4002
-  `k_confusion:0` log *did* trip a cap (`caps seen [0, 1]`) — plausibly
-  downstream of that run's extreme plant bloom rather than evidence against
-  these three changes specifically, but it means that log's gene-level
-  detail should be read with the same caution the cap-trip flag always
-  implies, independent of anything about L47-4/5/6.
-
-**Net: score this as incomplete, not as six results.** The honest state is
-one full-length seed, two extinct isolation-arm seeds, and three seeds' worth
-of compute lost to a tooling bug now fixed. Re-running the missing pieces —
-seeds 4001/4002 default to completion, seed 4001 `k_confusion:0` — is Tier A
-under CLAUDE.md's Automated iteration section (it executes this already-approved protocol, originates
-nothing new) once the current v0.48 batch's own runs are out of the way.
+- **L47-1 (toxin unified) — MISS** on this seed alone (later contradicted —
+  see the second pass above).
+- **L47-2 (one currency) — open, leaning concerning, not resolved** on this
+  seed alone (later complicated by seed-dependence — see the second pass).
+- **L47-3 (confusion + `AN.risk`) — mixed** on this seed alone.
+- **L47-4/5/6 (performance only) — can't-tell.**
 
 ---
 

@@ -24,13 +24,24 @@ count.
 - **Herbivory** emerged, obviously.
 - **Omnivory emerged twice on independent seeds** (v0.39 seed 5723, v0.42
   seed 3012, the latter holding for 367 sim-years with all 207 animals in one
-  carnivory histogram bin). This is the project's headline result — **and it
-  is currently on the hook, not confirmed for the current build. See §3
-  Tier 1, item 1.** The v0.47 protocol meant to re-test it is incomplete: one
-  full-length seed and two extinct isolation-arm seeds exist, not the
-  planned 3-seed x 2-arm set. In what does exist, carnivory mean stayed low
-  (0.09–0.10) and `corr(aSize, carnivory)` stayed strongly negative (-0.79) —
-  neither confirms nor overturns the old result yet.
+  carnivory histogram bin). This is the project's headline result — **still
+  on the hook, still not confirmed for the current build, but now visibly
+  seed-dependent rather than uniformly weak.** Seed 1337 default's carnivory
+  histogram sits at near-zero; seed 4001 default's sits at moderate carnivory
+  (164/173 animals in two adjacent mid-range bins). Two seeds disagreeing this
+  directly means neither confirms nor overturns the old result — it means the
+  3-seed protocol isn't optional here, it's the only way to know which seed
+  is the outlier. See §3 Tier 1, item 1.
+- **New, not one of the six v0.47 predictions: the `k_confusion:0` isolation
+  arm looks like a real, clean result in its own right.** Three of three
+  `k_confusion:0` seeds sampled now show severe population failure (two
+  extinct, one in freefall when a wall-clock budget cut it off mid-collapse);
+  two of two default-arm seeds sampled are stable at their own cutoffs. The
+  isolation patch changes exactly one constant, so this isn't confounded with
+  anything else in v0.47. It fell out of trying to isolate L47-1/L47-2 from
+  L47-3, not out of a hypothesis anyone set out to test — see LEDGER.md's
+  v0.47 Scorecard, 2nd pass, for the full numbers. Candidate for the next
+  Tier B proposal once the missing default-arm seed lands.
 - **Plant/animal arms races** in height-vs-reach and toxicity-vs-resistance.
 - **Matter conservation** to 0.000000% on most runs.
 - **Demography, mixed since v0.47.** The 1200-day default seed-1337 run has
