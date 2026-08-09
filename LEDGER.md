@@ -1112,12 +1112,18 @@ not because its verdicts still stand as written). Two more seeds landed:
 wallClockExceeded: true` in both) — real data, just not the longest possible
 read on either seed. Both raw JSONs are still stuck behind the same
 blob-storage block as before; both digests here are reconstructed from the
-Actions job log the same way `evosim-digest-s4002-kc0-t560d.txt` was, and
-promoted as `evosim-digest-s4001-default-t930d.txt` /
-`evosim-digest-s4001-kc0-t785d.txt`. Seed 4002 default is still missing —
-its Actions job also hit the digest-step glob bug below and its own retry is
-running now (`kc-arm-default-retry2`, single seed, v0.48.0 build — RNG-
-identical to v0.47.0 per the verified diff, so it slots into this comparison
+Actions job log the same way the original seed-4002 `k_confusion:0` digest
+was, and promoted as `evosim-digest-s4001-default-t930d.txt` /
+`evosim-digest-s4001-kc0-t785d.txt`. That original seed-4002 reconstruction
+has since been superseded by the real thing — a local regeneration (same
+seed, same cfg, deterministic) finished and autohalted at the same day 560
+the reconstruction reported, confirming the reconstruction was accurate;
+`evosim-digest-s4002-kc0-t560d.txt` is deleted in favour of the raw
+`evosim-log-s4002-kc0-t560d.json` it was standing in for. Seed 4002 default
+is still missing — its Actions job also hit the digest-step glob bug below
+and its own retry is running now (`kc-arm-default-retry2`, single seed,
+v0.48.0 build — RNG-identical to v0.47.0 per the verified diff, so it slots
+into this comparison
 without asterisks). This section will get a third pass once that lands
 rather than holding the whole write-up for it.
 
