@@ -319,7 +319,18 @@
       "prediction_ref": "LEDGER.md 'New diagnostic: is aRate/aUpkeep an emergent equilibrium or a parameter?'",
       "fired_at": "2026-08-10T~07:3x",
       "status": "partially_collected",
-      "notes": "PREMISE WITHDRAWN 2026-08-10: the emergent-regulation hypothesis this tested is NOT SUPPORTED -- trajectory check across 4 existing logs shows no density-ratio relationship (seed 6464 moves opposite), and aRate/aUpkeep is more parsimoniously explained by survivorship filtering (mean over LIVING animals only) plus rateEwma=0.002 heavy smoothing. seed 1337 collected: went EXTINCT (N=0 by d750), so its terminal ratio 1.18 is measured on 0-1 animals and is noise; R0 0.56 describes a collapse. Prediction was badly specified -- extinction was not a HIT or MISS branch. Arm continued with a DIFFERENT question: does +50% k_intake reliably drive extinction (boom-bust via faster plant depletion)? seed 4001 running, 4002 queued. n=1, not a finding."
+      "notes": "PREMISE WITHDRAWN (emergent-regulation hypothesis rejected, see LEDGER). 2/3 collected: seed 1337 R0 0.56 EXTINCT; seed 4001 R0 0.78 SURVIVED (N~58-86 at end), aRate/aUpkeep 1.13 (BELOW corpus mean 1.166 despite +50% k_intake). The 'reliably drives extinction' reframing is ALSO not supported -- 1/2 extinctions matches the 5/15 (33%) base rate from the cold noise-floor sample. Paired vs same-seed base dose: 1337 1.21->0.56, 4001 1.03->0.78, both negative, mean -0.45 vs noise SD ~0.3. Suggestive but n=2; seed 4002 running."
+    },
+    "stationarity-ladder": {
+      "cfg": "cfg-patches/arena-speed-photocost.json",
+      "seeds": [
+        1337
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md 'Stationarity ladder -- prediction, written before the run'",
+      "fired_at": "2026-08-10T~10:0x",
+      "status": "fired",
+      "notes": "2400-day run. Single long run yields the 800/1600/2400 ladder because run length is a loop bound, not an RNG input -- and the run self-verifies that assumption: the day-600-800 window must reproduce the known 800-day R0 1.21 for this seed/cfg, else the design is discarded. HIT = |R0(2400)-R0(800)|>0.31 AND slope shrinks (protocol too short). MISS = windows agree within 0.31 AND slopes stay large (systems never settle; 800d as good as any). n=1 cannot settle it; more seeds as cores free."
     }
   }
 }

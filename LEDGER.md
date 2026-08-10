@@ -3239,3 +3239,83 @@ right next move is a small matched 800/1600/2400-day ladder on 3 seeds to
 find where — or whether — the trajectories settle, rather than
 unilaterally raising the cutoff for everything. That needs its own
 prediction and is not fired here.
+
+---
+
+## intake-probe seed 4001: the extinction reframing is not supported either
+
+Seed 4001 at `k_intake` +50%: **R0 0.78, population persisted** (N ~58-86
+through the final window, never hit zero). Matter clean, caps clean,
+`aRate/aUpkeep` **1.13** — flagged `<<LOW`, i.e. *below* the corpus mean
+of 1.166 despite a 50% larger intake constant, which is one more small
+strike against the already-withdrawn regulation reading.
+
+Two cycles ago, after seed 1337 went extinct, I reframed this arm as
+testing "does +50% intake reliably drive extinction (boom-bust via faster
+plant depletion)?" **That reframing does not survive seed 4001.** One
+extinction in two seeds is exactly the base rate — the cold noise-floor
+sample puts extinction at **5/15 (33%)** for the base dose, so 1/2 is
+unremarkable. There is no extinction effect to report.
+
+What the arm does show, on the **paired** comparison (same seed, same RNG
+stream start, which is far stronger than comparing against the cold-seed
+mean):
+
+| seed | base dose R0 | +50% `k_intake` R0 | Δ |
+|---|---|---|---|
+| 1337 | 1.21 | 0.56 | −0.65 |
+| 4001 | 1.03 | 0.78 | −0.25 |
+| 4002 | 1.31 | *running* | — |
+
+Both paired differences are negative, mean −0.45 against a noise-floor SD
+of ~0.28-0.31. Suggestive that more efficient eating makes things
+*worse*, not better — but n=2, and I am not calling it until 4002 lands.
+Noting explicitly that seeds 1337/4001/4002 are, per the cold-seed
+result, an unusually *favourable* trio at base dose (1.21/1.03/1.31, mean
+1.18, against the cold-seed mean of 0.674) — which is exactly why the
+paired design matters here and why the unpaired comparison against 0.674
+would be misleading in the opposite direction.
+
+---
+
+## Stationarity ladder — prediction, written before the run
+
+The 30-seed cold sample established that **15/15 runs in both arms fail
+the stationarity gate**, at 10-25x the DRIFTING threshold. Every R0 in
+this project describes a population still in motion. What is not known is
+whether 800 days is merely *early* on a trajectory that settles, or
+whether these systems never settle at all — and those two imply opposite
+fixes.
+
+**Design efficiency note:** this does not need three runs per seed. Run
+length is a loop bound, not an input to the RNG stream, so the first 800
+days of a 2400-day run are the same trajectory as an 800-day run. One
+long run per seed yields the whole ladder, and **the run verifies that
+assumption itself**: R0 computed over the day-600-800 window of the long
+run must reproduce the known 800-day value for the same seed and cfg
+(seed 1337, base dose, R0 **1.21**). If it does not, the assumption is
+wrong and the ladder is discarded — checking rather than trusting, given
+how many assumptions have failed today.
+
+**Falsifiable prediction.** Seed 1337, base dose, 2400 days. Compare R0
+over matched trailing windows ending at day 800, 1600, and 2400, and the
+stationarity slope in each.
+
+- **HIT — "800 days is too short, the system settles later":**
+  |R0(2400) − R0(800)| **> 0.31** (one noise-floor SD) *and* the
+  stationarity slope at 2400 is materially smaller than at 800.
+  Consequence: the protocol cutoff must rise, and every absolute number
+  in `LEDGER.md` is an early-transient artifact.
+- **MISS — "these systems do not settle at all":** R0 windows agree
+  within 0.31 *and* slopes stay comparably large at 2400. Consequence:
+  the non-stationarity is sustained oscillation rather than an
+  unfinished transient, no cutoff is privileged, 800 days is as
+  defensible as any, and the stationarity gate should be reinterpreted
+  as a property of the model rather than a defect in the protocol.
+- **Discard:** the day-600-800 window fails to reproduce R0 1.21,
+  invalidating the single-long-run design.
+
+Both outcomes are actionable and they imply opposite responses, which is
+the point. Firing seed 1337 now on the core freed by intake-probe 4001;
+additional seeds to follow as cores free, since n=1 cannot settle this
+and the prediction is written for the pattern across seeds.
