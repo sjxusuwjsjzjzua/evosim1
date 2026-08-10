@@ -1986,3 +1986,57 @@ constant — applies). The audit's suggested real fix (reachability via
 exploration noise in action selection, not the gene's magnitude) is a
 bigger design question, not attempted here. Flagged for the mission-queue
 work once population balance is settled (HANDOFF §0.5 priority 6).
+
+---
+
+## Noise floor + decision rule — written before the run, per external audit points 1/2/10
+
+The external audit (`EVOSIM-EXTERNAL-REVIEW.md`) made a sharp, correct
+point: **every comparison in this investigation so far has been made
+without ever measuring seed-to-seed variance at a fixed config.**
+"3/4 (5x) vs 4/6 (3x)" was reported as "5x is the leading candidate" —
+the audit ran the actual math (Fisher's exact test on that 2x2 table)
+and got p≈1.0, with 95% exact intervals of roughly 19-99% and 22-96% —
+overlapping across nearly their whole range. **That claim was
+unsupported. Retracting it.** 5x is not shown to be better than 3x by
+anything in this LEDGER as it stands.
+
+Compounding this: dichotomizing R0 to "> 1 or not" throws away most of
+the signal in a continuous variable, and with ~24 CFG arms tried at
+n≈2-8 each, the single best result of the session (R0 1.51) is very
+plausibly just the max of a large noisy set — the audit's term is
+"winner's curse," and it's the right term. **Expect it to regress on
+retest.**
+
+**Noise-floor run, decided before firing:** rather than a separate
+"true default config" run (which would mostly show near-universal
+collapse and measure variance in a regime nobody cares about), the
+useful noise floor is at the config actually being compared — the 3x
+base `k_photoCost` dose, since it's both the original fix and the arm
+with the most data already. Extending 3x to n=30 serves as the noise
+floor **and** the comparison group for the eventual 3x-vs-5x call in
+one run. (Deviating from the audit's literal "default config" wording
+here, deliberately — noted so the reasoning is checkable, not just the
+conclusion.)
+
+**Decision rule, written now, before results exist:** run 3x to n≥30
+(24 more seeds beyond the 6 already logged: 1337, 4001, 4002, 6060,
+6363, 6464) and 5x to n≥30 (26 more beyond the 4 already logged: 1337,
+4001, 4002, 7002). Compare the **R0 distributions** (median, IQR, or a
+rank test — not the dichotomized fraction). Promote 5x over 3x only if
+the gap exceeds one noise-floor SD (estimated from 3x's own n=30
+spread); otherwise promote 3x on parsimony (it's the smaller, already-
+better-understood change, and "no measured difference" should default
+to the simpler existing choice, not the one that happened to look
+better on a small sample). Apply the same rule to any future
+`k_photoCost`-adjacent claim in this investigation.
+
+**Also retracting, same reasoning:** the "5x... including the best
+single result of the whole session" framing from the earlier
+dose-response tally entry. That single result (seed 7002, R0 1.51) is
+flagged for specific retest — if it reproduces, it's a real find; if it
+regresses toward the 3x/5x pooled median, that's the winner's-curse
+prediction confirming itself, which is itself worth recording.
+
+Firing the noise-floor batch now (24 seeds, 3x dose) alongside 26 more
+5x seeds, both to n=30, both at the new 800-day target.
