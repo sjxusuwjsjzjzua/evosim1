@@ -1665,6 +1665,28 @@ unconditionally. Treat "photocost fixes it" as a strong, real, majority
 effect from here on, not a universal one, until more seeds narrow whether
 6060 is an outlier or the actual base rate is closer to 75%.
 
+**Second correction — seed 6363 (5th seed, same base dose/arena) also went
+extinct, but looks like a different, closer call than 6060.** R0 0.76 (vs
+6060's 0.25 — much nearer viable), death age 8.5d against maturityAge 4.2d
+(ratio **2.03**, genuinely healthy — most animals that died had already
+outlived maturity), harmonic N 60 (vs 6060's 8), ran to day 1015 before
+autohalting (vs 6060's 685). `caps seen [0]` clean again. **Revised count:
+3 of 5 seeds at the base dose survived the full 1200 days (60%), not 3 of
+4.** The two extinctions don't look like the same failure mode as each
+other, let alone the old pre-photocost boom-bust crashes: 6060 was unhealthy
+throughout (ratio 0.13, tiny harmonic N), 6363 looked like a fundamentally
+viable population that still tipped over late — closer to normal stochastic
+extinction risk at a small population size than a diagnosable flaw.
+`k_photoCost` is still the strongest lever found this session by a wide
+margin (0/many at default config vs 3/5 here, plus the dose-response and
+combo arms all surviving at n=1 each) — but "balanced" at this dose still
+means "usually viable, not always," which itself may be realistic (small
+populations really do face stochastic extinction risk) rather than a defect
+to keep chasing. Worth deciding explicitly, not by default: is 60% survival
+at N~100-200 animals an acceptable "balanced," or does the target population
+scale need to be larger (fewer stochastic wipeouts) even at the cost of
+returning to a bigger, slower arena?
+
 **Recommended next steps, not yet run:**
 1. **Open confound — isolate `k_photoCost` from the arena shrink.** Every
    photocost-positive run above also used the 25k/11k arena. Untested:
