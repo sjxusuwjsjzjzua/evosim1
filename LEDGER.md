@@ -2092,3 +2092,62 @@ two arbitrarily-chosen doses is statistically distinguishable," not "is
 either of these doses the principled one." HANDOFF §0.5's priority list
 is being reordered to put the independent-criterion work ahead of
 promoting either 3x or 5x.
+
+---
+
+## Backlog processing, 2026-08-10: riskEwma and confusion-off-retest (2 of 3 seeds each)
+
+Working through `INFLIGHT.json`'s reconstructed backlog. First two results
+pulled: `riskewma-test` and `confusion-off-retest`, both at v0.49, both
+fired before the audit landed, seeds 1337 and 4001 (4002 not yet landed
+for either).
+
+**riskewma-test** (`cfg-patches/photocost-riskewma.json`) — tests
+HANDOFF's long-standing herding hypothesis: that a faster-adapting risk
+EWMA (lower smoothing) would let the herding/`socialAttraction` gene
+actually express as behavior, measured by `actAppr` (the "approach a
+same-species neighbor" action share) clearing >1%.
+
+| seed | R0 | mean death age | maturityAge | actAppr |
+|---|---|---|---|---|
+| 1337 | 0.61 | 14.7d | 62.5d | 0.0% |
+| 4001 | 0.23 | 1.1d | 14.4d | 0.2% |
+
+Both seeds: R0 < 1, not viable, dying well before maturity. `actAppr`
+stayed at 0.0%/0.2% — under the >1% falsifier the original prediction set.
+**Read this as a miss on n=2**, not a confirmation and not yet a full
+retraction (n=2 is too small to close the herding question outright, and
+both populations were also failing on food/survival grounds independent
+of herding, which muddies attributing the flat `actAppr` specifically to
+the EWMA change rather than to general population collapse). Recorded
+honestly rather than left silently unprocessed. Third seed (4002) still
+outstanding; if it also shows actAppr flat, that's reasonably strong
+grounds to close this specific mechanism as insufficient on its own and
+return to the absorbing-state hypothesis (see the v0.50 UNRESOLVED flag)
+as the more likely explanation for herding never appearing.
+
+**confusion-off-retest** (`cfg-patches/photocost-confusion-off.json`) —
+clean re-run of the original v0.47 `k_confusion:0` finding, now under the
+`k_photoCost` fix that removes the `maxPlants` confound the original test
+never controlled for.
+
+| seed | R0 | mean death age | maturityAge | actAppr |
+|---|---|---|---|---|
+| 1337 | 0.64 | 4.6d | 8.6d | 0.0% |
+| 4001 | 0.70 | 13.1d | 35.3d | 0.0% |
+
+Both R0 < 1 with `k_confusion` disabled. This is a genuinely useful data
+point: the original v0.47 conclusion (disabling confusion/herding defense
+causes population failure) survives on these two seeds even with the
+`maxPlants` artifact controlled for — i.e. this specific finding does not
+look like it was just an artifact of the food-base confound. **Still not
+a confirmed comparison** — no confusion-ON base-dose R0 numbers at the
+same photocost dose have been pulled alongside these yet, so "R0 < 1 with
+confusion off" isn't yet contrasted against "R0 ? with confusion on" at
+the same dose. Filed as MODERATE-strength directional support for the
+original finding, not as a re-confirmed result, per the no-dichotomizing/
+small-n discipline written up in the noise-floor section above. Third
+seed (4002) outstanding.
+
+`INFLIGHT.json` updated: both entries moved to `partially_collected` (2
+of 3 seeds landed) with these R0 numbers noted.
