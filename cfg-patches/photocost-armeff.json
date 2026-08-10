@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Untested lever: k_armEff (armour effectiveness against attack, denominator term in ATTACK's rate) -- halved, making prey armour less protective. Base photocost dose/arena unchanged. Prediction: if armour is currently over-protective and suppressing viable predation, this raises kills/actAttack; if predation viability was never armour-limited, minimal effect.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"k_armEff":0.5}}

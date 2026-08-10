@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Untested lever: k_retal (retaliation cost subtracted from ATTACK's intake rate) -- default unknown exact value, testing a 50% cut to make attacking less risky/costly. Base photocost dose/arena unchanged. Prediction: cheaper retaliation should raise attacks/kills and actAttack share if retaliation cost was suppressing predation; null result points elsewhere (sizeMatch, armour, or the arbiter currency already fixed in L47-2).",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"k_retal":0.006}}
