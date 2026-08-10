@@ -127,6 +127,26 @@ to fall into unsupervised, not harder. Compute discipline: keep all
 available cores (local + Actions) running productive work continuously;
 report tersely, no restating background each cycle.
 
+**Standing saturation target, 2026-08-10:** keep Actions at **40+ jobs in
+flight** (running + queued-behind-the-runner-ceiling both count — a queued
+job still keeps the pipeline saturated, since it starts the instant a
+runner frees up) at all times, not just in bursts. Empirically the real
+concurrency ceiling sits somewhere around 40-50 simultaneous *running*
+jobs (found by firing until jobs stuck showing `runner_id: 0` — see
+LEDGER.md); above that, new jobs queue rather than run, which is fine and
+expected, not a problem to solve. When the in-flight count drops below 40
+(check cheaply — `list_workflow_jobs` with `filter: latest` on a couple of
+recent runs, or count non-completed runs, never a full unfiltered dump),
+refill it: extend an under-sampled arm with more seeds, or — preferred —
+design a genuinely new, falsifiable hypothesis (rule 1 still applies to
+every one of these, no exceptions for volume) and fire it. This is meant
+to sustain wide-and-shallow exploration continuously, not to pad the
+count with duplicate seeds on already-confirmed findings. Pair every
+finding that survives triage with an actual shipped change (a promoted
+CFG patch, or a version-bumped HTML edit like v0.50's ATTACK-floor fix) —
+the goal is a steadily improving app, not an ever-growing pile of
+unintegrated screening data.
+
 **Amendment, same day:** the owner additionally authorized direct pushes to
 `main` specifically for `.github/workflows/experiment.yml` changes, since
 GitHub only reads `workflow_dispatch` inputs from the default branch, so a
