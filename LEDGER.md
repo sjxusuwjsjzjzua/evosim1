@@ -3007,3 +3007,131 @@ writing anything down. Logging it because the near-miss is the point:
 the number looked plausible and contradicted the digests, and the only
 reason it did not become a finding is that the contradiction was checked
 instead of explained away.
+
+---
+
+## Heartbeat ~08:45 — the Ne/drift hypothesis is rejected, and the real gap is instrumentation
+
+Zero-compute cycle (all four cores were mid-run; a container restart then
+killed them, see the note at the end). Tested last cycle's Ne hypothesis
+against existing logs rather than firing anything new.
+
+### Rejected: drift does not explain the maturityAge puzzle
+
+The hypothesis was that harmonic Ne ≈ 43 puts the animal population in a
+drift-dominated regime where selection on `maturityAge` cannot operate.
+That makes a specific, testable prediction: **the variance of gene change
+should scale as 1/Ne** — low-Ne runs should show large random excursions,
+high-Ne runs small ones. Split 74 runs into Ne terciles:
+
+| tercile | Ne range (median) | mean relative change | mean \|change\| | fell |
+|---|---|---|---|---|
+| LOW | 3-33 (21) | +0.092 | 0.478 | 10/24 |
+| MID | 36-82 (43) | −0.044 | 0.472 | 11/24 |
+| HIGH | 87-447 (140) | +0.333 | 0.538 | 13/26 |
+
+- corr(Ne, |relative change|) = **−0.045**
+- corr(log Ne, |relative change|) = **+0.002**
+- corr(Ne, signed change) = **+0.065**
+
+**Flat across a 100x range of Ne.** Magnitude of gene movement is
+independent of population size, and direction stays a coin flip
+(~45% falling) in every tercile. The drift signature is absent.
+**Hypothesis rejected** — correctly labelled a hypothesis rather than a
+finding when it was raised, and now retired without ever having been
+propagated into `FINDINGS.md`.
+
+### Also rejected: the mass gate is not the binding constraint
+
+The competing explanation was that `adult` requires *both*
+`age > maturityAge` **and** `mass >= maturityMassFrac*size`, so if the
+mass gate were what actually blocked breeding, `maturityAge` would be
+neutral and free to drift. Measured across 85 runs:
+
+| quantity | value |
+|---|---|
+| `size` gene final mean | 5.18 |
+| mass gate (0.6 × size) | 3.11 |
+| median animal mass (P50) | 3.08 — **ratio 1.11** |
+| P90 animal mass | 5.84 — ratio 2.23 |
+| runs where the median animal clears the mass gate | **45/85** |
+| runs where P90 clears it | 79/85 |
+
+About half the population clears the mass gate, against **6/85** runs
+where mean death age clears the age gate. **The age gate is far more
+binding**, so `maturityAge` is genuinely the constraint on reproduction —
+it is not a neutral passenger. That explanation is out too.
+
+### What is actually going on: the selection readout cannot see the selection
+
+Standing variance is healthy — `maturityAge` CV 0.316, not monomorphic,
+plenty to select on. And the mutational step is 0.78× the standing SD,
+which sounded anomalous until compared against the rest of the genome:
+**all 54 animal genes sit between 0.67 and 1.29** on that ratio.
+`maturityAge` (0.78) is unremarkable. That uniformity is what you expect
+when standing variance is mutation-generated and equilibrates to roughly
+one mutational step — it is a property of the mutation kernel, not a
+defect in this gene.
+
+The sharp comparison is against the model's own neutral markers.
+`tag0/tag1/tag2` are identity tags used only for kin recognition — as
+close to neutral as this model has. Fecundity selection differentials,
+normalized by standing SD (units: SD per generation, n=85):
+
+| gene | mean | SE | \|mean\|/SE |
+|---|---|---|---|
+| `maturityAge` | −0.566 | 0.412 | 1.38 |
+| `tag0` (neutral) | −0.069 | 0.105 | 0.66 |
+| `tag1` (neutral) | +0.363 | 0.315 | 1.15 |
+| `tag2` (neutral) | +0.165 | 0.145 | 1.14 |
+| `size` | −0.404 | 0.199 | **2.03** |
+
+`maturityAge`'s differential is in the right direction (negative =
+breeders mature earlier) but **not distinguishable from zero**, and not
+distinguishable from the neutral tags. Note honestly that this test is
+weak: SE 0.412 cannot rule out a real differential up to ~1 SD. It does
+not prove selection is absent.
+
+**And here is the part that matters.** `analyze.py` prints its own
+warning under this readout: *"sel is FECUNDITY only. Viability selection
+is excluded, and viability is most of all mortality."* Viability — dying
+before reaching breeding age — is **exactly** the channel through which
+selection on `maturityAge` must operate. The one statistic the project
+has for measuring selection is structurally blind to the only selection
+that could be acting here.
+
+So the honest conclusion is not "selection is absent." It is: **the
+project has no viability-selection readout, and viability is where all
+the action is.** Whether `maturityAge` is failing to respond, or
+responding invisibly, cannot be resolved with current instrumentation.
+
+### Consequence for what to do next
+
+The next step is a **measurement, not an experiment**: log the gene
+means of animals that die before breeding versus those that reproduce, so
+a viability selection differential can be computed directly. That is a
+change to the logging path in the HTML — measurement-only, so rule 7's
+RNG-neutrality check applies and should be easy to satisfy, but it still
+needs a version bump and cannot land while v0.50's retest is in flight.
+**Queued behind v0.51's matter-precision fix**, which is in the same
+part of the code and should ship together as one measurement-focused
+version.
+
+This is now the fifth time today the binding constraint turned out to be
+a measurement problem rather than an ecological one: the missing noise
+floor, the export rounding on matter conservation, the unaudited `caps`
+flag, the `aMature` column misread, and now the absent viability readout.
+The ecology has not been the bottleneck; knowing what the numbers mean
+has been.
+
+### Container restart, ~08:40
+
+The session container restarted and killed all four running jobs:
+`intake-probe` 4001 (at day 780 of 800), `intake-probe` 4002 (day 280),
+`v050-retest` 4002 (day 280), base-dose 30002 (day 720). `headless.js`
+writes output only at completion, so all four produced nothing and were
+restarted from scratch. No data integrity issue — runs are deterministic
+per (build, seed, cfg), so the restarts reproduce exactly what was lost —
+but roughly four core-hours of CPU went with it. Worth noting as an
+argument for `--progress-days` checkpointing that can actually be resumed,
+which does not currently exist.
