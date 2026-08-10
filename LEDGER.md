@@ -2151,3 +2151,92 @@ seed (4002) outstanding.
 
 `INFLIGHT.json` updated: both entries moved to `partially_collected` (2
 of 3 seeds landed) with these R0 numbers noted.
+
+---
+
+## Backlog processing, 2026-08-10 (continued): remaining CFG-variant branches
+
+Pulled every other `runs/*` branch still sitting unprocessed in
+`INFLIGHT.json`. Consolidating rather than one entry per label — the
+pattern across all of them is the story, not any individual number.
+
+| label | seed(s) landed | R0 |
+|---|---|---|
+| retal-test | 1337 | 0.58 |
+| armeff-test | 1337, 4001 | 0.44, **1.00** |
+| animal-headroom | 1337, 4001 | 0.73, 0.71 |
+| mixedfree-dose | 1337, 4001 | 0.71, 0.45 |
+| hi-gutcost-stack | 1337, 4001, 4002 (complete) | 0.95, 0.95, 0.46 |
+| lo-gutcost-stack | 1337, 4001 | 0.76, 0.69 |
+| triple-stack | 1337, 4001 | 0.59, 0.77 |
+| gutcost-carrionfloor-stack | 1337, 4001 | 0.71, 0.95 |
+| photocost-lo-confirm | 4001, 4002, 7001 (complete) | 0.67, 0.59, 0.88 |
+| photocost-abase-confirm | 4001, 4002 (complete) | 0.70, 0.65 |
+| photocost-carrionfloor-confirm | 4001, 4002 (complete) | 0.66, 0.69 |
+
+19 seed-results, **1 at parity (armeff-test seed 4001, R0 1.00, exactly on
+the boundary), 0 above 1, 18 below 1.** None of the specific hypotheses
+tested here (retaliation cost, armour efficacy, bigger animal headroom,
+mixed-diet free parameter, gutcost stacked on top of the dose, carrionFloor
+variants) shows a clear rescue effect — nothing clusters meaningfully above
+where the base dose alone sits.
+
+This matters for more than each individual label: it's more evidence for
+the point already flagged in the noise-floor section — the whole
+neighborhood of CFG space being explored here sits close to R0≈1, with
+result-to-result variance (seed, not treatment) large enough to swing
+individual runs from ~0.4 to ~1.0 without a clear treatment signal. That's
+exactly the regime where small-n "leading candidate" claims are least
+trustworthy, and exactly why the noise-floor/n≥30 protocol above is the
+right next step rather than reading any of these numbers as a verdict on
+their respective hypotheses. None of these labels is being promoted,
+retested at higher n, or deprioritized further based on this batch alone
+— they're recorded as data, not conclusions.
+
+`photocost-lo-confirm`, `photocost-abase-confirm`, and
+`photocost-carrionfloor-confirm` are now at their originally-planned seed
+counts (marked `collected` in `INFLIGHT.json`). The rest remain
+`partially_collected` pending their outstanding seed(s) — `retal-test`
+seeds 4001/4002, `armeff-test` seed 4002, `animal-headroom`/`mixedfree-dose`/
+`lo-gutcost-stack`/`triple-stack`/`gutcost-carrionfloor-stack` seed 4002
+each. `hi-confirm-batch2` (5151/7777/8888) and `hi-confirm-batch3`
+(6060/6363) have no branches pushed yet as of this check — still running
+or queued, not yet actionable.
+
+---
+
+## Stationarity plan (external audit point 4), not yet executed
+
+Point 4's argument: a run that hasn't reached stationarity biases R0
+comparisons, it doesn't just add noise — an arm that's still trending
+down at day 800 will read as "worse" than one that happened to plateau
+earlier, independent of any real difference. `analyze.py`'s stationarity
+gate already flags this per-run; what's missing is a systematic check
+that the doses being compared (2x/3x/5x `k_photoCost`) aren't being
+ranked while one or more of them is still non-stationary at the 800-day
+cutoff.
+
+**Plan, queued, not yet run:** once the noise-floor batches
+(`noisefloor-3x`/`noisefloor-5x`) are collected, pick 3-4 seeds per dose
+and compare R0 computed over day-400, day-800 (current cutoff), and
+day-1200 windows (a longer run, not a re-slice of the same 800-day log —
+population trajectory can't be reconstructed retroactively past where the
+log stops). If the ranking between doses is stable across those three
+windows, that's evidence the 800-day comparison isn't a stationarity
+artifact. If it flips, the comparison needs the longer cutoff. This is a
+Tier A extension (already-approved noise-floor protocol, just reading it
+with an extra lens) once the base batches land — no new hypothesis, just
+an extra window on data already being collected.
+
+## Compute status, 2026-08-10 ~05:30
+
+14 Actions workflow runs in progress at time of writing, including the
+two 15-seed noise-floor matrices — likely at or near the account's
+observed concurrency ceiling. Per the same-day policy reconciliation
+above (CLAUDE.md, external audit point 9), holding off firing anything
+new until this batch clears rather than adding to an already-saturated
+queue. Two Tier A retests are queued next once headroom opens: the
+v0.50 ecological retest (`v050-attack-floor-test`, invalidated, needs
+re-fire against the k_meatAttr-pivoted file) and the seed-7002 winner's-
+curse retest (external audit point 3, flagged earlier this session,
+never fired).
