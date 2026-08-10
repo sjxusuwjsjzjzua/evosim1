@@ -42,8 +42,18 @@ noticing in the moment.
 - Active branch: `claude/evolution-sim-v047-audit-jft25c` — **all
   development happens here**, not `main`, except one narrow carve-out
   (see §5)
-- `main` is the stable/default branch, several versions behind the active
-  branch as of this writing (last synced at the v0.49.0 ship)
+- `main` is the stable/default branch, several *feature* versions behind
+  the active branch — its last content commit is the v0.49.0 ship.
+  **Correction (2026-08-10, this file had an internal inconsistency the
+  external audit caught):** that does not mean `main` has been untouched
+  since — under grant #3 in §5, `.github/workflows/experiment.yml` has
+  been pushed directly to `main` twice this session (the `days` default
+  1000→800 change, and the digest-job removal), and the owner separately
+  uploaded `EVOSIM-EXTERNAL-REVIEW.md` straight to `main` outside any
+  agent action. So: no *feature* HTML/LEDGER work has landed on `main`
+  since v0.49.0, but `main` itself has received several narrow, in-scope
+  pushes. §5 below describes the workflow-file carve-out; read both
+  together, not §2 alone.
 
 ---
 
@@ -148,10 +158,13 @@ not contradicted by the owner:**
   mode gets easier, not harder, when no one's watching each change land.
 - PRs/broader merges are meant for **completed, verified milestones**,
   not the continuous stream of in-progress experimental commits. As of
-  this writing, nothing has actually been merged to `main` or PR'd yet —
-  the agent's judgment has been that nothing is finished enough to
-  warrant it. **Worth auditing:** is that judgment call reasonable, or is
-  there a completed finding that should have been promoted already?
+  this writing, no PR has been opened and no *feature* work (HTML,
+  LEDGER, CFG conclusions) has been merged to `main` — only the narrow
+  workflow-file carve-out from grant #3 has actually touched `main` (see
+  §2's correction). The agent's judgment has been that no feature work is
+  finished enough to warrant a PR yet. **Worth auditing:** is that
+  judgment call reasonable, or is there a completed finding that should
+  have been promoted already?
 - Anything with no sane rollback still stops and surfaces to the owner.
   Everything so far has been git-reversible on a scratch branch.
 - Touching another repo is technically in scope per grant #4 but nothing

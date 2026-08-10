@@ -15,7 +15,7 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 | file | what it is |
 |---|---|
-| `evosim-v0_50_0.html` | the build. Single file, no build step, runs on a phone. Bump the filename every version — delete the superseded one once its results are captured in `LEDGER.md`. `evosim-v0_49_0.html` kept alongside it until v0.50's ATTACK-floor change is verified. |
+| `evosim-v0_50_0.html` | the build. Single file, no build step, runs on a phone. Bump the filename every version — delete the superseded one once its results are captured in `LEDGER.md`. `evosim-v0_49_0.html` kept alongside it until v0.50's ATTACK-floor change is verified. **Explicit deletion criterion (2026-08-10, external audit asked for one instead of "once verified"):** delete `evosim-v0_49_0.html` once (a) `node check.js evosim-v0_50_0.html` passes (already true) and (b) a 3-seed ecological retest of the k_meatAttr-pivoted ATTACK-floor change (`v050-attack-floor-test` re-fired against the corrected file — the old data is invalidated, see `INFLIGHT.json`) has landed and its R0/death-age comparison against v0.49 baseline is written into `LEDGER.md`, win or lose. Not "once it feels stable" — once that specific write-up exists. |
 | `LEDGER.md` | rationale + the version log with predictions and outcomes. |
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
@@ -146,6 +146,22 @@ finding that survives triage with an actual shipped change (a promoted
 CFG patch, or a version-bumped HTML edit like v0.50's ATTACK-floor fix) —
 the goal is a steadily improving app, not an ever-growing pile of
 unintegrated screening data.
+
+**Reconciliation, 2026-08-10, external audit point 9:** the audit flagged
+that sustained 24/7 saturation of a *personal* account's Actions quota
+carries real account-safety risk (automated-abuse review), separately
+from whether the compute itself is being used well. That risk is real and
+the "40+ jobs, always" target above is read literally in tension with it.
+Standing amendment: **40+ is a ceiling to reach when there's a genuine
+queue of falsifiable, already-approved work to run, not a floor to
+backfill for its own sake.** Concretely: don't invent volume just to hit
+the number; when the account already has a large batch in flight (e.g.
+the 2026-08-10 noise-floor batches, ~13 concurrent runs including two
+15-seed matrices), that's a legitimate reason to hold off firing more
+until it clears, not a gap to fill immediately. The digest-job removal
+(same day, `experiment.yml`) already fixes the specific mechanical
+problem (misleading "completed" status); this note fixes the policy
+tension the audit also raised. Bursty-but-bounded, not always-max.
 
 **Amendment, same day:** the owner additionally authorized direct pushes to
 `main` specifically for `.github/workflows/experiment.yml` changes, since
