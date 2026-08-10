@@ -2887,3 +2887,123 @@ and it is worse than the pooled number: mean R0 0.70, 6/37 above
 replacement. The pooled figures reported earlier are not withdrawn — the
 capped/uncapped difference is not significant — but they carry a known
 upward bias whose size is about +0.14 in mean R0.
+
+---
+
+## Heartbeat ~08:15 — a correctness finding that outranks the ecology
+
+### The "matter leak" is a rounding artifact, and it invalidates how this project has been *phrasing* its conservation checks
+
+`analyze.py` flagged `matter 7533 -> 7534 drift 0.013275% <<LEAK` on the
+v0.50 seed-4001 retest. Chased it, because a conservation violation
+outranks every ecological question in this file.
+
+**It is not a v0.50 regression.** Auditing drift across all 95 logs by
+version: v0.47 0/10 clean, v0.48 0/3 clean, **v0.49 9/79 nonzero — every
+single one seed 4001**, across nine different cfg arms; v0.50 1/3, also
+seed 4001. Always exactly `7533 -> 7534`, +1 unit. The *timing* differs
+by build (day 505 on v0.49, day 355 on v0.50), which is expected — the
+formula change shifts the RNG path.
+
+**Root cause, found in the export path (`v0_49` line 3504):**
+
+```js
+a[j] = Math.abs(v) >= 1000 ? Math.round(v) : +v.toFixed(4);
+```
+
+**Every logged value ≥1000 is rounded to an integer on export.** Matter
+runs ~7500, so it is *always* rounded. The "+1" is a true drift of
+somewhere under ~1 unit crossing a rounding boundary — bounded at
+0.013%, not a meaningful leak.
+
+**The consequential part is the other direction.** `LEDGER.md` states
+"matter conservation exact" and quotes `drift 0.000000%` throughout, and
+I have repeated that phrasing in nearly every heartbeat this session.
+**It does not mean what it says.** A logged 0.000000% only establishes
+that drift stayed inside one rounding bucket — |drift| < ~0.5 units out
+of ~7000, i.e. **< 0.007%**. That is a real and reassuring bound, but it
+is a *bound*, not exactness, and no headless run in this project has ever
+demonstrated exact conservation.
+
+Note the live build is unaffected: line 3724 computes drift from
+unrounded `W.matter`, so the in-browser check is exact. **It is
+specifically the exported log — and therefore `analyze.py`, and therefore
+every conclusion drawn headlessly this session — that is coarsened.**
+
+**Fix identified, deliberately NOT applied.** Exporting matter at full
+precision is a measurement-only change (pure output formatting, cannot
+touch the RNG draw sequence, satisfies rule 7 trivially). But it is an
+HTML edit, and **v0.50 already carries one unverified structural change
+whose 3-seed retest is running right now.** Editing the file mid-retest
+would invalidate the comparison in flight, and stacking a second change
+into v0.50 breaks one-change-per-version. **Queued for v0.51**, after
+v0.50's ATTACK-floor change is scored. Recording the exact line and
+reproducer here so it needs no rediscovery.
+
+### v0.50 corrected-build retest, seed 4001 (2 of 3)
+
+| | v0.49 | v0.50 (corrected) |
+|---|---|---|
+| R0 | 1.03 | 0.73 |
+| actAttack | — | 0.4% |
+| death age / maturityAge | — | 0.30 |
+| caps | — | clean `[0]` |
+
+With seed 1337 (0.78 vs 1.21), both retested seeds come in below their
+v0.49 baseline. **Still not scoring the L0.50-1 prediction** — n=2, and
+the measured within-cfg SD of 0.39 means a 2-seed mean carries SE 0.28,
+so a drop of this size is roughly one standard error and cannot be
+distinguished from RNG-path reshuffling. Seed 4002 now running to
+complete the protocol.
+
+### Structural lead: animals die at 0.44 of maturity, and the gene does not respond
+
+Corpus-wide, using the gene snapshot the way `analyze.py` does (final
+mean `maturityAge` in days vs mean death age):
+
+- `maturityAge` final mean **32.2 d**; mean death age **10.5 d**;
+  **ratio 0.44** (median 0.34)
+- **only 6 of 85 runs** have animals reaching maturity on average
+- yet the gene **drifts rather than falling**: rose in 40/85 runs, fell
+  in 35/85, mean essentially unmoved (30.9 → 32.2 d), and only 1/85 runs
+  sits near its MIN bound
+
+That is the strange part. If 93% of the population dies before the age
+its own gene sets for breeding, selection to lower that gene should be
+overwhelming. It isn't happening.
+
+**Candidate explanation, and it is measurable:** effective population
+size. Harmonic mean animal N across 79 runs is **median 43**, with
+**57% of runs below 50** and **90% below 200**. At Ne≈43, selection
+coefficients below roughly 1/(2Ne) ≈ 0.012 are invisible to selection —
+drift dominates. `analyze.py` already prints `<<DRIFT REGIME` for this
+and it has been scrolling past unremarked all session.
+
+This suggests a very different diagnosis from anything the dose-response
+work was testing: **the animal population may be too small for selection
+to optimise life history at all**, which would make every constant-tuning
+arm a search for a value that lets a drift-dominated population survive
+by luck rather than by adaptation. It would also explain the maturityAge
+result, the ~24 arms landing in the same R0 band, and why nothing has
+reached replacement.
+
+**Not yet a finding — explicitly a hypothesis with an obvious confound:**
+Ne is low *because* R0 < 1, so low Ne and poor demography are mutually
+entailed and this could be effect rather than cause. Distinguishing them
+needs a design where Ne is raised without changing per-capita
+demography, which is not something any existing arm does. Proposing that
+test is the next real step; it is not fired here, and it needs its own
+written prediction.
+
+### Method note, third time today
+
+My first pass at the maturity analysis used the `aMature` log column as
+if it were an age in days. It is not — `analyze.py` derives maturityAge
+from the *gene snapshot*, and `aMature` is a different quantity
+entirely. My wrong version produced "ratio 1.33, 43/85 reaching
+maturity", almost the exact inverse of the correct "ratio 0.44, 6/85".
+Caught by cross-checking against `analyze.py`'s own implementation before
+writing anything down. Logging it because the near-miss is the point:
+the number looked plausible and contradicted the digests, and the only
+reason it did not become a finding is that the contradiction was checked
+instead of explained away.
