@@ -4916,3 +4916,81 @@ comparison rather than adopted mid-batch.
 which is normal and not a fault), 12 sim jobs, seeds 41080-41091 derived
 from `run_number` exactly as designed. The mechanism that failed silently
 overnight is now demonstrably live.
+
+---
+
+## Sharper explanation of "extinct despite R0 > 1": R0 is inflated at low N
+
+The standing batch's first result forced a better answer than the one I
+gave two cycles ago. **Seed 41081: post-establishment R0 2.93 — the
+highest ever recorded here — and extinct.** Its trajectory:
+
+| window | mean N | min | max |
+|---|---|---|---|
+| d260-500 | 47 | 0 | 334 |
+| d500-750 | 40 | 3 | 691 |
+| d750-1000 | **8** | 3 | 13 |
+| d1000-1150 | **2** | 0 | 13 |
+| d1150+ | 0 | 0 | 0 |
+
+It spent its last 400 days at **N = 2-13**. And R0 is
+`births / (mean N × days) × lifespan` — **it divides by mean standing
+population.** A handful of animals still reproducing produces a large
+ratio. R0 2.93 there does not mean "thriving"; it means demographic noise
+in a population of about eight.
+
+**This is the third measurement pathology found today, and the same shape
+as the other two:** the arithmetic mean is inflated by rare high-N
+excursions (that run peaked at 691) while the quantity that actually
+kills a population — how *low* it goes — is averaged away.
+
+### Testing it properly
+
+Across all 25 runs with a computable post-establishment window
+(14 survived, 11 extinct), as a predictor of survival:
+
+| predictor | AUC | median (survivors) | median (extinct) |
+|---|---|---|---|
+| post-establishment R0 | **0.74** | 1.4 | 1.0 |
+| harmonic mean N | **0.82** | 54.7 | 18.4 |
+| **minimum N reached** | **0.83** | **15.5** | **1.0** |
+
+And the five extinct-despite-R0≥1 cases are exactly the ones that came
+near zero:
+
+| | n | mean R0 | harmonic N | min N |
+|---|---|---|---|---|
+| extinct despite R0≥1 | 5 | 1.70 | **22** | **1** |
+| survived with R0≥1 | 13 | 1.45 | **65** | **16** |
+
+**Every one of the five extinct cases touched N = 1 or 2.** None of the
+thirteen survivors did — their median minimum is 16. A single threshold,
+**harmonic N ≥ 25, predicts survival with 80% accuracy** (13 survivors and
+7 extinctions correct, 5 errors) — better than R0 at any cutoff.
+
+### Correcting my own framing
+
+Two cycles ago I wrote that "R0 > 1 does not predict persistence" and
+explained it as absorbing-state plus variance. Directionally right, but
+vague and slightly wrong in emphasis. The precise statement is:
+
+> **R0 divides by arithmetic mean N, which rare high-N excursions inflate.
+> Persistence depends on the low tail. Harmonic mean N and minimum N
+> capture that tail directly and outpredict R0 (AUC 0.82-0.83 vs 0.74).**
+
+So the high-R0 extinctions were never paradoxical — they were a metric
+reading high *because* the population was small.
+
+**And `analyze.py` has been printing harmonic N all along**, with a
+`<<DRIFT REGIME` flag on it. That is now the fourth time today the better
+number was already in the digest and going unread — after the `caps`
+bitmask, the stationarity gate, and the two R0 lines. The recurring
+failure in this project is not missing instrumentation; it is not reading
+the instrumentation it already has.
+
+**Not switching the headline metric unilaterally.** Persistence remains
+the pre-registerable outcome; harmonic N is a *predictor* of it, and the
+right next step is to pre-register "harmonic N ≥ 25 at day 1000 predicts
+survival to 1600" on the seeds still outstanding, rather than fitting a
+threshold to 25 runs and declaring it. The 80% figure above is in-sample
+and will be optimistic.
