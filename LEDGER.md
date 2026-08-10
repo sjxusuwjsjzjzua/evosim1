@@ -4848,3 +4848,71 @@ is directly checkable once all 30 land.
 Fired seed 10015 (cold, 800d R0 0.72, survived) at 2400 d on the freed
 core to extend the ladder — first local run to carry the new
 `--checkpoint-days 200` protection.
+
+---
+
+# ESTABLISHMENT BATCH SCORED: HIT. 29/30 cold seeds, both criteria met
+
+The 1600-day re-run of the 30 cold pre-registered seeds is essentially
+complete (29 landed, 1 outstanding). Scored against the prediction
+written before any of it returned.
+
+**HIT required:** post-establishment R0 ≥ 1 in **≥70%** of seeds surviving
+to 1600 days, in **both** arms, and the two arms statistically
+indistinguishable.
+
+| arm | n | extinct | alive | **persistence** | survivors with post-est R0 ≥ 1 |
+|---|---|---|---|---|---|
+| 3x | 14 | 7 | 7 | **50%** | 6/7 = **86%** PASS |
+| 5x | 15 | 8 | 7 | **47%** | 7/7 = **100%** PASS |
+
+Persistence 7/14 vs 7/15, **Fisher exact p = 1.000** — indistinguishable.
+
+**VERDICT: HIT on both criteria.**
+
+Survivors' post-establishment R0: 3x mean **1.47**
+(0.97, 1.09, 1.12, 1.32, 1.58, 2.06, 2.14); 5x mean **1.37**
+(1.04, 1.12, 1.25, 1.49, 1.53, 1.56, 1.59).
+
+### What this settles
+
+**The retracted headline is now definitively dead, on the same
+pre-registered sample that produced it.** Those 30 cold seeds read
+"2/15 and 3/15 above replacement, nothing is viable" at 800 days. Run to
+1600 days and measured post-establishment, **half of them persist and
+essentially all persisting ones sit comfortably above replacement.** The
+difference is entirely the measurement window — same seeds, same configs,
+same code.
+
+**And the 3x-vs-5x conclusion survives its fourth independent
+examination**: indistinguishable at 800 d by R0 (p=0.59), indistinguishable
+at matched windows (|d|/SE 0.32), and now indistinguishable at 1600 d by
+persistence (p=1.000). That comparison has been stable under every
+correction applied to it, which is worth something given how much else
+moved.
+
+### The two-number summary, now measured rather than asserted
+
+> **Persistence ≈ 50% at 1600 days.** Among the half that persist, R0 sits
+> at **1.4**, comfortably above replacement. Among the half that do not,
+> the population reaches zero and no measurement choice recovers it.
+
+That is a real, defensible characterisation of where the simulation
+currently stands — and it is the first time this project has had one that
+survived its own scrutiny.
+
+### R0-vs-persistence, on the fuller sample
+
+17 runs cleared replacement post-establishment. **13 survived, 4 went
+extinct** — seeds 20005 (R0 1.84), 10002 (1.46), 20009 (1.21), 10011
+(1.06). So **24% of populations that cleared replacement still died**,
+down from the 33% seen at n=9 but the same phenomenon. R0 remains a
+genuinely imperfect predictor of persistence, which is why persistence
+itself is the better headline metric — now pre-registerable for the next
+comparison rather than adopted mid-batch.
+
+**Standing batch is confirmed working:** first scheduled run fired
+**1:09 PM PDT** (a delayed 12:37 tick — GitHub's scheduler runs loose,
+which is normal and not a fault), 12 sim jobs, seeds 41080-41091 derived
+from `run_number` exactly as designed. The mechanism that failed silently
+overnight is now demonstrably live.
