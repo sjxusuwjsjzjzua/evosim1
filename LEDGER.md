@@ -3927,3 +3927,66 @@ different length — match the cutoff explicitly, and state the cutoff
 in any comparison.** Endpoint totals (kills, births, matter) are worse
 still: they scale with duration directly and must be normalised to rates
 before any cross-run comparison.
+
+---
+
+## Corpus recomputed at a matched 800-day cutoff — and the fix has its own limit
+
+**First, a correction to my own remediation plan.** Last cycle I said the
+next step was regenerating baselines at matched length. That was
+unnecessary: **truncating an existing longer run to 800 days is exactly
+equivalent to having run 800 days**, verified to six decimals (v0.49
+truncated → 0.728954, v0.51 native 800d → 0.728954). So the entire
+length confound is fixable analytically, at **zero compute cost**, across
+all existing data. No re-runs were needed and none were fired for this.
+
+**Base dose (3x), every run evaluated at a matched 800-day cutoff,
+deduplicated by seed, n=20:**
+
+| | matched 800d | previously (mixed lengths) |
+|---|---|---|
+| mean R0 | **0.791** | 0.73 |
+| SD | **0.134** | 0.278-0.39 |
+| median | 0.762 | 0.72 |
+| R0 ≥ 1 | **2/20** | 6/16 |
+
+**3x vs 5x at matched cutoff:** difference −0.026, SE 0.080,
+**|d|/SE = 0.32 — indistinguishable.** The pre-registered conclusion
+survives the correction intact, which is the one piece of good news here:
+that comparison used cold 800-day seeds on both arms, so it was never
+exposed to the confound.
+
+### The limit of the fix, stated rather than buried
+
+Matching cutoffs **cannot** be done for runs that ended before 800 days —
+**36 of 131 runs (27%)** halted early, and those are precisely the
+early-extinction cases, i.e. the low-R0 tail. So every matched-window
+statistic above is **conditional on surviving to ~800 days** and is
+survivor-biased upward.
+
+That explains the otherwise-suspicious tightening of the SD from ~0.30 to
+**0.134**: matching the window did not reveal a quieter system, it
+**excluded the runs that failed**. The two numbers answer different
+questions and neither supersedes the other:
+
+- **SD 0.134, mean 0.791, 2/20 ≥ 1** — spread among populations that
+  lasted the full protocol. The right noise floor for comparing arms
+  *conditional on both surviving*.
+- **SD ~0.30, 2/15 and 3/15 ≥ 1, 5/15 extinct per arm** (the cold
+  pre-registered batches) — the right numbers for "what does this
+  configuration do", because extinction is an outcome, not missing data.
+
+**Practical rule going forward, added to the same discipline as 7b:**
+report matched-window R0 *and* the extinction rate as two separate
+numbers. Folding extinctions into a matched-window mean is impossible
+(they have no window) and silently dropping them inflates every arm.
+A single headline R0 for an arm is not a well-defined quantity in this
+project.
+
+### What this does not change
+
+The corrected picture is still that **no configuration reaches
+replacement**: base dose 2/20 among *survivors* at matched cutoff, and
+27% of all runs do not even survive. If anything the matched view is
+bleaker than the mixed-length one it replaces — the earlier 6/16 was
+partly counting long runs measured over a favourable late window.
