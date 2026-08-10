@@ -1805,3 +1805,32 @@ dose alone** — it adds a second changed constant for no demonstrated
 benefit and measurably worse R0 odds. The base `k_photoCost` 0.012 dose
 by itself remains the strongest, most-tested, most defensible finding
 of this investigation.
+
+---
+
+### v0.50 — first ecological data point, seed 1337, base photocost dose
+
+Local run, 800 days, no extinction. Compared against the same seed's v0.49
+baseline (`fast-batch-photocost` seed 1337: R0 1.21, ratio 0.60, actAttack
+0.8%, harmonic N 43):
+
+| | v0.49 | v0.50 |
+|---|---|---|
+| R0 | 1.21 | **0.57** |
+| ratio | 0.60 | 0.40 |
+| actAttack | 0.8% | **0.1%** |
+| harmonic N | 43 | 31 |
+
+**Partially consistent with the prediction, but n=1 and not scoreable yet.**
+The prediction was specifically about `actAttack`/carnivory on already-
+near-zero-carnivory seeds like this one — and it did drop further (0.8%
+→ 0.1%), the predicted direction. But R0 also dropped substantially, which
+the prediction didn't address either way, and a single-seed comparison
+after a genuine formula change (not a measurement-only edit) is exactly
+the situation where chaotic RNG-path sensitivity can produce a large swing
+that has nothing to do with the ecological claim — the same caveat v0.49's
+occupied-slot-list change carried, documented at length in that section.
+**Not treating this as a miss yet** — it's one seed. The Actions 3-seed
+v0.50 test (`v050-attack-floor-test`, seeds 1337/4001/4002) and the two
+v0.50 combo re-tests are still queued/running; scoring the L0.50-1
+prediction properly waits for those.
