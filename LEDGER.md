@@ -1885,3 +1885,7 @@ but 5x `k_photoCost` alone is pulling ahead of every other arm tried
 watching as more seeds land — if this holds, 5x may be the better
 constant to promote over the original 3x base dose, not just a confirmed
 alternative dose.
+
+**carrionFloor-alone combo, 2nd seed:** 4001 R0 0.66, ratio 0.25 (weak).
+Combined with 1337 (0.96, borderline): 0/2 clearly viable. Also trailing
+the base dose.
