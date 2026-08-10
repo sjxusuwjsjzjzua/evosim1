@@ -100,7 +100,7 @@ function makeStub() {
   return new Proxy(target, handler);
 }
 
-function buildSandbox({ onProgress, shouldStop }) {
+function buildSandbox({ onProgress, shouldStop, onCheckpoint }) {
   const sandbox = {
     console,
     document: makeStub(),
@@ -121,6 +121,7 @@ function buildSandbox({ onProgress, shouldStop }) {
     // world without ever needing to interrupt the tick loop mid-flight.
     __reportProgress: onProgress,
     __shouldStop: shouldStop,
+    __writeCheckpoint: onCheckpoint || (() => {}),
   };
   return sandbox;
 }
@@ -131,7 +132,7 @@ function extractScript(html) {
   return m[1];
 }
 
-function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin }) {
+function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin, checkpointDays }) {
   if (!script.includes(ANCHOR)) {
     throw new Error(
       'headless.js ANCHOR text not found in the build. The trailing init ' +
@@ -151,6 +152,35 @@ let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
   const __maxTicks = ${maxTicks != null ? Number(maxTicks) : `Math.round(${JSON.stringify(days)} * __tpd)`};
   const __autohalt = ${autohalt ? 'true' : 'false'};
   const __progressEvery = Math.max(1, Math.round(${JSON.stringify(progressDays)} * __tpd));
+  const __ckptEvery = ${checkpointDays ? `Math.max(1, Math.round(${Number(checkpointDays)} * __tpd))` : 0};
+  const __buildLog = () => {
+const __cols = {};
+for (let __c = 0; __c < LOGCOLS.length; __c++) {
+  const __src = LOG.col[__c], __a = new Array(LOG.n);
+  for (let __j = 0; __j < LOG.n; __j++) {
+    const __v = __src[__j];
+    __a[__j] = Math.abs(__v) >= 1000 ? Math.round(__v) : +__v.toFixed(4);
+  }
+  __cols[LOGCOLS[__c]] = __a;
+}
+return {
+  kind: 'evosim-log', version: VERSION, formatVersion: FORMAT_VERSION,
+  seed: W.seed, tick: W.tick, sampleEvery: LOG.every,
+  ticksPerDay: TPD(), daysPerYear: CFG.daysPerYear,
+  slots: { plants: CFG.maxPlants, animals: CFG.maxAnimals,
+           seeds: Math.round(CFG.maxPlants * CFG.seedSlotFraction) },
+  cfg: Object.assign({}, CFG),
+  geneNames: { plant: geneNames(PG), animal: geneNames(AG) },
+  cols: __cols, genes: LOG.gene, lineages: LOG.lin, events: LOG.events,
+  clusterGenes: { plant: PLIN ? PLIN.spec.genes : [], animal: ALIN ? ALIN.spec.genes : [] },
+  trees: { plant: PLIN ? PLIN.tree : [], animal: ALIN ? ALIN.tree : [] },
+  upkeep: LOG.upk,
+  carnivoryHistogram: { bins: CARNBINS, series: LOG.carn },
+  heightHistogram: { bins: HGTBINS, series: LOG.hgt },
+  deathAgeHistogram: { bins: DAGEBINS, note: 'age at death in quarters of maturityAge', series: LOG.dage },
+  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested, wallClockExceeded: __wallExceeded }
+};
+};
   const __maxWallMs = ${maxWallMin != null ? Number(maxWallMin) * 60000 : 'null'};
   for (let __i = 0; __i < __maxTicks; __i++) {
     tick();
@@ -174,40 +204,25 @@ let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
         // since dropped from, not just its current live count.
         plantsHi: P.hi, animalsHi: AN.hi,
       });
+      // CHECKPOINT. headless.js used to write the log exactly once, at the
+      // end, so a run killed mid-flight produced NOTHING -- the session
+      // container restarted twice on 2026-08-10 and threw away four
+      // multi-hour runs, one at day 2040 of 2400. Now every
+      // --checkpoint-days the full log is serialised to <out>.partial.json,
+      // which analyze.py reads exactly like a finished log (it is the same
+      // shape, just shorter). Costs one serialisation per interval; set
+      // --checkpoint-days 0 to disable.  [L62]
+      if (__ckptEvery > 0 && __buildLog && (W.tick % __ckptEvery === 0)) {
+        try { __writeCheckpoint(JSON.stringify(__buildLog())); } catch (__e) {}
+      }
     }
     if (__autohalt && LOG.aGone && !ST.apop &&
         (W.tick - LOG.aGoneTick) > CFG.haltAfterDays * __tpd) { __haltedEarly = true; break; }
   }
 }
 logGenes();
-const __cols = {};
-for (let __c = 0; __c < LOGCOLS.length; __c++) {
-  const __src = LOG.col[__c], __a = new Array(LOG.n);
-  for (let __j = 0; __j < LOG.n; __j++) {
-    const __v = __src[__j];
-    __a[__j] = Math.abs(__v) >= 1000 ? Math.round(__v) : +__v.toFixed(4);
-  }
-  __cols[LOGCOLS[__c]] = __a;
-}
-const __data = {
-  kind: 'evosim-log', version: VERSION, formatVersion: FORMAT_VERSION,
-  seed: W.seed, tick: W.tick, sampleEvery: LOG.every,
-  ticksPerDay: TPD(), daysPerYear: CFG.daysPerYear,
-  slots: { plants: CFG.maxPlants, animals: CFG.maxAnimals,
-           seeds: Math.round(CFG.maxPlants * CFG.seedSlotFraction) },
-  cfg: Object.assign({}, CFG),
-  geneNames: { plant: geneNames(PG), animal: geneNames(AG) },
-  cols: __cols, genes: LOG.gene, lineages: LOG.lin, events: LOG.events,
-  clusterGenes: { plant: PLIN ? PLIN.spec.genes : [], animal: ALIN ? ALIN.spec.genes : [] },
-  trees: { plant: PLIN ? PLIN.tree : [], animal: ALIN ? ALIN.tree : [] },
-  upkeep: LOG.upk,
-  carnivoryHistogram: { bins: CARNBINS, series: LOG.carn },
-  heightHistogram: { bins: HGTBINS, series: LOG.hgt },
-  deathAgeHistogram: { bins: DAGEBINS, note: 'age at death in quarters of maturityAge', series: LOG.dage },
-  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested, wallClockExceeded: __wallExceeded }
-};
 __reportProgress({ tick: W.tick, days: +(W.tick / TPD()).toFixed(2), plants: ST.pop, animals: ST.apop, done: true });
-JSON.stringify(__data);
+JSON.stringify(__buildLog());
 `;
   return script.replace(ANCHOR, driver);
 }
@@ -233,6 +248,9 @@ function main() {
   const autohalt = !args['no-autohalt'];
   const progressDays = args['progress-days'] !== undefined ? Number(args['progress-days']) : 20;
   const maxWallMin = args['max-wall-min'] !== undefined ? Number(args['max-wall-min']) : undefined;
+  // default 200: ~8 checkpoints on a 1600-day run, negligible cost, and caps
+  // the worst-case loss from a container restart at 200 sim-days.  [L62]
+  const checkpointDays = args['checkpoint-days'] !== undefined ? Number(args['checkpoint-days']) : 200;
 
   // outPath has to be known BEFORE the run starts now — progress/stop files
   // live next to it. Final tick count is no longer part of the default name.
@@ -245,13 +263,22 @@ function main() {
 
   const html = fs.readFileSync(buildPath, 'utf8');
   const script = extractScript(html);
-  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin });
+  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin, checkpointDays });
 
   const onProgress = (info) => {
     try { fs.writeFileSync(progressPath, JSON.stringify(info)); } catch (e) { /* best-effort */ }
   };
+  // Written atomically (tmp + rename) so a checkpoint can never be observed
+  // half-written if the process dies mid-write.  [L62]
+  const partialPath = outPath + '.partial.json';
+  const onCheckpoint = (jsonStr) => {
+    try {
+      fs.writeFileSync(partialPath + '.tmp', jsonStr);
+      fs.renameSync(partialPath + '.tmp', partialPath);
+    } catch (e) { /* best-effort */ }
+  };
   const shouldStop = () => { try { return fs.existsSync(stopPath); } catch (e) { return false; } };
-  const sandbox = buildSandbox({ onProgress, shouldStop });
+  const sandbox = buildSandbox({ onProgress, shouldStop, onCheckpoint });
   const context = vm.createContext(sandbox);
   const t0 = Date.now();
   let jsonText;
@@ -265,6 +292,7 @@ function main() {
 
   const data = JSON.parse(jsonText);
   fs.writeFileSync(outPath, jsonText);
+  try { if (fs.existsSync(partialPath)) fs.unlinkSync(partialPath); } catch (e) {}
   if (fs.existsSync(stopPath)) fs.unlinkSync(stopPath);
 
   const days_ = data.tick / data.ticksPerDay;

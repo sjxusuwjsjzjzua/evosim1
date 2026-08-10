@@ -4446,3 +4446,87 @@ conclusion, which survives its third re-examination.
 in `LEDGER.md` has been retroactively edited to use the new one.** Doing
 that would rewrite history rather than correct it. The rescoring above is
 additive and explicit about which metric produced which number.
+
+---
+
+## Infrastructure: why runs kept dying, and using Actions properly [L62]
+
+Prompted by the owner asking two direct questions — how to avoid the
+container restarts, and whether Actions compute is being maximised. Both
+had the same answer, and the honest response to the second is "no".
+
+### The restarts are not something I can prevent
+
+Measured rather than guessed: **756 MB of 16 GB memory in use, ~80 MB RSS
+per sim job, 30 GB free disk, 4 jobs on 4 cores.** Nothing is close to a
+limit. The restarts are **platform-side session-worker restarts** — not
+resource exhaustion, not anything tuneable from inside. So the goal is
+not prevention, it is making work survive them. Two independent fixes:
+
+**1. Long runs belong on Actions, not local cores.** GitHub runners are
+entirely independent of this container; a restart here cannot touch them.
+Two restarts today killed four multi-hour runs, one at **day 2040 of
+2400**. That work should never have been local.
+
+**2. Checkpointing, for the local runs that remain.** `headless.js` wrote
+its log exactly once, at the very end, so a killed run produced
+**nothing** — hours of CPU for zero data. Now it serialises the full log
+to `<out>.partial.json` every `--checkpoint-days` (default **200**),
+written atomically via tmp+rename so a partial can never be observed
+half-written. `analyze.py` reads it identically — it is the same shape,
+just shorter. Verified end to end: a killed 100-day run left a valid
+90-day log that digests cleanly, matter conservation intact. The partial
+is deleted once the real output lands.
+
+Implementation note worth recording because the first attempt was wrong:
+I initially forward-declared `__buildLog` and assigned it after the tick
+loop, so the checkpoint hook inside the loop always saw `null` and
+silently never fired — the smoke test caught it only because I checked
+for the file rather than assuming. Fixed by defining the builder *before*
+the loop; it is a closure over live `LOG`/`W` state, so it reads whatever
+exists at call time. Gene snapshots need no special handling: the build
+already calls `logGenes()` on its own schedule (`LOG.k % LOG.geneEvery`),
+so a partial carries the snapshots taken up to that point.
+
+### Actions was idle, and that was a real waste
+
+Straightforwardly: the Actions queue has been **empty for many cycles**
+while 4 local cores ground through multi-hour runs. I noted "Actions
+queue empty" in cycle after cycle and did nothing about it. That is the
+opposite of the standing compute policy and it cost real throughput.
+
+Refilled with the experiment that actually matters now — **30 jobs, the
+definitive test of the establishment finding on the cold pre-registered
+seeds**, at the corrected 1600-day protocol:
+
+| label | seeds | cfg |
+|---|---|---|
+| `establish-3x-a` | 10001-10008 | base dose |
+| `establish-3x-b` | 10009-10015 | base dose |
+| `establish-5x-a` | 20001-20008 | 5x |
+| `establish-5x-b` | 20009-20015 | 5x |
+
+**Prediction, written before they land.** These are the same 30 cold
+seeds whose 800-day runs produced the retracted "nothing reaches
+replacement" headline, now run to 1600 days so a clean 1000-day
+post-establishment window exists.
+- **HIT:** post-establishment R0 ≥ 1 in **≥70%** of the seeds that
+  survive to 1600 days, in both arms, and the two arms remain
+  statistically indistinguishable. Reading: the establishment
+  interpretation is confirmed on the pre-registered sample at full
+  protocol length, and the retraction of the headline stands.
+- **MISS:** fewer than half of survivors clear 1.0. Reading: the
+  truncated-window rescoring (9/12 and 7/12) was itself an artifact of
+  measuring a short post-establishment window on 800-day runs, and the
+  establishment story needs rethinking.
+- Extinction count is reported **separately** either way, per the
+  two-numbers rule — it is an outcome, not missing data.
+
+### Workflow changes (pushed to `main`, within the standing carve-out)
+
+- `timeout-minutes` **180 → 350** and `--max-wall-min` **165 → 330**.
+  GitHub hosted runners cap a job at 6 h; this sits near that ceiling with
+  margin for checkout/upload, and makes 1600-2400 day runs feasible on
+  Actions at all.
+- default `days` **800 → 1600**, since an 800-day run cannot exclude the
+  founding transient.
