@@ -4609,3 +4609,84 @@ on the correct head SHA.
 Cost: about ten minutes and four wasted dispatches. Cheap, but it is the
 third instance today of the same failure mode — *the thing I changed was
 fine; what broke was an adjacent assumption I did not re-check.*
+
+---
+
+# Why Actions sat idle for 11 hours overnight — root-caused and fixed
+
+The owner asked why compute was not saturated overnight and whether the
+heartbeat was broken. Measured rather than assumed:
+
+**Actions run timeline, 2026-08-10 (UTC):** batches at 00:27, 02:54-03:08,
+04:39, 04:51, **05:38 — then nothing until 16:44. An 11.1-hour gap.**
+
+### The heartbeat was NOT broken
+
+`trig_01NMXj4nE2nbtncjqLk4L5pp`, cron `35 * * * *`, `enabled: true`,
+`last_fired_at 16:35:14Z`. **It fired every hour, all night, exactly as
+configured.** The schedule was never the problem.
+
+### It was structurally incapable of doing the thing it was asked to do
+
+Two hard limits, both verified this cycle:
+
+1. **The Routine's `allowed_tools` contains no `mcp__github__*`.** Listed
+   directly from the trigger config. A heartbeat turn cannot call the
+   GitHub MCP tools at all.
+2. **The ambient `$GITHUB_TOKEN` has Actions read but not
+   `actions:write`.** Tested directly: `GET .../actions/runs` succeeds
+   (it correctly listed the 30 in-flight jobs), while
+   `POST .../workflows/experiment.yml/dispatches` returns
+   **403 "Resource not accessible by integration"**.
+
+So a heartbeat can *check* Actions and *collect* results, but **cannot
+dispatch a run by any available path**. Every hourly firing overnight did
+local work, correctly reported "Actions queue empty", and had no mechanism
+to do anything about it. The queue drained at 05:38 and stayed drained
+until an interactive turn arrived.
+
+**My fault, and specifically:** I wrote that Routine prompt. I observed
+the MCP limitation when creating it, wrote *"work with local compute only…
+say so in your report rather than silently skipping the Actions half"* —
+i.e. I encoded the limitation as something to *narrate* rather than
+something to *solve*, and step 3 of the prompt only ever said "keep all
+available **local cores** busy". Actions was not in the instruction.
+
+### Fix 1 — a self-firing standing batch (the structural one)
+
+GitHub's own scheduler needs no credentials from this side, so it is the
+only mechanism that works with no interactive turn happening. Added to
+`experiment.yml`:
+
+- `schedule: '25 */6 * * *'` — every 6 h, **6 jobs, 24 jobs/day.**
+  Deliberately modest, per the "bursty-but-bounded, not always-max"
+  amendment (external audit point 9); this is a standing commitment, not
+  a burst, and sustained maximum saturation is the pattern that carries
+  account-safety risk.
+- **Seeds derived from `github.run_number`** (`40000 + run_number*10`),
+  so every firing draws *fresh cold seeds* rather than re-burning old
+  ones. Each is a valid extra replicate of the establishment protocol
+  already on record — the arm that most needs n.
+- All inputs defaulted, since a scheduled firing passes none.
+- **Checkout pinned to the working branch for scheduled runs.**
+  `schedule:` only ever fires from the default branch, and `main`
+  deliberately holds only the shipped v0.49 with no `cfg-patches/` — an
+  unpinned scheduled run would fail instantly, which is precisely how the
+  16:44 batch died. Caught before shipping this time.
+
+### Fix 2 — the heartbeat prompt now checks what it can
+
+Rewritten to state the measured tool reality up front (read yes, dispatch
+no, don't retry the 403), to require **both** counts in every report
+(local jobs *and* Actions in-flight, via the curl that does work), and to
+**escalate loudly** if in-flight is 0 and the last scheduled run is >7 h
+old — the exact signature of last night's failure. It also now points at
+the checkpoint files and at rule 7b.
+
+### The general lesson
+
+This is the same failure shape as the run-length confound, three cycles
+apart: **I correctly identified a limitation, wrote it down accurately,
+and then treated the written-down version as the end of the work.** A
+constraint that gets documented instead of engineered around is still a
+constraint. "Say so in your report" is not a fix.
