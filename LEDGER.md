@@ -3319,3 +3319,100 @@ Both outcomes are actionable and they imply opposite responses, which is
 the point. Firing seed 1337 now on the core freed by intake-probe 4001;
 additional seeds to follow as cores free, since n=1 cannot settle this
 and the prediction is written for the pattern across seeds.
+
+---
+
+## The mission scorecard, computed for the first time — and it is much better news than this session's narrative
+
+Free analysis across **120 runs with usable mortality ledgers**. This
+session has been almost entirely demography and methodology; nobody had
+ever directly measured the two things the project actually exists to
+produce, stated at the top of `CLAUDE.md`: *herbivory controls plants,
+carnivory controls herbivores*. Both are measurable straight out of the
+mortality counters, and neither has been looked at.
+
+### Pillar 1 — does herbivory control plants? Substantially, yes.
+
+| metric | value |
+|---|---|
+| share of plant deaths caused by being eaten | mean **37.2%**, median 39.5%, range 9.3-76.2% |
+| runs where grazing is >25% of plant mortality | **91/120** |
+| runs where grazing is >50% | 24/120 |
+| **eaten/grown — share of plant production consumed** | mean **53.0%**, median 58.1% |
+
+**Over half of primary production is being eaten.** For terrestrial
+systems that is at the high end of the real-world range but squarely
+plausible. Grazing is a first-order force on the plant layer in almost
+every run, not a rounding error.
+
+This corrects an impression I have been carrying, and repeating, from
+individual digests. I quoted `eaten/grown 0.289 <<LOW` and "plant deaths:
+eaten 31432 starved 123872" (21%) from the v0.50 seed-1337 run several
+cycles back, and let that stand as representative. It was one of the
+weakest runs in the corpus. The median run is roughly double it. Note
+also that these are whole-run cumulative counters including the ~260-day
+pre-fauna period, during which plants starve and none are eaten — so
+**37.2% understates the animal-era grazing share.**
+
+### Pillar 2 — does carnivory control herbivores? Partially.
+
+| metric | value |
+|---|---|
+| share of animal deaths caused by predation | mean **23.6%**, median 19.9%, range 1.5-67.6% |
+| runs where predation is >25% of animal mortality | 48/120 |
+| runs where predation is >50% | **5/120** |
+
+Real, but secondary — starvation dominates. In most real herbivore
+populations predation is the leading cause of death, so ~24% is on the
+low side. This is the weaker of the two pillars, and it is the honest
+answer to "has carnivory ever controlled herbivores here": not usually.
+
+### The finding that reframes the session: trophic coupling tracks viability
+
+| | plant deaths from grazing | animal deaths from predation | eaten/grown |
+|---|---|---|---|
+| **viable runs (R0≥1), n=22** | **44.3%** | **36.2%** | 54.0% |
+| **non-viable (R0<1), n=97** | 35.8% | 20.5% | 52.9% |
+
+- corr(R0, predation share) = **+0.481** (t=5.93, df=117, p < 1e-6)
+- corr(R0, plant-grazing share) = **+0.391** (p < 1e-4)
+- corr(R0, eaten/grown) = +0.274 (p ≈ 0.003)
+
+**The runs where animals sustain themselves are exactly the runs where
+the food web is working hardest.** Predation share is nearly double in
+viable runs, and it is the strongest correlate of viability found
+anywhere this session — stronger than any constant tested across ~24 CFG
+arms.
+
+**The causal reading is genuinely ambiguous and I am not claiming
+direction.** More animals mechanically create more predator-prey
+encounters, so higher R0 could be *producing* the higher predation share
+rather than resulting from it. That reverse path is at least as
+plausible as the forward one, and nothing here separates them. What the
+correlation does establish is that **the viable regime is the
+strongly-coupled regime** — the two states go together, whichever drives
+which.
+
+### Why this matters more than the dose-response work it displaces
+
+The whole investigation has been asking "which value of `k_photoCost`
+lets animals survive" — a question that, after 30 pre-registered cold
+seeds, answered *neither, and the two candidates are indistinguishable*.
+This suggests a different question with a real signal behind it:
+**what makes trophic coupling strong?** Coupling and viability travel
+together at r≈0.48, which is an effect size nothing in the dose-response
+matrix came close to.
+
+It also puts the earlier `k_confusion:0` result in a new light. That arm
+disables the anti-predator confusion effect — a *coupling* parameter, not
+a food-supply one — and all three cold-ish seeds came in below
+replacement. Consistent with the coupling story, though it was a
+3-seed comparison with no matched control, so it stays MODERATE.
+
+**Not proposing a constant to change on this basis.** The obvious move —
+find a parameter that raises predation share and promote it — would be
+outcome-tuning in exactly the form already logged against the
+`k_photoCost` selection, and worse, would be tuning against a metric
+whose causal direction is unknown. The right next step is to *separate
+the causal directions*, and the honest position until then is that this
+is the most promising correlation in the corpus and the least understood.
