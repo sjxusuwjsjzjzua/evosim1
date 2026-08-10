@@ -1708,15 +1708,19 @@ harmonic N 68. 2 of 2 seeds tried at full arena scale are viable.
 itself.
 
 **Remaining next steps:**
-1. **The gutcost combo confirmed on a 2nd seed.** Actions seed 4001:
-   full 1200 days, no extinction, R0 **1.07**, death/maturityAge ratio
-   **2.61** (healthiest of any run this session — animals typically live
-   well past maturity), harmonic N 37. Combined with seed 1337 (R0 1.37,
-   ratio 0.73) and a 3rd local seed (8686) still running: **2 of 2 Actions
-   seeds viable so far, plus one more local seed confirmation en route.**
-   This combo is looking like the strongest single configuration found —
-   stronger and more consistent than the base dose alone (which sits at
-   3/5).
+1. **The gutcost combo — 3rd seed lands weaker, tempering the early read.**
+   Seed 1337: R0 1.37, ratio 0.73, caps clean. Seed 4001: R0 1.07, ratio
+   2.61 (best yet), caps clean. **Seed 6161 (local, 3rd): R0 0.91**
+   (borderline — under 1 for the first time on this combo), **ratio 0.23**
+   (poor — worse than either of the first two), and **`caps seen [0,1]`**
+   (the plant slot cap bound at some point, unlike the first two). No
+   extinction on any of the 3, which is still real signal, but the
+   demographic-health numbers swing as widely on this combo as they did on
+   the base dose alone (0.23 to 2.61 on ratio, 0.91 to 1.37 on R0). Revise
+   down from "looking like the strongest configuration" to "no extinctions
+   in 3/3, but not obviously more consistent than the base dose" — more
+   seeds (batch of 3 + 2 more already queued on Actions) will settle
+   whether this was a weak seed or the combo's real variance.
 2. **Survival at the base dose is ~60% (3/5), not universal** — see the
    two corrections above. Worth deciding whether that's an acceptable
    "balanced" (small populations do face real stochastic extinction risk)
