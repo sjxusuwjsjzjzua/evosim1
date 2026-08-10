@@ -406,6 +406,33 @@ def sec_demography(c, n, tpd, d, P):
                 P('  births/animal-lifetime (R0) %.2f   [%d births, mean N %.0f, %.0f d, life %.1f d]%s'
                   % (r0, dB, meanN, dD, life,
                      '   <<R0 < 1: NOT VIABLE, food is not the diagnosis' if r0 < 1.0 else ''))
+        # POST-ESTABLISHMENT R0. The line above averages over the LAST 200
+        # samples (up to 1000 d), so a short run cannot exclude the founding
+        # transient: an 800-day run's window is days 5-800, i.e. its whole
+        # history, most of which is the population still establishing. That
+        # made R0 rise with run length in 17/18 corpus runs (mean +0.39) and
+        # produced a full day of wrong paired conclusions. This second figure
+        # starts the window at animalStartDay + a settling margin instead, so
+        # it measures the established population regardless of run length.
+        # Printed ALONGSIDE the original, never replacing it — every number
+        # already in LEDGER.md refers to the line above.  [L61b]
+        start = d.get('cfg', {}).get('animalStartDay', 260)
+        settle = 340                     # measured: establishment done by ~day 600
+        t0 = (start + settle)
+        est = [i for i, t in enumerate(c['tick']) if t / tpd >= t0]
+        if len(est) >= 40:
+            j0 = est[0]
+            dB2 = c['aBorn'][-1] - c['aBorn'][j0]
+            dD2 = (c['tick'][-1] - c['tick'][j0]) / tpd
+            pops2 = [x for x in c['animals'][j0:] if x > 0]
+            ages2 = [x for x in c['aDeathAge'][j0:] if x > 0]
+            if dD2 > 0 and pops2 and ages2:
+                r0b = dB2 / (st.mean(pops2) * dD2) * st.mean(ages2)
+                P('  R0 post-establishment  %.2f   [from day %d, %.0f d, mean N %.0f]%s'
+                  % (r0b, t0, dD2, st.mean(pops2),
+                     '   <<still below replacement' if r0b < 1.0 else ''))
+        else:
+            P('  R0 post-establishment  n/a   [run too short: needs >%d d]' % t0)
 
 
 def sec_refuge(c, n, tpd, P):

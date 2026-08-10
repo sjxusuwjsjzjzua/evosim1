@@ -4365,3 +4365,84 @@ cycle is general.
 problem: `7533 -> 7534`, seed 4001, exactly the case root-caused earlier
 today as the `Math.round` on export for values ≥1000. Noting it because
 `analyze.py` prints `<<LEAK` and a future reader should not re-chase it.
+
+---
+
+# The measurement fix, implemented and validated — and it overturns the headline on the pre-registered sample
+
+## First, a correction to last cycle's framing
+
+I called the post-1600 behaviour "a long-period oscillation". Checking it
+properly: the 40-day autocorrelation peak I might have read as a cycle is
+the **seasonal forcing** (`daysPerYear: 40`, `seasonAmp: 0.35`). After
+smoothing that out, seed 1337 shows a weak peak at 115 d (r=0.41) and
+seed 4001 at 85/170/350 d (r=0.31/0.24/0.15), but the mean-crossing
+half-periods are wildly heterogeneous — **5 to 495 days (1337), 5 to 590
+days (4001)**.
+
+**There is no clean period. These are aperiodic fluctuations**, not a
+limit cycle. "Long-period oscillation" was too specific a claim and is
+withdrawn. The practical consequence is the opposite of what I wrote last
+cycle: since there is no cycle length to average over, the averaging
+window should simply be **as long as available after establishment**, and
+R0 carries irreducible variance from these fluctuations no matter what.
+
+## The fix `[L61b]`
+
+Added to `analyze.py` — **additively**. The original trailing-200-sample
+R0 line is unchanged and still printed first, so every number already in
+this file still refers to it. The new line starts the window at
+`animalStartDay + 340` (≈ day 600, where establishment completes as
+measured on the two 2400-day runs) and runs to the end.
+
+Validation across the three regimes it has to handle:
+
+| run | old (trailing) | new (post-establishment) | rolling-window truth |
+|---|---|---|---|
+| 1337 @2400d | 1.35 | **1.46** | plateau ≈1.5 ✓ |
+| 4001 @2400d | 1.11 | **1.15** | ≈1.1 ✓ |
+| **30001 @800d** | **0.72 "NOT VIABLE"** | **1.04** | — |
+| 10010 (extinct d585) | 0.18 | **n/a, run too short** | — graceful ✓ |
+
+The 800-day case is the decisive one: **the same run that reported
+"R0 0.72 — NOT VIABLE" reports 1.04 once the founding transient is
+excluded.** That is the artifact, isolated and fixed, on the exact class
+of run the whole session was built on.
+
+## Rescoring the 30 cold pre-registered seeds
+
+This is the sample the retracted headline rested on — drawn as a block
+before any results were seen, so it carries no selection advantage.
+
+| arm | old R0 mean | old ≥1 | **new R0 mean** | **new ≥1** | extinct |
+|---|---|---|---|---|---|
+| 3x | 0.67 | **2/15** | **1.25** | **9/12** | 5/15 |
+| 5x | 0.74 | **3/15** | **1.20** | **7/12** | 5/15 |
+
+**Among cold seeds whose populations survived long enough to measure,
+three-quarters are above replacement.** The session's headline — "no
+configuration tested reaches replacement", recorded at HIGH confidence —
+is now definitively wrong, and wrong on its own best evidence.
+
+The honest two-number summary, unchanged in shape from the last two
+cycles but now quantified on the pre-registered sample:
+
+> **~1/3 of runs go extinct early (5/15 in both arms) — the real failure
+> mode, unaffected by any measurement choice. Among the rest, the base
+> configuration sits comfortably above replacement (mean R0 ≈ 1.25).**
+
+Note the 3 seeds per arm that survived but ran <600 days are *not*
+counted in the new column — they are neither extinct-by-day-585 nor
+measurable post-establishment. Reporting `n=12` rather than quietly
+folding them in.
+
+**3x vs 5x on the new metric: 1.25 vs 1.20, 9/12 vs 7/12.** Still
+indistinguishable at this n, consistent with the pre-registered
+conclusion, which survives its third re-examination.
+
+## What is deliberately NOT done
+
+`analyze.py`'s output is now two R0 lines, and **no existing conclusion
+in `LEDGER.md` has been retroactively edited to use the new one.** Doing
+that would rewrite history rather than correct it. The rescoring above is
+additive and explicit about which metric produced which number.
