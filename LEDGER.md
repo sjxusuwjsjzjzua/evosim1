@@ -4690,3 +4690,53 @@ apart: **I correctly identified a limitation, wrote it down accurately,
 and then treated the written-down version as the end of the work.** A
 constraint that gets documented instead of engineered around is still a
 constraint. "Say so in your report" is not a fix.
+
+---
+
+## Establishment batch, first 8 results — and a completion-order trap worth naming before reading them
+
+First returns from the 30-job 1600-day cold-seed batch. **All 8 that have
+landed went extinct (final N = 0).**
+
+| seed | arm | ran | R0 trailing | R0 post-est | caps |
+|---|---|---|---|---|---|
+| 10005 | 3x | 650 d | 0.18 | n/a | clean |
+| 10006 | 3x | 620 d | 0.25 | n/a | clean |
+| 10010 | 3x | 590 d | 0.18 | n/a | cap |
+| 20008 | 5x | 885 d | 0.23 | 0.56 | clean |
+| 20009 | 5x | **1290 d** | **1.21** | **1.21** | clean |
+| 20011 | 5x | 580 d | 0.14 | n/a | clean |
+| 20012 | 5x | 840 d | 0.32 | 0.13 | clean |
+| 20013 | 5x | 775 d | 0.53 | n/a | clean |
+
+**Do NOT read an extinction rate off this table.** A run that goes
+extinct **autohalts and finishes early**; a run that survives grinds
+through the full 1600 days. So results arrive in roughly *inverse order
+of health*, and the first 8 of 30 are close to a pure sample of the
+failures. Computing 8/8 = "100% extinction" from this would be exactly
+the selection artifact that has bitten this project twice today. The
+extinction rate is only meaningful once all 30 are in.
+
+### The one genuinely new result: seed 20009
+
+It ran **1290 days**, held **post-establishment R0 1.21** — comfortably
+above replacement, on the corrected metric — **and went extinct anyway.**
+
+That is a real complication to the establishment story, and it is not a
+measurement artifact: it is the corrected metric, on a cold pre-registered
+seed, at full protocol length. **Clearing replacement over a long window
+does not confer persistence.** It fits what the aperiodic-fluctuation
+analysis already showed — smoothed N swinging 8→407 on one seed, 31→174
+on another, with no characteristic period. A population averaging R0 1.21
+can still hit zero on a downswing, because extinction is absorbing and a
+favourable mean does not protect against a bad excursion.
+
+This sharpens the two-number framing rather than overturning it. The
+right pair is not "R0 among survivors" + "extinction rate" as independent
+facts — **the second is partly a function of the variance that the first
+averages away.** A configuration is only genuinely viable if it clears
+replacement *and* its fluctuations stay off zero, and nothing measured so
+far separates those.
+
+Recording now, before the survivors land, so the framing is on record
+ahead of the data rather than fitted to it.
