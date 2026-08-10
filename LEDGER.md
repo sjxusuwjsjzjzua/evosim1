@@ -3668,3 +3668,81 @@ juvenile fraction should be higher in this arm, which is directly
 checkable once the other two seeds land. Recording the hypothesis now,
 before seeing them, so it is a prediction rather than a story fitted
 afterwards.
+
+### Juvenile-accumulation hypothesis: REJECTED, and it corrects an earlier conclusion
+
+Tested the hypothesis recorded last cycle (before seeing any of this
+data) on seed 1337, where all three `k_intake` arms have now landed.
+
+| arm | `k_intake` | R0 | juvFrac | mean N | median mass | **evolved maturityAge** | death age | plants |
+|---|---|---|---|---|---|---|---|---|
+| −33% | 0.00991 | 0.62 | 0.542 | 82 | 3.19 | **64.4 d** | 19.4 | 3897 |
+| base | 0.01486 | **1.21** | 0.778 | 59 | 4.55 | **40.4 d** | 28.8 | 7074 |
+| +50% | 0.02229 | 0.56 | 0.394 | 48 | 5.51 | **34.7 d** | 19.1 | 1547 |
+
+**Prediction: juvenile fraction should be HIGHER in the −33% arm.
+Observed: 0.542 vs base 0.778 — LOWER. Not supported, hypothesis
+rejected.** Base actually carries the *most* juveniles of the three. The
+"more animals, fewer plants, lower R0" pattern is not explained by
+juveniles piling up.
+
+**What the table does show is cleaner, and it corrects something I
+concluded two cycles ago.** Two quantities move monotonically with
+`k_intake`:
+
+- **median animal mass: 3.19 → 4.55 → 5.51** (rises with intake)
+- **evolved `maturityAge`: 64.4 → 40.4 → 34.7 days** (falls with intake)
+
+`maturityAge` spans a **1.85x range**, cleanly ordered by the food
+environment, at fixed seed with everything else identical. That is a
+gene responding to selection, and it directly contradicts the reading I
+recorded earlier: *"maturityAge drifts rather than falling — rose in
+40/85 runs, fell in 35/85 — the gene does not respond."*
+
+**Why the earlier analysis missed it:** it measured *direction of change
+from the founder value, pooled across ~24 heterogeneous cfg arms*. Pooling
+across arms with different selective environments averages away exactly
+the signal visible here, and "direction from founder" is the wrong
+statistic when different environments have different optima — a gene
+sitting correctly at 64 days in a poor environment and correctly at 35
+days in a rich one both count as "moved" in whichever direction the
+founder happened to sit. **The gene responds to its environment; the
+pooled test could not have detected that.** The maturityAge puzzle that
+consumed two cycles is substantially dissolved: the correct statement is
+not "selection cannot move this gene," it is "selection moves it to
+match the food environment, and the environment is poor."
+
+The mechanism is sensible: more food → faster growth → reaching breeding
+mass sooner pays → earlier maturity is selected. Less food → growth is
+slow → the mass gate binds regardless → the age threshold drifts up.
+
+### Why base wins: the lifespan-to-maturity match
+
+Base is the only arm where lifespan and maturity are close:
+**28.8 / 40.4 = 0.71**, against 0.30 (−33%) and 0.55 (+50%). R0 peaks
+where that ratio peaks, which is a coherent explanation for the
+inverted-U in `k_intake` without needing overexploitation to be monotone.
+
+Across the whole corpus the relationship holds but is modest:
+corr(R0, deathAge/maturityAge) = **+0.260** (t=2.95, df=120, p≈0.004) —
+real, weaker than predation share's +0.481. The group split is sharper
+than the correlation suggests:
+
+| | mean deathAge/maturityAge |
+|---|---|
+| viable (R0≥1, n=22) | **0.99** |
+| non-viable (n=100) | **0.67** |
+
+Viable populations are precisely those where animals live, on average,
+just about exactly to their own evolved breeding age. That the
+correlation is only +0.26 while the group means are 0.99 vs 0.67 suggests
+a **threshold** relationship rather than a linear one — clearing ratio≈1
+is what matters, and exceeding it further buys little. Worth noting as a
+candidate structural criterion, not yet a finding: n=22 viable runs, and
+the ratio is partly definitional (both terms involve age).
+
+**Caveat on all of the above: the three-arm comparison is one seed.**
+Seeds 4001 and 4002 are queued and will confirm or break the monotonicity
+in `maturityAge` and median mass. Recording the correction now because it
+overturns a stated conclusion, and flagging the n clearly rather than
+waiting.
