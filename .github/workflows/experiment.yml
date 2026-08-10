@@ -23,6 +23,15 @@ name: evosim experiment
 # pushing. These branches are scratch, same convention as the gitignored
 # local runs/ directory -- safe to delete once a result's been promoted into
 # the repo proper.
+#
+# No trailing digest job on purpose (removed 2026-08-10, external audit
+# finding). analyze.py is trivial local compute and Claude fetches per-seed
+# results directly via `git fetch origin runs/<label>/seed-<seed>` anyway --
+# a digest job here only ever added a job that queues behind the ceiling
+# like everything else, which made a run's top-level "completed" status lag
+# its actual results indefinitely once the account was near its concurrency
+# cap. Read the digest by running analyze.py yourself once the sim jobs
+# below are done, not by waiting on this workflow to say "completed".
 
 on:
   workflow_dispatch:
@@ -113,32 +122,3 @@ jobs:
           git add "seed-${{ matrix.seed }}.json" "seed-${{ matrix.seed }}.json.progress.json" 2>/dev/null || git add "seed-${{ matrix.seed }}.json"
           git commit -m "evosim experiment: ${{ inputs.label }} seed ${{ matrix.seed }}"
           git push --force origin "$BR"
-
-  digest:
-    needs: run
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: ${{ inputs.label }}-seed-*
-          path: logs
-          merge-multiple: true
-      - name: analyze.py cross-seed digest
-        run: |
-          ls -la logs/
-          # NOT logs/seed-*.json -- that glob also matches each run's own
-          # seed-*.json.progress.json (bash only checks the string ENDS in
-          # .json, which "...progress.json" does too), so analyze.py got a
-          # progress stub as its second argument and crashed with
-          # `KeyError: 'cols'` immediately after the first real log's
-          # digest printed. Exclude the progress files explicitly instead
-          # of trying to out-clever the glob.
-          shopt -s extglob
-          python3 analyze.py logs/seed-!(*progress).json | tee digest.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ inputs.label }}-digest
-          path: digest.txt
-          retention-days: 30
