@@ -4994,3 +4994,42 @@ right next step is to pre-register "harmonic N ≥ 25 at day 1000 predicts
 survival to 1600" on the seeds still outstanding, rather than fitting a
 threshold to 25 runs and declaring it. The 80% figure above is in-sample
 and will be optimistic.
+
+---
+
+## PRE-REGISTRATION: harmonic N as a persistence predictor, tested out-of-sample
+
+Written **before** fetching the new standing-batch results, so the test is
+genuinely out-of-sample. Committed on its own, ahead of the data, so the
+git history proves the order.
+
+**Background.** On 25 in-sample runs, harmonic mean N (AUC 0.82) and
+minimum N (0.83) both outpredicted post-establishment R0 (0.74) for
+survival, and a threshold of **harmonic N ≥ 25** classified 80% correctly.
+That 80% is in-sample and fitted to those 25 runs, so it is optimistic by
+construction and cannot be quoted as a real accuracy.
+
+**Test set.** The standing batch's fresh cold seeds (41080-41091 and
+successors), derived from `github.run_number`, never examined before —
+**excluding seeds 41081 and 41086**, which I already inspected last cycle
+and which are therefore contaminated.
+
+**Prediction.**
+- **HIT:** on the unseen standing seeds, `harmonic N ≥ 25` (measured over
+  the post-establishment window) classifies survival-to-run-end with
+  **≥70% accuracy**, and its AUC exceeds post-establishment R0's on the
+  same seeds. Reading: the low-tail statistic is genuinely the better
+  persistence predictor and should replace R0 as the headline health
+  metric, with R0 demoted to a descriptor.
+- **MISS:** accuracy below 70%, **or** R0's AUC matches or beats harmonic
+  N's. Reading: the in-sample advantage was overfitting to 25 runs, R0
+  keeps its place, and the extinct-despite-high-R0 cases need a different
+  explanation than the low-N inflation account.
+- **Can't-tell:** fewer than 8 unseen seeds have a computable
+  post-establishment window (needs >600 days), in which case report n and
+  wait rather than scoring.
+
+**Guard.** The threshold 25 is frozen at its in-sample value and will not
+be re-tuned to the new data — re-fitting and then reporting the fit is the
+forking-path failure the external audit named. If 25 turns out to be
+badly placed, that is a MISS, not an invitation to pick 30.
