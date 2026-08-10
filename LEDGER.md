@@ -2240,3 +2240,30 @@ v0.50 ecological retest (`v050-attack-floor-test`, invalidated, needs
 re-fire against the k_meatAttr-pivoted file) and the seed-7002 winner's-
 curse retest (external audit point 3, flagged earlier this session,
 never fired).
+
+---
+
+## Heartbeat, 2026-08-10 ~06:00: 5x-dose confirm results, both very weak
+
+Two more seeds landed from the pre-audit 5x confirm batches (`hi-confirm-batch2`
+seed 8888, `hi-confirm-batch3` seed 6060 — the latter being the specific
+targeted retest of the seed that broke the 3x pattern, at 5x instead).
+
+| label | seed | R0 | death age | maturityAge | matter drift |
+|---|---|---|---|---|---|
+| hi-confirm-batch2 | 8888 | 0.03 | 2.1d | 36.9d | 0.000000% |
+| hi-confirm-batch3 | 6060 | 0.03 | 2.0d | 41.9d | 0.000000% |
+
+Both essentially collapse (R0 0.03, dying at ~5% of maturity age) — the
+weakest results seen yet in this whole investigation, and notably
+**seed 6060 does not get rescued by 5x** — at 3x it was extinct with R0
+0.25 (see the "6060 correction" entry above); at 5x it's worse, not
+better. That's a direct data point against the already-retracted "5x
+rescues the hard seeds" framing — worth having on record precisely
+because it points the opposite direction from what that framing would
+have predicted. Matter-conservation clean on both, `caps seen [0]` on
+both (not slot-cap-bound). No local jobs finished this cycle (three
+1200-day runs from the prior session still in progress: seed 5151,
+7575-lo, 8686-gutcost). `noisefloor-3x`/`noisefloor-5x` (30 seeds
+total) have not landed any results yet — still queued behind the
+Actions concurrency ceiling.
