@@ -48,9 +48,13 @@ on:
   # cap and corrects the "40-50" figure previously recorded in LEDGER.
   # The repo is PUBLIC, so Actions minutes are unlimited and free -- there is
   # no quota to conserve, only the concurrency cap and account-safety.
-  #   12 jobs/h x 1.1 h service time => ~13 of 20 slots busy continuously,
-  #   with arrival (12/h) below service capacity (~18/h) so the queue stays
-  #   bounded instead of growing without limit.
+  #   Sized from OBSERVED throughput via Little's Law, not from an estimate:
+  #   12 jobs/h produced 13 concurrent, so mean service time W = 13/12 =
+  #   1.08 h. Service capacity at the 20-job cap is 20/1.08 = 18.5 jobs/h.
+  #   18 jobs/h => ~19.5 of 20 slots busy continuously, with arrival just
+  #   under capacity so the queue stays bounded rather than growing without
+  #   limit. Going to 20/h would exceed capacity (21.7 > 20) and pile up an
+  #   unbounded backlog for no extra throughput.
   # An earlier version of this block fired 6 jobs every 6 h, which works out
   # to 1.1 of 20 slots -- about 5% utilisation. That was badly
   # under-provisioned and is exactly what left Actions near-idle.
@@ -102,7 +106,7 @@ jobs:
           if [ -z "$seeds" ]; then
             base=$(( 40000 + ${{ github.run_number }} * 20 ))
             seeds="$base"
-            for k in 1 2 3 4 5 6 7 8 9 10 11; do seeds="$seeds,$((base+k))"; done
+            for k in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17; do seeds="$seeds,$((base+k))"; done
             echo "scheduled firing: derived seeds $seeds"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
