@@ -1640,9 +1640,30 @@ That arena shrink is itself untested in isolation from `k_photoCost` — see
   alone — consistent with the diagnosis that those levers were fighting an
   artificially large prey base, not a real one.
 
-**Net: 8 of 8 runs with `k_photoCost` raised (any dose, any combo, any of 3
-seeds) survived the full run. 0 of 2 runs with the arena shrink alone did.**
-This is now a confirmed, dose-consistent, multi-seed finding, not a screen.
+**Net (revised below — a 4th seed broke the pattern, see next paragraph): 8
+of 8 runs with `k_photoCost` raised (any dose, any combo, any of 3 seeds)
+survived the full run. 0 of 2 runs with the arena shrink alone did.** This
+established `k_photoCost` as a real, dose-consistent, multi-seed finding —
+not just a screen — but "8 of 8" understated how it should be read going
+forward; see the correction immediately below before treating this as a
+guarantee.
+
+**Correction, same day — seed 6060 (4th seed, base 3x dose, same 25k/11k
+arena as the original 3) went extinct.** R0 0.25, mean death age 3.5d
+against maturityAge 27.4d (ratio 0.13, worse than any prior photocost-arm
+run), harmonic N 8, autohalted day 685. `caps seen [0]` — clean, no cap
+ever bound, and population stayed small throughout (max 248) rather than
+showing the boom-then-refuge-collapse shape the pre-photocost extinctions
+had. This looks like a different failure mode: a founding population that
+never caught a lucky early run rather than one that overshot and crashed a
+food base. **Revised count: 3 of 4 seeds at the base 0.012 dose survived
+with R0>1; the 4th went extinct by a different mechanism than the old
+default-config failures.** `k_photoCost` raised the *odds* of a viable
+population dramatically (was 0 of several default-config seeds all
+session; now most seeds at this dose) — it did not make every seed viable
+unconditionally. Treat "photocost fixes it" as a strong, real, majority
+effect from here on, not a universal one, until more seeds narrow whether
+6060 is an outlier or the actual base rate is closer to 75%.
 
 **Recommended next steps, not yet run:**
 1. **Open confound — isolate `k_photoCost` from the arena shrink.** Every
