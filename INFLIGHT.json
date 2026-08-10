@@ -318,8 +318,8 @@
       "build": "evosim-v0_49_0.html",
       "prediction_ref": "LEDGER.md 'New diagnostic: is aRate/aUpkeep an emergent equilibrium or a parameter?'",
       "fired_at": "2026-08-10T~07:3x",
-      "status": "partially_collected",
-      "notes": "PREMISE WITHDRAWN (emergent-regulation hypothesis rejected, see LEDGER). 2/3 collected: seed 1337 R0 0.56 EXTINCT; seed 4001 R0 0.78 SURVIVED (N~58-86 at end), aRate/aUpkeep 1.13 (BELOW corpus mean 1.166 despite +50% k_intake). The 'reliably drives extinction' reframing is ALSO not supported -- 1/2 extinctions matches the 5/15 (33%) base rate from the cold noise-floor sample. Paired vs same-seed base dose: 1337 1.21->0.56, 4001 1.03->0.78, both negative, mean -0.45 vs noise SD ~0.3. Suggestive but n=2; seed 4002 running."
+      "status": "collected",
+      "notes": "COMPLETE 3/3 paired. Premise (emergent regulation) and first reframing (drives extinction) BOTH withdrawn. Surviving result: +50% k_intake reduces R0 by 0.47 in 3/3 paired seeds (1337 1.21->0.56, 4001 1.03->0.78, 4002 1.31->0.80) and standing N does NOT rise. Mechanism verified: standing plants collapse 3/3 (-78%/-27%/-37%) while eaten/grown barely moves -- EMERGENT OVEREXPLOITATION, nothing in code implements it. Original prediction scored as badly specified (neither branch fires). See LEDGER.md 'intake probe COMPLETE'."
     },
     "stationarity-ladder": {
       "cfg": "cfg-patches/arena-speed-photocost.json",
@@ -332,6 +332,19 @@
       "fired_at": "2026-08-10T~10:0x",
       "status": "fired",
       "notes": "2400-day run. Single long run yields the 800/1600/2400 ladder because run length is a loop bound, not an RNG input -- and the run self-verifies that assumption: the day-600-800 window must reproduce the known 800-day R0 1.21 for this seed/cfg, else the design is discarded. HIT = |R0(2400)-R0(800)|>0.31 AND slope shrinks (protocol too short). MISS = windows agree within 0.31 AND slopes stay large (systems never settle; 800d as good as any). seed 1337 running (d960/2400 at ~10:45); seed 4001 fired ~11:00 on the core freed by base-dose 30002."
+    },
+    "intake-down-probe": {
+      "cfg": "cfg-patches/intake-down-probe.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md 'Reciprocal arm -- prediction, written before the run'",
+      "fired_at": "2026-08-10T~12:1x",
+      "status": "fired",
+      "notes": "k_intake -33% (0.00991). Tests whether base sits on the overexploiting side of an optimum. HIT = paired dR0>0 in >=2/3 AND standing plants rise in >=2/3 (base overexploits). MISS = dR0<0 in >=2/3 (inverted-U, base near peak). Ambiguous = all within +/-0.31. GUARD: no k_intake value gets promoted for raising R0; a HIT licenses a diagnosis, not a constant. seed 1337 running."
     }
   }
 }

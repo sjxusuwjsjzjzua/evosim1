@@ -3522,3 +3522,108 @@ on the *entire* cfg dict minus seed and `k_confusion`. Recording it
 because the wrong version was internally consistent and would have
 supported a tidy story about confusion-off *raising* R0 on one seed; the
 only thing that caught it was a remembered value not matching.
+
+---
+
+## intake probe COMPLETE (3/3 paired): more efficient eating makes things worse, via emergent overexploitation
+
+All three seeds landed. Paired against the same seed's base-dose run
+(same RNG stream start), which is the strong design:
+
+| seed | base R0 | +50% `k_intake` R0 | ΔR0 | base N | probe N | ΔN |
+|---|---|---|---|---|---|---|
+| 1337 | 1.21 | 0.56 | **−0.65** | 59 | 48 | −19% |
+| 4001 | 1.03 | 0.78 | **−0.25** | 153 | 93 | −39% |
+| 4002 | 1.31 | 0.80 | **−0.51** | 320 | 319 | −0% |
+
+**Mean ΔR0 = −0.47, negative in 3/3.** Standing population did not rise
+in any seed — it fell in two and was flat in the third. Making animals
+**50% better at extracting food makes the population less viable and no
+more numerous.**
+
+### The mechanism, checked rather than assumed
+
+| seed | arm | standing plants | LAI | eaten/grown |
+|---|---|---|---|---|
+| 1337 | base | 7074 | 0.576 | 44.1% |
+| 1337 | +50% | **1547** | 0.476 | 63.0% |
+| 4001 | base | 10084 | 0.532 | 72.3% |
+| 4001 | +50% | **7367** | 0.539 | 47.7% |
+| 4002 | base | 18650 | 0.583 | 76.0% |
+| 4002 | +50% | **11671** | 0.452 | 74.2% |
+
+**Standing plant biomass collapses in 3/3 seeds** (−78%, −27%, −37%; mean
+−5074 plants). Meanwhile the *share* of production consumed barely moves
+(−2.5% mean) — the herbivores keep taking a similar fraction of a much
+smaller pie. That is **overexploitation**: raising per-capita harvesting
+efficiency degrades the resource base faster than it feeds the consumers,
+and the consumers are worse off for it.
+
+**Nothing in the code implements this.** There is no overharvesting rule,
+no resource-depletion penalty, no density-dependent efficiency term. It
+falls out of plants growing at a finite rate and animals eating them
+faster. By the project's own mission test — *if a result had to be
+written into the code, it doesn't count* — **this one counts.** It is
+the clearest emergent trophic dynamic found so far, and it is a textbook
+consumer-resource result arrived at from the physics.
+
+It also sharpens Pillar 1 from the mission scorecard. Herbivory does not
+merely "control" plants here; it controls them **strongly enough that a
+50% efficiency increase crashes the plant layer**. The coupling is not
+weak — if anything the base configuration already sits close to
+overexploiting.
+
+### The prediction, scored honestly
+
+The original HIT branch required all three of: `aRate/aUpkeep` in
+1.10-1.30 ✓ (1.18/1.13/1.20), R0 within ±0.45 of 1.18 ✗ (0.56 falls
+outside), standing N up >25% ✗ (fell in two, flat in one). The MISS
+branch required ratio >1.35 sustained ✗ or mean R0 >1.63 ✗. **Neither
+branch fires** — as already recorded when seed 1337 landed, the
+prediction was badly specified and did not tile the outcome space. The
+descriptive result above stands on its own and is not being retro-fitted
+to either branch.
+
+Note also the two intermediate stories I told about this arm and then
+had to drop: "emergent density-dependent regulation" (withdrawn — no
+density relationship, and the ratio is survivorship-filtered) and
+"reliably drives extinction" (withdrawn — 1/2 then 1/3 extinctions,
+matching the 33% base rate). The finding that survived is the third
+reading, and the only one built on the paired comparison across all
+three seeds rather than on the first seed to land.
+
+---
+
+## Reciprocal arm — prediction, written before the run
+
+If base `k_intake` sits on the **overexploiting side** of an optimum,
+making animals *less* efficient should move the system toward the peak
+and **raise** R0. If base sits near the peak already, reducing intake
+should **lower** R0, same as raising it did.
+
+Arm: `k_intake` 0.01486 → **0.00991** (−33%),
+`cfg-patches/intake-down-probe.json`, seeds 1337/4001/4002 (all have
+matched base-dose values: 1.21, 1.03, 1.31).
+
+- **HIT — "base is overexploiting":** paired ΔR0 **> 0 in ≥2 of 3
+  seeds**, and standing plants rise in ≥2 of 3. Reading: the base
+  configuration harvests past the sustainable point, and the plant layer
+  is being held below the density that would best support consumers.
+- **MISS — "base is near the peak":** paired ΔR0 **< 0 in ≥2 of 3**, i.e.
+  R0 falls on *both* sides of base. Reading: an inverted-U with base near
+  its top, and `k_intake` is not the lever — which would make the
+  overexploitation finding above a statement about the *direction of the
+  gradient above base*, not about base itself being misconfigured.
+- **Ambiguous:** ΔR0 within ±0.31 (one noise-floor SD) on all three,
+  i.e. no detectable effect either way — the gradient is flat below base
+  even though it is steep above.
+
+**Mission-test guard, restated:** this is a gradient probe. **No
+`k_intake` value will be promoted on the basis of producing a higher
+R0**, whatever this returns — that is precisely the outcome-tuning trap
+already logged against the `k_photoCost` dose selection, and the fact
+that this arm has a more interesting mechanism behind it does not make
+the trap any less of one. What a HIT would license is a *diagnosis*
+(base overexploits), not a new constant.
+
+Seed 1337 firing now on the core freed by intake-probe 4002.
