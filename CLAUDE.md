@@ -151,14 +151,22 @@ unintegrated screening data.
 `main` specifically for `.github/workflows/experiment.yml` changes, since
 GitHub only reads `workflow_dispatch` inputs from the default branch, so a
 workflow edit on a feature branch can never actually take effect otherwise.
-Scope stays narrow — this covers that one file's mechanics (new inputs,
-matrix changes, tooling fixes to the experiment runner), not a general
-license to push arbitrary project changes to `main` (the simulator build,
-LEDGER/HANDOFF, CFG patches, etc. still belong on
-`claude/evolution-sim-v047-audit-jft25c`). Still out of scope regardless of
-either grant: touching another repo, creating a PR, or anything with no
-sane rollback — those still stop and surface to the owner rather than
-proceeding.
+
+**Second amendment, same day — widened further.** The owner explicitly
+lifted the workflow-file-only scoping above ("no touching main beyond that
+one file, no PRs, no other repos" — "you can do this if it's helpful"),
+stated goal: unbottleneck Claude, maximize freedom and resources for this
+project. PRs and broader `main` merges are now in scope when judged
+helpful; touching another repo is technically in scope too, though nothing
+in this project currently has a use for it. **Claude's own operating rule,
+stated back to the owner and not contradicted:** use this for genuinely
+*completed, verified* milestones — a settled `k_photoCost` dose, a scored
+v0.50 — not for the continuous stream of in-progress experimental commits,
+which stay on `claude/evolution-sim-v047-audit-jft25c` until they resolve
+into something real. Merging half-tested state into `main` would promote
+unverified work as settled, a different mistake than the one the original
+scoping guarded against. Still the one thing that stops and surfaces
+regardless of any grant: anything with no sane rollback.
 
 One iteration, done by Claude, looks like:
 
