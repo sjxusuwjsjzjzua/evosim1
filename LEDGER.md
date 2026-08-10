@@ -2422,3 +2422,30 @@ arms, not three seeds of one arm. Corrected in `INFLIGHT.json`:
   1 seed, needs 1337/4001 to complete the originally-planned 3.
 Neither shows a rescue effect either way (all three raw numbers are in
 the same weak 0.67-0.95 neighborhood as everything else this cycle).
+
+---
+
+## Gutcost combo, 9th seed: 8686, R0 1.15 — but flags the stationarity question directly
+
+Local run, 1200 days (longer than the standard 800-day cutoff). R0 1.15,
+ratio 0.87, matter clean, `caps seen [0, 1]`. **Revises the gutcost-combo
+tally to 3/9 (33%)** — still well below the base dose's own tallies, not
+changing the "doesn't outperform the dose alone" conclusion, but a hit,
+not a miss, this time.
+
+**More useful than the R0 number itself: this run is a concrete example of
+the stationarity concern from the plan written above.** At 1200 days —
+50% longer than the standard cutoff — `analyze.py`'s own gate says
+`plants +14.5%/100d NOT STATIONARY`, `bio -26.5%/100d DRIFTING`, `animals
++23.0%/100d NOT STATIONARY`. If a run this long still hasn't settled, the
+800-day cutoff used everywhere else in this investigation is almost
+certainly reading transient dynamics, not equilibrium — R0 1.15 here
+could easily still be rising or about to fall. This doesn't invalidate
+anything already recorded (every comparison so far has used the same
+800-day cutoff consistently, so relative comparisons between arms are
+less affected than any individual arm's absolute number), but it's a
+concrete, load-bearing data point for the stationarity plan, not just a
+theoretical worry anymore. Worth prioritizing a couple of matched
+800-vs-1200-vs-1600-day runs at the same seed/cfg once the noise-floor
+batches are further along, to see whether R0 keeps drifting the same
+direction or genuinely settles.
