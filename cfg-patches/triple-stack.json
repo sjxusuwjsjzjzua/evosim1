@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Kitchen-sink test: all three individually-promising levers stacked -- k_photoCost 0.012 (base dose) + gutcost (k_gut 0.010/k_digest 0.002) + a_base 0.008 (cheaper base metabolism, which alone overshot to extinction on the inflated pre-photocost food base). Prediction: with the food base now controlled by photocost, a_base's original overshoot risk may not recur -- or three compounding cost reductions may still overshoot even on a controlled base. Genuinely uncertain either direction.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"k_gut":0.010,"k_digest":0.002,"a_base":0.008}}

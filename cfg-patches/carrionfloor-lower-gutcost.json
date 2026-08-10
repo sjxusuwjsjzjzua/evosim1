@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Dose-response on carrionFloor within the gutcost combo: 0.30 -> 0.05 (more aggressive than the 0.10 already tested). Prediction: if carrionFloor's effect is monotonic (less free scavenging energy -> more real predation), this should push actAttack/actAppr higher still; if it overshoots, R0 falls below the 0.10 combo's read.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"k_gut":0.010,"k_digest":0.002,"carrionFloor":0.05}}

@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Untested stack: mildest dose (k_photoCost 0.008, 2x -- best single-seed R0 1.80 in original screen) + gutcost combo. Prediction: if 2x alone is already the most forgiving dose, pairing with cheaper digestion may give the best demographic health yet.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.008,"k_gut":0.010,"k_digest":0.002}}
