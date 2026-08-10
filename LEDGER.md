@@ -3416,3 +3416,38 @@ outcome-tuning in exactly the form already logged against the
 whose causal direction is unknown. The right next step is to *separate
 the causal directions*, and the honest position until then is that this
 is the most promising correlation in the corpus and the least understood.
+
+### Base-dose seed 30002 — a clean counterexample to the coupling correlation, one cycle after finding it
+
+R0 **0.80**, matter clean, hit the plant cap (peak 24589/25000, so it
+joins the 53% of base-dose runs that ride the artifact). Local base-dose
+tally now 30001 (0.72), 30002 (0.80) — both below replacement, both
+sitting near the cold-seed mean of 0.674.
+
+The interesting part is the trophic numbers:
+
+| | seed 30002 | corpus mean | viable-run mean |
+|---|---|---|---|
+| predation share of animal deaths | **42.0%** | 23.6% | 36.2% |
+| grazing share of plant deaths | **46.0%** | 37.2% | 44.3% |
+| R0 | **0.80** | — | ≥1 by definition |
+
+**This run has stronger trophic coupling than the average *viable* run on
+both pillars, and it still fails to reach replacement.** Predation share
+42% is nearly double the corpus mean and above the 36.2% that
+characterises viable runs; grazing share likewise.
+
+Recorded deliberately and immediately, one cycle after reporting
+corr(R0, predation share) = +0.481 as the strongest signal in the corpus.
+An r of 0.48 leaves ~77% of the variance unexplained, so counterexamples
+are *expected* rather than surprising — but the useful discipline is to
+say so with a concrete case rather than let a strong correlation harden
+into "coupling ⇒ viability" through repetition. It does not. Seed 30002
+is what the unexplained 77% looks like, and it is one more reason not to
+go looking for a constant that raises predation share.
+
+Also worth noting against the reverse-causality reading: if high R0 were
+simply *producing* high predation share via more encounters, a run with
+R0 0.80 should not be showing 42%. That does not resolve the direction
+question, but it does mean the reverse path is not a complete
+explanation either.

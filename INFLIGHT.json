@@ -324,13 +324,14 @@
     "stationarity-ladder": {
       "cfg": "cfg-patches/arena-speed-photocost.json",
       "seeds": [
-        1337
+        1337,
+        4001
       ],
       "build": "evosim-v0_49_0.html",
       "prediction_ref": "LEDGER.md 'Stationarity ladder -- prediction, written before the run'",
       "fired_at": "2026-08-10T~10:0x",
       "status": "fired",
-      "notes": "2400-day run. Single long run yields the 800/1600/2400 ladder because run length is a loop bound, not an RNG input -- and the run self-verifies that assumption: the day-600-800 window must reproduce the known 800-day R0 1.21 for this seed/cfg, else the design is discarded. HIT = |R0(2400)-R0(800)|>0.31 AND slope shrinks (protocol too short). MISS = windows agree within 0.31 AND slopes stay large (systems never settle; 800d as good as any). n=1 cannot settle it; more seeds as cores free."
+      "notes": "2400-day run. Single long run yields the 800/1600/2400 ladder because run length is a loop bound, not an RNG input -- and the run self-verifies that assumption: the day-600-800 window must reproduce the known 800-day R0 1.21 for this seed/cfg, else the design is discarded. HIT = |R0(2400)-R0(800)|>0.31 AND slope shrinks (protocol too short). MISS = windows agree within 0.31 AND slopes stay large (systems never settle; 800d as good as any). seed 1337 running (d960/2400 at ~10:45); seed 4001 fired ~11:00 on the core freed by base-dose 30002."
     }
   }
 }
