@@ -1932,3 +1932,57 @@ any new CFG lever aimed at "fixing" the crash rate — if this is real,
 it may be irreducible stochasticity (small-N founder luck) rather than
 anything a constant can fix, which would mean the ~60-75% viability
 already found is close to the ceiling for this population scale.
+
+---
+
+## Correction to v0.50 — external audit caught a confounded change, 2026-08-10
+
+An external Claude Code audit (full review: `EVOSIM-EXTERNAL-REVIEW.md` on
+`main`) found a real bug in [L0.50-1]: `*(0.5 + meatAttraction)` →
+`*meatAttraction` removes the floor **and** silently changes the gain.
+At the founder value (`meatAttraction` 0.10), the old formula scored
+0.5+0.10=0.60; the new one scored just 0.10 — a 6x reduction riding along
+with the floor removal, violating one-structural-change-per-version in
+spirit even though it was one line. The audit's own words: "the n=1 run
+may not be noise — it may be a real effect of the confounded half of the
+change." That's a serious, specific, correct catch — the mixed n=1 result
+recorded earlier (actAttack dropped as predicted, R0 also dropped
+unexpectedly) is now suspect: the R0 drop may simply be a 6x-weaker
+ATTACK score crowding out predation entirely, not a genuine RNG-path
+noise artifact as I'd guessed at the time.
+
+**Fixed by pivoting, the same discipline HANDOFF.md §2b already documents
+for exactly this situation** (re-pivot so the value is unchanged at the
+founder, only the slope moves): added `k_meatAttr: 6.0` and changed the
+score to `*k_meatAttr*meatAttraction`. `6.0 * 0.10 = 0.60`, matching the
+old floored formula exactly at the founder gene. `node check.js`: PASS.
+
+**All v0.50 ecological data collected before this fix is invalidated** —
+it tested the confounded (gain-reduced) version, not the isolated
+floor-removal this change was supposed to be. This includes:
+- The local seed-1337 n=1 result ("mixed, not scoreable")
+- Whichever seeds of `v050-attack-floor-test`, `v050-gutcost-retest`,
+  `v050-confusion-off-retest` had already run against the pre-fix file
+
+**Not re-fired yet** — per the audit's suggested order of operations,
+the noise-floor run and decision-rule work below take priority over
+re-testing v0.50, since without a noise floor a fresh v0.50 test would
+have the same "moved in the predicted direction" interpretation problem
+the whole session has been making. Re-test v0.50 after the noise floor
+lands.
+
+**Kept as an open, unsolved flag per the audit's point #12 (absorbing
+states):** with the floor removed, if `meatAttraction` drifts to ~0 via
+mutation-drift in a population not currently attacking, ATTACK's score
+goes to ~0, meaning ATTACK is never chosen, meaning there's no fitness
+event to ever select the gene back up — a one-way ratchet where the
+behavior becomes structurally unreachable, not just currently unselected.
+The audit connects this directly to the standing, unsolved
+`socialAttraction`/herding mystery (HANDOFF.md, "Herding, partially
+mechanised"). An epsilon floor would just be a hardcode by the project's
+own rule 8 spirit (rule 8 is literally about gene *bounds*, but the
+underlying principle — don't paper over a structural problem with a
+constant — applies). The audit's suggested real fix (reachability via
+exploration noise in action selection, not the gene's magnitude) is a
+bigger design question, not attempted here. Flagged for the mission-queue
+work once population balance is settled (HANDOFF §0.5 priority 6).
