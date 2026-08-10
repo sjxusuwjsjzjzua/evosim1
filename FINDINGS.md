@@ -59,9 +59,13 @@ file exists to prevent).
   equilibrium off that artifact — but the base dose does not fully clear
   it.** Direction confirmed across multiple doses. **Cap-binding audit
   (2026-08-10, 86 logs, `caps` bitmask): the plant slot cap still binds
-  in 15/52 (29%) of 3x base-dose runs.** Ranking by fraction of run
-  spent capped: 5x 0.008 ≫ 3x 0.061 > default 0.083 ≫ 2x 0.243 (2x
-  median peak plants 24630 against a 25000 bound — essentially pinned).
+  in 15/52 (29%) of 3x base-dose runs** — and on the 30 cold-drawn
+  noise-floor seeds the clean figure is **worse: 8/15 (53%) for 3x vs
+  2/15 (13%) for 5x.** The dose treated all session as "off the
+  `maxPlants` artifact" is pinned against it in over half of unselected
+  runs. Ranking by fraction of run spent capped: 5x 0.008 ≫ 3x 0.061 >
+  default 0.083 ≫ 2x 0.243 (2x median peak plants 24630 against a 25000
+  bound — essentially pinned).
   The animal cap never binds in any run (0/86); `maxAnimals` has never
   been a constraint. **Which exact multiplier, if any, is
   "correct" is NOT settled** — see the retractions below.
@@ -89,12 +93,30 @@ file exists to prevent).
   sample sizes used* (see the noise-floor entry below), and largely moot:
   no dose reaches replacement, so ranking them is optimizing inside a
   failing regime.
-- **RETRACTED: "5x `k_photoCost` is the leading candidate over 3x."**
-  Was based on 3/4 vs 4/6 seeds with R0>1. External audit ran Fisher's
-  exact test: p≈1.0, 95% CIs of ~19-99% and ~22-96%, overlapping almost
-  entirely. Not evidence of a difference. A noise-floor + n≥30
-  confirmation run for both doses is in flight as of 2026-08-10; decision
-  rule is written in LEDGER.md before that data lands.
+- **RESOLVED (was RETRACTED): "5x `k_photoCost` is the leading candidate
+  over 3x" — there is no difference.** The pre-registered comparison
+  completed 2026-08-10 on **30 cold-drawn seeds, 15/arm**, selected as a
+  block before any results were seen. 3x mean R0 **0.674** (SD 0.278),
+  5x **0.735** (SD 0.314); difference −0.061, SE 0.108, **permutation
+  p = 0.590**, **Fisher p = 1.000** on the R0≥1 rate. The gap is one-fifth
+  of one noise-floor SD (threshold 0.314). Per the rule fixed in advance,
+  **5x is not promoted and 3x stands on parsimony** — and since 3x is
+  already the base dose, nothing changes operationally. The external
+  audit's p≈1.0 call at n=4/6 was correct. **Confidence: HIGH** — this is
+  the only pre-registered, non-cherry-picked comparison in the project.
+- **Neither dose is viable, on cold seeds.** 2/15 (3x) and 3/15 (5x)
+  clear replacement; **5/15 go extinct in both arms.** Confirms the
+  "nothing tested reaches replacement" conclusion was not a pooling
+  artifact. **Confidence: HIGH.**
+- **NO run in this project has ever been an equilibrium measurement.**
+  Stationarity gate on all 30 cold seeds: **15/15 fail in both arms**,
+  median slopes 10-25x `analyze.py`'s DRIFTING threshold. Direction is
+  mixed (animals falling in ~half, rising in ~half), so this is genuine
+  unsettled dynamics rather than a uniform bias — which protects
+  *comparisons* at a shared cutoff but invalidates any *absolute* R0
+  claim, including the two means above. 800 days is too short a protocol;
+  how much too short is unmeasured. **Confidence: HIGH** (direct
+  measurement on 30 runs).
 - **RETRACTED (flagged, not disproven): "R0 1.51 (seed 7002, 5x dose) is
   the best result of the session."** With ~24 CFG arms tried at low n
   each, the single best result across all of them is expected to be
