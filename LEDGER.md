@@ -1859,3 +1859,29 @@ occupied-slot-list change carried, documented at length in that section.
 v0.50 test (`v050-attack-floor-test`, seeds 1337/4001/4002) and the two
 v0.50 combo re-tests are still queued/running; scoring the L0.50-1
 prediction properly waits for those.
+
+### Dose-response tally update — 5x dose looks strongest so far
+
+More Actions seeds landed (fetched directly via git branch — several of
+these runs' trailing `digest` jobs are stuck queued behind the concurrency
+ceiling even though all their simulation jobs finished; this is now a
+established pattern, not a one-off, see the gutcost-combo note above).
+
+**5x dose (`k_photoCost` 0.020) — 4 seeds, 3/4 (75%) R0>1:**
+1337 (local) 1.16✓, 4001 1.08✓, 7002 **1.51✓** (best single result of any
+arm this session, ratio 1.86 — genuinely healthy), 4002 0.22✗ (weak,
+`caps` hit). Best survival rate of any dose tried so far, ahead of the
+base dose's 4/6 (67%).
+
+**2x dose (`k_photoCost` 0.008) — 2 seeds, 1/2 so far:** 1337 (local)
+1.80✓ (highest single R0 all session), 7001 0.88✗. Two more Actions seeds
+(4001, 4002) still in flight.
+
+**a_base combo — 2 seeds, 1/2 so far:** 1337 (local) 1.08✓, 4001 0.70✗.
+
+**Emerging picture: no configuration is anywhere near universally viable,
+but 5x `k_photoCost` alone is pulling ahead of every other arm tried
+(75% at n=4, best single-seed result, best single-seed ratio).** Worth
+watching as more seeds land — if this holds, 5x may be the better
+constant to promote over the original 3x base dose, not just a confirmed
+alternative dose.
