@@ -45,7 +45,7 @@ on:
         required: true
       days:
         description: 'Target sim-days per seed'
-        default: '800'
+        default: '1600'
         required: true
       cfg:
         description: 'Path to a CFG patch JSON in the repo (optional)'
@@ -74,7 +74,7 @@ jobs:
   run:
     needs: setup
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 350
     permissions:
       contents: write   # needed to push the per-seed results branch below
     strategy:
@@ -91,8 +91,14 @@ jobs:
           mkdir -p out
           CFG_ARGS=""
           if [ -n "${{ inputs.cfg }}" ]; then CFG_ARGS="--cfg ${{ inputs.cfg }}"; fi
-          # --max-wall-min sits under the job's own 180-min timeout (line above:
-          # timeout-minutes: 180) with margin for checkout/setup/upload. Without
+          # --max-wall-min sits under the job's own 350-min timeout (line above:
+          # timeout-minutes: 350) with margin for checkout/setup/upload. GitHub
+          # hosted runners cap a job at 6 h, so 350/330 is near the ceiling.
+          # Raised from 180/165 on 2026-08-10: the default target went 800 ->
+          # 1600 days because an 800-day run cannot exclude the founding
+          # transient (its R0 window is its whole history -- see LEDGER.md
+          # [L61b]), and 1600 days leaves a clean 1000-day post-establishment
+          # window. Without
           # this, a run whose population survives to the timeout produces
           # nothing at all -- headless.js only writes output once, at the end,
           # so a hard-killed job returns zero data for the ~3 hours it ran.
@@ -102,7 +108,7 @@ jobs:
             --seed "${{ matrix.seed }}" \
             --days "${{ inputs.days }}" \
             --progress-days "${{ inputs.progress_days }}" \
-            --max-wall-min 165 \
+            --max-wall-min 330 \
             $CFG_ARGS \
             --out "out/seed-${{ matrix.seed }}.json"
       - uses: actions/upload-artifact@v4
