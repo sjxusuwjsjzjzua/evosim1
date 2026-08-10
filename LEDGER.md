@@ -1806,6 +1806,31 @@ benefit and measurably worse R0 odds. The base `k_photoCost` 0.012 dose
 by itself remains the strongest, most-tested, most defensible finding
 of this investigation.
 
+**8-seed final tally** (3 more Actions seeds landed, `gutcost-confirm-batch2`
+— note this batch's own trailing `digest` Actions job got stuck queued
+behind the concurrency ceiling even though all 3 simulations finished;
+fetched the per-seed results directly via git branch instead of waiting
+on it, worth remembering as the general pattern going forward — a run's
+top-level "completed" status lags behind its actual simulation results
+whenever the digest step queues):
+
+| seed | R0 | ratio | caps |
+|---|---|---|---|
+| 1337 (small) | 1.37 | 0.73 | clean |
+| 4001 (small) | 1.07 | 2.61 | clean |
+| 9001 (small) | 0.90 | 0.33 | clean |
+| 9003 (small) | 0.73 | 0.93 | bound hit |
+| 9002 (small) | 0.67 | 0.51 | clean |
+| 6161 (small) | 0.91 | 0.23 | bound hit |
+| 1337 (full) | 0.86 | 0.36 | clean |
+| 9099 (small) | 0.58 | 0.18 | clean |
+
+**2 of 8 (25%) clearly R0>1 — verdict confirmed, not just an early read.**
+Gutcost combo settles further below the base dose's independent 4/6 (67%).
+Closing this branch of investigation: no further seeds planned for this
+combo, the base `k_photoCost` dose alone is the finding worth carrying
+forward.
+
 ---
 
 ### v0.50 — first ecological data point, seed 1337, base photocost dose
