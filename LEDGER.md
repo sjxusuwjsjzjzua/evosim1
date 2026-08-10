@@ -3990,3 +3990,89 @@ replacement**: base dose 2/20 among *survivors* at matched cutoff, and
 27% of all runs do not even survive. If anything the matched view is
 bleaker than the mixed-length one it replaces — the earlier 6/16 was
 partly counting long runs measured over a favourable late window.
+
+---
+
+# STATIONARITY LADDER, seed 1337: HIT — 800 days is far too short, and the base dose IS viable
+
+The single most consequential result of the day, and it points the
+opposite way from almost everything concluded before it.
+
+**Discard check first: PASS.** The prediction required the day-600-800
+window of the 2400-day run to reproduce the native 800-day run. It
+returns **0.728954** against the native run's **0.728954** — exact to six
+decimals. The single-long-run design is valid, and this independently
+re-confirms that truncation is exactly equivalent to a shorter run.
+
+*(Note: the prediction as written named the target as "R0 1.21". That
+figure was itself the 1200-day-window value — one of the numbers the
+run-length correction invalidated earlier today. The check was scored
+against the corrected 800-day value, 0.728954. Flagging that the
+prediction text contained a stale number rather than quietly using the
+right one.)*
+
+### The ladder
+
+| window ends | R0 | plant slope | animal slope | mean N | mean plants |
+|---|---|---|---|---|---|
+| day 800 | **0.729** | 27.0 | 99.0 | 48 | 4230 |
+| day 1200 | **1.210** | 43.7 | 103.4 | 59 | 7053 |
+| day 1600 | **1.564** | 24.4 | 15.7 | 72 | 10085 |
+| day 2000 | **1.522** | −22.7 | 34.2 | 100 | 11352 |
+| day 2400 | **1.354** | 17.7 | −27.3 | 100 | 12098 |
+
+**Scored: HIT on both criteria.**
+- |R0(2400) − R0(800)| = **0.625**, against a 0.31 threshold — nearly
+  double.
+- Slopes are materially smaller at 2400 than at 800: plants 27.0 → 17.7,
+  animals **99.0 → −27.3** (magnitude 99 → 27). The system is settling,
+  not oscillating indefinitely.
+
+### What this means, and it is large
+
+**The base dose crosses replacement between day 800 and day 1200 and
+stays above it through day 2400** (1.21, 1.56, 1.52, 1.35). Standing
+population climbs 48 → 100 and plateaus; standing plants climb 4230 →
+12098 and decelerate. This is a population *establishing*, not failing.
+
+**The session's central conclusion — "no configuration tested reaches
+replacement" — is very likely an artifact of the 800-day protocol.** That
+claim was recorded at HIGH confidence in `FINDINGS.md` on the strength of
+30 cold pre-registered seeds. Those seeds were all 800-day runs, i.e. all
+measured during the transient, before the populations had established.
+
+It also explains **corr(run length, R0) = +0.758** cleanly. That was not a
+measurement pathology — it is the real signal. Longer runs show higher R0
+*because the populations are still climbing at 800 days*. The
+"1200-day baseline vs 800-day treatment" mismatch found earlier today was
+a genuine confound (two different points on a trajectory), but the
+1200-day numbers were the *less* misleading half.
+
+### What is NOT established
+
+- **n = 1 seed.** Seeds 4001 (day 1120 of 2400) and 4002 (just started)
+  are running. One seed cannot carry a claim this large, and today has
+  repeatedly punished exactly that. **This is not being written into
+  `FINDINGS.md` until 4001 and 4002 land.**
+- **Not fully settled even at 2400 days.** Slopes of 17.7 and −27.3 are
+  still above `analyze.py`'s ~10 DRIFTING threshold, and R0 has drifted
+  down from its 1600-day peak (1.564 → 1.354), which could be the start
+  of an oscillation rather than a plateau. Where the protocol cutoff
+  *should* sit is not yet answerable; day 1600-2000 is the first place
+  the slopes drop sharply, but that is a read on one trajectory.
+- **This says nothing about the other arms.** Whether 5x, gutcost, or any
+  other configuration also establishes given time is untested. The
+  pre-registered 3x-vs-5x comparison remains valid *as a comparison at
+  800 days* and its conclusion (indistinguishable) is unaffected — but
+  both arms may simply have been measured too early.
+
+### Consequence for the protocol
+
+Per the prediction's own stated consequence: **the cutoff must rise, and
+every absolute R0 in this file is an early-transient artifact.** The
+800-day default in `experiment.yml` (lowered from 1000 earlier in this
+session, on the reasoning that 1000 days was "a long time") now looks
+like the most costly parameter choice in the project. Not changing it
+yet — that decision should wait for 4001/4002, and a cutoff should be
+chosen from where the slopes actually flatten across several seeds, not
+from one.
