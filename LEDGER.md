@@ -4530,3 +4530,48 @@ post-establishment window exists.
   Actions at all.
 - default `days` **800 → 1600**, since an 800-day run cannot exclude the
   founding transient.
+
+### Correction to the [L62] entry above: my "verified end to end" was not
+
+The entry above says the checkpoint work was *"verified end to end"*. It
+was not, and the gap is the same shape as the errors this file has been
+cataloguing all day.
+
+I tested that the **new** path worked — a partial appeared, `analyze.py`
+digested it, matter conservation was intact — and wrote it up. I did not
+test that the **existing** path still worked. It did not: `__buildLog`
+was declared `const` inside the driver's bare block, so the final
+`JSON.stringify(__buildLog())` outside that block threw
+`ReferenceError: __buildLog is not defined`. **Every run would have
+produced a checkpoint and then died without writing its real output.**
+That is strictly worse than the problem being fixed, and it was live in
+the committed tree for one commit.
+
+Caught by checking whether the final log file actually existed rather
+than trusting the smoke test's exit code — the run exited 0 because the
+error was caught and reported by the host wrapper, not because it
+succeeded.
+
+**Fixed:** `let __buildLog;` declared outside the block so the final call
+can see it, assigned inside the block before the tick loop so the
+checkpoint hook can too.
+
+**Now actually verified, all four properties:**
+
+| check | result |
+|---|---|
+| final log written on a normal run | **yes** |
+| partial written mid-run | **yes**, digests cleanly |
+| partial removed once the real output lands | **yes** |
+| **RNG-safety (hard rule 7)** — log identical with checkpointing on vs off, seed 777 | **`cols`, `genes`, `tick`, `cfg` all IDENTICAL** |
+
+The rule-7 check is the one that matters most and I had not run it in the
+first pass either. A measurement-only change must not move the draw
+sequence; this one provably does not.
+
+**The generalisable lesson, third time today:** verifying that a new
+feature works is not verifying that the change is correct. The regression
+is always in the path you did not think to re-test — the `armeff`
+contamination, the run-length confound, and now this were all found by
+checking something adjacent to what I had just built, not by checking the
+thing itself.

@@ -146,6 +146,9 @@ function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, pr
 Object.assign(CFG, ${JSON.stringify(overrides)});
 buildWorld();
 let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
+// declared out here so the final JSON.stringify below can see it; ASSIGNED
+// inside the block before the tick loop so the checkpoint hook can too.
+let __buildLog;
 {
   const __tpd = TPD();
   const __t0 = performance.now();
@@ -153,7 +156,7 @@ let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
   const __autohalt = ${autohalt ? 'true' : 'false'};
   const __progressEvery = Math.max(1, Math.round(${JSON.stringify(progressDays)} * __tpd));
   const __ckptEvery = ${checkpointDays ? `Math.max(1, Math.round(${Number(checkpointDays)} * __tpd))` : 0};
-  const __buildLog = () => {
+  __buildLog = () => {
 const __cols = {};
 for (let __c = 0; __c < LOGCOLS.length; __c++) {
   const __src = LOG.col[__c], __a = new Array(LOG.n);
