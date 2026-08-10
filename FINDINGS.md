@@ -169,10 +169,24 @@ are the project's own success criteria and had never been computed.
   already the base dose, nothing changes operationally. The external
   audit's p≈1.0 call at n=4/6 was correct. **Confidence: HIGH** — this is
   the only pre-registered, non-cherry-picked comparison in the project.
-- **Neither dose is viable, on cold seeds.** 2/15 (3x) and 3/15 (5x)
-  clear replacement; **5/15 go extinct in both arms.** Confirms the
-  "nothing tested reaches replacement" conclusion was not a pooling
-  artifact. **Confidence: HIGH.**
+- **RETRACTED: "Neither dose is viable" / "nothing tested reaches
+  replacement."** This was recorded HIGH on 30 cold pre-registered seeds
+  and is **wrong because of the protocol, not the sample** — all 30 were
+  800-day runs, and 800 days sits mid-establishment. Corrected evidence
+  (2026-08-10): across **18 corpus runs of ≥1000 days**, R0 rose from a
+  matched 800-day window to full length in **17/18** (mean **+0.394**),
+  and **13/18 crossed from below replacement to at-or-above it**. Spans
+  `k_photoCost` 0.004/0.008/0.012/0.020 and both `k_gut` values, so it is
+  not specific to a dose or seed set. The single exception went extinct.
+  **Replaced by the two-outcome statement below.**
+- **The real picture: ~1/3 extinctions, and survivors mostly establish.**
+  (a) Roughly a third of runs go extinct early — terminal, unaffected by
+  any cutoff. That is the genuine failure mode. (b) Among survivors,
+  800-day R0 **understates** the established value by ~0.39 on average.
+  These are two separate outcomes and neither substitutes for the other.
+  **Confidence: MODERATE-HIGH** — n=18 and highly consistent (17/18), but
+  survivor-biased by construction (runs that died young cannot appear)
+  and the settled cutoff is not yet determined.
 - **NO run in this project has ever been an equilibrium measurement.**
   Stationarity gate on all 30 cold seeds: **15/15 fail in both arms**,
   median slopes 10-25x `analyze.py`'s DRIFTING threshold. Direction is

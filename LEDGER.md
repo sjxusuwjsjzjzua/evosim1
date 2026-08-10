@@ -4160,3 +4160,78 @@ drawn as a block, so they carry no selection advantage.
 
 Deliberately chosen as the seeds *most likely to falsify* the claim among
 survivors, rather than the ones most likely to confirm it.
+
+---
+
+# The ladder finding GENERALIZES: n=18, 17/18, across seeds and across arms
+
+Before waiting on the four 2400-day runs, I checked what was already on
+disk. **Every run in the corpus of ≥1000 days is itself a partial
+ladder** — compute R0 at a matched 800-day window and again at its full
+length. That is 18 runs, free, and it settles the question the 2400-day
+runs were fired to answer.
+
+| seed | full | R0@800 | R0@full | change | k_photoCost | k_gut | final N |
+|---|---|---|---|---|---|---|---|
+| 1337 | 2400 | 0.73 | 1.35 | **+0.63** | 0.012 | 0.02 | 82 |
+| 6464 | 1200 | 0.81 | 1.20 | +0.39 | 0.012 | 0.02 | 147 |
+| 6161 | 1200 | 0.57 | 0.91 | +0.34 | 0.012 | 0.01 | 179 |
+| 6262 | 1200 | 0.89 | 1.42 | +0.52 | 0.012 | 0.02 | 141 |
+| 8686 | 1200 | 0.86 | 1.15 | +0.29 | 0.012 | 0.01 | 305 |
+| 7575 | 1200 | 0.63 | 0.92 | +0.29 | **0.008** | 0.02 | 259 |
+| 4001 | 1200 | 0.72 | 1.07 | +0.35 | 0.012 | 0.01 | 51 |
+| 4002 | 1200 | 0.92 | 1.31 | +0.39 | 0.012 | 0.02 | 63 |
+| 4001 | 1200 | 0.71 | 1.03 | +0.32 | 0.012 | 0.02 | 129 |
+| 1337 | 1200 | 0.74 | 1.16 | +0.42 | **0.02** | 0.02 | 47 |
+| 1337 | 1200 | 1.03 | 1.80 | +0.77 | **0.008** | 0.02 | 2 |
+| 1337 | 1200 | 0.68 | 1.06 | +0.38 | **0.004** | 0.02 | 371 |
+| 6363 | 1015 | 0.88 | **0.76** | **−0.12** | 0.012 | 0.02 | **0** |
+
+*(plus 5 more seed-1337 variants, all positive, omitted for length)*
+
+- **R0 rose in 17 of 18 runs.** Mean change **+0.394**, median +0.383.
+- **13 of 18 crossed from below replacement to at-or-above it.**
+- The single exception, seed 6363, **went extinct** (final N 0) — exactly
+  the boundary case identified last cycle.
+- The effect spans **k_photoCost 0.004, 0.008, 0.012 and 0.020**, and both
+  `k_gut` values. It is not a property of one dose, one arm, or the
+  "favourable trio" of seeds.
+
+**This is no longer n=1.** The 2400-day runs still in flight (4001, 4002,
+10001, 10008) are now confirmatory rather than decisive.
+
+### The corrected headline for the whole session
+
+Two separate outcomes, neither substituting for the other:
+
+1. **Roughly one-third of runs go extinct early.** Terminal, unaffected
+   by any cutoff choice. This is the real failure mode.
+2. **Among populations that survive, 800-day R0 understates the
+   established value by ~0.39 on average, and most cross replacement
+   given time.**
+
+So **"no configuration tested reaches replacement" — recorded at HIGH
+confidence in `FINDINGS.md` on the strength of 30 cold pre-registered
+seeds — is wrong, and wrong because of the protocol, not the sample.**
+Those 30 seeds were correctly drawn, correctly analysed, and measured at
+a cutoff that sits in the middle of the establishment transient. Being
+rigorous about seed selection did not protect against being wrong about
+when to look.
+
+That is the more uncomfortable lesson of the day. The noise floor, the
+pre-registration, the cold seeds, the Fisher tests — all of that
+machinery was sound and none of it caught this, because every arm shared
+the same defective cutoff. **A confound common to every arm is invisible
+to any amount of between-arm rigour.** The only things that exposed it
+were a verification run that was supposed to be a formality, and then
+looking at data already sitting on disk.
+
+### Protocol consequence
+
+`experiment.yml`'s 800-day default is now demonstrably too short.
+Changing it is a `main` push (workflow files only take effect from the
+default branch) and is within the standing authorization, but I am
+**not** changing it this cycle: the right cutoff should come from where
+the slopes actually flatten, and the four 2400-day runs that answer that
+land shortly. Raising it blind would repeat in the other direction the
+mistake being corrected.
