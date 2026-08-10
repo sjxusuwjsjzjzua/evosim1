@@ -85,6 +85,37 @@ promote it (not 3x) as the shipped `k_photoCost` CFG patch and add the
 version-log table row. `evosim-v0_49_0.html`/`v0_50_0.html` both still
 present pending that decision and v0.50's own verification.
 
+**Priority-ordered plan for the autonomous loop, so each heartbeat has
+concrete direction instead of re-deriving strategy:**
+
+1. **Land the pending batches** (5x dose confirmations, riskEwma/retal/
+   armEff/confusion-off/animal-headroom/mixedfree, v0.50 3-seed test and
+   its two combo re-tests). Digest each honestly, fold into LEDGER.
+2. **Score v0.50's L0.50-1 prediction** once its 3-seed Actions test
+   lands — this has been sitting unscored on n=1 too long.
+3. **Run the clean same-cfg pLocked-trend test** (previous section) —
+   8-10 base-dose-only seeds, record day-265 `pLocked` and its 50-day
+   trend, check correlation with final R0. This answers whether the
+   ~60-75% viability ceiling is fixable or is founder-luck stochasticity.
+   Do this **before** inventing more untested CFG levers — it tells you
+   whether that's even a productive use of the next batch.
+4. **Decide and promote:** once (1)-(3) settle, pick the winning
+   `k_photoCost` dose, add its LEDGER version-log row, delete whichever
+   of v0.49/v0.50 doesn't end up superseded (per rule 6/9's convention —
+   only once results are captured here).
+5. **Only then** open new CFG-lever territory beyond what's already
+   fired (there's a lot already in flight — let it resolve before adding
+   more untested branches; CLAUDE.md's saturation policy prefers new
+   seeds on real open questions over padding).
+6. **Longer-horizon, once the above settles:** the still-untouched
+   HANDOFF §1 threads (omnivory/carnivory magnitude via v0.50, herding
+   via riskEwma, effective population, behavioral monoculture) are the
+   actual mission-relevant questions this whole investigation has been
+   in service of — don't lose sight of them once the population-balance
+   question is settled. A "balanced" population that still shows 90%+
+   GRAZE and near-zero carnivory hasn't achieved the mission, just fixed
+   a prerequisite for testing it properly.
+
 ---
 
 ## 1. Current state — v0.49.0
