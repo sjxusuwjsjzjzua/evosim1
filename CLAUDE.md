@@ -99,11 +99,29 @@ replication of a result that looked too clean on n=1. These can run back to
 back — start the next one the moment the last digest is read — without asking
 first each time.
 
-**Tier B — gated, needs the owner's word before it runs.** Anything that
-originates a new hypothesis: a new CFG constant nobody has proposed before, and
-*always* any change to the shipped HTML itself (a new formula, cost
-curve, mechanism — rule 6's definition of a *shape* change). These stop and
-wait for approval before the run that tests them starts, same as always.
+**Tier B — normally gated, needs the owner's word before it runs.** Anything
+that originates a new hypothesis: a new CFG constant nobody has proposed
+before, and *always* any change to the shipped HTML itself (a new formula,
+cost curve, mechanism — rule 6's definition of a *shape* change). These
+normally stop and wait for approval before the run that tests them starts.
+
+**Standing exception, granted 2026-08-09/10:** for the trophic-balance
+investigation (getting herbivory/carnivory to actually control population —
+see LEDGER.md's `k_photoCost` finding and HANDOFF.md §1/§3), the owner
+pre-authorized Tier B work to proceed without a per-change wait, including
+HTML mechanism changes, explicitly wanting the loop hands-off. This lifts the
+*wait-for-approval* gate only — it does not lift anything else: every run
+still needs a written falsifiable prediction on record first (rule 1, never
+optional), an HTML mechanism change still bumps the version and stays one
+structural change at a time (rule 3), `node check.js` still runs after every
+edit (rule 2), matter-conservation/RNG-safety still gets checked (rule 5/7),
+gene bounds still don't get widened to fix a pin (rule 8), and the shipped
+build still stays single-file/no-build-step/touch-first (rule 9). If the
+scope of "changes needed for a balanced simulation" becomes ambiguous —
+touching something outside the trophic-balance question, or a change with no
+sane rollback — that's still worth surfacing rather than assuming. This
+exception is scoped to that investigation; a brand new, unrelated hypothesis
+outside it still needs the owner's word.
 
 One iteration, done by Claude, looks like:
 
