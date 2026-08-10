@@ -4807,3 +4807,44 @@ not actually been tested yet. **First real test is 19:37.** If that also
 produces nothing, `schedule:` is not dependable on this account and the
 fallback is deep queues dispatched from interactive turns, since
 heartbeats provably cannot dispatch.
+
+## Ladder seed 10001 — the cold falsifier seed HITS
+
+Seed 10001 was chosen deliberately as one of the two seeds **most likely
+to falsify** the establishment claim: cold, drawn as part of the
+pre-registered block, and reading **R0 0.64 at 800 days** — well below
+replacement. Result at 2400 days:
+
+| window ends | R0 | mean N |
+|---|---|---|
+| day 800 | **0.64** | 64 |
+| day 1200 | 0.94 | 70 |
+| day 1600 | **1.12** | 90 |
+| day 2000 | 1.13 | 92 |
+| day 2400 | **1.11** | 86 |
+
+Rolling 400-day windows: 0.77 → **1.09, 1.08, 1.13, 1.13, 1.09, 1.09**.
+Survived the full 2400 days (final N 32). Matter clean (6000 → 6000).
+The day-800 window reproduces the cold run's 0.64 exactly, confirming
+determinism and that this is the same trajectory measured further along.
+
+**This is a HIT on the sharpened prediction**, on the arm designed to
+break it. The seed is not marginal — it holds R0 ≈ 1.10 continuously from
+day ~500 to day 2400. Its 800-day reading of 0.64 was the averaging
+window swallowing the establishment transient, exactly as [L61b]
+diagnosed. Seed 10008 still needed to complete the pair.
+
+**A qualifier worth noting, because it cuts against my own volatility
+story:** 10001 is remarkably *stable* — rolling R0 stays inside
+1.08-1.13 across five consecutive windows, and N stays 60-115. That is
+nothing like seed 1337 (1.49 → 1.60 → 1.18) or 4001 (N swinging 48 →
+177). So the large aperiodic fluctuations documented earlier are **a
+property of some seeds, not of the model uniformly.** Any persistence
+metric has to account for that heterogeneity rather than assuming a
+common variance — which also means the 3-of-9 extinction-despite-R0>1
+result is probably concentrated in the volatile seeds, a hypothesis that
+is directly checkable once all 30 land.
+
+Fired seed 10015 (cold, 800d R0 0.72, survived) at 2400 d on the freed
+core to extend the ladder — first local run to carry the new
+`--checkpoint-days 200` protection.
