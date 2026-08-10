@@ -3746,3 +3746,85 @@ Seeds 4001 and 4002 are queued and will confirm or break the monotonicity
 in `maturityAge` and median mass. Recording the correction now because it
 overturns a stated conclusion, and flagging the n clearly rather than
 waiting.
+
+---
+
+## v0.50 SCORED: MISS on 3/3 paired seeds. Reverted as v0.51 [L0.51-1]
+
+The corrected-build retest is complete. Paired against the same seed's
+v0.49 run (identical cfg, same RNG stream start):
+
+| seed | R0 v0.49 | R0 v0.50 | ΔR0 | actAttack% | kills v0.49 → v0.50 | carnivory |
+|---|---|---|---|---|---|---|
+| 1337 | 1.21 | 0.78 | **−0.43** | 0.82 → 0.57 | 1633 → **505** | 0.195 → 0.088 |
+| 4001 | 1.03 | 0.73 | **−0.29** | 0.28 → 0.41 | 1953 → **727** | 0.065 → 0.137 |
+| 4002 | 1.31 | 0.85 | **−0.46** | 0.87 → 0.69 | 7051 → **2587** | 0.066 → 0.060 |
+
+**Mean ΔR0 = −0.39, negative 3/3.** Against the measured noise-floor SD
+of ~0.30, a 3-seed paired mean has SE 0.17, so this is **2.3 SE** — and
+the direction is unanimous. **Kills fall 60-70% in every seed.**
+
+**Scored against the prediction written before the run:**
+
+- **HIT required:** `actAttack` drops toward zero in already-low-carnivory
+  runs *while runs with real predation pressure are* ***not obviously
+  worse***. All three seeds are obviously worse — R0 down 0.29-0.46,
+  kills down ~65%. **Hit condition fails.**
+- **MISS as written:** "`actAttack` share collapses everywhere." It did
+  not — the action *share* barely moved (mean −0.10 percentage points,
+  and it *rose* on seed 4001).
+
+So the outcome is a **MISS on the criterion that mattered** (not obviously
+worse), reached by a mechanism the Miss branch did not describe. Worth
+being precise about, because the distinction is informative: **the action
+share stayed flat while absolute kills collapsed.** Animals chose ATTACK
+about as often, but far fewer attacks converted to kills. The likely
+reason is distributional — with the floor gone, ATTACK's score is
+proportional to `meatAttraction`, so low-`meatAttraction` animals stop
+attacking entirely while a shrinking high-`meatAttraction` minority keeps
+going. A stable mean share can hide that. Seed 1337's carnivory halving
+(0.195 → 0.088) is consistent with predation decaying out of the
+population, which is exactly the **absorbing-state** failure flagged when
+this change was first corrected.
+
+**Reverted, per the prediction's own pre-registered consequence** ("the
+change should be reverted rather than defended") and rule 3 ("a missed
+prediction means the diagnosis was wrong, not that the constant needs to
+be bigger").
+
+### v0.51 — the revert [L0.51-1]
+
+`evosim-v0_51_0.html`. `k_meatAttr` removed entirely; the ATTACK score
+line restored to `*sizeMatch*(0.5 + G[g+AG.meatAttraction])`.
+
+**Verified exact, not assumed:** diffing v0.49 against v0.51 with comment
+lines stripped, **the only executable difference in the entire file is
+the VERSION string.** `node check.js`: PASS (reports VERSION 0.51.0,
+arbiter branches entered). A confirmation run (seed 1337, base dose) is
+in flight and must reproduce v0.49's R0 **1.21** exactly; if it does not,
+the revert is not clean and this entry is wrong.
+
+**What was actually learned — the floor is load-bearing.** v0.50's
+premise was that ATTACK's `0.5 +` floor was an unprincipled asymmetry
+against GRAZE/SCAVENGE's unfloored attraction genes. The asymmetry is
+real, but it is doing real work: predation needs a baseline interest to
+stay *reachable*, because an animal that never attacks never discovers
+that attacking pays, and `meatAttraction` then has no fitness signal to
+push it back up. Removing the floor does not liberate predation, it lets
+predation decay. That is a genuine structural finding and it is worth
+more than the change was.
+
+**The absorbing-state problem is therefore real and still unsolved** —
+v0.50 was an accidental experiment demonstrating it. The audit's proposed
+fix (reachability via exploration noise in *action selection*, so the
+gene itself can stay unfloored) is now the live candidate, and it is a
+genuinely different mechanism rather than a constant tweak. **Not
+attempted here**: it needs its own version and its own written prediction,
+and stacking it onto a revert would repeat exactly the mistake being
+reverted.
+
+**File hygiene, pending verification:** once the seed-1337 confirmation
+reproduces 1.21, `evosim-v0_50_0.html` can be deleted (its results are
+captured above, satisfying CLAUDE.md's rule) and `evosim-v0_49_0.html`
+becomes redundant with v0.51. Holding both until that run lands rather
+than deleting on the strength of a diff.
