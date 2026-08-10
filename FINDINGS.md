@@ -46,6 +46,37 @@ file exists to prevent).
   explanation, not independently confirmed against account billing
   details).
 
+## Mission scorecard — are the two stated pillars actually happening?
+
+Measured 2026-08-10 across 120 runs with usable mortality ledgers. These
+are the project's own success criteria and had never been computed.
+
+- **Herbivory DOES substantially control plants. Confidence: HIGH.**
+  **53.0% of plant production is consumed** (median 58.1%); grazing
+  causes 37.2% of plant deaths and >25% in 91/120 runs. High end of the
+  real-world terrestrial range but plausible. Note 37.2% *understates*
+  the animal-era share, since the counters include the ~260-day pre-fauna
+  period when plants starve and none are eaten. Fully emergent — nothing
+  sets a grazing rate anywhere in the code.
+- **Carnivory only PARTIALLY controls herbivores. Confidence: HIGH.**
+  Predation causes 23.6% of animal deaths (median 19.9%) and exceeds 50%
+  in only **5/120** runs. Starvation dominates. Real herbivore
+  populations are usually predation-limited, so this is the weaker
+  pillar and the honest answer to "has carnivory ever controlled
+  herbivores here" is: not usually.
+- **Trophic coupling tracks viability — the strongest correlation in the
+  corpus.** Viable runs (R0≥1, n=22) vs non-viable (n=97): predation
+  share **36.2% vs 20.5%**, grazing share 44.3% vs 35.8%.
+  corr(R0, predation share) = **+0.481** (t=5.93, df=117, **p < 1e-6**);
+  corr(R0, grazing share) = +0.391. Larger than any effect found across
+  ~24 CFG arms. **Causal direction is NOT established** — more animals
+  mechanically produce more encounters, so R0 may drive predation share
+  rather than the reverse, and nothing here separates them. What it does
+  establish: **the viable regime is the strongly-coupled regime.**
+  **Confidence: HIGH** on the association, **UNRESOLVED** on direction.
+  No constant should be promoted for raising predation share — that
+  would be outcome-tuning against a metric whose causality is unknown.
+
 ## Ecological — the trophic-balance investigation
 
 - **`maxPlants` (a slot-array size, not a biological limit) was binding
