@@ -478,11 +478,16 @@ const CFG = {
   k_retal: 0.45,         // retaliation = target biteForce x aggression x this
   k_meatAttr: 6.0,       // ATTACK score x this x meatAttraction. PIVOTED, NOT
                          // GUESSED: 6.0 x founder meatAttraction (0.10) = 0.60,
-                         // exactly the old (0.5+meatAttraction) floor's value at
-                         // the founder, so unflooring [L0.50-1] doesn't also
-                         // silently halve-to-sixth mean ATTACK score as a
-                         // confounded side effect. Removing the floor is the
-                         // one change; this keeps that the only change.
+                         // exactly the old (0.5+meatAttraction) value at the
+                         // founder, so unflooring [L0.50-1] doesn't also
+                         // silently cut mean ATTACK score 6x as a confounded
+                         // side effect. NOTE the tradeoff this picks: affine
+                         // (0.5+g, span 1.0) cannot be matched by linear (k*g)
+                         // at more than one point, so preserving the founder
+                         // necessarily steepens the slope — the gene's span is
+                         // now [0,6] where GRAZE/SCAVENGE/FLEE attraction genes
+                         // span [0,1]. Zero is reachable (the point of
+                         // [L0.50-1]); the gain is NOT matched to its siblings.
   k_gut: 0.0200,         // x (carn^2 + herb^2) — price of owning a gut. Raised
                          // 2.5x: at 0.008 herbivory only came off 99% -> 90%
                          // at max, so the term existed but was not priced
@@ -1741,10 +1746,10 @@ function senseDecide(i){
         const close = ASPD - 0.6*G[og+AG.maxSpeed];
         // ATTACK used to floor at 0.5 + meatAttraction, unlike GRAZE/SCAVENGE's
         // unfloored attraction genes -- predation structurally could never
-        // switch off the way herbivory/scavenging can. Unfloored to match,
-        // and k_meatAttr pivots the score back to the old formula's value at
-        // the founder gene so removing the floor is the only thing that
-        // moved -- see k_meatAttr's own comment.  [L0.50-1]
+        // switch off the way herbivory/scavenging can. Unfloored so zero is
+        // reachable; k_meatAttr pivots the score to the old value at the
+        // founder gene. Matches siblings in REACHABILITY, not in gain --
+        // see k_meatAttr's own comment.  [L0.50-1]
         const sc = patchA/(d/(close > 0.05 ? close : 0.05) + patchA/rateA)
                    *sizeMatch*C.k_meatAttr*G[g+AG.meatAttraction]
                    *(1 - G[g+AG.kinRecognition]*kin)*hunger;

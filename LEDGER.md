@@ -2449,3 +2449,155 @@ theoretical worry anymore. Worth prioritizing a couple of matched
 800-vs-1200-vs-1600-day runs at the same seed/cfg once the noise-floor
 batches are further along, to see whether R0 keeps drifting the same
 direction or genuinely settles.
+
+---
+
+## Full-corpus re-tally, 2026-08-10 — three of my own conclusions do not survive it
+
+Prompted by a "check everything" pass. Instead of trusting the prose
+tallies scattered through this file, I re-derived every arm from scratch:
+walked all 91 logs on disk (repo + local runs + fetched Actions results),
+grouped them by **actual cfg diff read out of each log's own `cfg` block**
+rather than by the label or patch filename it was fired under, and
+recomputed R0 with a reimplementation verified line-for-line against
+`analyze.py`'s output on three files (1.15/0.78/0.75, exact matches).
+84 logs yielded a computable R0.
+
+### The measured noise floor, at last
+
+| arm | n | mean R0 | SD | median | range |
+|---|---|---|---|---|---|
+| base dose (3x, `k_photoCost` 0.012) | 14 | 0.73 | 0.39 | 0.72 | 0.18-1.31 |
+| 5x (0.020) | 9 | 0.55 | 0.53 | 0.33 | 0.03-1.51 |
+| gutcost combo | 8 | 0.92 | 0.25 | 0.91 | 0.58-1.37 |
+| 2x (0.008) | 4 | 0.98 | 0.48 | 0.78 | 0.59-1.80 |
+
+**Within-cfg seed-to-seed SD is 0.25-0.53 in R0.** That is the number
+this whole investigation needed on day one and never had. With SD 0.39,
+the sample size needed to detect a given difference in mean R0 at 80%
+power:
+
+| difference to detect | n per arm |
+|---|---|
+| 0.1 | 239 |
+| 0.2 | 60 |
+| 0.3 | 27 |
+| 0.4 | 15 |
+| 0.5 | 10 |
+
+**The largest gap between any two arms above is 0.37 (5x vs 2x means);
+the gap that actually drove decisions — base 0.73 vs gutcost 0.92 — is
+0.19, needing n≈60 per arm. Real n was 14 and 8.** Essentially every CFG
+comparison made this session has been ~4-7x underpowered. The external
+audit said this in the abstract; this is the arithmetic.
+
+### Correction 1 — the "noise-floor gap" I flagged one cycle ago was me misreading noise, again
+
+Last cycle I reported that `noisefloor-3x` (1/7 R0>1) was running "well
+below" the ad-hoc base-dose tally (4/7) and raised "whether the original
+seed set was inadvertently non-representative" as a live hypothesis.
+
+Tested properly: **Fisher exact two-sided p = 0.266; permutation test on
+the median difference p = 0.186.** Neither is close to significant. The
+two subsets are entirely consistent with binomial variation around the
+pooled rate. There is no gap to explain. Pooled, the base dose is
+**5/14 (36%) R0>1, median 0.72**.
+
+Worth naming plainly: I wrote the decision rule warning against exactly
+this kind of small-n overread, and then made the same error one cycle
+later on the very batch that rule was written for. The rule was not
+enough on its own; running the test before writing the sentence is what
+would have caught it.
+
+### Correction 2 — the gutcost combo was deprioritized on a dichotomized statistic, and that call does not survive
+
+The deprioritization ("Closing this branch of investigation... the base
+`k_photoCost` dose alone is the finding worth carrying forward") rested
+on "2/5 (40%) vs the base dose's 3/5 (60%)", later "2/8 vs 4/6". That is
+a dichotomized R0>1 comparison — the specific move the external audit
+told me to stop making.
+
+On the full corpus, distributionally:
+
+- hit rate: gutcost **3/8** vs base **5/14** — Fisher exact **p = 1.000**.
+  Not a difference; not even a hint of one.
+- median: gutcost **0.91** vs base **0.72**, difference **+0.18** in
+  gutcost's favour, permutation p = 0.406 — also not significant.
+- spread: gutcost **SD 0.25, min 0.58**; base **SD 0.39, min 0.18**.
+
+So: the gutcost combo is **not** demonstrably better than the base dose —
+but it was never demonstrably worse either, and it has the highest median
+and the tightest distribution of any arm with n≥8 in the corpus. **The
+verdict "does not outperform the dose alone, closing this branch" is
+retracted.** The correct statement is that base dose and gutcost combo are
+statistically indistinguishable on every measure available, and if
+anything the ordering implied by the point estimates runs the *other*
+way from the one I acted on.
+
+### Correction 3 — the headline the whole corpus supports
+
+Every arm in the table above has **mean and median R0 below 1.0.** The
+best median of any arm with n≥8 is gutcost's 0.91. Pooling all 84 runs,
+no configuration tested this session is demographically viable; the
+populations are all shrinking, some faster than others, and the
+differences between them are inside the noise.
+
+That is a substantially different — and much more honest — summary than
+"the base dose is the finding worth carrying forward, 5x may be better."
+The dose-response investigation did not find a viable configuration. It
+found that `k_photoCost` moves the plant equilibrium off the `maxPlants`
+artifact (that part is real, confirmed by a control, and stands), and
+then spent ~24 arms at n≤9 failing to distinguish anything downstream of
+that because every candidate difference was smaller than the noise.
+
+### What this implies for what to do next
+
+Not "more seeds on the dose comparison." At n=60 per arm to resolve 0.2 in
+R0, finishing the 3x-vs-5x horse race honestly costs ~120 runs to answer a
+question whose answer is already "both are well under 1, so neither is the
+configuration you want." **The bottleneck is not which dose — it is that
+nothing tested reaches replacement.** Chasing 0.7 vs 0.9 is optimizing
+inside a regime that is failing for a reason none of these constants
+addresses.
+
+One arm in the corpus does stand out and has never been extended: base
+photocost at the **original full 90k/40k arena**, n=2, **2/2 above 1
+(R0 1.21, 1.42)** — the only arm where every seed cleared replacement.
+n=2 is nothing on its own (and the sample-size table above says so
+loudly), but it is the only untested-at-scale direction pointing anywhere
+other than sideways, and it is a *scale* change rather than another
+cost-constant tweak. Flagged as the highest-value next test; not fired
+here, and it needs its own written prediction first.
+
+### Same pass — the v0.50 pivot's own comment was overclaiming
+
+Reading [L0.50-1] against the arbiter code rather than against my memory
+of it: the source comment said the unfloored ATTACK score "matches"
+GRAZE/SCAVENGE's unfloored attraction genes. It doesn't, and can't.
+
+- SCAVENGE: `*G[carrionAttraction]` — bare gene, span [0,1]
+- APPROACH: `*G[socialAttraction]` — bare gene, span [0,1]
+- FLEE: `*G[fearThreshold]` — bare gene, span [0,1]
+- ATTACK (v0.50): `*k_meatAttr*G[meatAttraction]` — span **[0,6]**
+
+The old form was **affine** (`0.5 + g`, span 1.0 offset by 0.5); the new
+form is **linear** (`k*g`). An affine function cannot be matched by a
+linear one at more than a single point, so *any* unflooring has to give
+something up: match the siblings' gain (bare gene, k=1) and you cut the
+founder-value score 6x — the confound the external audit caught — or
+preserve the founder value (k=6, what's shipped) and the slope
+necessarily steepens 6x relative to the siblings.
+
+Shipping the pivot is still the right call: it's the project's own
+documented discipline (HANDOFF §2b), and it isolates the change being
+tested at the operating point where the population actually sits. But
+"matches GRAZE/SCAVENGE" was wrong and is now corrected in the source to
+"matches in REACHABILITY, not in gain." Comment-only edit, no executable
+line touched (verified by diff), `node check.js` PASS, no version bump —
+nothing about behaviour changed, only a claim that was overstated.
+
+Worth flagging for whoever picks up the absorbing-state question: the 6x
+slope means selection on `meatAttraction` now has 6x the behavioural
+leverage above the founder value that it had before, which is a real
+(if deliberate) second-order consequence of this version, and is *not*
+what the v0.50 prediction was written against.

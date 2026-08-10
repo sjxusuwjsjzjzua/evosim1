@@ -59,8 +59,12 @@ file exists to prevent).
   equilibrium off that artifact.** Direction confirmed across multiple
   doses (2x/3x/5x all show populations surviving to full run length more
   often than unmodified default). **Which exact multiplier, if any, is
-  "correct" is NOT settled** — see the two retractions below.
+  "correct" is NOT settled** — see the retractions below.
   **Confidence: MODERATE** on direction, **UNRESOLVED** on magnitude.
+  Note the magnitude question is now known to be *unanswerable at the
+  sample sizes used* (see the noise-floor entry below), and largely moot:
+  no dose reaches replacement, so ranking them is optimizing inside a
+  failing regime.
 - **RETRACTED: "5x `k_photoCost` is the leading candidate over 3x."**
   Was based on 3/4 vs 4/6 seeds with R0>1. External audit ran Fisher's
   exact test: p≈1.0, 95% CIs of ~19-99% and ~22-96%, overlapping almost
@@ -72,15 +76,32 @@ file exists to prevent).
   each, the single best result across all of them is expected to be
   inflated by selection (winner's curse) and likely to regress on
   retest. Specific retest not yet run.
-- **The gutcost combo (`k_gut`/`k_digest` cut, on top of the base
-  `k_photoCost` dose) does not outperform the dose alone.** 8 seeds,
-  2/8 with R0>1 (25%), vs the base dose's 4/6 (67%) at the time this
-  was written — though note the base-dose fraction is itself subject to
-  the same small-n caveat above. **Confidence: LOW-MODERATE** — n=8 is
-  still small, but the direction (worse, not better) was consistent
-  enough across enough seeds to deprioritize the combo, and this
-  specific claim doesn't require distinguishing a small real effect
-  from noise, just "not obviously better."
+- **RETRACTED: "The gutcost combo does not outperform the dose alone."**
+  This was decided on a dichotomized R0>1 comparison (2/8 vs 4/6) — the
+  exact move the external audit flagged. On the full corpus
+  (2026-08-10 re-tally): gutcost 3/8 vs base 5/14, **Fisher exact
+  p = 1.000**; medians 0.91 vs 0.72 (permutation p = 0.406). The two are
+  statistically indistinguishable, and gutcost has the *highest* median
+  and *tightest* spread (SD 0.25, min 0.58) of any arm with n≥8. Not
+  better — but the deprioritization was unsupported.
+- **Within-cfg seed-to-seed noise in R0 is SD 0.25-0.53.** Measured
+  across four arms on 84 logs (base dose n=14 SD 0.39; 5x n=9 SD 0.53;
+  gutcost n=8 SD 0.25; 2x n=4 SD 0.48). Implication, from a standard
+  power calculation at SD 0.39: detecting a 0.2 difference in mean R0
+  needs **n≈60 per arm**; 0.1 needs n≈239. Real arm sizes this session
+  were 4-14. **Essentially every CFG comparison made this session was
+  4-7x underpowered.** **Confidence: HIGH** — this is a direct
+  measurement across distinct seeds at fixed cfg, not an inference.
+- **No configuration tested this session is demographically viable.**
+  All four arms with n≥4 have mean *and* median R0 below 1.0 (best
+  median: gutcost 0.91). **Confidence: HIGH** — it holds across all 84
+  runs and doesn't depend on distinguishing arms from each other.
+- **The base-dose R0 rate is 5/14 (36%), median 0.72.** Supersedes every
+  earlier partial tally of this arm (4/6, 4/7, etc.). The apparent gap
+  between the ad-hoc seed set (4/7) and the cold `noisefloor-3x` set
+  (1/7) is **not significant** (Fisher p=0.266, permutation p=0.186) —
+  an earlier note treating it as a possible sampling problem was itself
+  an overread of noise.
 - **"No extinction" is not the same as "viable."** R0 < 1 means a
   population shrinking even where it hasn't died yet within the run's
   day budget. This is a conceptual point, not a statistical claim about
