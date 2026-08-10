@@ -4235,3 +4235,79 @@ default branch) and is within the standing authorization, but I am
 the slopes actually flatten, and the four 2400-day runs that answer that
 land shortly. Raising it blind would repeat in the other direction the
 mistake being corrected.
+
+---
+
+## The mechanical explanation for the whole artifact — and it is not "run longer"
+
+Characterising seed 1337's completed 2400-day run with a **rolling
+400-day window** (local dynamics) rather than `analyze.py`'s cumulative
+trailing window:
+
+| window | R0 | mean N | mean plants |
+|---|---|---|---|
+| d200-600 | **0.77** | 50 | 4358 |
+| d400-800 | **1.49** | 37 | 5687 |
+| d600-1000 | 1.49 | 49 | 7789 |
+| d800-1200 | 1.55 | 74 | 9975 |
+| d1000-1400 | **1.60** | 85 | 11020 |
+| d1200-1600 | 1.59 | 85 | 11964 |
+| d1400-1800 | 1.51 | 110 | 12415 |
+| d1600-2000 | 1.32 | 118 | 10945 |
+| d1800-2200 | 1.27 | 94 | 10618 |
+| d2000-2400 | **1.18** | 85 | 12879 |
+
+**The population establishes by ~day 600 and is at R0 ≈ 1.5 from then
+on.** It was never slowly climbing toward viability — it got there early
+and stayed.
+
+### So why did the 800-day runs read 0.73?
+
+`analyze.py` computes R0 over the **last `min(n-1, 200)` samples**, and
+samples are 5 days apart — so the window is *up to 1000 days long*:
+
+| run length | samples | R0 window covers |
+|---|---|---|
+| **800 d** | 160 | **days 5-800** ← the entire run, including establishment |
+| **1200 d** | 240 | **days 200-1200** ← still includes part of it |
+| 1600 d | 320 | days 600-1600 |
+| 2400 d | 480 | days 1400-2400 |
+
+**An 800-day run cannot exclude the establishment transient, because its
+whole history is shorter than the averaging window.** Its "R0 0.73" is
+not the population's R0 at day 800 — it is the average over the
+population's entire life including the ~600 days before it established.
+That is the complete mechanical account of the confound, and it explains
+every symptom: why R0 rose with run length (17/18), why
+corr(length, R0) = +0.758, and why the 1200-day baselines read higher
+than the 800-day treatments.
+
+### This changes the fix
+
+"Raise the cutoff to 1600+" is only half right, and the cheaper half is
+better: **compute R0 over a window that starts after establishment**,
+rather than over whatever happens to fit. A 1200-day run already contains
+a clean post-establishment stretch (days 600-1200); the default analysis
+just doesn't use it.
+
+**This is a measurement fix, not a protocol fix** — and measurement fixes
+have been the binding constraint all day. It also costs nothing in
+compute, whereas doubling the cutoff doubles every run.
+
+**Deliberately not implementing it this cycle.** Changing how `analyze.py`
+computes R0 would silently reinterpret every number in this file, and
+three of the four ladder runs that would validate the choice land within
+the hour. Queued as the top item, with the shape already clear: an
+explicit post-establishment window (`animalStartDay` + a settling margin)
+rather than a trailing-N-samples rule.
+
+### The other half: R0 declines after ~1600 days
+
+Worth flagging as unresolved rather than smoothing over. R0 peaks at 1.60
+(d1000-1400) and falls monotonically to 1.18 (d2000-2400), while standing
+N peaks at 118 and falls to 85. That is either a slow overshoot-and-settle
+or the start of a long-period oscillation; 2400 days on one seed cannot
+distinguish them. It does mean **there may be no single "settled" R0 to
+measure**, which would make the choice of window a genuine judgement call
+rather than a technicality. The three ladder runs in flight will show
+whether the post-1600 decline is general or particular to this seed.
