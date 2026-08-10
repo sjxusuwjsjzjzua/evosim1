@@ -5067,3 +5067,73 @@ survive take the full 1600 days and land last. Any extinction rate read
 off a partially-collected batch is an overestimate — the same trap as the
 establishment batch, where the first 8 results were 8/8 extinct and the
 final figure was ~50%.
+
+### Seed 10011 ladder: extinct, and it is the threshold's clearest failure mode
+
+Local 2400-day run went extinct around day 1200 (halted 1400, final N 0),
+**exactly matching its 1600-day Actions run** in the establishment batch,
+which also died with R0 1.06. Same seed, cfg and build, so the same
+trajectory — a clean determinism check across two independent machines.
+
+The instructive part: **post-establishment harmonic N was 49 — nearly
+double the 25 threshold — yet minimum N was 1, and it died.** So the
+harmonic mean, which weights low values heavily, still failed to register
+a single excursion to N=1 among an otherwise healthy series (mean N ~225).
+
+That is a concrete reason to prefer **minimum N** over harmonic N despite
+their near-identical in-sample AUCs (0.83 vs 0.82): harmonic mean is still
+an average and a lone near-zero dip barely moves it, while extinction only
+needs that one dip. The pre-registered threshold stays on harmonic N as
+written — swapping the statistic now, mid-test, is exactly what the guard
+clause forbids — but if it MISSes, this is the mechanism to look at first,
+and it is recorded before the scoring rather than after.
+
+### Compute throughput raised to saturation
+
+The standing batch was sized at 12 jobs/h, producing 13 concurrent against
+a 20-slot ceiling — 7 slots idle. Resized from **observed** throughput via
+Little's Law rather than a fresh estimate: 12 jobs/h → 13 concurrent means
+mean service time is 13/12 = **1.08 h**, so capacity at the cap is
+20/1.08 = **18.5 jobs/h**.
+
+| arrival | predicted concurrency |
+|---|---|
+| 12/h | 13.0 (what was running) |
+| **18/h** | **19.5** (chosen) |
+| 20/h | 21.7 — exceeds the cap, unbounded backlog, no extra throughput |
+
+Standing batch now fires **18 seeds/hour**; seed stride is 20 per run so
+blocks still never collide. Also dispatched 11 one-off 2400-day ladder
+jobs (5 at 3x, 6 at 5x) to fill the gap immediately and to move the long
+ladder work off local cores onto runners, which are immune to the
+container restarts. **Verified after the change: 20 running + 2 queued —
+the ceiling is now genuinely saturated.**
+
+### Long-horizon probe — prediction, written before the run
+
+Seed 1337 survived 2400 days but was still fluctuating there (rolling R0
+1.60 → 1.18, N 37 → 118 → 85), and its slopes had not fallen below
+`analyze.py`'s DRIFTING threshold. So "does a population that reaches
+1600-2400 days actually stay?" is unanswered, and it is the question the
+protocol cutoff rests on.
+
+Fired: **seed 1337, 4000 days**, base dose, on the local core freed by
+10011. This is a horizon extension of a seed already characterised to
+2400 d, so it is a direct continuation rather than a new arm.
+
+- **HIT — persistence is durable:** the population is alive at day 4000,
+  and post-establishment R0 measured over days 2400-4000 stays within
+  ±0.31 (one noise-floor SD) of its day-600-2400 value. Reading: 1600
+  days is a defensible protocol cutoff, and survivors at that horizon can
+  be treated as genuinely persistent.
+- **MISS — late extinction is common:** the population dies between day
+  2400 and 4000, or R0 over the late window falls more than 0.31 below
+  the earlier value. Reading: 1600-day "persistence" is itself a
+  truncation artifact of exactly the kind [L61b] found in R0, and the
+  ~50% persistence figure is an overestimate that shrinks with horizon.
+- **Can't-tell:** run terminates early for a non-ecological reason
+  (container restart with no usable checkpoint, wall-clock cap).
+
+Note the asymmetry deliberately: a MISS here would undercut the
+persistence metric I have been proposing as R0's replacement, on the same
+grounds that sank R0. That is the point of running it.
