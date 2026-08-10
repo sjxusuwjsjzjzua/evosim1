@@ -17,6 +17,76 @@ count.
 
 ---
 
+## 0.5. Trophic-balance investigation, 2026-08-10 — read this before §1
+
+Owner asked for a hands-off, fully autonomous push toward "herbivory
+controls plants, carnivory controls herbivores, balanced populations."
+Full session synthesis (LEDGER.md has every individual run — this is the
+compressed version):
+
+**Root cause found and fixed:** plants were hitting the `maxPlants` slot
+cap (90,000) purely as an artifact of array size, not biology — confirmed
+by comparing pre-fauna plant trajectories across seeds (one seed sat at
+its cap fifty days before any animal existed; another never came close).
+Every default-config run this session either boom-busted into extinction
+or came within a hair of it, entirely explained by predation fighting an
+artificially inflated food base.
+
+**The fix: raise `k_photoCost`** (plant respiration cost), which sets the
+carrying-capacity equilibrium directly and makes the slot cap irrelevant.
+Confirmed via an isolation test at the *original* 90k/40k arena (no
+shrink) — identical results to the shrunk-arena version, so the arena
+shrink used throughout was purely a speed optimization, not load-bearing.
+
+**Dose-response tally (seeds with R0 > 1 = viable population):**
+
+| dose | k_photoCost | seeds tried | R0 > 1 |
+|---|---|---|---|
+| 2x | 0.008 | 2 | 1/2 |
+| 3x (original base) | 0.012 | 6 | 4/6 (67%) |
+| **5x** | **0.020** | **4** | **3/4 (75%), leading candidate** |
+
+**Combo arms tried on top of the base dose — all underperformed the dose
+alone, none promoted:**
+- gutcost (`k_gut`/`k_digest` cut): **2/8 (25%)** — closed out, worse than
+  base dose despite zero extinctions (R0 stayed under 1 in 6 of 8).
+- a_base (cheaper animal upkeep): 1/2 so far.
+- carrionFloor alone: 0/2 so far.
+Lesson: "no extinction" is not the same as "viable" — R0 < 1 means a
+population that's shrinking even where it hasn't died yet. Score on R0,
+not survival-to-cutoff.
+
+**Real structural change shipped: v0.50.0.** ATTACK's arbiter score
+carried a `0.5 +` floor on `meatAttraction` that GRAZE/SCAVENGE's
+attraction genes don't have — predation could never fully switch off.
+Unfloored to match. `node check.js` PASS. First single-seed ecological
+result is mixed (actAttack dropped as predicted on an already-near-zero-
+carnivory seed, but R0 also dropped, which wasn't part of the specific
+prediction and may be RNG-path noise from a genuine formula change, same
+caveat v0.49 carried). **Not scored yet — needs the 3-seed Actions test,
+still in flight.**
+
+**Still open, not yet acted on this session:** `riskEwma` (HANDOFF's
+long-standing herding hypothesis), `k_confusion` re-test now that the
+food base is fixed, `k_retal`, `k_armEff`, `k_mixed` (omnivory cost),
+`maxAnimals` headroom — all fired, predictions on record, results not
+yet landed as of this writing.
+
+**Tooling finding worth knowing:** a workflow run's top-level "completed"
+status can lag its actual simulation results indefinitely if the
+trailing `digest` Actions job queues behind the concurrency ceiling
+(discovered empirically — ~40-50 concurrent jobs is the real ceiling on
+this account, not the 20 originally assumed). Fetch per-seed results
+directly via `git fetch origin runs/<label>/seed-<seed>` rather than
+trusting run-level status when checking for completions.
+
+**Next step once the pending batches land:** if 5x continues to lead,
+promote it (not 3x) as the shipped `k_photoCost` CFG patch and add the
+version-log table row. `evosim-v0_49_0.html`/`v0_50_0.html` both still
+present pending that decision and v0.50's own verification.
+
+---
+
 ## 1. Current state — v0.49.0
 
 **Achieved and replicated:**
