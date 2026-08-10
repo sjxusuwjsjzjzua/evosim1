@@ -46,7 +46,7 @@
  * the output say which limit actually applied.
  *
  * Usage:
- *   node headless.js --build evosim-v0_49_0.html --seed 1337 --days 1200 \
+ *   node headless.js --build evosim-v0_50_0.html --seed 1337 --days 1200 \
  *        [--cfg patch.json] --out runs/foo/seed-1337.json \
  *        [--progress-days 20] [--max-ticks N] [--no-autohalt] [--max-wall-min 165]
  *

@@ -15,7 +15,7 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 | file | what it is |
 |---|---|
-| `evosim-v0_49_0.html` | the build. Single file, no build step, runs on a phone. Bump the filename every version — delete the superseded one once its results are captured in `LEDGER.md`. |
+| `evosim-v0_50_0.html` | the build. Single file, no build step, runs on a phone. Bump the filename every version — delete the superseded one once its results are captured in `LEDGER.md`. `evosim-v0_49_0.html` kept alongside it until v0.50's ATTACK-floor change is verified. |
 | `LEDGER.md` | rationale + the version log with predictions and outcomes. |
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |

@@ -1735,3 +1735,45 @@ multi-seed (5 seeds at base dose, majority viable), combo arms tested. Not
 yet added to the version-log table — doing that alongside the gutcost
 3-seed confirmation landing, so both go in together rather than as two
 separate small edits.
+
+---
+
+## v0.50 — ATTACK arbiter floor removed [L0.50-1]
+
+**One structural change.** ATTACK's score carried `*(0.5 + meatAttraction)`
+— a hard floor at 0.5x regardless of how low `meatAttraction` drifts, while
+GRAZE (`plantScore`, via `plantAttraction`) and SCAVENGE
+(`*G[g+AG.carrionAttraction]*hunger`) both multiply their attraction genes
+unfloored, reaching true zero. Flagged in HANDOFF.md as an untouched
+structural asymmetry since the v0.47 audit: **predation could never fully
+switch off the way herbivory and scavenging can**, meaning any population
+that never evolves real carnivory is still silently scored *as if* it were
+half-interested in attacking, every single think, every tick. Changed
+`*(0.5 + G[g+AG.meatAttraction])` to `*G[g+AG.meatAttraction]` — now
+matches the unfloored pattern used everywhere else in the arbiter.
+
+**Prediction, written before any run:** in populations where `meatAttraction`
+sits near its current default (~0.10, far from either bound), this should
+move almost nothing — the multiplier only differs from before by removing
+a *constant* 0.5, so ATTACK's score roughly halves in absolute terms but
+the *relative* ranking against GRAZE/SCAVENGE/FLEE shifts only where
+`meatAttraction` is genuinely near zero. Falsifiable readout: compare
+`actAttack` share and the carnivory histogram's near-zero bin population
+against a same-seed, same-cfg v0.49 run. **Hit** = `actAttack` share drops
+further toward true zero in runs that already showed near-zero carnivory
+(1337-style), while runs with real predation pressure (4001-style, or any
+of this session's photocost-positive runs) are not obviously worse. **Miss**
+= `actAttack` share collapses everywhere, including runs that previously
+sustained real predation — that would mean the floor was load-bearing for
+keeping predation viable at all, not just an asymmetry, and the change
+should be reverted rather than defended.
+
+Only `node check.js` run so far (PASS, VERSION 0.50.0, arbiter branches
+WANDER/GRAZE/ATTACK entered in the harness's 71-call sample). No ecological
+run yet — firing a 3-seed comparison against v0.49 next, on top of the
+confirmed `k_photoCost` base dose (0.012) so the comparison isn't muddied
+by the food-base problem v0.50 inherits from every prior version.
+
+`evosim-v0_49_0.html` kept alongside `evosim-v0_50_0.html` until this
+verifies — not deleted per rule 9's convention (delete only once results
+are captured here).
