@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Isolation check for the gutcost combo, same logic as photocost-only-fullarena.json: k_photoCost 0.012 + k_gut 0.010 + k_digest 0.002, ORIGINAL 90k/40k arena, no shrink. Prediction: same equivalence found for the base photocost dose holds here too -- results match the small-arena gutcost-combo runs (R0 1.07-1.37, healthy ratios), confirming the arena shrink is not load-bearing for this combo either.",
+ "cfg":{"k_photoCost":0.012,"k_gut":0.010,"k_digest":0.002}}
