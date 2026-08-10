@@ -56,10 +56,34 @@ file exists to prevent).
   arena reproduced the shrunk-arena results exactly). **Confidence:
   HIGH** — this is a real control, not a small-n statistical comparison.
 - **Raising `k_photoCost` (plant respiration cost) moves the plant
-  equilibrium off that artifact.** Direction confirmed across multiple
-  doses (2x/3x/5x all show populations surviving to full run length more
-  often than unmodified default). **Which exact multiplier, if any, is
+  equilibrium off that artifact — but the base dose does not fully clear
+  it.** Direction confirmed across multiple doses. **Cap-binding audit
+  (2026-08-10, 86 logs, `caps` bitmask): the plant slot cap still binds
+  in 15/52 (29%) of 3x base-dose runs.** Ranking by fraction of run
+  spent capped: 5x 0.008 ≫ 3x 0.061 > default 0.083 ≫ 2x 0.243 (2x
+  median peak plants 24630 against a 25000 bound — essentially pinned).
+  The animal cap never binds in any run (0/86); `maxAnimals` has never
+  been a constraint. **Which exact multiplier, if any, is
   "correct" is NOT settled** — see the retractions below.
+- **Cap-binding frequency is an outcome-independent selection criterion
+  for `k_photoCost`, and it ranks the doses OPPOSITE to R0.** It is
+  computed purely from plant dynamics with no reference to animals,
+  which is what audit point 5 asked for. 5x is cleanest by it and has
+  the *worst* demography (mean R0 0.55); 2x is dirtiest and has the
+  *best* (0.98) — i.e. 2x's demographic advantage is probably an
+  artifact of the inflated food base rather than independent of it.
+  **Selecting on R0 would have promoted the most contaminated config in
+  the corpus.** Not acted on yet: the criterion needs a threshold fixed
+  in advance on plant-physiology grounds, and clearing the cap while
+  animals go extinct trades one broken regime for another.
+  **Confidence: HIGH** on the cap measurements (direct, mechanical),
+  **UNRESOLVED** on what dose to pick.
+- **Capped runs bias R0 upward by roughly +0.14.** Within 3x runs:
+  capped mean 0.84 vs uncapped 0.70 (permutation p = 0.103 — not
+  significant, but the direction is what mechanism predicts). Pooled R0
+  figures throughout `LEDGER.md` carry this bias. Cleanest base-dose
+  reading is the uncapped subset: **mean R0 0.70, 6/37 above
+  replacement.** **Confidence: MODERATE.**
   **Confidence: MODERATE** on direction, **UNRESOLVED** on magnitude.
   Note the magnitude question is now known to be *unanswerable at the
   sample sizes used* (see the noise-floor entry below), and largely moot:
