@@ -5208,3 +5208,54 @@ data it is being scored on measures nothing.
   split is not "R0 is a perfect predictor." It is one clean sample. The
   five in-sample counterexamples show it is not perfect. The defensible
   statement is that R0 was **not** shown to be inferior, so it stays.
+
+## Ladder-2400 first results: seed 20002 is the low-N inflation caveat, live
+
+Two of eleven 2400-day Actions ladder jobs landed.
+
+**Seed 10012 (3x)** — extinct at day 965. Its 1600-day establishment run
+also died (R0 0.69). Same seed, cfg and build, so the same trajectory:
+another cross-machine determinism check, consistent.
+
+**Seed 20002 (5x)** — ran the full 2400 days, **final N 7**:
+
+| window ends | R0 | mean N |
+|---|---|---|
+| day 800 | 0.79 | 96 |
+| day 1600 | **1.49** | 52 |
+| day 2400 | **2.18** | **36** |
+
+**R0 climbs 0.79 → 1.49 → 2.18 while the population falls 96 → 52 → 36,
+ending at 7.** Trajectory detail: d1400-1800 mean 30, d2100-2400 mean 31,
+final samples 105, 92, 34, 7, 8, 7.
+
+This is the divide-by-mean-N inflation in real time — **R0 is rising
+precisely because N is falling.** It is the clearest single illustration
+yet of the caveat that survived the failed predictor test: a high R0 on a
+run averaging tens of animals reports demographic noise, not health. That
+caveat was retained on mechanistic grounds after the harmonic-N MISS, and
+this run is a direct demonstration that keeping it was right even though
+the metric built on it was wrong.
+
+**It also bears on the long-horizon probe now running.** Seed 20002 looked
+healthy at the 1600-day protocol cutoff — R0 1.49, alive, 26 animals in
+its establishment run — and by 2400 days is down to 7 and plainly heading
+out. That is exactly the MISS branch of the 4000-day prediction on seed
+1337: **1600-day "persistence" may itself be a truncation artifact**, the
+same shape as the 800-day R0 problem [L61b]. One seed, a different one
+from the probe, so it is suggestive rather than decisive — recorded now,
+before seed 1337 reaches 4000 days, so it cannot be fitted afterwards.
+
+If that pattern holds, the ~50% persistence figure from the establishment
+batch is an overestimate too, and the honest metric becomes persistence
+*at a stated horizon* with the horizon reported every time — never
+"persistent" unqualified.
+
+**Queue note:** Actions is at 20 running + **16 queued**, deeper than the
+bounded-queue sizing predicted. Cause is identifiable: the 11 one-off
+2400-day ladder jobs occupy slots for 2-4 h each, well above the 1.08 h
+mean the 18/h rate was sized against, so service capacity is temporarily
+below arrival. Expected to drain as the ladder jobs finish. Watching it;
+if the queue is still growing next cycle rather than draining, the
+standing rate comes back down — a permanently growing backlog is wasted
+scheduling, not extra throughput.
