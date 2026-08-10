@@ -1778,9 +1778,26 @@ by the food-base problem v0.50 inherits from every prior version.
 verifies — not deleted per rule 9's convention (delete only once results
 are captured here).
 
-**Gutcost combo, full-arena isolation (seed 1337):** R0 0.86, ratio 0.36,
-harmonic N 28, not extinct at 800 days but borderline. Consistent with the
-combo's emerging pattern across all seeds so far (1337-small 1.37, 4001
-1.07, 6161 0.91, 1337-full 0.86) — real variance, not a clean win. Arena
-size doesn't appear to change this (same borderline-to-good spread at
-full scale as small scale), matching the base-dose isolation finding.
+**Gutcost combo — 5-seed tally, verdict revised down.** No extinctions in
+5/5, but R0>1 in only 2/5:
+
+| seed | arena | R0 | ratio |
+|---|---|---|---|
+| 1337 | small | 1.37 | 0.73 |
+| 4001 | small | 1.07 | 2.61 |
+| 6161 | small | 0.91 | 0.23 |
+| 1337 | full | 0.86 | 0.36 |
+| 9099 | small | **0.58** | **0.18** |
+
+**Revised verdict: the gutcost combo is not better than the base
+`k_photoCost` dose alone.** Base dose was 3/5 seeds with R0>1 (60%); this
+combo is 2/5 (40%) — weaker on the metric that matters most, despite zero
+extinctions. The "no extinction" framing was true but incomplete: R0<1
+means the population is shrinking even where it isn't dead yet, so 3 of
+these 5 runs would eventually fail given more days. Arena size (small vs
+full) doesn't explain the spread — both extremes (1.37 and 0.58) are on
+the small arena. **This combo should not be promoted ahead of the base
+dose alone** — it adds a second changed constant for no demonstrated
+benefit and measurably worse R0 odds. The base `k_photoCost` 0.012 dose
+by itself remains the strongest, most-tested, most defensible finding
+of this investigation.
