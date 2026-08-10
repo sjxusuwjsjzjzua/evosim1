@@ -4575,3 +4575,37 @@ is always in the path you did not think to re-test — the `armeff`
 contamination, the run-length confound, and now this were all found by
 checking something adjacent to what I had just built, not by checking the
 thing itself.
+
+### The first 30-job batch failed instantly — `ref` vs workflow-file location
+
+All four dispatches returned `204 queued` and then **every job failed in
+seconds**. Cause, found by listing what each branch actually contains
+rather than reading logs:
+
+| | `main` | `claude/evolution-sim-v047-audit-jft25c` |
+|---|---|---|
+| HTML builds | `evosim-v0_49_0.html` only | v0.49, v0.50, **v0.51** |
+| `cfg-patches/` | **does not exist** | ~26 patches |
+
+I dispatched with `ref: main` — because I had just pushed the workflow
+change there — against `build: evosim-v0_51_0.html` and
+`cfg: cfg-patches/arena-speed-photocost.json`. **Neither file exists on
+`main`.** The runner checked out `main`, found no build and no cfg, and
+died.
+
+**The rule, which I had been following by accident and then broke by
+reasoning about it:** the workflow *file* must be on the default branch
+for `workflow_dispatch` inputs to register at all, but the *run* must
+target the branch that holds the builds and patches. Every earlier
+successful batch today used the feature-branch ref; I switched to `main`
+only because that is where I had just pushed, and that switch is exactly
+what broke it.
+
+Fixed: synced `experiment.yml` onto the feature branch (so the raised
+350-min budget applies there too) and re-dispatched all four batches with
+`ref: claude/evolution-sim-v047-audit-jft25c`. Confirmed **in_progress**
+on the correct head SHA.
+
+Cost: about ten minutes and four wasted dispatches. Cheap, but it is the
+third instance today of the same failure mode — *the thing I changed was
+fine; what broke was an adjacent assumption I did not re-check.*
