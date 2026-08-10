@@ -4740,3 +4740,70 @@ far separates those.
 
 Recording now, before the survivors land, so the framing is on record
 ahead of the data rather than fitted to it.
+
+## Establishment batch, 20 of 30 — R0 > 1 does not predict persistence
+
+Twelve more results landed. Now 20 of 30, and the pattern flagged last
+cycle on a single seed is confirmed on several.
+
+| | 3x | 5x |
+|---|---|---|
+| landed | 8 | 12 |
+| extinct | 6 | 8 |
+| alive at end | 2 | 4 |
+| reached full 1600 d | 2 | 5 |
+| survivors' post-est R0 | 1.12, 2.14 (mean 1.63) | 1.04, 1.25, 1.49, 1.59 (mean 1.34) |
+
+Completion-order bias still applies — 10 runs are outstanding and they are
+the slow ones, i.e. disproportionately survivors — so **these extinction
+counts are still upper bounds, not the rate.**
+
+### The result that matters
+
+Among the 14 runs with a computable post-establishment R0:
+
+- **9 cleared replacement (R0 ≥ 1). Of those, 6 survived and 3 went
+  extinct.**
+- Extinct runs' R0 values include **1.21, 1.46, and 1.84**.
+- The **highest R0 in the entire extinct group (1.84, seed 20005) exceeds
+  four of the six survivors' values.** Seed 20005 also ran the *full*
+  1600 days — it did not die young, it held R0 1.84 and then went to zero
+  inside the last stretch.
+- Aggregate signal does exist: alive mean **1.44** vs extinct mean 0.89.
+
+So R0 carries real information in aggregate and **fails badly on the
+individual run: one in three populations that cleared replacement still
+went extinct.**
+
+### Why this matters more than the dose comparison
+
+The whole session has treated R0 as *the* viability metric — the
+retracted headline, the pre-registered 3x-vs-5x rule, the noise floor, all
+of it is R0. This says that is the wrong success criterion on its own.
+With fluctuations this large (smoothed N swinging 8→407 within a run, no
+characteristic period), **mean growth rate does not determine
+persistence** — extinction is absorbing, and a population with strongly
+positive mean growth still dies if a downswing reaches zero.
+
+A configuration is "balanced" in this project's sense only if it clears
+replacement **and** its excursions stay off zero. R0 measures the first
+and is blind to the second. The natural replacement is a **persistence
+probability** — fraction of cold seeds still alive at a fixed horizon —
+with R0 kept as a secondary descriptor. That is directly estimable from
+this very batch once all 30 land, at no extra compute.
+
+**Not switching metrics mid-batch.** The 30-seed run has a pre-registered
+prediction stated in R0 terms; changing the criterion now, having seen 20
+results, is precisely the forking-path move the external audit warned
+about. Score the prediction as written, then propose persistence
+probability as the successor metric with its own pre-registration.
+
+### Standing batch: still zero scheduled runs
+
+`cron '0 * * * *'` did not fire at 18:00 (verified 18:36, workflow state
+`active`, schedule present on `main` since 17:11). Moved to `:37` — but
+that change landed at ~18:37-18:38, too late for the 18:37 tick, so it has
+not actually been tested yet. **First real test is 19:37.** If that also
+produces nothing, `schedule:` is not dependable on this account and the
+fallback is deep queues dispatched from interactive turns, since
+heartbeats provably cannot dispatch.
