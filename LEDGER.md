@@ -2267,3 +2267,48 @@ both (not slot-cap-bound). No local jobs finished this cycle (three
 7575-lo, 8686-gutcost). `noisefloor-3x`/`noisefloor-5x` (30 seeds
 total) have not landed any results yet — still queued behind the
 Actions concurrency ceiling.
+
+---
+
+## v0.50 re-test, corrected build, seed 1337 (first of 3)
+
+First ecological data point for the k_meatAttr-pivoted fix (all prior
+v0.50 data was invalidated by the confounded-gain bug, see the
+correction entry above). Compared against the same v0.49 baseline used
+before (`fast-batch-photocost` seed 1337: R0 1.21, ratio 0.60, actAttack
+0.8%, harmonic N 43):
+
+| | v0.49 | v0.50 (corrected) |
+|---|---|---|
+| R0 | 1.21 | 0.78 |
+| ratio | 0.60 | 0.29 |
+| actAttack | 0.8% | 0.6% |
+| harmonic N | 43 | 27 |
+| matter drift | — | 0.000000% |
+
+**Reading this carefully, not overclaiming on n=1.** `actAttack` barely
+moved (0.8%→0.6%) — nowhere near the 0.8%→0.1% collapse the *confounded*
+version showed, which is itself informative: most of that earlier crash
+in `actAttack` really was the gain-reduction bug, not the floor removal.
+That's evidence the fix worked as intended on the mechanism the audit
+flagged. But R0, ratio, and harmonic N all fell substantially anyway —
+on a change that's supposed to be close to a no-op at this gene value.
+Per the same caveat carried since v0.49's occupied-slot-list change: a
+genuine formula edit (not measurement-only) can shift the RNG draw
+sequence and produce a real single-seed swing unrelated to the
+ecological claim. Not scoreable as hit or miss yet. Seed 4001 now
+running locally; seed 4002 still to come, to reach the original 3-seed
+plan for `v050-attack-floor-test`.
+
+## Base-dose tally, 8th seed: 5151, R0 0.75
+
+Extends the 3x `k_photoCost` base-dose tally (previously 4/6 R0>1: 1337,
+4001, 4002, 6464 survived; 6060, 6363 extinct). Seed 5151: R0 0.75,
+ratio 0.91, `actAttack` 1.7%, matter clean, but **`caps seen [0, 1]`** —
+this run did touch the plant slot-array bound at least once, unlike most
+of the recent tally. Revised count: **4 of 7 (57%)** at the original
+6-seed-plus-1 tally; this is separate bookkeeping from the dedicated
+`noisefloor-3x` n≥30 batch (still queued behind the Actions ceiling,
+0/15 landed) — this seed is being folded in as an extra data point, not
+a substitute for that batch. A fresh local seed (30001) now running to
+keep this line moving while the two v0.50-retest seeds also run.
