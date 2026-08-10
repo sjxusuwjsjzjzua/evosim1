@@ -2040,3 +2040,55 @@ prediction confirming itself, which is itself worth recording.
 
 Firing the noise-floor batch now (24 seeds, 3x dose) alongside 26 more
 5x seeds, both to n=30, both at the new 800-day target.
+
+---
+
+## The deepest finding in the external audit: k_photoCost selection may itself violate the mission test
+
+Audit point 5, and worth sitting with rather than fixing reflexively. The
+diagnosis (plants hitting an array-size artifact, not a biological limit)
+was sound and independently verified (the arena-isolation test). But the
+**selection of the dose** — sweeping `k_photoCost` across 2x/3x/5x and
+describing whichever one produced more animal survival as "the leading
+candidate" — is a physics constant chosen by its downstream ecological
+outcome. The project's own standard, quoted at the top of every governing
+doc in this repo: *if a result had to be written into the code, it
+doesn't count.* Picking a respiration cost because it happens to let
+animals survive is a softer version of the same move as hardcoding a
+survival rule directly — the code isn't dictating behavior, but the
+*researcher* is dictating which physics gets kept based on whether it
+produces the behavior wanted. That's outcome-tuning wearing a physics
+costume, and it's a real, substantive violation risk, not a statistical
+nuance like points 1-4.
+
+**This is not resolved by more seeds or better statistics on the
+existing arms.** No amount of rigor applied to "which dose gives higher
+R0" fixes the fact that R0 was the selection criterion in the first
+place.
+
+**Proposed fix, not yet executed (queued as top priority, ahead of
+finishing the 3x-vs-5x horse race the noise-floor run above was
+built for):** choose `k_photoCost` from a criterion independent of
+animal outcomes, decided and written down *before* looking at any R0
+number, then report whatever ecology results — including "the animals
+go extinct at the principled value," if that's what happens. Candidate
+criteria, none yet chosen:
+- a target respiration-to-gross-photosynthesis ratio (biologically
+  interpretable, checkable against real plant physiology as a sanity
+  bound)
+- pre-fauna standing plant crop as a stated fraction of arena capacity
+  (directly targets the original artifact — cap should not bind, but
+  the target fraction is chosen for its own sake, not for what it does
+  to R0)
+- a stated plant-layer turnover time
+
+**What this means for the noise-floor/decision-rule work above:** still
+worth having — establishing the natural seed-to-seed spread at a fixed
+config is useful groundwork regardless of which criterion eventually
+picks the dose, and the 3x-vs-5x statistical comparison is honest as far
+as it goes. But the *conclusion* of that comparison should not be read
+as "the final answer" even once it lands — it answers "which of these
+two arbitrarily-chosen doses is statistically distinguishable," not "is
+either of these doses the principled one." HANDOFF §0.5's priority list
+is being reordered to put the independent-criterion work ahead of
+promoting either 3x or 5x.
