@@ -4076,3 +4076,87 @@ like the most costly parameter choice in the project. Not changing it
 yet — that decision should wait for 4001/4002, and a cutoff should be
 chosen from where the slopes actually flatten across several seeds, not
 from one.
+
+### intake-down completes at matched windows: null, and the arm is retired
+
+| seed | base R0 @800d | −33% R0 @800d | ΔR0 | Δ standing plants |
+|---|---|---|---|---|
+| 1337 | 0.73 | 0.62 | −0.11 | −333 |
+| 4001 | 0.71 | 0.77 | **+0.05** | +257 |
+
+Mean ΔR0 **−0.03**, direction split 1/2, against an SE of 0.09 at n=2.
+**Null.** Combined with the corrected intake **+50%** result (−0.07, also
+null), **`k_intake` has no detectable effect on R0 in either direction at
+800 days.** The prediction's HIT branch (base overexploits → ΔR0 > 0 in
+≥2/3) and MISS branch (inverted-U → ΔR0 < 0 in ≥2/3) both fail; the
+"Ambiguous" branch — all within ±one noise SD — is what actually fired.
+Seed 4002 is **not** being run: two null seeds plus a null reciprocal arm
+is enough, and the stationarity result below makes any further 800-day
+arm comparison low-value.
+
+What survives from the whole `k_intake` investigation is exactly one
+thing: **raising intake efficiency depletes the standing plant layer**
+(−2683, −762, −9046 on matched windows, 3/3). Lowering it does
+approximately nothing to plants (−333, +257). The demographic
+consequence I originally claimed does not exist.
+
+---
+
+## The stationarity result has a hard boundary: extinction is terminal
+
+Checking which cold seeds could even in principle be rescued by a longer
+protocol turned up the constraint that bounds yesterday's finding.
+
+Among the 15 cold 3x noise-floor seeds, the worst performers **did not
+merely score low — they went extinct and the run halted**:
+
+| seed | 800d R0 | ran until | final animals |
+|---|---|---|---|
+| 10005 | 0.18 | 650 d | **0** |
+| 10010 | 0.18 | 590 d | **0** |
+| 10006 | 0.25 | 620 d | **0** |
+| 10013 | 0.61 | 800 d | **0** |
+
+**A longer cutoff cannot rescue these.** The population is gone; there is
+no trajectory left to establish. So the ladder finding does **not** mean
+"everything is fine, just run longer." The honest reformulation:
+
+> The base dose produces roughly **one-third outright extinctions**, and
+> among the populations that survive, R0 at 800 days **understates** their
+> established value — possibly by enough to cross replacement.
+
+That is a genuinely different claim from either "nothing reaches
+replacement" (the session's previous headline, now doubtful) or "the
+protocol was just too short" (too strong). Extinction rate and
+conditional-on-survival R0 are two separate outcomes and neither
+substitutes for the other — the same two-numbers discipline recorded for
+matched windows.
+
+### Sharpened test now running
+
+Seed 1337 established, but it is one of the "favourable trio"
+(1337/4001/4002) I have already flagged as unrepresentative. The strongest
+available test is **cold, unselected seeds that survived 800 days but
+scored well below replacement** — if even those establish, the claim
+holds on seeds that were never chosen for it.
+
+Fired at 2400 days on `evosim-v0_51_0.html`:
+- **seed 10001** — 800d R0 **0.64**, 106 animals alive at cutoff
+- **seed 10008** — 800d R0 **0.66**, 233 animals alive at cutoff
+
+**Prediction, written before either finishes.** These are cold seeds
+drawn as a block, so they carry no selection advantage.
+- **HIT:** both cross **R0 ≥ 1.0** by day 2400, and the animal-count slope
+  at 2400 is smaller in magnitude than at 800. Reading: establishment is
+  general to surviving populations, not a property of the favourable trio,
+  and the 800-day protocol is confirmed as the cause of the session's
+  central wrong conclusion.
+- **MISS:** either seed stays below 1.0 at 2400 with a non-shrinking
+  slope. Reading: seed 1337's establishment was particular to that seed,
+  and 800-day R0 is not systematically understating anything.
+- **Split (one each):** the effect is real but not general; the
+  interesting question becomes what distinguishes establishing seeds from
+  persistently-subreplacement ones, which is a different investigation.
+
+Deliberately chosen as the seeds *most likely to falsify* the claim among
+survivors, rather than the ones most likely to confirm it.
