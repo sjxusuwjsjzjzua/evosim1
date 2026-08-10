@@ -79,6 +79,19 @@ are the project's own success criteria and had never been computed.
   zeroing `k_confusion` also zeroes the APPROACH score (`actAppr` → 0.000
   in all three OFF runs), removing crowding protection *and* herding
   together.
+- **RETRACTED: "harmonic mean N / minimum N outpredict R0 for
+  persistence."** Held in-sample (AUC 0.82/0.83 vs 0.74 on 25 runs) and
+  **failed a pre-registered out-of-sample test** on 10 fresh cold seeds:
+  R0 AUC **1.00**, harmonic N 0.92, min N 0.83; the frozen threshold
+  (harmonic N ≥ 25) hit exactly 70% accuracy but did not beat R0, which
+  the prediction required. **R0 keeps its place as the health metric.**
+  What survives is narrower: R0 is mechanically inflated at very low N
+  (it divides by arithmetic mean N), so a high R0 on a run averaging <10
+  animals is demographic noise rather than health — a caveat for reading
+  individual runs, not grounds for replacing the statistic. Note also
+  that AUC 1.00 at n=10 is one clean sample, not proof R0 is perfect;
+  five in-sample counterexamples exist. **Confidence: the retraction is
+  HIGH; R0's superiority is MODERATE.**
 - **"More predation ⇒ more viable" is NOT supported.** Seed 30002 has
   predation share 42% — above the viable-run mean — yet R0 0.80. Removing
   herding also *lowers* total attacks in all three paired runs

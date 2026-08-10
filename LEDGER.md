@@ -5137,3 +5137,74 @@ Fired: **seed 1337, 4000 days**, base dose, on the local core freed by
 Note the asymmetry deliberately: a MISS here would undercut the
 persistence metric I have been proposing as R0's replacement, on the same
 grounds that sank R0. That is the point of running it.
+
+---
+
+# SCORED: harmonic-N predictor is a MISS. R0 beat it out-of-sample.
+
+The pre-registration reached its n≥8 gate (10 unseen standing seeds with a
+computable post-establishment window). Scored with the threshold frozen at
+25, as committed.
+
+| seed | harmonic N | min N | R0 post-est | survived? | threshold predicts |
+|---|---|---|---|---|---|
+| 41083 | 28 | 3 | 1.14 | yes | survive ✓ |
+| 41084 | **20** | 1 | 1.13 | **yes** | die ✗ |
+| 41085 | 25 | 4 | 1.37 | yes | survive ✓ |
+| 41087 | 4 | 1 | 0.65 | no | die ✓ |
+| 41088 | 44 | 13 | 1.89 | yes | survive ✓ |
+| 41102 | 11 | 1 | 0.41 | no | die ✓ |
+| 41104 | **9** | 1 | 1.69 | **yes** | die ✗ |
+| 41106 | **22** | 4 | 1.57 | **yes** | die ✗ |
+| 41109 | 10 | 1 | 0.96 | no | die ✓ |
+| 41110 | 3 | 1 | 0.32 | no | die ✓ |
+
+**Accuracy 70%** — exactly meets the ≥70% clause. But the second clause
+fails decisively:
+
+| statistic | AUC on the 10 unseen seeds |
+|---|---|
+| **post-establishment R0** | **1.00** |
+| harmonic mean N | 0.92 |
+| minimum N | 0.83 |
+
+The prediction required harmonic N to **beat** R0. It did not — R0
+separated these ten perfectly: every survivor had R0 ≥ 1.13, every
+extinction ≤ 0.96. **VERDICT: MISS.**
+
+### What was wrong with my reasoning
+
+The in-sample analysis found five runs extinct despite R0 ≥ 1 and I read
+that as "R0 is a poor persistence predictor, because it divides by
+arithmetic mean N and is inflated when the population is small." The
+*mechanism* is real — seed 41081 genuinely showed R0 2.93 while averaging
+eight animals. But I generalised from the failure cases to a claim about
+the statistic's overall skill, and **on fresh data R0 has more skill than
+the replacement I proposed**, not less.
+
+That is the difference between "I can explain these particular errors" and
+"my alternative predicts better." Only the second is testable, and it is
+the one I got wrong. The five extinct-despite-R0 cases were real, but they
+were the tail of a statistic that is otherwise sound — not evidence the
+statistic should be replaced.
+
+The threshold also sat too high: three survivors (harmonic N 20, 22, and
+9) were classified as deaths. **Not re-tuning it to 20 or 15** — the guard
+clause pre-committed against exactly that, and a threshold refitted to the
+data it is being scored on measures nothing.
+
+### What stands and what does not
+
+- **RETRACTED:** "harmonic N / min N should replace R0 as the headline
+  health metric." Out-of-sample, R0 wins. R0 keeps its place.
+- **STANDS:** R0 *is* mechanically inflated at very low N, and a high R0
+  on a run averaging <10 animals should be read as demographic noise, not
+  health. That is a caveat on interpreting individual runs, not grounds
+  for replacing the metric.
+- **STANDS:** persistence (alive at horizon) remains the right *outcome*
+  variable, since it is what the mission cares about. This test was about
+  which *predictor* of it to use, and R0 answered that.
+- **Caveat against over-reading the win:** AUC 1.00 at n=10 with a 6/4
+  split is not "R0 is a perfect predictor." It is one clean sample. The
+  five in-sample counterexamples show it is not perfect. The defensible
+  statement is that R0 was **not** shown to be inferior, so it stays.
