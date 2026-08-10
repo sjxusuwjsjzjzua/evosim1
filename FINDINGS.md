@@ -64,24 +64,29 @@ are the project's own success criteria and had never been computed.
   populations are usually predation-limited, so this is the weaker
   pillar and the honest answer to "has carnivory ever controlled
   herbivores here" is: not usually.
-- **The herding/confusion mechanism is load-bearing for viability, worth
-  ~0.47 R0. Confidence: HIGH.** Strictly paired manipulation — same seed,
-  same build, identical cfg on every key except `k_confusion` (0.06 vs 0).
-  ΔR0 = −0.52, −0.57, −0.33 across seeds 1337/4001/4002; negative in
-  every seed, 1.5x the noise-floor SD in two of three. **This is the only
-  ecological claim in the project backed by a matched paired
-  manipulation** rather than a cross-arm comparison, and it upgrades the
-  v0.47 `k_confusion` finding from MODERATE (it now has its control).
-  Caveat: not single-channel — zeroing `k_confusion` also zeroes the
-  APPROACH score (`actAppr` → 0.000 in all three OFF runs), so it removes
-  crowding protection *and* herding together.
-- **"More predation ⇒ more viable" is NOT supported.** Two independent
-  counterexamples: seed 30002 (predation share 42%, above the viable-run
-  mean, yet R0 0.80) and seed 1337 confusion-OFF (predation share *rises*
-  +3.1% while R0 falls 0.52). Note also that removing herding *lowers*
-  total attacks in all three paired runs (encounter-rate loss from
-  de-aggregation outweighs the per-attack gain), which is why the
-  mechanism matters more than the rate.
+- **The herding/confusion mechanism may help viability, but the effect is
+  small. Confidence: LOW-MODERATE (downgraded from HIGH 2026-08-10).**
+  The original "worth ~0.47 R0" figure was a **run-length artifact** —
+  1200-day baselines vs 800-day treatments (see LEDGER.md "MAJOR
+  CORRECTION"). Recomputed on matched 800-day windows: ΔR0 = −0.08, −0.02,
+  −0.13, **mean −0.08**, well inside the noise-floor SD of ~0.30. Direction
+  is still 3/3 negative, which is worth something at n=3, but the magnitude
+  claim is retracted. Not cleanly matched even now: seed 4002's OFF run
+  ended at 640 days. The pairing itself is otherwise sound (same seed,
+  same build, identical cfg on every key except `k_confusion`), and it is
+  still the only ecological claim in the project backed by a matched
+  paired manipulation. Caveat that stands regardless: not single-channel —
+  zeroing `k_confusion` also zeroes the APPROACH score (`actAppr` → 0.000
+  in all three OFF runs), removing crowding protection *and* herding
+  together.
+- **"More predation ⇒ more viable" is NOT supported.** Seed 30002 has
+  predation share 42% — above the viable-run mean — yet R0 0.80. Removing
+  herding also *lowers* total attacks in all three paired runs
+  (de-aggregation costs more encounters than the per-attack gain is
+  worth), which is why the mechanism matters more than the rate.
+  **Confidence: MODERATE** — the counterexample is solid, but note the
+  supporting correlation below has now been recomputed on matched-length
+  runs and survives.
 - **Trophic coupling tracks viability — the strongest correlation in the
   corpus.** Viable runs (R0≥1, n=22) vs non-viable (n=97): predation
   share **36.2% vs 20.5%**, grazing share 44.3% vs 35.8%.
@@ -91,9 +96,20 @@ are the project's own success criteria and had never been computed.
   mechanically produce more encounters, so R0 may drive predation share
   rather than the reverse, and nothing here separates them. What it does
   establish: **the viable regime is the strongly-coupled regime.**
-  **Confidence: HIGH** on the association, **UNRESOLVED** on direction.
-  No constant should be promoted for raising predation share — that
-  would be outcome-tuning against a metric whose causality is unknown.
+  **Verified against the run-length confound (2026-08-10):** restricting
+  to 800-day runs only (n=70) gives corr = **+0.496** (t=4.70),
+  essentially unchanged from the mixed-length +0.479. **This correlation
+  is not a length artifact.** **Confidence: HIGH** on the association,
+  **UNRESOLVED** on direction. No constant should be promoted for raising
+  predation share — that would be outcome-tuning against a metric whose
+  causality is unknown.
+- **Measured R0 depends more on run length than on almost anything
+  tested. corr(run length, R0) = +0.758** across 124 runs. Combined with
+  15/15 runs failing the stationarity gate, this means the project's
+  primary metric is dominated by *when you stop looking*. Any comparison
+  across unmatched cutoffs is invalid (now hard rule 7b in `CLAUDE.md`);
+  this cost a full day of paired conclusions on 2026-08-10 before it was
+  caught. **Confidence: HIGH** — direct measurement.
 
 ## Ecological — the trophic-balance investigation
 

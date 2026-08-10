@@ -3828,3 +3828,102 @@ reproduces 1.21, `evosim-v0_50_0.html` can be deleted (its results are
 captured above, satisfying CLAUDE.md's rule) and `evosim-v0_49_0.html`
 becomes redundant with v0.51. Holding both until that run lands rather
 than deleting on the strength of a diff.
+
+---
+
+# MAJOR CORRECTION, 2026-08-10 ~14:00 — every paired comparison made today was confounded by run length
+
+The v0.51 verification run was designed to confirm the revert reproduced
+v0.49 exactly. It returned **R0 0.73 against v0.49's 1.21** — and finding
+out why invalidated most of today's conclusions.
+
+### The confound
+
+A rigorous diff (block comments and trailing comments stripped, 2900 code
+lines each) confirms **v0.49 and v0.51 differ in exactly one token: the
+VERSION string.** The cfg dicts are identical. Same seed. So the
+difference could not be the build.
+
+It was **run length**. The v0.49 "baselines" I have been pairing against
+all day are **1200-day** runs; every treatment run I compared them to is
+**800 days**. `analyze.py` computes R0 over the *last 200 samples*, so
+a 1200-day run is measured over days 200-1200 and an 800-day run over
+days 0-800. Given the stationarity result established earlier today —
+**15/15 runs fail the gate, at 10-25x the DRIFTING threshold** — those
+windows sample completely different parts of a moving trajectory.
+
+**The artifact is larger than every effect I reported today.** Identical
+code, identical cfg, same seed 1337: **R0 1.21 at the 1200-day window,
+0.73 at the 800-day window. A −0.48 difference from run length alone.**
+
+### What survives, recomputed on matched 800-day windows
+
+| claim | as reported | corrected | verdict |
+|---|---|---|---|
+| **v0.50 floor removal, ΔR0** | −0.39 (3/3 neg) | **+0.00** (+0.05, +0.02, −0.07) | **RETRACTED — no effect** |
+| v0.50, kills **per day** | "−65%" | 1.00→0.63, 0.95→0.91, 4.91→3.23 | **survives** — falls 3/3 |
+| **intake +50%, ΔR0** | −0.47 (3/3 neg) | **−0.07** (−0.16, +0.07, −0.12) | **RETRACTED — inside noise** |
+| intake +50%, standing plants | −5074 | **−2683, −762, −9046** | **survives** — falls 3/3 |
+| intake −33%, ΔR0 | −0.59 | **−0.11** | **RETRACTED** |
+| **k_confusion OFF, ΔR0** | −0.47 (3/3 neg) | **−0.08** (−0.08, −0.02, −0.13) | **DOWNGRADED** — 3/3 direction holds, magnitude ~6x smaller and well inside the noise floor |
+
+Three headline claims from today are retracted outright. Two mechanism
+claims survive because they rest on **rate or window-mean** quantities
+rather than endpoint totals: kills *per day* and standing plant *mean*
+both still move consistently.
+
+### Consequences, stated plainly
+
+**1. The v0.50 MISS scoring is retracted.** On matched windows the R0
+effect is zero. The HIT condition ("runs with real predation are not
+obviously worse") is *met*, not failed. The correct verdict is
+**can't-tell on R0, with a modest consistent reduction in realized
+predation (kills/day down 3/3)** — not a miss.
+
+**2. The v0.51 revert was therefore made on bad data.** The revert
+itself is mechanically sound — at a *matched* 800-day window v0.49
+truncated and v0.51 native agree to **six decimal places (0.728954 vs
+0.728954)**, so it restores v0.49 exactly, as claimed. But the *reason*
+given for making it does not survive.
+
+**Decision: v0.51 stands, on a different and weaker basis, stated
+honestly as a judgment call on null data.** With R0 neutral, the
+tiebreaker is structural: the floor's removal reduces realized predation
+(kills/day down 3/3) with no demographic benefit, and carnivory is
+already the weaker of the two mission pillars (23.6% of animal deaths).
+Keeping the floor is also the lowest-risk option because v0.51 is
+byte-equivalent in behaviour to v0.49, the best-characterised build in
+the project. **Had I had correct data at the time, this would have been
+scored can't-tell and the change would more likely have been left in
+place pending a better test.** Recording that counterfactual rather than
+pretending the revert was always justified.
+
+**3. "Emergent overexploitation" is narrowed, not withdrawn.** More
+efficient herbivores really do deplete the standing plant layer (3/3 on
+matched windows). What is *not* supported is that this costs the
+consumers measurable R0 — that number was the artifact. The mechanism
+stands; the demographic consequence does not. It remains an emergent
+result that passes the mission test, but a smaller claim than I made.
+
+**4. The k_confusion finding drops from HIGH to LOW-MODERATE.** Still
+3/3 in the same direction, which is worth something, but at mean −0.08
+against a noise floor SD of ~0.30 it is not distinguishable from chance
+at n=3. It is also not cleanly matched even now: seed 4002's OFF run
+terminated at 640 days, so that pair is 640-vs-800 rather than 800-vs-800.
+
+### Root cause and the guard that should have existed
+
+The error is mine and it is a process failure, not bad luck. I built
+strict cfg-matching into the pairing logic — after being burned by the
+`armeff-test` contamination earlier today — and then **never checked the
+one property that matters most for a non-stationary system: how long each
+run went.** I had *already established* that 15/15 runs fail the
+stationarity gate. Knowing that R0 is a moving target and still comparing
+across different cutoffs is the specific inconsistency here.
+
+Adding a hard rule to `CLAUDE.md` so this cannot recur silently:
+**never compare R0 (or any trailing-window statistic) across runs of
+different length — match the cutoff explicitly, and state the cutoff
+in any comparison.** Endpoint totals (kills, births, matter) are worse
+still: they scale with duration directly and must be normalised to rates
+before any cross-run comparison.

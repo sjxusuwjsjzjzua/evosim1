@@ -64,6 +64,19 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 7. **Verify a measurement-only change did not alter the RNG draw sequence.**
 
+7b. **Never compare a trailing-window statistic across runs of different
+   length.** `analyze.py` computes R0 over the *last 200 samples*, so a
+   1200-day run is measured over days 200-1200 and an 800-day run over
+   days 0-800. Since **15/15 runs fail the stationarity gate** (measured
+   2026-08-10 on 30 cold seeds), those windows sample different parts of a
+   moving trajectory. Match the cutoff explicitly and state it in any
+   comparison. Endpoint *totals* (kills, births, attacks) are worse — they
+   scale with duration directly and must be normalised to per-day rates
+   first. Added after this cost a full day of paired conclusions: seed
+   1337, identical code and cfg, reads R0 **1.21 at 1200 days and 0.73 at
+   800 days** — an artifact larger than any treatment effect measured that
+   day. See LEDGER.md "MAJOR CORRECTION, 2026-08-10".
+
 8. **DO NOT widen a gene bound to fix a pin.** Tried in v0.43, reverted in
    v0.44. A rail moves; it does not go away.
 
