@@ -125,10 +125,20 @@ hardcoding a cap or a rate rather than letting selection find it is not a
 win, regardless of how clean the numbers look — that failure mode is easier
 to fall into unsupervised, not harder. Compute discipline: keep all
 available cores (local + Actions) running productive work continuously;
-report tersely, no restating background each cycle. Still out of scope
-regardless of this grant: touching another repo, creating a PR, merging to
-`main`, or anything with no sane rollback — those still stop and surface to
-the owner rather than proceeding.
+report tersely, no restating background each cycle.
+
+**Amendment, same day:** the owner additionally authorized direct pushes to
+`main` specifically for `.github/workflows/experiment.yml` changes, since
+GitHub only reads `workflow_dispatch` inputs from the default branch, so a
+workflow edit on a feature branch can never actually take effect otherwise.
+Scope stays narrow — this covers that one file's mechanics (new inputs,
+matrix changes, tooling fixes to the experiment runner), not a general
+license to push arbitrary project changes to `main` (the simulator build,
+LEDGER/HANDOFF, CFG patches, etc. still belong on
+`claude/evolution-sim-v047-audit-jft25c`). Still out of scope regardless of
+either grant: touching another repo, creating a PR, or anything with no
+sane rollback — those still stop and surface to the owner rather than
+proceeding.
 
 One iteration, done by Claude, looks like:
 
