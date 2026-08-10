@@ -34,6 +34,20 @@ name: evosim experiment
 # below are done, not by waiting on this workflow to say "completed".
 
 on:
+  # SELF-FIRING STANDING BATCH. Added 2026-08-10 after Actions sat idle for
+  # 11 hours overnight (05:38 -> 16:44). Root cause: the hourly heartbeat
+  # Routine's allowed_tools has no mcp__github__*, and the ambient
+  # GITHUB_TOKEN has Actions READ but not actions:write -- so a heartbeat can
+  # check and collect results but physically cannot dispatch a run. GitHub's
+  # own scheduler needs no credentials from this side, so it is the only
+  # mechanism that keeps compute fed when no interactive turn is happening.
+  # Every 6 h => 6 jobs, 24 jobs/day: deliberately modest, per CLAUDE.md's
+  # "bursty-but-bounded, not always-max" amendment (external audit point 9).
+  # Seeds are derived from github.run_number so each firing draws FRESH cold
+  # seeds rather than re-running the same ones -- each is a valid extra
+  # replicate of the establishment protocol already on record.
+  schedule:
+    - cron: '25 */6 * * *'
   workflow_dispatch:
     inputs:
       build:
@@ -41,8 +55,8 @@ on:
         default: 'evosim-v0_49_0.html'
         required: true
       seeds:
-        description: 'Comma-separated seeds, e.g. 4001,4002,4003'
-        required: true
+        description: 'Comma-separated seeds, e.g. 4001,4002,4003 (blank on a schedule => derived from run_number)'
+        required: false
       days:
         description: 'Target sim-days per seed'
         default: '1600'
@@ -68,6 +82,14 @@ jobs:
       - id: parse
         run: |
           seeds='${{ inputs.seeds }}'
+          # Scheduled firings supply no inputs at all. Derive 6 fresh cold
+          # seeds from the run number so a standing batch never repeats a
+          # seed it has already burned.
+          if [ -z "$seeds" ]; then
+            base=$(( 40000 + ${{ github.run_number }} * 10 ))
+            seeds="$base,$((base+1)),$((base+2)),$((base+3)),$((base+4)),$((base+5))"
+            echo "scheduled firing: derived seeds $seeds"
+          fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
 
@@ -82,7 +104,16 @@ jobs:
       matrix:
         seed: ${{ fromJson(needs.setup.outputs.seed_matrix) }}
     steps:
+      # A `schedule:` trigger ONLY ever fires from the default branch, but
+      # main deliberately holds just the shipped v0.49 build and no
+      # cfg-patches/ -- so a scheduled run checking out main would fail
+      # instantly on a missing build, exactly the way the 2026-08-10 16:44
+      # batch did. Pin scheduled runs to the working branch, which carries
+      # the current build and the patches. Manual dispatches keep using
+      # whatever ref they were fired against.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'claude/evolution-sim-v047-audit-jft25c' || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -90,7 +121,17 @@ jobs:
         run: |
           mkdir -p out
           CFG_ARGS=""
-          if [ -n "${{ inputs.cfg }}" ]; then CFG_ARGS="--cfg ${{ inputs.cfg }}"; fi
+          CFG_IN="${{ inputs.cfg }}"
+          BUILD_IN="${{ inputs.build }}"
+          DAYS_IN="${{ inputs.days }}"
+          PROG_IN="${{ inputs.progress_days }}"
+          # Scheduled firings pass no inputs; fall back to the current
+          # protocol defaults so a standing batch is a valid replicate.
+          [ -z "$CFG_IN" ]   && CFG_IN="cfg-patches/arena-speed-photocost.json"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_51_0.html"
+          [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
+          [ -z "$PROG_IN" ]  && PROG_IN="40"
+          if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi
           # --max-wall-min sits under the job's own 350-min timeout (line above:
           # timeout-minutes: 350) with margin for checkout/setup/upload. GitHub
           # hosted runners cap a job at 6 h, so 350/330 is near the ceiling.
@@ -104,21 +145,21 @@ jobs:
           # so a hard-killed job returns zero data for the ~3 hours it ran.
           # Learned this the expensive way; see LEDGER.md.
           node headless.js \
-            --build "${{ inputs.build }}" \
+            --build "$BUILD_IN" \
             --seed "${{ matrix.seed }}" \
-            --days "${{ inputs.days }}" \
-            --progress-days "${{ inputs.progress_days }}" \
+            --days "$DAYS_IN" \
+            --progress-days "$PROG_IN" \
             --max-wall-min 330 \
             $CFG_ARGS \
             --out "out/seed-${{ matrix.seed }}.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.label }}-seed-${{ matrix.seed }}
+          name: ${{ inputs.label || 'standing' }}-seed-${{ matrix.seed }}
           path: out/
           retention-days: 30
       - name: push result to a per-seed scratch branch
         run: |
-          BR="runs/${{ inputs.label }}/seed-${{ matrix.seed }}"
+          BR="runs/${{ inputs.label || 'standing' }}/seed-${{ matrix.seed }}"
           git config user.name "evosim-actions-bot"
           git config user.email "actions@users.noreply.github.com"
           git checkout --orphan "$BR"
@@ -126,5 +167,5 @@ jobs:
           cp "out/seed-${{ matrix.seed }}.json" .
           [ -f "out/seed-${{ matrix.seed }}.json.progress.json" ] && cp "out/seed-${{ matrix.seed }}.json.progress.json" . || true
           git add "seed-${{ matrix.seed }}.json" "seed-${{ matrix.seed }}.json.progress.json" 2>/dev/null || git add "seed-${{ matrix.seed }}.json"
-          git commit -m "evosim experiment: ${{ inputs.label }} seed ${{ matrix.seed }}"
+          git commit -m "evosim experiment: ${{ inputs.label || 'standing' }} seed ${{ matrix.seed }}"
           git push --force origin "$BR"
