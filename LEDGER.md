@@ -2601,3 +2601,108 @@ slope means selection on `meatAttraction` now has 6x the behavioural
 leverage above the founder value that it had before, which is a real
 (if deliberate) second-order consequence of this version, and is *not*
 what the v0.50 prediction was written against.
+
+---
+
+## Correction 4, same day — I made the same error again in the act of reporting the first three
+
+In the write-up of the full-corpus re-tally above I flagged the
+"full 90k/40k arena at base photocost" as a standout: *"n=2, 2/2 above
+replacement (R0 1.21, 1.42) — the only arm where every seed cleared
+replacement... the highest-value next test."*
+
+That was wrong, and checking it took two minutes:
+
+| seed | maxPlants | R0 | max plants reached |
+|---|---|---|---|
+| 1337 | 90000 | **1.2096** | 18462 |
+| 1337 | 25000 | **1.2096** | — |
+| 6262 | 90000 | 1.4183 | 16734 |
+
+Seed 1337 is **bit-identical at both arena sizes** (1.2096 to four
+decimal places), and neither full-arena run ever came within 6,000 plants
+of the 25k cap. The cap never binds, so the arena size is inert — which
+is precisely what the arena-isolation test established in the first
+place, and which `FINDINGS.md` already records as HIGH confidence.
+
+So the "full-arena arm" is not an arm. It is **one duplicate of a
+base-dose run I had already counted, plus one ordinary base-dose seed
+(6262) that happened to be run with a larger, never-binding array
+allocation.** Reporting it as "2/2, the only arm where every seed
+cleared" double-counted 1337 across two groups and then read the
+resulting overlap as a difference between them.
+
+**Corrected base-dose tally**, folding in 6262 (arena inert, so it is a
+base-dose seed) and the newly-landed 30001 (R0 0.72):
+**16 seeds, 6/16 (38%) R0>1, median 0.72.**
+
+Worth stating without softening: this is the fourth error of the same
+family in one session, and I made it *in the same message* where I
+reported catching the first three, while explicitly warning that n=2
+proves nothing. Writing the caveat next to the claim did not stop me
+making the claim. The thing that actually caught it was running one
+query against the logs. **Cheap mechanical checks beat carefully-worded
+hedges** — the hedge makes a wrong claim look responsible, the query
+makes it go away.
+
+---
+
+## New diagnostic: is `aRate/aUpkeep` an emergent equilibrium or a parameter?
+
+**The observation that prompted this.** Pulling the animal-energetics
+lines across three arms with very different outcomes:
+
+| run | R0 | aRate/aUpkeep | death age / maturityAge | starved share of deaths |
+|---|---|---|---|---|
+| 30001 (base dose) | 0.72 | **1.19** | 0.46 | 85% |
+| 6262 (base dose) | 1.42 | **1.20** | 0.82 | 59% |
+| 8686 (gutcost) | 1.15 | **1.18** | 0.87 | 67% |
+
+`aRate/aUpkeep` — realised intake rate over upkeep — is pinned at
+**1.18-1.20 across arms whose R0 differs by 2x.** Nothing was tuned to
+make that happen; no constant in any of these three cfgs sets it. That
+is the signature of a **density-dependent equilibrium**: selection
+converts any intake surplus into more animals until competition drags
+the realised rate back down to just above break-even. If real, it is
+the single most on-mission result in this corpus — regulation *emerging*
+from the physics rather than being written into it — and it has been
+sitting in the digest output unremarked all session.
+
+It also reframes the whole dose-response investigation: if the animals
+self-regulate to ~1.19 regardless, then plant-side constants can only
+move *how many* animals sit at that ratio, not whether they clear
+replacement. That would explain why ~24 arms all landed in the same
+0.5-1.0 R0 band.
+
+**Falsifiable prediction, written before the run.** Arm:
+`k_intake` 0.01486 → 0.02229 (+50%), base photocost dose and arena,
+`cfg-patches/intake-regulation-probe.json`. Seeds 1337, 4001, 4002 —
+chosen because all three have matched base-dose values on record
+(1.21, 1.03, 1.31; mean **1.18**).
+
+Powered honestly: with within-cfg SD 0.39 (measured above), a 3-seed
+mean has SE ≈ 0.23, so only a shift larger than ~0.45 is detectable.
+This test is deliberately powered to detect a *large* effect or nothing;
+it will be reported as "large effect / no large effect" and never as a
+point estimate.
+
+- **HIT (regulation is emergent):** `aRate/aUpkeep` returns to
+  **1.10-1.30**, mean R0 stays within ±0.45 of 1.18 (i.e. 0.73-1.63),
+  and standing animal N rises **>25%**. Reading: the extra intake is
+  absorbed by more animals, not by better per-animal demography.
+- **MISS (ratio is parameter-set, not regulated):** `aRate/aUpkeep`
+  settles **above 1.35** and stays there, **or** mean R0 exceeds 1.63.
+  Either would mean the population is not self-regulating and the ratio
+  is being set exogenously — which would make it a legitimate target
+  for a physics correction, and would also mean the emergent-regulation
+  reading above is wrong.
+
+**Mission-test guard, stated up front:** this is a sensitivity probe,
+not a search for a `k_intake` that produces R0>1. No value of `k_intake`
+gets promoted on the basis of raising R0 — that is exactly the
+outcome-tuning-in-a-physics-costume error already logged against the
+`k_photoCost` dose selection. The question here is *whether the system
+regulates*, and a HIT means leaving `k_intake` alone.
+
+Firing seed 1337 now (one local core free); 4001/4002 to follow as cores
+free up.

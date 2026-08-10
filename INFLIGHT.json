@@ -2,27 +2,324 @@
   "_comment": "Manifest of fired experiments: label, branch/cfg, seeds, prediction pointer, fired-at, collected-at, status. Added 2026-08-10 per external audit point 8 -- orchestration state (what's running, what's been processed) was living only in session memory and LEDGER prose, both of which are lossy. Update this on every fire and every collection. A session picking up this project should reconcile fired-vs-collected here before trusting any 'what's currently running' claim made in conversation.",
   "_schema": "label -> {cfg, seeds, build, prediction_ref (LEDGER.md section), fired_at (UTC, approximate where reconstructed), status: fired|partially_collected|collected|invalidated, notes}",
   "experiments": {
-    "riskewma-test": {"cfg": "cfg-patches/photocost-riskewma.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md v0.49 CFG finding section, riskEwma paragraph", "fired_at": "~2026-08-10T02:xx", "status": "partially_collected", "notes": "2/3 collected 2026-08-10: seed 1337 R0 0.61 actAppr 0.0%, seed 4001 R0 0.23 actAppr 0.2%. Both under the >1% actAppr falsifier -- read as a miss on n=2, not a full retraction. seed 4002 still outstanding. See LEDGER.md 'Backlog processing, 2026-08-10'."},
-    "retal-test": {"cfg": "cfg-patches/photocost-retal.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md, 3 more branches section", "fired_at": "~2026-08-10T02:xx", "status": "partially_collected", "notes": "2/3 collected 2026-08-10 ~06:45: seed 1337 R0 0.58, seed 4001 R0 0.85. seed 4002 no branch pushed yet."},
-    "armeff-test": {"cfg": "cfg-patches/photocost-armeff.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md, 3 more branches section", "fired_at": "~2026-08-10T02:xx", "status": "partially_collected", "notes": "2/3 collected 2026-08-10: seed 1337 R0 0.44, seed 4001 R0 1.00 (exactly at parity, worth a look if 4002 lands similarly high). seed 4002 no branch pushed yet."},
-    "confusion-off-retest": {"cfg": "cfg-patches/photocost-confusion-off.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md, re-tests original v0.47 k_confusion:0 finding under fixed food base", "fired_at": "~2026-08-10T02:xx", "status": "collected", "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.64, 0.70, 0.79 -- all <1. Directionally supports the original v0.47 finding surviving the maxPlants fix, but still no confusion-ON comparison at the identical dose/seeds pulled alongside it -- filed MODERATE not HIGH. See LEDGER.md 'Heartbeat ~06:45'."},
-    "animal-headroom": {"cfg": "cfg-patches/photocost-bigger-animals.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md, animal population headroom hypothesis", "fired_at": "~2026-08-10T02:xx", "status": "collected", "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.73, 0.71, 0.81 -- all <1, no rescue effect."},
-    "mixedfree-dose": {"cfg": "cfg-patches/photocost-mixedfree.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md, omnivory-cost / behavioral-monoculture hypothesis", "fired_at": "~2026-08-10T02:xx", "status": "partially_collected", "notes": "2/3 collected 2026-08-10: seed 1337 R0 0.71, seed 4001 R0 0.45. seed 4002 no branch pushed yet."},
-    "hi-gutcost-stack": {"cfg": "cfg-patches/photocost-hi-gutcost.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md combo-stack batch", "fired_at": "~2026-08-10T02:5x", "status": "collected", "notes": "3/3 collected 2026-08-10: R0 0.95, 0.95, 0.46. All <1, no rescue effect. Lower priority given gutcost combo already deprioritized on its own."},
-    "lo-gutcost-stack": {"cfg": "cfg-patches/photocost-lo-gutcost.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md combo-stack batch", "fired_at": "~2026-08-10T02:5x", "status": "collected", "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.76, 0.69, 0.49. No rescue effect."},
-    "triple-stack": {"cfg": "cfg-patches/triple-stack.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md combo-stack batch", "fired_at": "~2026-08-10T02:5x", "status": "collected", "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.59, 0.77, 0.70. No rescue effect."},
-    "gutcost-carrionfloor-combo": {"cfg": "cfg-patches/gutcost-carrionfloor-combo.json", "seeds": [1337,4001], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md combo-stack batch", "fired_at": "~2026-08-10T02:5x", "status": "partially_collected", "notes": "CORRECTED 2026-08-10 ~06:45: this is carrionFloor 0.10, pushed to branch runs/gutcost-carrionfloor-stack/* -- previously mis-merged with the carrionfloor-lo-gutcost entry below under one label despite being a different cfg (see LEDGER.md 'Heartbeat ~06:45' bookkeeping correction). 2 seeds: 1337 R0 0.71, 4001 R0 0.95. No third seed fired yet under this exact cfg."},
-    "carrionfloor-lo-gutcost": {"cfg": "cfg-patches/carrionfloor-lower-gutcost.json", "seeds": [1337,4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md combo-stack batch", "fired_at": "~2026-08-10T02:5x", "status": "partially_collected", "notes": "CORRECTED 2026-08-10 ~06:45: this is carrionFloor 0.05 (lower than the 0.10 combo above), pushed to branch runs/carrionfloor-lo-gutcost/* matching this label correctly. Only seed 4002 landed so far: R0 0.67. seeds 1337/4001 still needed to complete the originally-planned 3 under this specific cfg -- do not reuse the gutcost-carrionfloor-combo numbers above, they're a different carrionFloor value."},
-    "photocost-lo-confirm": {"cfg": "cfg-patches/screen-photocost-lo.json", "seeds": [4001,4002,7001], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md dose-response tally, 2x dose", "fired_at": "~2026-08-10T02:5x", "status": "collected", "notes": "3/3 collected 2026-08-10: R0 0.67, 0.59, 0.88. All <1 at the 2x dose."},
-    "photocost-abase-confirm": {"cfg": "cfg-patches/screen-photocost-abase.json", "seeds": [4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md a_base combo tally", "fired_at": "~2026-08-10T02:5x", "status": "collected", "notes": "2/2 collected 2026-08-10: R0 0.70, 0.65."},
-    "photocost-carrionfloor-confirm": {"cfg": "cfg-patches/screen-photocost-carrionfloor.json", "seeds": [4001,4002], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md carrionFloor-alone combo tally", "fired_at": "~2026-08-10T02:5x", "status": "collected", "notes": "2/2 collected 2026-08-10: R0 0.66, 0.69."},
-    "hi-confirm-batch2": {"cfg": "cfg-patches/screen-photocost-hi.json", "seeds": [5151,7777,8888], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md 5x dose-response", "fired_at": "~2026-08-10T03:1x", "status": "collected", "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.49, 0.33, 0.03. Combined with hi-confirm-batch3 and the original 4-seed screen, full 5x tally now 9 seeds, 3/9 (33%) R0>1 -- sharply revised down from the original 'n=4, 75%' read. See LEDGER.md 'Heartbeat ~06:45'."},
-    "hi-confirm-batch3": {"cfg": "cfg-patches/screen-photocost-hi.json", "seeds": [6060,6363], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md, targeted retest of the two seeds that broke the 3x pattern", "fired_at": "~2026-08-10T03:5x", "status": "collected", "notes": "2/2 collected 2026-08-10 ~06:45: seed 6060 R0 0.03 (3x gave 0.25), seed 6363 R0 0.07 (3x gave 0.76). NEITHER seed rescued by 5x -- both did worse than at 3x, directly against the retracted '5x rescues hard seeds' framing."},
-    "v050-attack-floor-test": {"cfg": "cfg-patches/arena-speed-photocost.json", "seeds": [1337,4001,4002], "build": "evosim-v0_50_0.html", "prediction_ref": "LEDGER.md [L0.50-1]", "fired_at": "~2026-08-10T02:5x", "status": "invalidated", "notes": "Ran against the pre-gain-fix v0.50 file. Discard any data from this. Superseded by v050-attack-floor-retest-local below, the corrected re-fire."},
-    "v050-attack-floor-retest-local": {"cfg": "cfg-patches/arena-speed-photocost.json", "seeds": [1337,4001,4002], "build": "evosim-v0_50_0.html", "prediction_ref": "LEDGER.md [L0.50-1], corrected-build re-fire", "fired_at": "2026-08-10T~06:2x", "status": "partially_collected", "notes": "Local re-fire (runs/local-v050-retest/) against the k_meatAttr-pivoted, non-confounded v0.50 build. seed 1337 collected: R0 0.78 vs v0.49 baseline 1.21, actAttack barely moved (0.8%->0.6%, unlike the pre-fix version's 0.8%->0.1% collapse) -- n=1, not yet scoreable. seed 4001 running locally now. seed 4002 not yet fired."},
-    "v050-gutcost-retest": {"cfg": "cfg-patches/photocost-gutcost-combo.json", "seeds": [1337,4001,4002], "build": "evosim-v0_50_0.html", "prediction_ref": "LEDGER.md v0.50 x gutcost interaction check", "fired_at": "~2026-08-10T02:5x", "status": "invalidated", "notes": "Same reason as above -- pre-fix v0.50. Not yet re-fired against the corrected build."},
-    "v050-confusion-off-retest": {"cfg": "cfg-patches/photocost-confusion-off.json", "seeds": [1337,4001,4002], "build": "evosim-v0_50_0.html", "prediction_ref": "LEDGER.md v0.50 x confusion interaction check", "fired_at": "~2026-08-10T02:5x", "status": "invalidated", "notes": "Same reason as above -- pre-fix v0.50. Not yet re-fired against the corrected build."},
-    "noisefloor-3x": {"cfg": "cfg-patches/arena-speed-photocost.json", "seeds": [10001,10002,10003,10004,10005,10006,10007,10008,10009,10010,10011,10012,10013,10014,10015], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md 'Noise floor + decision rule' section", "fired_at": "2026-08-10T~05:2x", "status": "partially_collected", "notes": "7/15 collected 2026-08-10 ~06:45: seeds 10001(0.64) 10004(1.12) 10005(0.18) 10006(0.25) 10008(0.66) 10009(0.70) 10010(0.18) -- 1/7 (14%) R0>1, notably lower than the ad-hoc tally's 50-67%. See LEDGER.md 'Heartbeat ~06:45'. 8 more seeds (10002,10003,10007,10011-10015) still outstanding, plus 24 more planned beyond this batch to reach n=30."},
-    "noisefloor-5x": {"cfg": "cfg-patches/screen-photocost-hi.json", "seeds": [20001,20002,20003,20004,20005,20006,20007,20008,20009,20010,20011,20012,20013,20014,20015], "build": "evosim-v0_49_0.html", "prediction_ref": "LEDGER.md 'Noise floor + decision rule' section", "fired_at": "2026-08-10T~05:2x", "status": "fired", "notes": "0/15 landed yet as of 2026-08-10 ~06:45."}
+    "riskewma-test": {
+      "cfg": "cfg-patches/photocost-riskewma.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md v0.49 CFG finding section, riskEwma paragraph",
+      "fired_at": "~2026-08-10T02:xx",
+      "status": "partially_collected",
+      "notes": "2/3 collected 2026-08-10: seed 1337 R0 0.61 actAppr 0.0%, seed 4001 R0 0.23 actAppr 0.2%. Both under the >1% actAppr falsifier -- read as a miss on n=2, not a full retraction. seed 4002 still outstanding. See LEDGER.md 'Backlog processing, 2026-08-10'."
+    },
+    "retal-test": {
+      "cfg": "cfg-patches/photocost-retal.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md, 3 more branches section",
+      "fired_at": "~2026-08-10T02:xx",
+      "status": "partially_collected",
+      "notes": "2/3 collected 2026-08-10 ~06:45: seed 1337 R0 0.58, seed 4001 R0 0.85. seed 4002 no branch pushed yet."
+    },
+    "armeff-test": {
+      "cfg": "cfg-patches/photocost-armeff.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md, 3 more branches section",
+      "fired_at": "~2026-08-10T02:xx",
+      "status": "partially_collected",
+      "notes": "2/3 collected 2026-08-10: seed 1337 R0 0.44, seed 4001 R0 1.00 (exactly at parity, worth a look if 4002 lands similarly high). seed 4002 no branch pushed yet."
+    },
+    "confusion-off-retest": {
+      "cfg": "cfg-patches/photocost-confusion-off.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md, re-tests original v0.47 k_confusion:0 finding under fixed food base",
+      "fired_at": "~2026-08-10T02:xx",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.64, 0.70, 0.79 -- all <1. Directionally supports the original v0.47 finding surviving the maxPlants fix, but still no confusion-ON comparison at the identical dose/seeds pulled alongside it -- filed MODERATE not HIGH. See LEDGER.md 'Heartbeat ~06:45'."
+    },
+    "animal-headroom": {
+      "cfg": "cfg-patches/photocost-bigger-animals.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md, animal population headroom hypothesis",
+      "fired_at": "~2026-08-10T02:xx",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.73, 0.71, 0.81 -- all <1, no rescue effect."
+    },
+    "mixedfree-dose": {
+      "cfg": "cfg-patches/photocost-mixedfree.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md, omnivory-cost / behavioral-monoculture hypothesis",
+      "fired_at": "~2026-08-10T02:xx",
+      "status": "partially_collected",
+      "notes": "2/3 collected 2026-08-10: seed 1337 R0 0.71, seed 4001 R0 0.45. seed 4002 no branch pushed yet."
+    },
+    "hi-gutcost-stack": {
+      "cfg": "cfg-patches/photocost-hi-gutcost.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md combo-stack batch",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10: R0 0.95, 0.95, 0.46. All <1, no rescue effect. Lower priority given gutcost combo already deprioritized on its own."
+    },
+    "lo-gutcost-stack": {
+      "cfg": "cfg-patches/photocost-lo-gutcost.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md combo-stack batch",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.76, 0.69, 0.49. No rescue effect."
+    },
+    "triple-stack": {
+      "cfg": "cfg-patches/triple-stack.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md combo-stack batch",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.59, 0.77, 0.70. No rescue effect."
+    },
+    "gutcost-carrionfloor-combo": {
+      "cfg": "cfg-patches/gutcost-carrionfloor-combo.json",
+      "seeds": [
+        1337,
+        4001
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md combo-stack batch",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "partially_collected",
+      "notes": "CORRECTED 2026-08-10 ~06:45: this is carrionFloor 0.10, pushed to branch runs/gutcost-carrionfloor-stack/* -- previously mis-merged with the carrionfloor-lo-gutcost entry below under one label despite being a different cfg (see LEDGER.md 'Heartbeat ~06:45' bookkeeping correction). 2 seeds: 1337 R0 0.71, 4001 R0 0.95. No third seed fired yet under this exact cfg."
+    },
+    "carrionfloor-lo-gutcost": {
+      "cfg": "cfg-patches/carrionfloor-lower-gutcost.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md combo-stack batch",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "partially_collected",
+      "notes": "CORRECTED 2026-08-10 ~06:45: this is carrionFloor 0.05 (lower than the 0.10 combo above), pushed to branch runs/carrionfloor-lo-gutcost/* matching this label correctly. Only seed 4002 landed so far: R0 0.67. seeds 1337/4001 still needed to complete the originally-planned 3 under this specific cfg -- do not reuse the gutcost-carrionfloor-combo numbers above, they're a different carrionFloor value."
+    },
+    "photocost-lo-confirm": {
+      "cfg": "cfg-patches/screen-photocost-lo.json",
+      "seeds": [
+        4001,
+        4002,
+        7001
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md dose-response tally, 2x dose",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10: R0 0.67, 0.59, 0.88. All <1 at the 2x dose."
+    },
+    "photocost-abase-confirm": {
+      "cfg": "cfg-patches/screen-photocost-abase.json",
+      "seeds": [
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md a_base combo tally",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "collected",
+      "notes": "2/2 collected 2026-08-10: R0 0.70, 0.65."
+    },
+    "photocost-carrionfloor-confirm": {
+      "cfg": "cfg-patches/screen-photocost-carrionfloor.json",
+      "seeds": [
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md carrionFloor-alone combo tally",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "collected",
+      "notes": "2/2 collected 2026-08-10: R0 0.66, 0.69."
+    },
+    "hi-confirm-batch2": {
+      "cfg": "cfg-patches/screen-photocost-hi.json",
+      "seeds": [
+        5151,
+        7777,
+        8888
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md 5x dose-response",
+      "fired_at": "~2026-08-10T03:1x",
+      "status": "collected",
+      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.49, 0.33, 0.03. Combined with hi-confirm-batch3 and the original 4-seed screen, full 5x tally now 9 seeds, 3/9 (33%) R0>1 -- sharply revised down from the original 'n=4, 75%' read. See LEDGER.md 'Heartbeat ~06:45'."
+    },
+    "hi-confirm-batch3": {
+      "cfg": "cfg-patches/screen-photocost-hi.json",
+      "seeds": [
+        6060,
+        6363
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md, targeted retest of the two seeds that broke the 3x pattern",
+      "fired_at": "~2026-08-10T03:5x",
+      "status": "collected",
+      "notes": "2/2 collected 2026-08-10 ~06:45: seed 6060 R0 0.03 (3x gave 0.25), seed 6363 R0 0.07 (3x gave 0.76). NEITHER seed rescued by 5x -- both did worse than at 3x, directly against the retracted '5x rescues hard seeds' framing."
+    },
+    "v050-attack-floor-test": {
+      "cfg": "cfg-patches/arena-speed-photocost.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_50_0.html",
+      "prediction_ref": "LEDGER.md [L0.50-1]",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "invalidated",
+      "notes": "Ran against the pre-gain-fix v0.50 file. Discard any data from this. Superseded by v050-attack-floor-retest-local below, the corrected re-fire."
+    },
+    "v050-attack-floor-retest-local": {
+      "cfg": "cfg-patches/arena-speed-photocost.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_50_0.html",
+      "prediction_ref": "LEDGER.md [L0.50-1], corrected-build re-fire",
+      "fired_at": "2026-08-10T~06:2x",
+      "status": "partially_collected",
+      "notes": "Local re-fire (runs/local-v050-retest/) against the k_meatAttr-pivoted, non-confounded v0.50 build. seed 1337 collected: R0 0.78 vs v0.49 baseline 1.21, actAttack barely moved (0.8%->0.6%, unlike the pre-fix version's 0.8%->0.1% collapse) -- n=1, not yet scoreable. seed 4001 running locally now. seed 4002 not yet fired."
+    },
+    "v050-gutcost-retest": {
+      "cfg": "cfg-patches/photocost-gutcost-combo.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_50_0.html",
+      "prediction_ref": "LEDGER.md v0.50 x gutcost interaction check",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "invalidated",
+      "notes": "Same reason as above -- pre-fix v0.50. Not yet re-fired against the corrected build."
+    },
+    "v050-confusion-off-retest": {
+      "cfg": "cfg-patches/photocost-confusion-off.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_50_0.html",
+      "prediction_ref": "LEDGER.md v0.50 x confusion interaction check",
+      "fired_at": "~2026-08-10T02:5x",
+      "status": "invalidated",
+      "notes": "Same reason as above -- pre-fix v0.50. Not yet re-fired against the corrected build."
+    },
+    "noisefloor-3x": {
+      "cfg": "cfg-patches/arena-speed-photocost.json",
+      "seeds": [
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007,
+        10008,
+        10009,
+        10010,
+        10011,
+        10012,
+        10013,
+        10014,
+        10015
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md 'Noise floor + decision rule' section",
+      "fired_at": "2026-08-10T~05:2x",
+      "status": "partially_collected",
+      "notes": "7/15 collected 2026-08-10 ~06:45: seeds 10001(0.64) 10004(1.12) 10005(0.18) 10006(0.25) 10008(0.66) 10009(0.70) 10010(0.18) -- 1/7 (14%) R0>1, notably lower than the ad-hoc tally's 50-67%. See LEDGER.md 'Heartbeat ~06:45'. 8 more seeds (10002,10003,10007,10011-10015) still outstanding, plus 24 more planned beyond this batch to reach n=30."
+    },
+    "noisefloor-5x": {
+      "cfg": "cfg-patches/screen-photocost-hi.json",
+      "seeds": [
+        20001,
+        20002,
+        20003,
+        20004,
+        20005,
+        20006,
+        20007,
+        20008,
+        20009,
+        20010,
+        20011,
+        20012,
+        20013,
+        20014,
+        20015
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md 'Noise floor + decision rule' section",
+      "fired_at": "2026-08-10T~05:2x",
+      "status": "fired",
+      "notes": "0/15 landed yet as of 2026-08-10 ~06:45."
+    },
+    "intake-regulation-probe": {
+      "cfg": "cfg-patches/intake-regulation-probe.json",
+      "seeds": [
+        1337,
+        4001,
+        4002
+      ],
+      "build": "evosim-v0_49_0.html",
+      "prediction_ref": "LEDGER.md 'New diagnostic: is aRate/aUpkeep an emergent equilibrium or a parameter?'",
+      "fired_at": "2026-08-10T~07:3x",
+      "status": "fired",
+      "notes": "DIAGNOSTIC not tuning. Tests whether aRate/aUpkeep (pinned 1.18-1.20 across arms with 2x different R0) is emergent density-dependent regulation. HIT = ratio returns to 1.10-1.30, R0 unchanged within +/-0.45 of matched base-dose mean 1.18, standing N up >25%. MISS = ratio >1.35 sustained, or mean R0 >1.63. Powered for a large effect only (n=3, SD 0.39 -> SE 0.23). seed 1337 running locally; 4001/4002 queued."
+    }
   }
 }
