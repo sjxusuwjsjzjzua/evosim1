@@ -2312,3 +2312,113 @@ of the recent tally. Revised count: **4 of 7 (57%)** at the original
 0/15 landed) — this seed is being folded in as an extra data point, not
 a substitute for that batch. A fresh local seed (30001) now running to
 keep this line moving while the two v0.50-retest seeds also run.
+
+---
+
+## Heartbeat, 2026-08-10 ~06:45: large Actions batch landed
+
+Substantial batch of Actions results landed since the last check. Processing
+all of it in one entry.
+
+### noisefloor-3x — 7 of 15 seeds landed, hit rate lower than the ad-hoc tally
+
+| seed | R0 |
+|---|---|
+| 10001 | 0.64 |
+| 10004 | **1.12** |
+| 10005 | 0.18 |
+| 10006 | 0.25 |
+| 10008 | 0.66 |
+| 10009 | 0.70 |
+| 10010 | 0.18 |
+
+**1 of 7 (14%) R0>1.** This is the dedicated, non-cherry-picked noise-floor
+sample for the 3x dose — and it's running noticeably lower than the
+informal tally built from the original seeds (1337/4001/4002/6464/6060/
+6363/5151, 4/7 = 57%). Two live explanations, not yet distinguishable at
+n=7: (a) genuine high variance and this is still noise at small n, or (b)
+the original seed set was inadvertently non-representative (picked in
+the course of exploration rather than drawn cold). Not concluding either
+way yet — this is exactly why the noise-floor protocol exists, and it's
+doing its job by surfacing this gap early rather than after a doomed
+promotion decision. 8 more seeds still to land for this batch.
+
+### 5x dose — full tally now 9 seeds, revised down to 33%
+
+Combining the original screen (1337 1.16✓, 4001 1.08✓, 7002 1.51✓, 4002
+0.22✗ — 3/4) with the two confirm batches that just landed complete:
+
+| seed | R0 | batch |
+|---|---|---|
+| 5151 | 0.49 | hi-confirm-batch2 |
+| 7777 | 0.33 | hi-confirm-batch2 |
+| 8888 | 0.03 | hi-confirm-batch2 |
+| 6060 | 0.03 | hi-confirm-batch3 (targeted retest — 3x gave 0.25, 5x is *worse*) |
+| 6363 | 0.07 | hi-confirm-batch3 (targeted retest — 3x gave 0.76, 5x is *worse*) |
+
+**9 seeds total, 3/9 (33%) R0>1** — a sharp revision down from the
+originally-reported "75% at n=4." This is the clearest evidence yet that
+the earlier "5x may be the better constant" read (already once retracted
+via the audit's Fisher's-exact-test point) was winner's-curse-driven: the
+first 4 seeds happened to include the session's single best result
+(7002, 1.51) and no catastrophic failures; the next 5 landed 0/5. Neither
+targeted retest seed was rescued by the higher dose — both did *worse*
+at 5x than they did at 3x. **5x is not "ahead" of anything at this point
+— if anything the fuller sample makes 3x's ad-hoc 57% look relatively
+better, though both now look shakier than either looked at n=4-6.**
+`noisefloor-5x` (dedicated batch, 15 more seeds) is still 0/15 landed —
+that will be the real answer, not this ad-hoc reconstruction.
+
+### confusion-off-retest — complete, 3/3, all R0<1
+
+| seed | R0 |
+|---|---|
+| 1337 | 0.64 |
+| 4001 | 0.70 |
+| 4002 | 0.79 |
+
+Completes the clean re-test of the original v0.47 `k_confusion:0` finding
+under the fixed food base. **All three seeds R0<1.** Directionally
+consistent with the original finding (disabling confusion/herding
+defense hurts population health) surviving the `maxPlants` fix — though
+this still isn't a true A/B: no confusion-ON run at the identical dose
+and seeds has been pulled alongside these for direct comparison. Given
+the base-dose tally itself hovers around 50-60% R0>1 depending which
+seed set is used (see the noise-floor gap above), three R0<1 seeds
+in a row on the confusion-off arm is suggestive but not yet distinguishable
+from the general weakness this whole neighborhood of CFG space is
+showing. Filed as MODERATE, not upgraded to HIGH.
+
+### animal-headroom — complete, 3/3, all R0<1
+
+1337 0.73, 4001 0.71, 4002 0.81. No rescue effect from bigger
+animal-population headroom.
+
+### Other completions/updates
+
+- **retal-test**: 2/3 now (1337 0.58, 4001 0.85). Seed 4002 still out.
+- **triple-stack**: complete, 3/3 (1337 0.59, 4001 0.77, 4002 0.70).
+- **lo-gutcost-stack**: complete, 3/3 (1337 0.76, 4001 0.69, 4002 0.49).
+
+None of these show a rescue effect either — consistent with everything
+else in this backlog.
+
+### Bookkeeping correction: two different carrionFloor+gutcost combos got
+### merged under one label
+
+Checking the actual `cfg` block inside the fetched JSON (not just the
+branch name) turned up a mistake in this session's own tracking: seeds
+1337/4001 (R0 0.71/0.95, previously filed under "carrionfloor-lo-gutcost")
+were pushed to branch `runs/gutcost-carrionfloor-stack/*` running
+**`carrionFloor 0.10`** (`cfg-patches/gutcost-carrionfloor-combo.json`).
+Seed 4002 (R0 0.67) landed separately on branch
+`runs/carrionfloor-lo-gutcost/*` running **`carrionFloor 0.05`**
+(`cfg-patches/carrionfloor-lower-gutcost.json`, the dose-response follow-on
+testing a lower floor than the 0.10 combo). These are two different CFG
+arms, not three seeds of one arm. Corrected in `INFLIGHT.json`:
+- `gutcost-carrionfloor-combo` (carrionFloor 0.10): seeds 1337 (0.71), 4001
+  (0.95) — 2 seeds, no third fired yet under this exact cfg.
+- `carrionfloor-lo-gutcost` (carrionFloor 0.05): seed 4002 (0.67) only —
+  1 seed, needs 1337/4001 to complete the originally-planned 3.
+Neither shows a rescue effect either way (all three raw numbers are in
+the same weak 0.67-0.95 neighborhood as everything else this cycle).
