@@ -41,13 +41,21 @@ on:
   # check and collect results but physically cannot dispatch a run. GitHub's
   # own scheduler needs no credentials from this side, so it is the only
   # mechanism that keeps compute fed when no interactive turn is happening.
-  # Every 6 h => 6 jobs, 24 jobs/day: deliberately modest, per CLAUDE.md's
-  # "bursty-but-bounded, not always-max" amendment (external audit point 9).
-  # Seeds are derived from github.run_number so each firing draws FRESH cold
-  # seeds rather than re-running the same ones -- each is a valid extra
-  # replicate of the establishment protocol already on record.
+  # SIZED FROM MEASUREMENT, not guessed. A successful 800-day sim job runs
+  # median 0.51 h (mean 0.80, p90 1.90); a 1600-day job is ~1.1 h. The
+  # account's real concurrency ceiling is 20 simultaneous JOBS -- observed
+  # directly as 20 running / 9 queued, which matches the documented per-plan
+  # cap and corrects the "40-50" figure previously recorded in LEDGER.
+  # The repo is PUBLIC, so Actions minutes are unlimited and free -- there is
+  # no quota to conserve, only the concurrency cap and account-safety.
+  #   12 jobs/h x 1.1 h service time => ~13 of 20 slots busy continuously,
+  #   with arrival (12/h) below service capacity (~18/h) so the queue stays
+  #   bounded instead of growing without limit.
+  # An earlier version of this block fired 6 jobs every 6 h, which works out
+  # to 1.1 of 20 slots -- about 5% utilisation. That was badly
+  # under-provisioned and is exactly what left Actions near-idle.
   schedule:
-    - cron: '25 */6 * * *'
+    - cron: '0 * * * *'
   workflow_dispatch:
     inputs:
       build:
@@ -86,8 +94,9 @@ jobs:
           # seeds from the run number so a standing batch never repeats a
           # seed it has already burned.
           if [ -z "$seeds" ]; then
-            base=$(( 40000 + ${{ github.run_number }} * 10 ))
-            seeds="$base,$((base+1)),$((base+2)),$((base+3)),$((base+4)),$((base+5))"
+            base=$(( 40000 + ${{ github.run_number }} * 20 ))
+            seeds="$base"
+            for k in 1 2 3 4 5 6 7 8 9 10 11; do seeds="$seeds,$((base+k))"; done
             echo "scheduled firing: derived seeds $seeds"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
@@ -127,7 +136,16 @@ jobs:
           PROG_IN="${{ inputs.progress_days }}"
           # Scheduled firings pass no inputs; fall back to the current
           # protocol defaults so a standing batch is a valid replicate.
-          [ -z "$CFG_IN" ]   && CFG_IN="cfg-patches/arena-speed-photocost.json"
+          if [ -z "$CFG_IN" ]; then
+            # Alternate arms by run parity so the standing batch accumulates
+            # matched cold-seed replicates of BOTH doses rather than deepening
+            # one arm forever. Odd runs = 5x, even = 3x base dose.
+            if [ $(( ${{ github.run_number }} % 2 )) -eq 1 ]; then
+              CFG_IN="cfg-patches/screen-photocost-hi.json"
+            else
+              CFG_IN="cfg-patches/arena-speed-photocost.json"
+            fi
+          fi
           [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_51_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"

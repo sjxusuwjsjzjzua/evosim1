@@ -143,11 +143,24 @@ report tersely, no restating background each cycle.
 **Standing saturation target, 2026-08-10:** keep Actions at **40+ jobs in
 flight** (running + queued-behind-the-runner-ceiling both count — a queued
 job still keeps the pipeline saturated, since it starts the instant a
-runner frees up) at all times, not just in bursts. Empirically the real
-concurrency ceiling sits somewhere around 40-50 simultaneous *running*
-jobs (found by firing until jobs stuck showing `runner_id: 0` — see
-LEDGER.md); above that, new jobs queue rather than run, which is fine and
-expected, not a problem to solve. When the in-flight count drops below 40
+runner frees up) at all times, not just in bursts.
+
+**CORRECTED 2026-08-10: the real ceiling is 20 simultaneous *running*
+jobs, not the 40-50 previously recorded here.** Measured directly —
+20 running / 9 queued across four dispatched runs, exactly the documented
+per-plan cap, which is what the external audit predicted. The old figure
+came from counting *jobs in flight* (running + queued) and calling it the
+ceiling. Above 20, new jobs queue rather than run, which is fine and
+expected, not a problem to solve.
+
+**Also measured, and it changes the sizing arithmetic:** a successful
+800-day sim job takes median **0.51 h** (mean 0.80, p90 1.90); a 1600-day
+job ~1.1 h. The repo is **public**, so Actions minutes are unlimited and
+free — there is no quota to conserve, only the concurrency cap. To hold
+~13 of 20 slots busy continuously the arrival rate needs to be ~12
+jobs/hour, which is what `experiment.yml`'s standing `schedule:` now
+fires. Sizing a standing batch without dividing service time by interval
+is how it ended up at 5% utilisation on the first attempt. When the in-flight count drops below 40
 (check cheaply — `list_workflow_jobs` with `filter: latest` on a couple of
 recent runs, or count non-completed runs, never a full unfiltered dump),
 refill it: extend an under-sampled arm with more seeds, or — preferred —
