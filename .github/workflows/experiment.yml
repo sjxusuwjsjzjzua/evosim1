@@ -54,8 +54,14 @@ on:
   # An earlier version of this block fired 6 jobs every 6 h, which works out
   # to 1.1 of 20 slots -- about 5% utilisation. That was badly
   # under-provisioned and is exactly what left Actions near-idle.
+  # NOT minute 0. GitHub's scheduler is heaviest at the top of the hour and
+  # runs queued there are routinely delayed by tens of minutes or dropped
+  # outright; the documented mitigation is an off-peak minute. Observed
+  # 2026-08-10: cron '0 * * * *' pushed to main at 17:11 did not fire at
+  # 18:00 at all (checked 18:36, zero schedule-event runs, workflow state
+  # active). Moved to :37.
   schedule:
-    - cron: '0 * * * *'
+    - cron: '37 * * * *'
   workflow_dispatch:
     inputs:
       build:
