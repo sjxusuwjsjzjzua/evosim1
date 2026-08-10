@@ -1599,3 +1599,67 @@ world has actually busted (a scan of a smaller occupied list is never slower
 than a scan of a larger `hi`-bounded one), so the downside is bounded to
 runs that stay small and never bloom, which are already the cheapest runs
 regardless.
+
+---
+
+## v0.49 CFG finding — k_photoCost is the actual lever on plant carrying capacity
+
+Not a new HTML version — a CFG patch, per rule 6. Fell out of the pre-fauna
+plant-cap addendum above: plants were hitting `maxPlants` (90,000) via a
+slot ceiling, not any biological mechanism, fifty days before fauna even
+existed. Every default-config seed tried this session (1337, 4001, 4002,
+both arms) either boom-busted into extinction or came within a hair of it.
+
+**Screening batch (owner-approved fast-iteration mode, 1 seed each unless
+noted):** all runs share a `maxPlants:25000, maxAnimals:11000` arena — a
+deliberate 3.6x shrink for iteration speed (was hitting 165-min wall-clock
+timeouts at 90k/40k; the smaller arena finishes 1200 days in 20-30 minutes).
+That arena shrink is itself untested in isolation from `k_photoCost` — see
+"Open confound" below.
+
+- **`fast-batch-arena`** (arena shrink only, control, no `k_photoCost`
+  change) — seed 1337 extinct (R0 0.48), seed 4002 not extinct but R0 0.72,
+  `caps seen [0,1,4]` (multiple bound types hit). Same failure mode as every
+  90k/40k default run, just smaller.
+- **`fast-batch-photocost`** (`k_photoCost` 0.004→0.012, 3x) — **seed 1337
+  R0 1.21, seed 4002 R0 1.31, seed 4001 R0 1.03. All three seeds finished
+  the full 1200-day target. Zero extinctions.** First viable (R0>1)
+  populations in any log this session. Seed 1337: plants oscillating
+  7,000-11,000 (in the range the owner independently flagged as
+  "balanced"), `pLocked` refuge holding 0.83-0.88 instead of collapsing,
+  `caps` clean.
+- **Dose-response, seed 1337 only:** `screen-photocost-lo` (2x, 0.008) R0
+  1.80 but death/maturityAge ratio only 0.29 and hit a cap once;
+  `screen-photocost-hi` (5x, 0.020) R0 1.16, ratio 0.39, clean. Direction
+  holds at 2x and 5x; 3x isn't a knife-edge.
+- **Combo arms** (3x `k_photoCost` + one previously-extinct-alone lever,
+  seed 1337): `+a_base 0.008` R0 1.08; `+k_gut/k_digest halved` R0 **1.37**,
+  ratio **0.73** (best demographic health of any arm this session);
+  `+carrionFloor 0.10` R0 0.96 (borderline). All three survived the full
+  1200 days where they'd gone extinct on the inflated 90k-cap food base
+  alone — consistent with the diagnosis that those levers were fighting an
+  artificially large prey base, not a real one.
+
+**Net: 8 of 8 runs with `k_photoCost` raised (any dose, any combo, any of 3
+seeds) survived the full run. 0 of 2 runs with the arena shrink alone did.**
+This is now a confirmed, dose-consistent, multi-seed finding, not a screen.
+
+**Recommended next steps, not yet run:**
+1. **Open confound — isolate `k_photoCost` from the arena shrink.** Every
+   photocost-positive run above also used the 25k/11k arena. Untested:
+   `k_photoCost` 0.012 alone at the original 90,000/40,000 arena. If plants
+   settle near the same 7-11k equilibrium regardless of ceiling (plausible —
+   respiration cost sets the equilibrium, not the slot count), the arena
+   shrink was riding along for free and isn't actually load-bearing for the
+   ecology, only for iteration speed. If plants still balloon toward 90k
+   with the higher cap, the arena shrink was doing real ecological work and
+   that needs to be said plainly rather than folded into "just a speed fix."
+2. **The gutcost combo is the standout** (best R0, best demographic ratio)
+   and deserves its own 3-seed confirmation rather than riding on n=1.
+3. `STATIONARITY GATE` still fails on every arm above (still drifting at
+   1200 days) — read all R0/ratio numbers as directional, not final, same
+   discipline as every other scorecard this project keeps.
+
+Not yet promoted to a shipped CFG patch or a LEDGER version-table row —
+that's the natural next Tier B write-up once step 1 above resolves the
+confound.
