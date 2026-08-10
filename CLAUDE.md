@@ -105,23 +105,30 @@ before, and *always* any change to the shipped HTML itself (a new formula,
 cost curve, mechanism — rule 6's definition of a *shape* change). These
 normally stop and wait for approval before the run that tests them starts.
 
-**Standing exception, granted 2026-08-09/10:** for the trophic-balance
-investigation (getting herbivory/carnivory to actually control population —
-see LEDGER.md's `k_photoCost` finding and HANDOFF.md §1/§3), the owner
-pre-authorized Tier B work to proceed without a per-change wait, including
-HTML mechanism changes, explicitly wanting the loop hands-off. This lifts the
-*wait-for-approval* gate only — it does not lift anything else: every run
-still needs a written falsifiable prediction on record first (rule 1, never
-optional), an HTML mechanism change still bumps the version and stays one
-structural change at a time (rule 3), `node check.js` still runs after every
-edit (rule 2), matter-conservation/RNG-safety still gets checked (rule 5/7),
-gene bounds still don't get widened to fix a pin (rule 8), and the shipped
-build still stays single-file/no-build-step/touch-first (rule 9). If the
-scope of "changes needed for a balanced simulation" becomes ambiguous —
-touching something outside the trophic-balance question, or a change with no
-sane rollback — that's still worth surfacing rather than assuming. This
-exception is scoped to that investigation; a brand new, unrelated hypothesis
-outside it still needs the owner's word.
+**Full autonomy grant, 2026-08-10:** the owner has taken this project fully
+hands-off — a 30-minute cron heartbeat checks finished compute, analyzes it,
+and Claude makes whatever changes (CFG or HTML mechanism) it judges will
+move toward a balanced, realistic simulation with every behavior emergent,
+without waiting for approval first. This supersedes the narrower
+trophic-balance-only exception above: the *wait-for-approval* gate is lifted
+project-wide, not just for one investigation. It does not lift anything
+else — every run still needs a written falsifiable prediction on record
+first (rule 1, never optional), an HTML mechanism change still bumps the
+version and stays one structural change at a time (rule 3), `node check.js`
+still runs after every edit (rule 2), matter-conservation/RNG-safety still
+gets checked (rule 5/7), gene bounds still don't get widened to fix a pin
+(rule 8), the shipped build still stays single-file/no-build-step/touch-
+first (rule 9), and the mission test still applies harder than ever now
+that nobody is watching each change land: **if a result had to be written
+into the code, it doesn't count.** A fix that hits its population target by
+hardcoding a cap or a rate rather than letting selection find it is not a
+win, regardless of how clean the numbers look — that failure mode is easier
+to fall into unsupervised, not harder. Compute discipline: keep all
+available cores (local + Actions) running productive work continuously;
+report tersely, no restating background each cycle. Still out of scope
+regardless of this grant: touching another repo, creating a PR, merging to
+`main`, or anything with no sane rollback — those still stop and surface to
+the owner rather than proceeding.
 
 One iteration, done by Claude, looks like:
 
