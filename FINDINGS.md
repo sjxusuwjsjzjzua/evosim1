@@ -64,6 +64,24 @@ are the project's own success criteria and had never been computed.
   populations are usually predation-limited, so this is the weaker
   pillar and the honest answer to "has carnivory ever controlled
   herbivores here" is: not usually.
+- **The herding/confusion mechanism is load-bearing for viability, worth
+  ~0.47 R0. Confidence: HIGH.** Strictly paired manipulation — same seed,
+  same build, identical cfg on every key except `k_confusion` (0.06 vs 0).
+  ΔR0 = −0.52, −0.57, −0.33 across seeds 1337/4001/4002; negative in
+  every seed, 1.5x the noise-floor SD in two of three. **This is the only
+  ecological claim in the project backed by a matched paired
+  manipulation** rather than a cross-arm comparison, and it upgrades the
+  v0.47 `k_confusion` finding from MODERATE (it now has its control).
+  Caveat: not single-channel — zeroing `k_confusion` also zeroes the
+  APPROACH score (`actAppr` → 0.000 in all three OFF runs), so it removes
+  crowding protection *and* herding together.
+- **"More predation ⇒ more viable" is NOT supported.** Two independent
+  counterexamples: seed 30002 (predation share 42%, above the viable-run
+  mean, yet R0 0.80) and seed 1337 confusion-OFF (predation share *rises*
+  +3.1% while R0 falls 0.52). Note also that removing herding *lowers*
+  total attacks in all three paired runs (encounter-rate loss from
+  de-aggregation outweighs the per-attack gain), which is why the
+  mechanism matters more than the rate.
 - **Trophic coupling tracks viability — the strongest correlation in the
   corpus.** Viable runs (R0≥1, n=22) vs non-viable (n=97): predation
   share **36.2% vs 20.5%**, grazing share 44.3% vs 35.8%.

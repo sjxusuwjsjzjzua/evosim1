@@ -52,7 +52,7 @@
       "prediction_ref": "LEDGER.md, re-tests original v0.47 k_confusion:0 finding under fixed food base",
       "fired_at": "~2026-08-10T02:xx",
       "status": "collected",
-      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.64, 0.70, 0.79 -- all <1. Directionally supports the original v0.47 finding surviving the maxPlants fix, but still no confusion-ON comparison at the identical dose/seeds pulled alongside it -- filed MODERATE not HIGH. See LEDGER.md 'Heartbeat ~06:45'."
+      "notes": "3/3 collected 2026-08-10 ~06:45: R0 0.64, 0.70, 0.79 -- all <1. Directionally supports the original v0.47 finding surviving the maxPlants fix, but still no confusion-ON comparison at the identical dose/seeds pulled alongside it -- originally filed MODERATE. See LEDGER.md 'Heartbeat ~06:45'. UPGRADED TO HIGH 2026-08-10 ~11:45: the matched control WAS in the corpus and has now been assembled under a strict pairing rule (same seed+build, identical cfg on every key except k_confusion). Paired dR0 = -0.52/-0.57/-0.33, mean -0.47, negative in all 3 seeds. Only matched paired manipulation in the project. See LEDGER.md 'The k_confusion paired experiment'."
     },
     "animal-headroom": {
       "cfg": "cfg-patches/photocost-bigger-animals.json",

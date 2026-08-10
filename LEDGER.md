@@ -3451,3 +3451,74 @@ simply *producing* high predation share via more encounters, a run with
 R0 0.80 should not be showing 42%. That does not resolve the direction
 question, but it does mean the reverse path is not a complete
 explanation either.
+
+---
+
+## The k_confusion paired experiment — the only real controlled manipulation in the corpus, and it confirms the v0.47 finding
+
+When `confusion-off-retest` completed I flagged what was missing: *"still
+no confusion-ON comparison at the identical dose/seeds pulled alongside
+it — filed MODERATE not HIGH."* That control exists in the corpus and I
+had not assembled it. Doing so now, with a **strict pairing rule**: same
+seed, same build, and identical cfg on *every* key except `k_confusion`.
+
+| seed | arm | R0 | predation share | grazing share | attacks | kills | actAppr | mean N |
+|---|---|---|---|---|---|---|---|---|
+| 1337 | ON (0.06) | **1.21** | 41.7% | 49.9% | 39885 | 1633 | 0.005 | 59 |
+| 1337 | OFF (0) | **0.64** | 21.8% | 44.2% | 31019 | 1577 | 0.000 | 80 |
+| 4001 | ON | **1.03** | 23.1% | 50.6% | 27164 | 1953 | 0.010 | 153 |
+| 4001 | OFF | **0.70** | 19.1% | 32.9% | 11402 | 814 | 0.000 | 128 |
+| 4002 | ON | **1.31** | 31.6% | 53.7% | 183428 | 7051 | 0.460 | 320 |
+| 4002 | OFF | **0.79** | 34.7% | 36.7% | 87652 | 2887 | 0.000 | 386 |
+
+**ΔR0 (OFF − ON) = −0.52, −0.57, −0.33; mean −0.47.** Negative in every
+seed, and the magnitude is 1.5x the measured noise-floor SD (~0.31) in
+two of three. This is a *paired* design — same seed means the same RNG
+stream start — which is far more powerful than the unpaired comparisons
+that have dominated this session.
+
+**The v0.47 `k_confusion` finding is confirmed, with its control, and is
+upgraded from MODERATE to HIGH.** It survives the `maxPlants` fix, and it
+is now the only ecological claim in the project backed by a matched
+paired manipulation rather than a cross-arm comparison.
+
+### What it does and does not say about the coupling correlation
+
+It was assembled to test causality on last cycle's corr(R0, predation
+share) = +0.481. It does not settle that, for a reason worth being
+precise about: **`k_confusion:0` is not a single-channel manipulation.**
+Per the v0.47 notes, setting it to zero both removes the crowding
+protection *and* zeroes the APPROACH score, since `crowd` gates that
+branch. `actAppr` goes to exactly **0.000** in all three OFF runs,
+confirming herding is fully disabled, not merely reduced.
+
+The knock-on is visible and counterintuitive: **attacks fall in all three
+OFF runs** (39885→31019, 27164→11402, 183428→87652) even though each
+attack is mechanically *more* effective without the `1/(1+crowd)`
+divisor. Removing herding stops animals aggregating, aggregation drives
+encounter rate, and the encounter-rate loss outweighs the per-attack
+gain. Grazing share falls in all three as well (49.9→44.2, 50.6→32.9,
+53.7→36.7).
+
+So the arm moves coupling *and* viability together, consistent with the
+correlation — but it moves two coupling channels at once and cannot
+isolate predation. And predation share itself is **not** monotone with
+R0 here: seed 1337 has predation share *rising* (+3.1%) while R0 falls
+0.52. Combined with seed 30002 last cycle (42% predation, R0 0.80),
+that is now two independent cases where high predation share coincides
+with failure. **"More predation ⇒ more viable" is not supported**; what
+survives is the weaker and better-evidenced claim that the herding /
+confusion *mechanism* is load-bearing, worth ~0.47 R0.
+
+### Method note — I caught a contaminated pairing mid-analysis
+
+My first pass at this filtered on seven named cfg keys and paired
+whatever matched. It produced seed 1337 "ON" with R0 0.44, which I
+recognised as wrong because base-dose 1337 is 1.21 — the filter had
+silently matched the `armeff-test` run (`k_armEff` 2→1), a key I had not
+thought to exclude, and the dict kept whichever file was globbed first.
+The fix was to stop enumerating keys and instead require an exact match
+on the *entire* cfg dict minus seed and `k_confusion`. Recording it
+because the wrong version was internally consistent and would have
+supported a tidy story about confusion-off *raising* R0 on one seed; the
+only thing that caught it was a remembered value not matching.
