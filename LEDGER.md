@@ -3627,3 +3627,44 @@ the trap any less of one. What a HIT would license is a *diagnosis*
 (base overexploits), not a new constant.
 
 Seed 1337 firing now on the core freed by intake-probe 4002.
+
+### Reciprocal arm, seed 1337 only (1 of 3) — NOT scoring yet, but two details already complicate the story
+
+| arm | `k_intake` | R0 | standing plants | mean N | eaten/grown |
+|---|---|---|---|---|---|
+| −33% | 0.00991 | **0.62** | 3897 | **82** | 46.9% |
+| base | 0.01486 | **1.21** | **7074** | 59 | 44.1% |
+| +50% | 0.02229 | **0.56** | 1547 | 48 | 63.0% |
+
+ΔR0 = **−0.59**, which points at the MISS branch (R0 falls on both sides
+of base → inverted-U with base near the peak). **Explicitly not scoring
+it**: the prediction requires ≥2 of 3 seeds, this is one, and n=1 reads
+are the specific error I have made repeatedly today. Seeds 4001 and 4002
+decide it; 4001 is firing now.
+
+Two things in this single run are worth flagging early because they do
+not fit the tidy overexploitation gradient:
+
+**1. Standing plants fall on *both* sides of base** (3897 and 1547 vs
+base 7074). Less efficient herbivory producing *fewer* plants is not what
+the overexploitation story predicts — that story says easing harvest
+pressure should let the plant layer recover. Whatever is happening is not
+a simple monotone consumer-resource gradient in `k_intake`.
+
+**2. Animal numbers move opposite to R0.** The −33% arm carries **more**
+animals than base (82 vs 59) while having roughly half the R0. More
+individuals, each further from replacement. Standing population and
+per-capita viability are decoupled here — which is a concrete instance of
+the point `analyze.py` has been making all along ("no extinction is not
+the same as viable"), and a warning against reading population size as
+health in either direction.
+
+A candidate reconciliation, untested: at lower intake efficiency animals
+take longer to reach breeding mass, so more of them accumulate in a
+juvenile, non-reproducing standing crop that still eats. That would give
+simultaneously more animals, more total consumption, fewer plants, and
+lower R0 — consistent with all four observations. It also predicts the
+juvenile fraction should be higher in this arm, which is directly
+checkable once the other two seeds land. Recording the hypothesis now,
+before seeing them, so it is a prediction rather than a story fitted
+afterwards.
