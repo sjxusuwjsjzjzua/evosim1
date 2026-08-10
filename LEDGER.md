@@ -2706,3 +2706,93 @@ regulates*, and a HIT means leaving `k_intake` alone.
 
 Firing seed 1337 now (one local core free); 4001/4002 to follow as cores
 free up.
+
+### Scoring the emergent-regulation diagnostic: hypothesis NOT SUPPORTED, withdrawn
+
+The `aRate/aUpkeep` invariance is real as a *measurement* — across 86 runs
+spanning `k_photoCost` 0.004-0.020 and R0 from 0.02 to 1.80, the ratio
+holds at **1.166 ± 0.089** (CV 0.076 vs R0's 0.528, i.e. 7x more tightly
+held). The k_intake +50% arm came back at 1.179, right on the corpus mean.
+On the face of it that looks exactly like density-dependent regulation.
+
+**It isn't, and two free checks against existing logs show why.**
+
+**Check 1 — the trajectory test.** Regulation predicts the ratio starts
+high at low density right after fauna arrive (day 260, plants abundant,
+few animals) and *decays* as density builds. Survivorship filtering
+predicts no such systematic decay.
+
+| seed | d260-300 | d300-400 | d400-600 | d600+ | N d260-300 | N d600+ |
+|---|---|---|---|---|---|---|
+| 6262 | 1.29 | 1.02 | 1.20 | 1.23 | 177 | 139 |
+| 30001 | 1.30 | 1.17 | 1.19 | 1.20 | 144 | 45 |
+| 8686 | 1.28 | 1.19 | 1.19 | 1.17 | 200 | 256 |
+| 6464 | **1.07** | 1.14 | 1.25 | **1.26** | 124 | 209 |
+
+No consistent decay. **6464 moves the opposite way** — ratio *rises*
+1.07→1.26 while density nearly doubles (124→209), which is the exact
+reverse of a competition-driven equilibrium. And 8686 holds 1.17 while
+density rises 200→256, where 6262 holds ~1.2 while density *falls*
+177→139. The ratio does not track density in any consistent direction.
+
+**Check 2 — the mechanism is more parsimoniously explained.** Both
+`AN.rate` and `AN.up` are averaged over **living animals only**
+(`aRt += AN.rate[i]` at line 3263, summed across the standing
+population). An animal whose realised rate sits below upkeep depletes
+reserves and starves out. So the surviving population is *filtered* to
+rate ≳ upkeep by construction — a mean just above 1.0 is what that
+filter produces on its own, no regulation required. On top of that
+`AN.rate` is an EWMA with `rateEwma = 0.002`, an extremely slow
+smoothing constant that mechanically compresses the statistic's
+variance. Survivorship floor + heavy smoothing account for both the
+level and the tightness without invoking any emergent feedback.
+
+**So the hypothesis is withdrawn.** It never reached `FINDINGS.md` — the
+check happened first, which is the process working the way it was
+supposed to. What stands is the narrower, duller claim: *aRate/aUpkeep is
+a survivorship-filtered, heavily-smoothed statistic that sits just above
+1 in almost any run, and therefore carries much less information about
+population health than its tightness suggests.* That is worth knowing
+precisely because its stability is misleading.
+
+**The probe run itself is compromised as evidence.** Seed 1337 at
+`k_intake` +50% did not reach a steady state — it went **extinct**:
+
+| window | mean N |
+|---|---|
+| d260-350 | 90 |
+| d450-550 | 56 |
+| d550-650 | **1** |
+| d750-810 | **0** |
+
+The digest's "aRate/aUpkeep 1.18" is computed over the last 200 samples,
+i.e. over a population of zero-to-one animals. It is noise, not a
+measurement, and the fact that it landed neatly on the corpus mean is
+coincidence. R0 0.56 likewise describes a collapse, not an equilibrium.
+
+**Prediction scored: neither HIT nor MISS as written — the prediction was
+badly specified.** I defined HIT as (ratio 1.10-1.30) AND (R0 within
+±0.45 of 1.18) AND (standing N up >25%), MISS as (ratio >1.35 sustained)
+OR (mean R0 >1.63). Seed 1337 gave ratio 1.18 (HIT band), R0 0.56 (below
+the HIT band), N down 100% (not up). **Extinction was not a branch I
+wrote**, so the outcome falls through the specification entirely. A
+prediction whose HIT/MISS conditions don't tile the outcome space isn't
+falsifiable in the way it claims to be — noting that as a defect in how I
+wrote it, not patching it after the fact.
+
+**The process lesson, which is the real one here.** Both checks that
+killed this hypothesis ran against logs already on disk, cost no compute,
+and took about two minutes. I fired the probe *before* running either.
+The order should have been: cheap check against existing data first, new
+run only for what existing data genuinely cannot answer. That is the
+same lesson as Correction 4 above, and it is now the second time today
+the fix was a query I already had the data to run.
+
+**Continuing the arm anyway, with a different question.** Seeds 4001
+(running) and 4002 still complete the 3-seed protocol on record, but what
+they now test is not regulation — it is whether **a 50% intake increase
+reliably drives extinction**, which is counterintuitive enough to be
+worth the two runs (plausible mechanism: faster harvesting depletes the
+plant layer faster, converting a marginal equilibrium into boom-bust).
+That is a *new* reading of an already-fired arm, and it gets its own
+honest n=1-so-far label until 4001/4002 land, not a promotion to finding.

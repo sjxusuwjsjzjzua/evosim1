@@ -318,8 +318,8 @@
       "build": "evosim-v0_49_0.html",
       "prediction_ref": "LEDGER.md 'New diagnostic: is aRate/aUpkeep an emergent equilibrium or a parameter?'",
       "fired_at": "2026-08-10T~07:3x",
-      "status": "fired",
-      "notes": "DIAGNOSTIC not tuning. Tests whether aRate/aUpkeep (pinned 1.18-1.20 across arms with 2x different R0) is emergent density-dependent regulation. HIT = ratio returns to 1.10-1.30, R0 unchanged within +/-0.45 of matched base-dose mean 1.18, standing N up >25%. MISS = ratio >1.35 sustained, or mean R0 >1.63. Powered for a large effect only (n=3, SD 0.39 -> SE 0.23). seed 1337 running locally; 4001/4002 queued."
+      "status": "partially_collected",
+      "notes": "PREMISE WITHDRAWN 2026-08-10: the emergent-regulation hypothesis this tested is NOT SUPPORTED -- trajectory check across 4 existing logs shows no density-ratio relationship (seed 6464 moves opposite), and aRate/aUpkeep is more parsimoniously explained by survivorship filtering (mean over LIVING animals only) plus rateEwma=0.002 heavy smoothing. seed 1337 collected: went EXTINCT (N=0 by d750), so its terminal ratio 1.18 is measured on 0-1 animals and is noise; R0 0.56 describes a collapse. Prediction was badly specified -- extinction was not a HIT or MISS branch. Arm continued with a DIFFERENT question: does +50% k_intake reliably drive extinction (boom-bust via faster plant depletion)? seed 4001 running, 4002 queued. n=1, not a finding."
     }
   }
 }
