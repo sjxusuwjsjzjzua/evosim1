@@ -1687,22 +1687,37 @@ at N~100-200 animals an acceptable "balanced," or does the target population
 scale need to be larger (fewer stochastic wipeouts) even at the cost of
 returning to a bigger, slower arena?
 
-**Recommended next steps, not yet run:**
-1. **Open confound — isolate `k_photoCost` from the arena shrink.** Every
-   photocost-positive run above also used the 25k/11k arena. Untested:
-   `k_photoCost` 0.012 alone at the original 90,000/40,000 arena. If plants
-   settle near the same 7-11k equilibrium regardless of ceiling (plausible —
-   respiration cost sets the equilibrium, not the slot count), the arena
-   shrink was riding along for free and isn't actually load-bearing for the
-   ecology, only for iteration speed. If plants still balloon toward 90k
-   with the higher cap, the arena shrink was doing real ecological work and
-   that needs to be said plainly rather than folded into "just a speed fix."
-2. **The gutcost combo is the standout** (best R0, best demographic ratio)
-   and deserves its own 3-seed confirmation rather than riding on n=1.
+**Confound resolved — the arena shrink was never load-bearing.**
+`photocost-isolate-arena` seed 1337: `k_photoCost` 0.012 alone, ORIGINAL
+`maxPlants` 90,000 / `maxAnimals` 40,000, no arena shrink at all. Result is
+**numerically identical** to the small-arena version of the same seed: R0
+1.21, harmonic N 43, plants oscillating 7,000-11,000, `pLocked` refuge
+0.83-0.88, `caps seen [0]` clean, death/maturityAge ratio 0.60. Plants
+settle to the same equilibrium regardless of whether the ceiling is 25k or
+90k, exactly as predicted — respiration cost sets the carrying capacity,
+the slot count was never the actual constraint once this dose is applied.
+**This means the 25k/11k arena used throughout this investigation was
+purely a speed optimization with zero independent ecological effect** —
+`k_photoCost` alone, at full original scale, is the clean, isolated fix.
+Worth keeping the smaller arena for iteration speed regardless (confirmed
+faster, no downside), but it's no longer an open confound in the finding
+itself.
+
+**Remaining next steps:**
+1. **The gutcost combo is the standout** (best R0, best demographic ratio
+   at n=1) and deserves its own 3-seed confirmation. Two more seeds
+   (4001, 4002) already running as of this writing.
+2. **Survival at the base dose is ~60% (3/5), not universal** — see the
+   two corrections above. Worth deciding whether that's an acceptable
+   "balanced" (small populations do face real stochastic extinction risk)
+   or whether the target scale needs to be larger.
 3. `STATIONARITY GATE` still fails on every arm above (still drifting at
    1200 days) — read all R0/ratio numbers as directional, not final, same
    discipline as every other scorecard this project keeps.
 
-Not yet promoted to a shipped CFG patch or a LEDGER version-table row —
-that's the natural next Tier B write-up once step 1 above resolves the
-confound.
+**Status: `k_photoCost` 0.004→0.012 is ready to promote to a shipped CFG
+patch.** Confound resolved, dose-response checked (2x/3x/5x all positive),
+multi-seed (5 seeds at base dose, majority viable), combo arms tested. Not
+yet added to the version-log table — doing that alongside the gutcost
+3-seed confirmation landing, so both go in together rather than as two
+separate small edits.
