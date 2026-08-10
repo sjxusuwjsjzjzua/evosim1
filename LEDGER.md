@@ -4311,3 +4311,57 @@ distinguish them. It does mean **there may be no single "settled" R0 to
 measure**, which would make the choice of window a genuine judgement call
 rather than a technicality. The three ladder runs in flight will show
 whether the post-1600 decline is general or particular to this seed.
+
+---
+
+## Ladder seed 4001 (2/4): the post-1600 decline is an OSCILLATION, not a collapse
+
+| window | 4001 R0 | 4001 N | 1337 R0 | 1337 N |
+|---|---|---|---|---|
+| d200-600 | 0.90 | 160 | 0.77 | 50 |
+| d400-800 | **1.11** | 135 | **1.49** | 37 |
+| d600-1000 | 1.07 | 135 | 1.49 | 49 |
+| d800-1200 | 1.16 | 153 | 1.55 | 74 |
+| d1000-1400 | 1.17 | 128 | **1.60** | 85 |
+| d1200-1600 | 1.12 | **68** | 1.59 | 85 |
+| d1400-1800 | **1.01** | **48** | 1.51 | 110 |
+| d1600-2000 | **1.32** | 53 | 1.32 | **118** |
+| d1800-2200 | 1.21 | 120 | 1.27 | 94 |
+| d2000-2400 | 1.06 | **177** | 1.18 | 85 |
+
+**Both seeds establish early and stay above replacement.** Seed 4001 is
+≥1.01 in every window from d400 onward; cumulative R0 at 2400d is **1.11**
+(1337: 1.354). n=2 of 4, both viable.
+
+**The open question from last cycle is answered.** Seed 1337's monotone
+decline after d1600 (1.60 → 1.18) looked like it might be overshoot into
+collapse. Seed 4001 falls to **1.01** at d1400-1800 and then **recovers to
+1.32** — so the decline is not terminal. This is a **long-period
+oscillation**, not a slide.
+
+**And the standing populations oscillate hard:** 4001 swings N 160 → 48 →
+177 (3.7x); 1337 swings 37 → 118 → 85. Plant biomass swings with it.
+These are consumer-resource cycles.
+
+Worth connecting to the project's own stated success criterion, which is
+in the source header and which I had not been measuring against: *"The
+success test is a **stable plant-grazer oscillation**, not a monotone
+line."* By that criterion these runs are doing the right thing, and the
+flat-line equilibrium I have implicitly been looking for all day was
+never the target. The `analyze.py` stationarity gate flags oscillation as
+`<<DRIFTING`, which is correct as a warning that R0 is not a fixed
+quantity — but it is not evidence of a defect.
+
+**Consequence for the pending measurement fix:** if the system genuinely
+cycles with a period of order 800-1200 days, then **there is no single
+settled R0 to measure**, and a post-establishment window has to be wide
+enough to average over at least one full cycle rather than land on a peak
+or trough. That is a stronger constraint than "start after day 600" and
+it changes the shape of the fix. Holding implementation until seeds 10001
+and 10008 land — those are cold, unselected, and will show whether the
+cycle is general.
+
+**Matter flag on this run is the known rounding artifact**, not a new
+problem: `7533 -> 7534`, seed 4001, exactly the case root-caused earlier
+today as the `Math.round` on export for values ≥1000. Noting it because
+`analyze.py` prints `<<LEAK` and a future reader should not re-chase it.
