@@ -2796,3 +2796,94 @@ worth the two runs (plausible mechanism: faster harvesting depletes the
 plant layer faster, converting a marginal equilibrium into boom-bust).
 That is a *new* reading of an already-fired arm, and it gets its own
 honest n=1-so-far label until 4001/4002 land, not a promotion to finding.
+
+---
+
+## Cap-binding audit, 2026-08-10 — 29% of base-dose runs still ride the artifact, and the best-looking dose is the most contaminated
+
+Zero-compute check against the 86 logs already on disk, prompted by
+noticing `caps seen [0, 1]` in runs I had been counting as clean. `caps`
+is a bitmask written every sample (`v0_49` line 3251): **bit 0 = plant
+slot array full**, bit 1 = animal array full, bit 2 = seed pool near its
+own fraction bound. Nobody had audited it across the corpus.
+
+**The animal cap never binds anywhere: 0/86 runs.** `maxAnimals` is not
+and has never been a constraint. The plant cap is another matter.
+
+Normalized to `maxPlants` 25000 (the arena everything recent uses, so
+doses are compared against the same bound):
+
+| dose | n | runs that hit the plant cap | mean fraction of run capped | median peak plants |
+|---|---|---|---|---|
+| 0.004 (default) | 5 | 1/5 | 0.083 | 15488 |
+| 0.008 (2x) | 7 | **5/7** | **0.243** | **24630** |
+| 0.012 (3x, base) | 52 | **15/52 (29%)** | 0.061 | 18216 |
+| 0.020 (5x) | 12 | 2/12 | **0.008** | 12067 |
+
+**Finding 1 — the base dose does not actually clear the artifact.** 29%
+of 3x runs still hit the plant slot cap at some point. The whole
+investigation has treated 3x as "off the artifact"; for roughly three
+runs in ten it isn't, and that was never checked.
+
+**Finding 2 — the dose that looked demographically best is the one most
+pinned against the artifact it was supposed to remove.** 2x has the best
+mean R0 of any arm (0.98, from the re-tally above) and is *also* the
+worst offender here by a wide margin: 5 of 7 runs hit the cap, a quarter
+of run-time spent capped, median peak plants 24630 against a bound of
+25000 — essentially pinned. Its demographic advantage is not
+independent of the artifact; the most likely reading is that 2x looks
+good *because* it is still riding an inflated food base.
+
+**Finding 3 — capped runs bias R0 upward, so the corpus slightly
+overstates viability.** Within 3x-dose runs: capped mean R0 **0.84**
+vs uncapped **0.70** (difference +0.14, permutation p = 0.103; R0>1 rate
+4/15 vs 6/37). Not significant at n=52, and I am not claiming it as
+established — but the direction is what mechanism predicts (cap binding
+means abundant plants means more food), so it should be treated as a
+live upward bias rather than dismissed on p>0.05.
+
+### This hands the mission-test problem an outcome-independent criterion
+
+The unresolved objection logged earlier (audit point 5) is that choosing
+`k_photoCost` by which dose yields more animal survival is outcome-tuning
+in a physics costume. One of the three candidate replacements proposed
+there was *"pre-fauna standing plant crop as a stated fraction of arena
+capacity — targets the original artifact, chosen for its own sake, not
+for what it does to R0."*
+
+**Cap-binding frequency is exactly that criterion, and it is already
+measured in every log.** It is computed entirely from plant dynamics,
+makes no reference to animals, and answers precisely the question the
+intervention was introduced to answer: does the plant population stay
+off the array bound? By that criterion the ranking is unambiguous:
+**5x (frac 0.008, peak 12067) ≫ 3x (0.061) > default (0.083) ≫ 2x
+(0.243)**.
+
+**And it points the opposite way from the outcome criterion.** 5x is
+cleanest on the principled measure and has the *worst* demography of any
+arm (mean R0 0.55). 2x is dirtiest and has the *best* (0.98). Had I kept
+selecting on R0, I would have promoted the most contaminated
+configuration in the corpus — which is the concrete form the audit's
+abstract warning takes here, and a much better argument for the audit's
+point than the audit itself made.
+
+**Not promoting 5x on this basis either, yet.** Two reasons. (a) The
+criterion needs a *threshold stated in advance* — "cap binds in <5% of
+runs" or "peak plants below 60% of the array bound" — chosen for
+plant-physiology reasons rather than picked after seeing which dose wins,
+or it is just outcome-tuning against a different outcome. (b) A dose
+that keeps plants off the cap while driving animals extinct has not
+solved the ecology; it has traded one broken regime for another. The
+honest position is that **the plant-side artifact and the animal-side
+viability failure are two separate problems**, the corpus has been
+conflating them, and no single `k_photoCost` value is currently known to
+fix both.
+
+### Consequence for the corpus
+
+Every R0 comparison in this file pools capped and uncapped runs. The
+cleanest available reading of the base dose is the **uncapped subset**,
+and it is worse than the pooled number: mean R0 0.70, 6/37 above
+replacement. The pooled figures reported earlier are not withdrawn — the
+capped/uncapped difference is not significant — but they carry a known
+upward bias whose size is about +0.14 in mean R0.
