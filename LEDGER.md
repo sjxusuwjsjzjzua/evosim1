@@ -1889,3 +1889,46 @@ alternative dose.
 **carrionFloor-alone combo, 2nd seed:** 4001 R0 0.66, ratio 0.25 (weak).
 Combined with 1337 (0.96, borderline): 0/2 clearly viable. Also trailing
 the base dose.
+
+### Deep-dive: is there an early-warning signal for which seeds crash?
+
+Compared per-tick trajectories (not just summary stats) between a survivor
+(4001, R0 1.31) and an extinct run (6060) at the identical base-dose cfg.
+Striking difference in the first 50 days after fauna arrival (day 265):
+survivor's `pLocked` (refuge) oscillates in a stable band (0.38-0.50);
+6060's `pLocked` shows a sustained downward trend (0.31→0.15) that
+precedes the population crash by ~15-20 days. Hypothesis: an early,
+sustained refuge-erosion trend (not just level) is a leading indicator
+of eventual collapse.
+
+**Checked across 7 seeds with raw JSON on hand — mixed, not confirmed:**
+
+| seed | cfg | day-265 aSize | 50-day `pLocked` trend | outcome |
+|---|---|---|---|---|
+| 4001 | base | 2.55 | -0.020 (flat) | survived, R0 1.31 |
+| 6464 | base | 4.34 | +0.048 | survived, R0 1.20 |
+| 6262 | full-arena | 6.73 | +0.100 | survived, R0 1.42 (best) |
+| 6060 | base | 3.12 | **-0.138** | **extinct d685** |
+| 6161 | gutcost | 4.67 | **-0.177** | weak, R0 0.91 |
+| 6363 | base | 4.98 | +0.261 | **extinct d1015** (contradicts) |
+| 9099 | gutcost | 6.65 | +0.079 | weak, R0 0.58 (contradicts) |
+
+5 of 7 fit (down-trend → bad, up-trend → good); 2 contradict outright.
+**`aSize0` shows no relationship at all** — the run with the largest
+founding animals (6262, aSize 6.73) had the best outcome, the smallest
+(4001, aSize 2.55) also did fine, ruling out my first-pass "big founders
+doom the run" read from the 2-seed comparison. The comparison set also
+mixes cfgs (base/gutcost/full-arena), which confounds any clean read.
+
+**Not confirmed — flagged as a real lead, not a mechanism.** The right
+next test: hold cfg constant (base dose only) across ~8-10 seeds, record
+`pLocked` trend in the first 50 days post-arrival, and check whether it
+actually predicts the eventual R0 with a clean same-cfg sample. If it
+holds, the next question is what drives the trend itself — likely
+candidates: how many founders arrive at once (reseed count), or how much
+standing plant biomass existed at exactly day 265 (independent of the
+pre-fauna trajectory already documented). Worth doing before inventing
+any new CFG lever aimed at "fixing" the crash rate — if this is real,
+it may be irreducible stochasticity (small-N founder luck) rather than
+anything a constant can fix, which would mean the ~60-75% viability
+already found is close to the ceiling for this population scale.
