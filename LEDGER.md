@@ -5033,3 +5033,37 @@ and which are therefore contaminated.
 be re-tuned to the new data — re-fitting and then reporting the fit is the
 forking-path failure the external audit named. If 25 turns out to be
 badly placed, that is a MISS, not an invitation to pick 30.
+
+### Out-of-sample test: CAN'T-TELL at n=5, not scored
+
+Twelve standing-batch results landed. Applying the pre-registration
+written one commit earlier:
+
+| seed | days | R0 post-est | harmonic N | final N | outcome | set |
+|---|---|---|---|---|---|---|
+| 41081 | 1245 | 2.93 | 7 | 0 | EXTINCT | contaminated |
+| 41085 | 1600 | 1.37 | 25 | 43 | alive | unseen |
+| 41086 | 1205 | 0.65 | 33 | 0 | EXTINCT | contaminated |
+| 41087 | 1020 | 0.65 | 4 | 0 | EXTINCT | unseen |
+| 41088 | 1600 | 1.89 | 44 | 73 | alive | unseen |
+| 41102 | 910 | 0.41 | 11 | 0 | EXTINCT | unseen |
+| 41110 | 865 | 0.32 | 3 | 0 | EXTINCT | unseen |
+| 41090, 41100, 41101, 41103, 41108 | 535-705 | n/a | n/a | 0 | EXTINCT | unseen — died before day 600, no window |
+
+**Only 5 unseen seeds have a computable post-establishment window. The
+pre-registration requires ≥8. Scored CAN'T-TELL; not evaluated.**
+
+The threshold would have gone 5/5 on those five (41085 harm 25 alive,
+41088 harm 44 alive, 41087 harm 4 extinct, 41102 harm 11 extinct, 41110
+harm 3 extinct) — **recorded but explicitly not counted.** Scoring a
+pre-registered test at n=5 after specifying n≥8, because the early
+numbers look good, is precisely the move the guard clause exists to
+prevent. Waiting for the batch to fill.
+
+**Completion-order bias again, and worth restating because it will keep
+biting:** 10 of 12 landed results are extinctions, and five of those died
+before day 600 without ever producing a measurable window. Runs that
+survive take the full 1600 days and land last. Any extinction rate read
+off a partially-collected batch is an overestimate — the same trap as the
+establishment batch, where the first 8 results were 8/8 extinct and the
+final figure was ~50%.
