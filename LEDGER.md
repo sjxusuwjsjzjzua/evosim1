@@ -1721,8 +1721,12 @@ itself.
    in 3/3, but not obviously more consistent than the base dose" — more
    seeds (batch of 3 + 2 more already queued on Actions) will settle
    whether this was a weak seed or the combo's real variance.
-2. **Survival at the base dose is ~60% (3/5), not universal** — see the
-   two corrections above. Worth deciding whether that's an acceptable
+2. **Survival at the base dose updated to 4/6 (67%) with a 6th seed.**
+   Seed 6464: full 1200 days, R0 **1.20**, ratio 0.49, harmonic N 20,
+   `caps seen [0,1]` (bound hit once, first time in this specific batch).
+   Tally now: 1337✓ 4001✓ 4002✓ 6464✓ / 6060✗ 6363✗ — 4 of 6, not
+   universal but trending better than the earlier 3/5 read, and now
+   comfortably ahead of the demoted gutcost combo's 2/5. Worth deciding
    "balanced" (small populations do face real stochastic extinction risk)
    or whether the target scale needs to be larger.
 3. `STATIONARITY GATE` still fails on every arm above (still drifting at
