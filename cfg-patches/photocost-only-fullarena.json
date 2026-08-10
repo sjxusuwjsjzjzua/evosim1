@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Isolates k_photoCost from the arena shrink. k_photoCost 0.004->0.012 (3x, the confirmed dose) at the ORIGINAL maxPlants 90000/maxAnimals 40000 -- no arena change. Tests whether the 25k/11k shrink used in every prior photocost run was load-bearing for the ecology or just riding along for speed. Prediction: plants settle near the same 7000-11000 equilibrium seen at the smaller arena, since respiration cost sets the equilibrium, not the slot ceiling. A miss (plants balloon toward 90k) means the arena shrink was doing real ecological work, not just a speed fix.",
+ "cfg":{"k_photoCost":0.012}}
