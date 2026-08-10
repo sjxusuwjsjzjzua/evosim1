@@ -280,8 +280,8 @@
       "build": "evosim-v0_49_0.html",
       "prediction_ref": "LEDGER.md 'Noise floor + decision rule' section",
       "fired_at": "2026-08-10T~05:2x",
-      "status": "partially_collected",
-      "notes": "7/15 collected 2026-08-10 ~06:45: seeds 10001(0.64) 10004(1.12) 10005(0.18) 10006(0.25) 10008(0.66) 10009(0.70) 10010(0.18) -- 1/7 (14%) R0>1, notably lower than the ad-hoc tally's 50-67%. See LEDGER.md 'Heartbeat ~06:45'. 8 more seeds (10002,10003,10007,10011-10015) still outstanding, plus 24 more planned beyond this batch to reach n=30."
+      "status": "collected",
+      "notes": "15/15 collected 2026-08-10 ~09:30. R0 mean 0.674 SD 0.278, 2/15 R0>=1, 5/15 extinct, 8/15 hit plant cap. Cap-binding 53%. PRE-REGISTERED COMPARISON RESOLVED: 3x vs 5x mean difference -0.061, SE 0.108, permutation p=0.590, Fisher p=1.000 on hit rate; gap is 1/5 of one noise-floor SD (threshold 0.314). By the pre-registered rule 5x is NOT promoted, 3x stands on parsimony. ALSO: 15/15 runs in BOTH arms fail the stationarity gate (median slopes 10-25x the DRIFTING threshold) -- no R0 here is an equilibrium measurement. See LEDGER.md 'The pre-registered 3x-vs-5x comparison RESOLVES'."
     },
     "noisefloor-5x": {
       "cfg": "cfg-patches/screen-photocost-hi.json",
@@ -305,8 +305,8 @@
       "build": "evosim-v0_49_0.html",
       "prediction_ref": "LEDGER.md 'Noise floor + decision rule' section",
       "fired_at": "2026-08-10T~05:2x",
-      "status": "fired",
-      "notes": "0/15 landed yet as of 2026-08-10 ~06:45."
+      "status": "collected",
+      "notes": "15/15 collected 2026-08-10 ~09:30. R0 mean 0.735 SD 0.314, 3/15 R0>=1, 5/15 extinct, 2/15 hit plant cap. Cap-binding 13%. PRE-REGISTERED COMPARISON RESOLVED: 3x vs 5x mean difference -0.061, SE 0.108, permutation p=0.590, Fisher p=1.000 on hit rate; gap is 1/5 of one noise-floor SD (threshold 0.314). By the pre-registered rule 5x is NOT promoted, 3x stands on parsimony. ALSO: 15/15 runs in BOTH arms fail the stationarity gate (median slopes 10-25x the DRIFTING threshold) -- no R0 here is an equilibrium measurement. See LEDGER.md 'The pre-registered 3x-vs-5x comparison RESOLVES'."
     },
     "intake-regulation-probe": {
       "cfg": "cfg-patches/intake-regulation-probe.json",

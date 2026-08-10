@@ -3135,3 +3135,107 @@ per (build, seed, cfg), so the restarts reproduce exactly what was lost —
 but roughly four core-hours of CPU went with it. Worth noting as an
 argument for `--progress-days` checkpointing that can actually be resumed,
 which does not currently exist.
+
+---
+
+## The pre-registered 3x-vs-5x comparison RESOLVES: no difference, 3x stands on parsimony
+
+Both noise-floor batches completed on Actions (fetched by git branch;
+`mcp__github__*` was not needed). **30 cold-drawn seeds, 15 per arm** —
+seeds chosen as a block before any results were seen, which is what makes
+this the first non-cherry-picked comparison in the whole investigation.
+
+Scoring against the decision rule written *before* the data landed
+("compare R0 distributions not dichotomized fractions; promote 5x only if
+the gap exceeds one noise-floor SD; otherwise 3x wins on parsimony"):
+
+| | 3x (`k_photoCost` 0.012) | 5x (0.020) |
+|---|---|---|
+| n | 15 | 15 |
+| R0 mean | **0.674** | **0.735** |
+| R0 SD | 0.278 | 0.314 |
+| R0 median | 0.699 | 0.764 |
+| R0 range | 0.18-1.12 | 0.14-1.35 |
+| R0 ≥ 1 | 2/15 | 3/15 |
+| extinct | 5/15 | 5/15 |
+| hit plant cap | **8/15** | **2/15** |
+
+- mean difference (3x − 5x) = **−0.061**, SE 0.108, |d|/SE = 0.56
+- **permutation p = 0.590**
+- R0≥1 rate: **Fisher p = 1.000**
+- one-noise-floor-SD threshold = 0.314; observed gap 0.061 → **does not
+  come close to exceeding it**
+
+**Verdict: 5x is NOT promoted. 3x stands, on parsimony, exactly as the
+pre-registered rule specifies.** Since 3x is already the base dose, the
+operational consequence is *no change* — which is the correct outcome of
+a horse race whose entrants turned out to be indistinguishable.
+
+This also closes out the retraction chain properly. The original "5x is
+the leading candidate (3/4 vs 4/6)" claim was retracted mid-session after
+the external audit's Fisher test returned p≈1.0 at that tiny n. At 15
+cold seeds per arm the answer is the same, with the difference now
+measured rather than guessed: **p = 0.59, gap one-fifth of a noise-floor
+SD.** The audit was right, and the retraction was not premature caution.
+
+### Two things this sample settles that matter more than the horse race
+
+**1. Neither dose is viable, now measured properly.** 3x mean R0 0.674,
+5x 0.735; 2/15 and 3/15 seeds clear replacement; **5/15 go extinct in
+both arms.** The "no configuration tested reaches replacement" conclusion
+from the full-corpus re-tally holds on cold, pre-registered seeds — it
+was not an artifact of pooling heterogeneous arms.
+
+**2. The cap-binding result reproduces, and is worse than estimated.**
+On these cold seeds the base dose hits the plant slot cap in **8/15 (53%)**
+of runs, against 5x's 2/15 (13%). My mixed-corpus estimate last cycle was
+29%; the clean number is roughly double that. The dose the project has
+been treating as "off the `maxPlants` artifact" spends time pinned against
+it in **more than half** of unselected runs.
+
+So the two criteria now separate cleanly and point opposite ways: the
+outcome criterion (R0) cannot distinguish 3x from 5x at all (p=0.59),
+while the outcome-*independent* mechanistic criterion (does the plant
+population stay off the array bound) separates them decisively, 53% vs
+13%, in 5x's favour. The pre-registered rule governs and says 3x — but
+it is worth being explicit that **the rule being followed here is the
+R0 rule, which is the very outcome-tuning approach audit point 5
+criticised.** The mechanistic criterion is the more principled one and it
+prefers 5x. Not overriding a pre-registered rule after seeing the data —
+that would be the worst of both worlds — but flagging that the *next*
+selection decision should be made on the mechanistic criterion with a
+threshold fixed in advance, not on R0.
+
+### Stationarity: audit point 4, answered, and it is bad
+
+With 30 clean same-cutoff runs in hand, the stationarity gate finally has
+a proper sample. Slope over the last third, in `analyze.py`'s own units
+(% per 100 samples):
+
+| arm | runs failing the gate | median \|plant slope\| | median \|animal slope\| |
+|---|---|---|---|
+| 3x | **15/15** | 143.6% | 91.6% |
+| 5x | **15/15** | 97.0% | 265.9% |
+
+**Every single run fails**, and not marginally — `analyze.py` flags
+anything above ~10% as DRIFTING, and these medians are 10-25x that.
+**No R0 in this project has ever been an equilibrium measurement.** They
+are all snapshots of populations still in motion at the 800-day cutoff.
+
+Direction is not consistent, which is the one piece of good news for the
+comparison: animal counts are falling in 6/13 surviving 3x runs and 8/14
+5x runs, rising in the rest. So the non-stationarity is **not a uniform
+downward bias that would make both arms look better than they are** — it
+is genuine unsettled dynamics in both directions. That protects the
+*comparison* (both arms share the cutoff and the churn) while
+invalidating any *absolute* claim: "3x mean R0 is 0.674" describes a
+transient, and there is no evidence for what the equilibrium value would
+be, or that one exists at 800 days.
+
+**This is the strongest argument yet that 800 days is too short a
+protocol**, and it is now measured rather than suspected. Extending the
+protocol has a real cost (a 1200-day run took ~4 hours locally), so the
+right next move is a small matched 800/1600/2400-day ladder on 3 seeds to
+find where — or whether — the trajectories settle, rather than
+unilaterally raising the cutoff for everything. That needs its own
+prediction and is not fired here.
