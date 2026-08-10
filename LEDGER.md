@@ -1700,7 +1700,11 @@ the slot count was never the actual constraint once this dose is applied.
 purely a speed optimization with zero independent ecological effect** —
 `k_photoCost` alone, at full original scale, is the clean, isolated fix.
 Worth keeping the smaller arena for iteration speed regardless (confirmed
-faster, no downside), but it's no longer an open confound in the finding
+faster, no downside), but it's no longer an open confound in the finding.
+**Second seed confirms:** local seed 6262, same isolation cfg (full 90k/
+40k arena), also survived the full 1200 days — R0 **1.42**, ratio **0.82**
+(best demographic health of any full-arena or small-arena run to date),
+harmonic N 68. 2 of 2 seeds tried at full arena scale are viable.
 itself.
 
 **Remaining next steps:**
