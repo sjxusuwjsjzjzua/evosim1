@@ -5873,3 +5873,67 @@ Correct command for future cycles, counts workers only:
 
 Current state under the corrected count: **4 workers on 4 cores** (50001,
 50002 on the 1x control; 10015, 4001 on the 4000-day probes). Fully busy.
+
+---
+
+## Container restart: the checkpoint change [L62] paid for itself, and proved determinism
+
+2026-08-10, 21:35 PDT. The container restarted and killed both 4000-day
+probes mid-flight. Before [L62] that would have been a total loss —
+`headless.js` writes output once, at the end, so a hard-killed run returned
+nothing for however long it had been running. Instead both left valid,
+complete, analyzable logs:
+
+| probe | reached | final N | partial size |
+|---|---|---|---|
+| seed 10015 | day 1800 | 182 | 284 KB |
+| seed 4001 | day 2600 | 281 | 427 KB |
+
+**4400 sim-days of compute preserved that would previously have evaporated.**
+First time the checkpoint path has actually been exercised by the failure it
+was written for.
+
+### And it doubles as the strongest determinism check the project has
+
+Seeds 4001 and 10015 each now have two independent logs: a completed
+2400-day run, and a checkpoint from a *differently-targeted* 4000-day run
+killed by a container restart on a different container. Same seed, same cfg,
+same build — so if the RNG draw sequence is truly a function of (build, seed,
+cfg) and nothing else, the two must agree exactly up to the shorter cutoff.
+
+    seed 4001   480 samples x 97 columns to day 2400 -> ZERO mismatches
+    seed 10015  320 samples x 97 columns to day 1600 -> ZERO mismatches
+
+Every logged column, not just population: births, mass, gene means, all of
+it. This is rule 7's guarantee holding across a process kill, a container
+replacement, and a different `--days` target. Truncating a long run to a
+short cutoff really is equivalent to having run the short one.
+
+### A near-miss worth recording
+
+My first pass at that comparison hardcoded `ticksPerDay = 60`. The real value
+is **480**. The effect was to compare only 60 samples instead of 480 — it
+made the check eight times weaker while still reporting "identical", which is
+the dangerous direction for a verification to fail in: a check that quietly
+tests less than it claims still prints a pass.
+
+Chased whether that constant had contaminated anything else this session. It
+had not: every other use went through `cfg.get('ticksPerDay', 60)`, and a
+sweep confirms **0 of the logs on disk are missing the key**, so the wrong
+default never once fired. The bad number existed only in the one place I
+typed it by hand instead of reading it from the data. Lesson is narrow and
+practical: do not hand-enter a constant that is sitting in the file you
+already have open.
+
+### Compute
+
+Two cores freed by the kill. Refilled with 1x-control seeds **50003, 50004**
+rather than restarting the 4000-day probes: the 4000-day prediction has
+already been scored (MISS, previous entry) and re-running it would replicate
+a settled result, whereas the 1x-control prediction is frozen, unfilled, and
+at the head of the queue. Local back to 4 workers on 4 cores.
+
+Arm rotation confirmed live: newest landed seeds are 3x (run_number 62,
+62 mod 4 = 2), exactly as the 4-way rotation specifies. Arms 3 (shipped
+defaults) and 0 (1x) are in the batches currently running — the
+"no data at shipped defaults" gap starts closing this hour.
