@@ -6468,3 +6468,54 @@ this project has been making since v0.39.
 The gate deliberately outranks the ecological sections below it in the digest.
 A run that fails it cannot score a mechanism prediction **in either direction**,
 including the v0.52 emergence test now queued.
+
+## PRE-REGISTRATION: is the annual bottleneck what suppresses selection? [L66]
+
+Written before any arm runs. Adopts the design proposed in `AUDIT-STRATEGY.md`
+after I verified its supporting measurements myself; the thresholds below are
+frozen here and may not be re-derived once data lands.
+
+**Hypothesis.** A 40-day year (`:314`) shorter than the ~24-day mean animal
+lifespan forces an annual bottleneck — ~18x population oscillation with troughs
+of 1-15 animals — which collapses effective population size, which is why
+**41 of 59 runs cannot move any gene past pure drift** and why evolved
+`meatAttraction` is statistically indistinguishable from `territoriality`, a
+gene nothing reads.
+
+**Arms** — same seeds, v0.52, shipped full arena, CFG-only, no build change:
+
+| arm | cfg |
+|---|---|
+| control | shipped (`daysPerYear` 40, `seasonAmp` 0.35) |
+| long-year | `cfg-patches/longyear-120.json` (`daysPerYear` 120) |
+| no-season | `cfg-patches/noseason.json` (`seasonAmp` 0) |
+
+**Frozen criteria**, control values measured tonight over n=59:
+
+- **HIT** if, in *both* treatment arms, (a) neutral variance retained rises
+  above **40%** (control median **28.9%**), **and** (b) the count of functional
+  genes beating the drift yardstick rises above the control median of **7**.
+  That establishes the bottleneck — not the ATTACK formula, not `k_photoCost` —
+  as what has been suppressing gene response, and makes every subsequent
+  emergence test scoreable for the first time.
+- **MISS** if neutral variance retained stays below **25%** in both treatment
+  arms. Then effective population size is set by reproductive skew or spatial
+  structure rather than by seasonal bottlenecks, the diagnosis is wrong under
+  rule 3, and the next question is *which of those* — explicitly **not** a
+  larger `daysPerYear`.
+- **CAN'T-TELL** below n=6 complete runs per arm, or if the no-season arm's
+  extinction rate exceeds 90% (removing winter changes productivity enough that
+  it is a different world, not a controlled contrast).
+
+**What this arm is and is not.** Changing `daysPerYear` alters the world's
+physics in the same class as `k_photoCost`; it writes no behaviour into the
+code and does not fail the mission test. But it is a **diagnostic, not a
+proposed ship**. If it confirms, the shipped fix must be whatever lets a
+population buffer a seasonal cycle *by evolving* — an open design question that
+is deliberately not pre-decided here.
+
+Firing locally at 1600 days. This is newly worth doing because checkpoints now
+carry live gene snapshots [L64], so a run killed by a container restart — four
+so far tonight — still yields the gene reading this prediction is scored on.
+Caveat held openly: [L64]'s rule-7 verification has not landed yet, so these
+runs are diagnostic reads, and nothing is scored off them until it does.
