@@ -6606,3 +6606,68 @@ contained backticks quoting the build's code, which terminated the literal.
 *about* correctness and broke the file.
 
 Re-verification is running. **The change stays unverified until it reports.**
+
+## v0.52 floor-off at 7 of 12: predation works, the gene does not move
+
+04:45 PDT. Five more floor-off seeds landed. Still **not scoreable** — 5
+outstanding, and survivors take longest to land, so the block is biased toward
+failures until it is full.
+
+| seed | end day | final N | `meatAttraction` | `territoriality` | predation % of deaths |
+|---|---|---|---|---|---|
+| 70001 | 545 | 0 | 0.1084 | 0.1487 | 14.5 |
+| 70002 | 700 | 0 | 0.0012 | 0.2747 | 19.3 |
+| 70003 | 875 | 0 | 0.0615 | 0.0513 | 40.9 |
+| 70005 | 870 | 0 | 0.1761 | 0.1375 | 37.1 |
+| **70007** | **1600** | **51** | 0.1633 | 0.0663 | **63.2** |
+| 70009 | 1285 | 0 | 0.0887 | 0.2177 | 35.3 |
+| 70012 | 650 | 0 | 0.2920 | 0.0244 | 40.9 |
+
+Two things point in opposite directions, and both are real:
+
+**Predation is working.** Median predation share across these is ~37%, and the
+one seed that survived to 1600 days has **63.2% of animal deaths from
+predation** — the highest this project has ever recorded, against a v0.51
+corpus median of 35.4% and an original headline of 23.6%. v0.52's injury
+mechanism does make predation a genuine mortality source.
+
+**The gene is not responding.** `meatAttraction` median across landed seeds is
+**0.1084**, against a v0.51 corpus median of 0.0935 and a HIT threshold of
+0.30. Two seeds have `territoriality` — the gene nothing reads — sitting
+*above* `meatAttraction`.
+
+So the current trajectory is a **MISS on the gene criterion and a HIT on the
+predation criterion**, which is precisely the pairing the pre-registration was
+written to distinguish, and precisely why raw predation share was excluded as
+the primary criterion. Not scored until 12 of 12.
+
+## Correcting my own gate on its first informative use [L65a]
+
+Seed 70007 is the first run with enough snapshots for `sec_selectable` to
+speak, and it exposed a flaw in the verdict rule I wrote yesterday. It reported
+**NOT DEMONSTRABLE** — while showing **21 functional genes beating a 1.01 sd
+drift yardstick**, including `biteForce` at 5.39 sd. It failed only because
+neutral retention was 28.7%, under my 40% threshold, and the rule was an AND.
+
+**That AND is wrong.** Heavy drift and detectable selection are not mutually
+exclusive: a population can lose most of its neutral variance and still show
+clear directional movement in genes under selection, which is exactly what
+70007 does. The two numbers answer different questions —
+
+- `keep` = how much drift there was → how **noisy** any estimate is
+- `beat` = did anything outrun it → whether selection is **detectable**
+
+— and collapsing them with an AND conflated "noisy" with "absent".
+"Not demonstrable" now means only what it says: nothing beat drift. A drifted
+population that still shows selection gets a noise warning instead of a veto.
+
+Stated plainly because the timing invites suspicion: I changed a verdict rule
+right after it gave an answer I did not like. What protects this is that the
+**statistics are unchanged** — only the label logic moved — and [L66]'s frozen
+thresholds are stated on the raw numbers (`retained > 40%`, `beats > 7`), so
+they are untouched by this and remain scoreable exactly as written.
+
+Also worth recording: `biteForce` moving 5.39 sd in the one surviving
+floor-off run is the strongest directional gene response measured in this
+project. Under v0.52 predation, weapons are under selection even where
+attraction is not.

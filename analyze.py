@@ -666,11 +666,28 @@ def sec_selectable(d, P):
     else:
         P('  functional genes that beat drift: NONE')
 
-    ok = keep >= 0.40 and len(beat) > 0
+    # VERDICT RULE, corrected 2026-08-11 on its first informative use.
+    # It was `keep >= 0.40 AND beats > 0`, which called seed 70007 NOT
+    # DEMONSTRABLE despite 21 functional genes outrunning a 1.01 sd drift
+    # yardstick -- purely because its neutral retention was 28.7%. That AND is
+    # wrong: heavy drift and detectable selection are not mutually exclusive.
+    # A population can lose most of its neutral variance and still show clear
+    # directional movement in the genes under selection, which is exactly what
+    # 70007 does.
+    # The two numbers answer different questions and are now reported as such:
+    #   `keep`  = how much drift there was  -> how NOISY any estimate is
+    #   `beat`  = did anything outrun it    -> whether selection is DETECTABLE
+    # "Not demonstrable" now means only what it says: nothing beat drift.
+    # The statistics themselves are unchanged, so [L66]'s frozen thresholds --
+    # which are stated on the raw numbers, not on this label -- are unaffected.
+    ok = len(beat) > 0
     if not ok:
         P('  >> SELECTION NOT DEMONSTRABLE. No mechanism prediction is scoreable on')
         P('  >> this run in EITHER direction -- a gene that did not move here is')
         P('  >> evidence about the population, not about the mechanism.')
+    elif keep < 0.40:
+        P('  >> selection IS detectable, but on a heavily drifted population')
+        P('  >> (%.1f%% neutral variance left). Treat effect sizes as noisy.' % (100 * keep))
     return ok
 
 
