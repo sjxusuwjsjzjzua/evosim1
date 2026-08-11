@@ -5667,3 +5667,82 @@ peak at 24,691 against a 25,000 cap and never come within 0.5% of it, so the
 plant-count cap is not what tripped it. Until I know which counter `caps[]`
 increments, the arena patch's own written prediction ("cap stops binding")
 is **can't-tell**, not a hit.
+
+---
+
+## THE STANDING BATCH HAS NO CONTROL. 82 cold seeds, zero at defaults.
+
+2026-08-10, 20:45 PDT. Collected every `runs/standing/*` branch that had
+landed — 82 fresh cold seeds, all v0.51 — and classified each by diffing its
+logged cfg against the build defaults (the rule adopted 40 minutes earlier,
+applied first this time instead of last). Result:
+
+| `k_photoCost` | n |
+|---|---|
+| 0.012 (3x, arena-capped) | 39 |
+| 0.020 (5x, arena-capped) | 43 |
+| **0.004 (shipped default)** | **0** |
+
+**Every seed the standing batch has ever produced is a patched arm.** There
+is no control. The workflow alternated between two treatments by run parity
+and never ran the build as it ships, so 82 runs of accumulated cold-seed data
+describe two doses of a lever and say nothing about the thing being levered.
+This is the same blind spot as the arm-mislabel earlier tonight, one level
+up: I had been reading a two-arm comparison as if one of the arms were a
+baseline.
+
+### The survival numbers, on complete blocks only
+
+Completion-order bias makes a continuously-firing batch unusable as-is
+(extinct runs autohalt and land first). Restricting to blocks where every
+seed of the matrix has landed and the parent run has finished — 41080-91,
+41100-11, 41120-31, 41180-97, n=54; excluding 41200s (15/18) and 41220s
+(13/18), both still in flight:
+
+| arm | alive at day 800 | extinct | median extinction day | median N@800 (survivors) |
+|---|---|---|---|---|
+| 3x (0.012) | **16/24 = 67%** | 50% | 865 | 54 |
+| 5x (0.020) | **11/30 = 37%** | 70% | 625 | 10 |
+
+Matched cutoff day 800 exactly, per rule 7b — not a trailing window, a fixed
+calendar day, so run length cannot contaminate it. Fisher two-tailed
+**p = 0.054**. That is *suggestive and not significant*; I am recording it as
+a direction, not a finding. Note it runs opposite to the old "5x leading
+candidate" line already retracted in `FINDINGS.md` — more respiration cost
+looks worse for persistence, not better.
+
+### PRE-REGISTERED PREDICTION (written before any 1x seed exists)
+
+Shipped: a 4-way arm rotation in `experiment.yml` replacing the 2-way one,
+adding `cfg-patches/arena-photocost-1x.json` (arm 0: same arena caps, only
+`k_photoCost` back to the default 0.004 — a clean one-variable dose series)
+and an unpatched arm (arm 3: shipped defaults, caps included).
+
+Frozen comparison values, fixed now and not to be re-derived later:
+**3x = 16/24 (67%), 5x = 11/30 (37%), cutoff day 800, extinct = final
+animals 0, complete blocks only.**
+
+- **HIT** if the 1x arm, at n>=24 on complete blocks, is alive at day 800 at
+  a rate **>= 67%** and the ordering 1x >= 3x > 5x holds. That would make
+  respiration cost a monotonic extinction lever across the whole range and
+  say the shipped default is already the survivable end of it.
+- **MISS** if the 1x arm falls **below 50%** (i.e. nearer the 5x arm than the
+  3x arm), or if the ordering is non-monotonic. Either would mean 0.012 sits
+  at an optimum rather than on a slope, and the 3x-vs-5x gap is not a dose
+  response at all.
+- **CAN'T-TELL** between 50% and 67%, or at n<24 complete-block seeds.
+
+The unpatched arm 3 is deliberately *not* part of this prediction — it varies
+caps as well as dose, so it is a separate question (what does the app do when
+someone just opens it?) and gets its own scoring when it has seeds.
+
+### Scheduler note: the three-tick mitigation FAILED, and is retracted
+
+Shipped one hour ago on the theory that spreading 18 jobs/h over three ticks
+makes a dropped tick cost 6 instead of 18. Measured 02:35 -> 03:35 UTC:
+**all three ticks (:47, :07, :27) dropped**, leaving 11/20 running with an
+empty queue. Drops are correlated, not independent, so splitting a tick three
+ways buys nothing. Kept the three crons (free, occasionally one lands) but
+raised seeds/tick 6 -> 12 so a single surviving tick is worth landing, and
+accepted a bounded queue as the actual buffer. An empty queue under the cap
+is the failure mode; a short queue is the fix.

@@ -4,3 +4,4 @@
 # based on into the repo root, same as the phone-run logs, instead of
 # committing the whole runs/ tree.
 /runs/
+runs/standing-collect/
