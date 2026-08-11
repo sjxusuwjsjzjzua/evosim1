@@ -5358,3 +5358,61 @@ applied to a cold unselected seed rather than one of the familiar trio —
 if both survive to 4000 with stable late-window R0, the horizon story has
 a floor; if this one dies where 1337 lives, seed identity matters more
 than horizon does.
+
+### Seed 4002 dies at 2210 — and I have now revised the same number three times on ±1 seed
+
+**Seed 4002, a member of the "favourable trio", went extinct at day
+2210.**
+
+| window ends | R0 | mean N | N that day |
+|---|---|---|---|
+| day 800 | 0.92 | 403 | **1172** |
+| day 1200 | 1.31 | 320 | 63 |
+| day 1600 | **1.50** | 257 | **12** |
+| day 2000 | **1.94** | 122 | 10 |
+| day 2400 | 1.44 | 141 | **0** |
+
+Low-N inflation again, textbook: R0 peaks at **1.94** around day 2000 while
+the standing population is down to **10**. And note day 1600 — R0 1.50
+looks healthy, but N was already 12 and falling. This seed was dying at
+the protocol cutoff and its headline metric was near its maximum.
+
+**Updated 1600→2400 tally (n=6):** 10004 healthy, 20007 healthy, 10015
+healthy, 20002 collapsing, 20014 dead, 4002 dead → **3 healthy, 1
+collapsing, 2 dead = 50% healthy at 2400.**
+
+**Which means I have now reported this figure as 50% (n=4), then 60%
+(n=5), and now 50% (n=6).** Each revision was one seed. That is
+noise-chasing, and writing a considered-sounding paragraph around each
+move does not make it less so — last cycle I even framed the 50→60 change
+as a virtuous correction "in the less dramatic direction." The honest
+position is the one I should have taken at n=4: **the 1600→2400 attrition
+is somewhere around half, n is far too small to pin it down, and I will
+stop revising it until the eleven ladder jobs finish.** No further updates
+to this number before then.
+
+### A concern that checked out clean
+
+Last cycle I worried that counting "alive" as `final N > 0` inflates the
+establishment batch's persistence figure, since a point reading on one
+sampling day is noisy and a near-dead population would still count.
+Tested against the stricter definition — mean N over the final 200 days
+≥ 15:
+
+| arm | alive by final N > 0 | alive by window mean ≥ 15 |
+|---|---|---|
+| 3x | 7/14 (50%) | **7/14 (50%)** |
+| 5x | 7/15 (47%) | **7/15 (47%)** |
+
+**Identical. Not one seed changes classification.** The concern was
+reasonable and it was wrong — the establishment persistence figures are
+robust to the definition, so 50%/47% stand as measured. Recording the
+negative result rather than quietly dropping the worry, since "I checked
+and it was fine" is information too.
+
+Note this does *not* rescue seed 4002 above: at its own 1600-day mark it
+had N=12, below the threshold — but 4002's establishment run ended at
+1600 with a different population than its 2400-day continuation passes
+through. The two are the same trajectory sampled at different points, and
+the classification disagreement is exactly the horizon effect, not a
+definitional one.
