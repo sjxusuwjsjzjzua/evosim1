@@ -6763,3 +6763,71 @@ analysis of landed data and for verification runs short enough to finish
 pre-fauna, and the original failure showed up in `plant.selN`, so a short run
 tests the same path). Sims belong on Actions, which is why the [L66] arms went
 into the standing rotation last cycle.
+
+---
+
+# SCORED: the v0.52 emergence test is a MISS  [L0.52-SCORE]
+
+2026-08-11, 07:45 PDT. 11 of 12 seeds in each arm, paired on the same seeds.
+
+## The scorecard
+
+Frozen criteria (written before any seed ran): **HIT** if `meatAttraction`
+exceeds 0.30 with predation >=20% of deaths in half the surviving seeds;
+**MISS** below 0.15.
+
+| | floor-OFF (`k_meatAttrFloor` 0) | floor-ON (0.5, control) |
+|---|---|---|
+| median `meatAttraction` | **0.0615** | 0.1143 |
+| seeds above the 0.30 HIT threshold | **0 of 11** | 1 of 11 |
+| alive at end | 5 of 11 | **7 of 11** |
+| median predation share of deaths | 28.8% | **54.6%** |
+
+**MISS.** The floor-off median is 0.0615 against a MISS threshold of 0.15, and
+the verdict is robust to the outstanding seed: sorted values are 0.001 0.003
+0.006 0.008 0.010 0.061 0.089 0.108 0.163 0.176 0.292, so even a 12th seed
+returning the maximum possible 1.00 leaves the median at **0.0751**.
+
+Paired on the 10 seeds in both arms: mean difference (off − on) **−0.0445**,
+lower in **7 of 10**, sign test p = 0.344. Not significant on its own, but it
+points the same way as every other number here.
+
+## What rule 3 requires me to say
+
+*A missed prediction means the diagnosis was wrong, not that the constant needs
+to be bigger.* My diagnosis was: predation cannot pay because there is no injury
+state; fix the payoff structure and carnivory becomes selectable, so removing
+the subsidy will let `meatAttraction` rise.
+
+**Half of that was right and the important half was wrong.** The injury
+mechanism worked — predation is now 54.6% of animal deaths at the median in the
+control arm, against a v0.51 corpus median of 35.4% and an original recorded
+headline of 23.6%. Predation became a real mortality source, exactly as
+designed. But making predation profitable did **not** make the gene selectable.
+Removing the floor lowered `meatAttraction`, lowered predation, and lowered
+survival. Every axis got worse.
+
+## What that leaves standing
+
+- **v0.52 is not reverted.** The injury mechanism is an improvement on its own
+  terms and the control arm is the best-performing configuration measured in
+  this project. What failed is the emergence claim, not the mechanism.
+- **The mission-test problem is unresolved and now better understood.**
+  Carnivory still is not demonstrably emergent. But the reason is not that the
+  floor was hiding a gene that would otherwise rise — it is that the gene is not
+  under effective selection either way, which is what the strategic audit said
+  and what the selection-response gate measures directly (41/59 runs cannot move
+  any gene past drift).
+- **Deleting the constant is not the fix**, and this test is what establishes
+  that rather than my reasoning about it.
+
+## What actually happened in that world
+
+Animals in v0.52 hunt properly for the first time. A predator's bite injures
+rather than nibbling a crumb of flesh, injuries accumulate, and a prey animal
+that loses the fight dies whole and becomes a carcass that anything can eat.
+Predation went from a rounding error to the majority cause of death. But the
+animals doing the hunting are not, in any measurable sense, *evolving* to hunt:
+the gene that governs interest in meat sits where it started, drifting, and it
+sits *lower* in the worlds where nothing nudges attacks into happening. The
+world got a working food chain and no evidence that it built one itself.
