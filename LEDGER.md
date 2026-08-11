@@ -6916,3 +6916,30 @@ fail is a test whose failure mode is unknown.
 The end-to-end rule-7 check stays the primary evidence and it already passed for
 the plant path. This makes the same guarantee cheap, complete, and permanent —
 it runs on every build check from now on.
+
+## Rotation status: the diagnostic arms ARE firing, just not landed
+
+10:40 PDT. Verified by commit sha rather than by inference, which is what I
+should have done last cycle instead of reasoning about run numbers:
+
+| run_number | fired (PDT) | workflow sha | status |
+|---|---|---|---|
+| 83 | 05:29 | `3a28ab6d` (3-way) | completed |
+| 84 | 06:36 | `f6356566` (5-way) | in_progress |
+| 85-92 | 06:50-10:24 | `f6356566` | **queued** |
+
+So run 83 was the last on the old rotation — which is why the seeds landing all
+morning mapped `83 % 3`, exactly as the old 3-way specifies, and why I kept
+seeing dose arms and no diagnostic arms. Run **84 is `84 % 5 = 4`, the
+`noseason` arm**, and it is the first one running.
+
+Nothing to score yet: 8 of the 9 post-change runs are queued behind a 20-slot
+cap with **21 jobs already waiting**. At ~12 jobs/h arriving against ~18/h
+capacity the backlog does drain, but the v0.52 emergence test consumed most of
+today's throughput, so [L66] results are roughly a queue-length behind.
+
+Worth stating plainly: **this is the pipeline working as designed, not a
+fault.** The previous cycles' instinct on seeing "no diagnostic arms" would
+have been to conclude the rotation change had not taken effect and to go change
+something. Checking the sha first showed the change is live and the only thing
+missing is time.
