@@ -5746,3 +5746,46 @@ ways buys nothing. Kept the three crons (free, occasionally one lands) but
 raised seeds/tick 6 -> 12 so a single surviving tick is worth landing, and
 accepted a bounded queue as the actual buffer. An empty queue under the cap
 is the failure mode; a short queue is the fix.
+
+### Free measurement off the same 54 seeds: carnivory is stronger than recorded
+
+No new compute — this is the collected standing-batch block re-read, not a run.
+Restricted to the 21 complete-block seeds that **survived** (mortality
+composition is undefined in a world with no animals left). All 21 ran to
+exactly day 1600, so the endpoint statistic is self-matched and rule 7b is
+satisfied without truncation.
+
+Predation's share of animal deaths, `aDeadKilled / (killed+starved+age+sen)`:
+
+| cutoff | median | >30% of deaths | >50% of deaths |
+|---|---|---|---|
+| matched day 800 | **26.4%** | — | — |
+| endpoint, day 1600 | **35.4%** (mean 31.5, range 4.7-57.8) | 11/21 | 6/21 |
+
+Two things follow.
+
+**Predation share grows with world age** — 26% at day 800, 35% by day 1600,
+same runs. Carnivory is not a fixed fraction of the death budget; it builds
+as a world matures. The previously recorded headline (23.6% of deaths, >50%
+in only 5/120 runs) is consistent with the day-800 number and was almost
+certainly measuring younger worlds. It was not wrong; it was early. On mature
+worlds the figure is **half again as large**, and better than one in four
+survivors (6/21) now has predation as the *majority* cause of animal death —
+against 5-in-120 previously. That is a real upgrade to the weakest mission
+pillar and it was sitting in already-paid-for data.
+
+**Starvation still dominates**: median 64% of deaths. So the honest read is
+that carnivory is a genuine and growing mortality channel, not yet the
+primary regulator of herbivore numbers.
+
+Two caveats I am not going to bury:
+
+1. **Conditioned on survival.** Dead worlds are excluded because the ratio is
+   undefined there, but that selects for worlds where predation works. The
+   35% is "predation share among worlds that made it", not "among worlds".
+2. **The by-arm split is confounded by exactly that selection**, and I am
+   therefore *not* reporting it as a dose effect. It reads 5x = 49.0%
+   (n=9) against 3x = 24.7% (n=12) — but only 9 of 30 5x worlds survived
+   versus 12 of 24 at 3x, so the 5x survivors are a far more heavily filtered
+   set. A stronger survivor filter producing more impressive survivors is the
+   null hypothesis here, not evidence of a lever.
