@@ -36,7 +36,7 @@ globalThis.__M = { tick, seedFounders, seedAnimalFounders, rebuildCanopy,
   buildAnimalIndex, buildPlantIndex, senseDecide, updateAnimal, updatePlants,
   updateAnimals, drawPlants, drawAnimals, render, mutateInto, mutateAnimal,
   compactFree, collectStats, logSample, AN, P, W, CFG, AGENES, PGENES,
-  A_ACTIVE, P_ACTIVE, VERSION };
+  A_ACTIVE, P_ACTIVE, VERSION, LOGCOLS, LOG };
 `;
 
 // ---- DOM stub -------------------------------------------------------
@@ -104,6 +104,52 @@ catch (e) { fail('BOOT (top level / init)', e); }
 const M = sandbox.__M;
 if (!M) fail('BOOT', new Error('export shim did not run'));
 console.log(`  2. boot       ok   (build reports VERSION ${M.VERSION})`);
+
+// ---- 2b. structural invariants --------------------------------------
+// These are the two things that silently break a build while every other
+// stage still reports ok.
+//
+// (a) LOGCOLS vs the value array. The build only console.warn()s a length
+//     mismatch (it does not throw), and a warning scrolls past unnoticed --
+//     so a miscounted new column shifts EVERY column after it and the run
+//     still "passes". Adding a column means editing two lists that must stay
+//     index-aligned, which is exactly the kind of edit that goes wrong.
+// (b) The headless ANCHOR. headless.js splices its driver in by matching a
+//     literal block at the tail of the build. A change there passes every
+//     check below and then makes every single headless run throw, which is
+//     how the build is actually exercised.
+{
+  const before = M.LOG.n;
+  M.logSample();
+  if (M.LOG.n !== before + 1) {
+    console.error('FAIL: logSample did not append a row');
+    process.exit(1);
+  }
+  const nCols = M.LOGCOLS.length;
+  let filled = 0;
+  for (let i = 0; i < M.LOG.col.length; i++) if (M.LOG.col[i]) filled++;
+  if (filled !== nCols) {
+    console.error(`FAIL: LOG.col has ${filled} arrays for ${nCols} LOGCOLS names`);
+    process.exit(1);
+  }
+  console.log(`  4. logcols   ok   (${nCols} columns, value array aligned)`);
+}
+{
+  // Kept byte-identical to headless.js's own ANCHOR constant. If you change
+  // one, change both -- that coupling is the point of this check.
+  const ANCHOR = [
+    'resizeCanvas();', 'buildWorld();', 'buildDrawer();', 'refreshSpeed();',
+    "$('bGraph').classList.add('on');", 'requestAnimationFrame(frame);',
+  ].join('\n');
+  if (!html.includes(ANCHOR)) {
+    console.error('FAIL: headless ANCHOR missing -- headless.js cannot splice its');
+    console.error('      driver, so EVERY headless run of this build will throw.');
+    console.error('      Expected this block, verbatim, at the tail:');
+    console.error(ANCHOR.split('\n').map(l => '        ' + l).join('\n'));
+    process.exit(1);
+  }
+  console.log('  5. anchor    ok   (headless.js can splice its driver)');
+}
 
 // ---- 3. exception pass ----------------------------------------------
 let stage = '';

@@ -47,7 +47,17 @@ STANDING_TARGET_PER_HOUR = 18
 # v0.51 shipped defaults. An arm is defined by how a log's cfg differs from
 # these -- never by whether a set of runs agree with each other, which is the
 # mistake that produced the phantom "baseline" arm on 2026-08-10.
-BUILD_DEFAULTS = {"k_photoCost": 0.004, "maxPlants": 90000, "maxAnimals": 40000}
+BUILD_DEFAULTS = {"k_photoCost": 0.004, "maxPlants": 90000, "maxAnimals": 40000,
+                  # v0.52. Both inert at 0, so an unshocked v0.52 run still
+                  # classifies as SHIPPED DEFAULTS. They are listed here so a
+                  # PERTURBATION run is named as its own arm instead of being
+                  # counted as a control -- which is exactly the failure the
+                  # corpus section exists to catch, and it would have happened
+                  # silently the first time a shock run landed.
+                  "shockDay": 0, "shockFraction": 0,
+                  # the ATTACK attraction floor. A floor-off run is the
+                  # emergence test and must never pool with subsidised runs.
+                  "k_meatAttrFloor": 0.5}
 
 
 def sh(cmd):
@@ -139,7 +149,13 @@ def arm_of(cfg):
     Never by comparing runs to each other. Uniformity across a set of runs
     says they share a condition; it says nothing about which one.
     """
-    diff = {k: cfg.get(k) for k, v in BUILD_DEFAULTS.items() if cfg.get(k) != v}
+    # A key that is ABSENT from a log's cfg is not a different arm -- it means
+    # the build predates the feature, so that feature is off, which is the
+    # default. Treating absence as a difference labelled every pre-v0.52 log
+    # `shockDay=None, k_meatAttrFloor=None, ...` and split one arm into two.
+    # Only a key that is PRESENT and different names an arm.
+    diff = {k: cfg[k] for k, v in BUILD_DEFAULTS.items()
+            if k in cfg and cfg[k] != v}
     if not diff:
         return "SHIPPED DEFAULTS (control)"
     return ", ".join("%s=%s" % (k, diff[k]) for k in sorted(diff))

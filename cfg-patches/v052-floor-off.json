@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.52.0","base":"0.52.0",
+ "note":"THE EMERGENCE TEST. k_meatAttrFloor 0.5 -> 0, removing the hardcoded additive floor on ATTACK's attraction term so meatAttraction must earn its place exactly like plantAttraction and carrionAttraction do. Full arena (shipped 90k/40k) because the 25k arena is cap-confounded (audit F2). Prediction frozen in LEDGER before any seed ran: HIT if population-mean meatAttraction exceeds 0.30 (v0.51 corpus: 0.0935) and predation is >=20% of animal deaths in half the surviving seeds; MISS below 0.15 or on collapse; overshoot reported separately and never as a HIT.",
+ "cfg":{"k_meatAttrFloor":0}}
