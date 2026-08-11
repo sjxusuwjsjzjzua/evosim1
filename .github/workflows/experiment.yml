@@ -201,10 +201,21 @@ jobs:
             # comparison wearing a k_photoCost label, and every seed they
             # produced was confounded by construction. All arms now run at the
             # shipped 90k/40k arena, where the slot cap does not bind.
-            case $(( ${{ github.run_number }} % 3 )) in
+            # FIVE-WAY, 2026-08-11. Arms 3 and 4 are the selection-response
+            # diagnostic [L66]. They were being run locally, but six container
+            # restarts in seven hours killed every attempt before day 400 of a
+            # 1600-day target -- local cannot finish them, and a heartbeat
+            # cannot dispatch. Folding them into the standing rotation is the
+            # only mechanism that runs them unattended.
+            # Nothing is abandoned to make room: the full-arena dose series
+            # (arms 0-2) keeps its frozen prediction and just fills slower,
+            # ~2.4 jobs/h per arm instead of 4.
+            case $(( ${{ github.run_number }} % 5 )) in
               0) CFG_IN="" ;;   # 1x: shipped defaults, the control
               1) CFG_IN="cfg-patches/photocost-only-fullarena.json" ;;   # 3x
               2) CFG_IN="cfg-patches/photocost-hi-fullarena.json" ;;     # 5x
+              3) CFG_IN="cfg-patches/longyear-120.json" ;;   # daysPerYear 40->120
+              4) CFG_IN="cfg-patches/noseason.json" ;;       # seasonAmp 0.35->0
             esac
           fi
           [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_52_0.html"

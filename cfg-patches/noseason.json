@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.52.0","base":"0.52.0",
+ "note":"SELECTION-RESPONSE DIAGNOSTIC, no-season arm. seasonAmp 0.35 -> 0, removing the seasonal forcing entirely rather than lengthening its period. Companion to longyear-120.json. Removing winter also changes total productivity, so this arm is a bound on the mechanism rather than a clean isolation -- if extinction exceeds 90% here it is a different world and reads CAN'T-TELL.",
+ "cfg":{"seasonAmp":0}}
