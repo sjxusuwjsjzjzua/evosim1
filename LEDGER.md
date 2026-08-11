@@ -5480,3 +5480,55 @@ the concurrency cap instead of piling up, which is the desired behaviour.
 Scheduled cadence is holding at roughly hourly (+71, +48, +59, +54 min
 between fires), just consistently ~30 min late, which is normal for
 GitHub's scheduler.
+
+---
+
+## GitHub dropped two scheduled ticks — mitigation is graceful degradation, not prevention
+
+Caught by the heartbeat's own under-saturation check, which is what it was
+added for. Actions fell to **13 running with an empty queue**, and the
+standing batch had not fired since 5:02 PM PDT — 2.6 h on an hourly cron.
+
+Scheduled fires: 1:09, 2:20, 3:08, 4:07, 5:02 PM PDT — then **nothing**.
+The 5:37 and 6:37 ticks were both dropped outright.
+
+**Ruled out the obvious explanation.** I expected in-flight runs to be
+suppressing new fires, since two runs (3:08 and 5:02) are still
+`in_progress`. They are not: **the 4:07 run fired while the 3:08 run was
+still in progress.** Overlap does not block scheduling. This is plain tick
+loss — GitHub's scheduler is documented best-effort and sheds load — and
+**no workflow-side change can prevent it.**
+
+So the fix is to make a dropped tick cheap rather than to stop it
+happening. Same 18 jobs/hour, now split across **three independent ticks
+at :07, :27 and :47, six seeds each**. A dropped tick costs 6 jobs instead
+of all 18; two consecutive drops still leave the hour two-thirds fed.
+
+**Consequential side-effect on the rate rule recorded last cycle:** blocks
+are now 6 seeds, not 18, so "fully reported" means **≥6 of 6**. Noting it
+because the rule as written last cycle ("≥17 of 18") would silently never
+match again, and a rule that can never fire is worse than no rule.
+
+## Ladder 1600→2400: n=6 now, and the earlier alarm was overstated
+
+Two more 2400-day results landed (seeds 20001, 20010, both 5x, both
+healthy).
+
+| seed | arm | N@1600 | N@2400 | |
+|---|---|---|---|---|
+| 10004 | 3x | 20 | 44 | healthy |
+| 20001 | 5x | 116 | **147** | healthy |
+| 20007 | 5x | 83 | 74 | healthy |
+| 20010 | 5x | 45 | 17 | healthy |
+| 20002 | 5x | 26 | 7 | collapsing |
+| 20014 | 5x | 15 | 0 | died after 1600 |
+
+**Of 6 alive at day 1600: 4 healthy, 1 collapsing, 1 dead at 2400.**
+
+I committed last cycle to stop revising this number until the ladder
+finished, and I am holding to that — this is reported as an updated count,
+not a new headline estimate. But the direction is worth flagging: the two
+newest seeds are both healthy, and the "roughly half are lost" framing
+from n=4 looks increasingly like it was driven by the two worst seeds
+landing first. **Completion order again** — 20014 and 20002 finished early
+*because* they were failing. Four of eleven ladder jobs remain.
