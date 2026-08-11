@@ -6254,3 +6254,33 @@ difference between arms, 1600 days, shipped full arena:
 - `v052-flooron` — default 0.5, the paired control
 
 24 jobs. Prediction was frozen in the entry above before either was dispatched.
+
+## Queueing arithmetic: I had it backwards, and it starved the priority experiment
+
+2026-08-11, 00:15 PDT. Measured **20 running, 29 queued and climbing**, with
+the v0.52 emergence test — the highest-value work in the project — sitting in
+that queue behind screening seeds.
+
+The workflow comment I wrote two hours earlier said, of the 12-seeds-per-tick
+resize: *"If all three land that is 36 jobs/h against a ~20 job/h service
+capacity, which builds a BOUNDED queue -- and a queue is precisely the buffer
+that carries the batch through the next hour of dropped ticks."*
+
+**That is wrong by definition.** A queue is a buffer only when arrival is
+*below* capacity. At 36/h arriving against ~18/h served, the backlog grows at
+18/h forever. I had correctly written the opposite in the same file one
+revision earlier ("Going to 20/h would exceed capacity and pile up an unbounded
+backlog") and then reasoned past it while chasing the empty-queue failure from
+the cycle before. Overcorrecting from "empty queue" to "any queue is good"
+skipped the only number that matters.
+
+Resized to **4 seeds x 3 ticks = 12 jobs/h** against ~18/h capacity — the
+headroom is the point, so a dispatched experiment starts in minutes rather than
+waiting out a backlog of screening seeds. **Screening should yield to a
+hypothesis under test, not the reverse**, and the previous sizing had that
+exactly backwards.
+
+Same push moved the rotation off the cap-confounded 25k arena (audit F2: the
+slot cap binds in 54% of 3x runs, so three of the four arms were a `maxPlants`
+comparison wearing a `k_photoCost` label). All arms now run at the shipped
+90k/40k, and the screened build defaults to v0.52.
