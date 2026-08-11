@@ -5937,3 +5937,57 @@ Arm rotation confirmed live: newest landed seeds are 3x (run_number 62,
 62 mod 4 = 2), exactly as the 4-way rotation specifies. Arms 3 (shipped
 defaults) and 0 (1x) are in the batches currently running — the
 "no data at shipped defaults" gap starts closing this hour.
+
+---
+
+## Heartbeat 22:35 PDT: local wiped again, and a retraction of a retraction
+
+**All four 1x-control seeds were killed mid-flight** by a second container
+restart, at days 160-360 of 1600 (`done: false` in every progress file).
+Partials exist at day 200 for three of them and are near-worthless — day 200
+is **pre-fauna**, since `animalStartDay` is 260.
+
+Which is the near-misread worth recording: seeds 50003 and 50004 reported
+`animals: 0`, and read cold that is an extinction. It is not. At days 160 and
+200 the animals have not been introduced yet. **`animals: 0` before day 260
+means nothing has started, not that everything has ended** — an ambiguity
+that will produce a fake extinction the moment it is read by a script that
+does not know `animalStartDay`. Noting it here before that happens.
+
+### Restarted at 800 days, not 1600, and this is not a compromise
+
+The frozen 1x-control prediction is scored at a **day-800 cutoff**. Determinism
+was verified exactly this session across 480 samples x 97 columns with zero
+mismatches, so an 800-day run is **not an approximation of** a 1600-day run
+truncated at day 800 — it is bit-identical to it. Running 800 days therefore
+costs nothing in evidence and halves wall-clock time, which roughly doubles
+the chance a run survives to completion between container restarts.
+
+Restarted 50001-50004 at `--days 800 --checkpoint-days 100`. Tighter
+checkpointing because the last two kills came ~1-2 h apart and a 200-day
+checkpoint interval loses too much between them.
+
+### Retracting last cycle's retraction of the three-tick scheduler change
+
+Last cycle I declared the 3-crons-per-hour mitigation a failure, on the
+evidence that all three ticks dropped between 02:35 and 03:35 UTC. Since then
+the schedule has fired at **21:06, 21:36 and 21:46 PDT — three ticks in 40
+minutes.**
+
+So the retraction was wrong, and it was wrong the same way the original claim
+was: **one hour of observation treated as a settled property.** Delivery is
+stochastic and high-variance; sometimes all three land, sometimes none.
+Neither "graceful degradation works" nor "graceful degradation failed" was
+ever supported by n=1 hour.
+
+Standing statement, and I am not revising it again on another single hour:
+**tick delivery is unreliable in both directions, the queue is the buffer, and
+3 ticks x 12 seeds stays** — it costs nothing and the variance cuts both ways.
+This is the fourth time this project has been bitten by reading a rate off a
+sample too small to carry it (persistence 50->60->50->4/6->82%, and now this).
+The pattern is not "I keep getting unlucky"; it is that I keep publishing
+before the block is full.
+
+Actions at the cap: **20 running, 1 queued.** Corpus still 3x-only in landed
+results; arms 0 (1x) and 3 (shipped defaults) are in run_numbers 63-64,
+currently executing.
