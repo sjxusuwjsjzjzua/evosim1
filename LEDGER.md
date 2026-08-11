@@ -6127,3 +6127,82 @@ cap is off by construction in every arm rather than adjusted for:
 
 No threshold here is inherited from the 25k arena. Nothing in this prediction may
 be re-derived after data lands.
+
+---
+
+# v0.52 — PREDATION KILLS BY INJURY, NOT ATTRITION  [L0.52-1]
+
+2026-08-11. First mechanism change since v0.50 was reverted. Diagnosis came
+from adversarial audit F1 plus a full read of the energy code and 21 survivor
+logs.
+
+## The diagnosis
+
+| finding | evidence |
+|---|---|
+| **No injury state existed.** An attack removed prey MASS; the prey died only once chewed to `corpseMin` — ~13 uninterrupted landed bites. A survivor regrew and got CHEAPER to run (upkeep ∝ mass^0.75). | `:1877-1893`; measured bites/kill median **13.0** |
+| "7.7% attack success" was **my misreading** — it is `1/bites-per-kill`. `W.attacks++` sits inside `if (flesh > 0)`, so misses are not in the denominator. Attacks essentially always land. | `:1887` |
+| **A predator's kill produced no carrion.** `killAnimal` makes a corpse only when `mass > corpseMin`, but a kill fired exactly when `mass <= corpseMin`. | `:1420-1431` |
+| **Fresh meat had no digestion floor; carrion did** — backwards. At founder carnivory 0.05 a corpse was worth 6.8/mass and a live animal 1.2/mass. Logs: 33x more energy from carrion than predation. | `:1885` vs `:1903` |
+| **Retaliation is a flat per-bite charge** cancelling meat gain below carnivory ≈ 0.031. Measured mean **0.0318** — parked exactly on the gate below which ATTACK is never scored, so no selection can act on carnivory. | `:1890`, `:1729` |
+
+Predation was **a mass-theft tax, not a mortality source**, and no constant
+fixes that.
+
+## The change
+
+ATTACK deposits **damage**; death at `k_health * mass`; the corpse is full and
+is eaten through the ordinary carrion path (so a kill pays at the carrion rate
+*including* the existing 0.30 floor). The killer is **not** auto-fed — that
+would be a hardcode, and leaving the corpse on the tile makes kill-stealing
+available as genuinely emergent behaviour.
+
+**`k_health = 1.00`, and the reasoning matters more than the value.** Attrition
+already required removing one body mass, so 1.00 keeps time-to-kill *identical*
+to v0.51 and isolates the change to payoff structure alone. A first pass used
+0.25, which also made kills 4x faster and put ATTACK at **18x** grazing at
+founder genes. `check.js` caught it: the arbiter reported SCAVENGE displacing
+ATTACK entirely — kills so fast that corpses flooded the world. At 1.00 it is
+**4.4x** grazing, a real carnivore niche rather than a free lunch. Recording
+this because the failure mode was caught by a harness whose own output says it
+proves nothing about correctness, and it did the job anyway.
+
+## PRE-REGISTERED PREDICTION — written before any scoring seed exists
+
+Arms are v0.52 at **full arena 90k/40k** (the 25k arena is cap-confounded,
+audit F2), 1600 days, complete blocks only, n>=12 per arm. The test arm sets
+`k_meatAttrFloor: 0` — carnivory with **no subsidy of any kind**.
+
+Frozen comparison values from the v0.51 corpus: evolved `meatAttraction`
+**0.0935**, evolved `carnivory` **0.108**, predation share of animal deaths
+**35.4%** (which F1 established is satisfiable by the floor and so is NOT the
+primary criterion).
+
+- **HIT** if, at `k_meatAttrFloor = 0`, population-mean `meatAttraction` exceeds
+  **0.30** *and* predation is >=20% of animal deaths in at least half the
+  surviving seeds. That is carnivory selected for, unsubsidised — the first
+  time the pillar would pass the mission test.
+- **MISS** if `meatAttraction` stays below **0.15**, or predation collapses the
+  way it did in v0.50. Then injury was not the barrier and the diagnosis was
+  wrong — per rule 3 that is a wrong diagnosis, not a constant needing a nudge.
+- **OVERSHOOT** — reported separately and **never as a HIT**: if mean N in the
+  floor-0 arm falls below half the floor-0.5 arm, or `aDeadKilled` exceeds
+  `aDeadStarve` while plant biomass climbs. That is predation made too easy,
+  which is a different failure from the one being tested.
+
+Deliberately *not* the criterion: raw predation share. F1 proved a constant can
+satisfy it. The gene value is the thing selection has to move.
+
+## Also in v0.52, both inert at defaults
+
+- `k_meatAttrFloor` (0.5) parameterizes the hardcoded ATTACK floor, so the
+  unsubsidised test is a CFG patch rather than another build.  [L0.52-2]
+- `shockDay`/`shockFraction` (0) cull a fraction of live animals once, through
+  `killAnimal` so the matter ledger stays closed. Purpose: **regulation is a
+  restoring force**, and every metric this project has used for "stable" is
+  satisfiable by something else — R0 carries mean N in its denominator,
+  persistence is not-yet-dead-at-a-cutoff, predation share is satisfiable by a
+  constant. Shock it and see whether it returns. That cannot be faked.  [L0.52-3]
+
+Rule 3 holds: **one behavioural change** (injury death). The other two do
+nothing at their defaults.
