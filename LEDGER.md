@@ -6519,3 +6519,52 @@ carry live gene snapshots [L64], so a run killed by a container restart — four
 so far tonight — still yields the gene reading this prediction is scored on.
 Caveat held openly: [L64]'s rule-7 verification has not landed yet, so these
 runs are diagnostic reads, and nothing is scored off them until it does.
+
+## First v0.52 emergence-test results: 2 of 12, and NOT scoreable yet
+
+03:36 PDT. Two floor-off seeds landed. **No conclusion is available and I am not
+drawing one**, for a reason established four times over in this project:
+**extinct runs autohalt early and land first**, so the first arrivals from any
+block are the worst ones by construction. 2 of 12 is not a block.
+
+| seed | end | final N | matter drift | caps |
+|---|---|---|---|---|
+| 70005 | day 870 | **0** | 0.000000% | [0] |
+| 70012 | day 650 | **0** | 0.000000% | [0] |
+
+Both extinct before the 1600-day target. Both matter-clean, no bound binding.
+
+### The gene readings, and why they are weaker than they look
+
+| seed | `meatAttraction` | `territoriality` (drift control) |
+|---|---|---|
+| 70005 | 0.1761 | 0.1375 |
+| 70012 | **0.2920** | 0.0244 |
+
+Against a v0.51 corpus median of 0.0935, both are higher, and 70012 is close to
+the 0.30 HIT threshold with a 12x separation from the gene nothing reads. That
+is the direction the prediction wants — from **n=2 dying runs**, which is worth
+approximately nothing on its own.
+
+### A limitation of my own gate, found on its first real use
+
+`sec_selectable` returned **n/a** on both, and correctly. Their animal census by
+gene snapshot is `[0,0,0,4459,1,1,1,0,0,0]` and `[0,0,0,1731,16,0,0,0]` — one
+populated snapshot each, then collapse. The gate needs **two** populated
+censuses to measure variance retention, and a boom-crash run never provides
+one.
+
+So **the gate is silent exactly on the runs that fail hardest.** That is not a
+bug — with one census there is genuinely nothing to compare — but it means the
+instrument cannot speak to the failure mode that dominates this corpus, and I
+should not have expected it to. It answers "is selection working in a
+population that persists", not "why did this one die".
+
+Note also what those censuses say about the population trajectory: 0 -> 4459 ->
+1 within a few snapshots. That is not a decline, it is a boom and a crash, and
+it is a sharper illustration of the annual-bottleneck hypothesis [L66] than
+anything I have measured deliberately.
+
+Held open: 10 of 12 floor-off seeds outstanding, the entire floor-on arm
+outstanding, and the [L64] rule-7 verification still unfinished (its
+checkpoint-on run completed; the control run is in flight).
