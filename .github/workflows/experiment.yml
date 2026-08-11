@@ -210,12 +210,21 @@ jobs:
             # Nothing is abandoned to make room: the full-arena dose series
             # (arms 0-2) keeps its frozen prediction and just fills slower,
             # ~2.4 jobs/h per arm instead of 4.
-            case $(( ${{ github.run_number }} % 5 )) in
+            # WEIGHTED 6-WAY, 2026-08-11. The first noseason seed retained
+            # 166.8% of its neutral variance against a corpus median of 28.9%
+            # and moved 33 functional genes past drift against a median of 7 --
+            # both [L66] HIT criteria, at n=1. That is the head of the queue
+            # and deserves the throughput; the dose series is the lower-priority
+            # question and keeps a slot rather than being dropped.
+            # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
+            # instead of ~10.
+            case $(( ${{ github.run_number }} % 6 )) in
               0) CFG_IN="" ;;   # 1x: shipped defaults, the control
-              1) CFG_IN="cfg-patches/photocost-only-fullarena.json" ;;   # 3x
-              2) CFG_IN="cfg-patches/photocost-hi-fullarena.json" ;;     # 5x
-              3) CFG_IN="cfg-patches/longyear-120.json" ;;   # daysPerYear 40->120
-              4) CFG_IN="cfg-patches/noseason.json" ;;       # seasonAmp 0.35->0
+              1) CFG_IN="cfg-patches/longyear-120.json" ;;   # daysPerYear 40->120
+              2) CFG_IN="cfg-patches/noseason.json" ;;       # seasonAmp 0.35->0
+              3) CFG_IN="cfg-patches/longyear-120.json" ;;
+              4) CFG_IN="cfg-patches/noseason.json" ;;
+              5) CFG_IN="cfg-patches/photocost-only-fullarena.json" ;;   # 3x
             esac
           fi
           [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_52_0.html"

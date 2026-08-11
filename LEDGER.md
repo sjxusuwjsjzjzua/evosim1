@@ -6943,3 +6943,45 @@ fault.** The previous cycles' instinct on seeing "no diagnostic arms" would
 have been to conclude the rotation change had not taken effect and to go change
 something. Checking the sha first showed the change is live and the only thing
 missing is time.
+
+## First [L66] diagnostic seed: the no-season arm, and it is a strong signal at n=1
+
+11:40 PDT. Seed 41681 (`run_number` 84, arm `84 % 5 = 4`) is the first
+`seasonAmp = 0` run to land. Matter clean (`drift 0.000000%`), no cap binding.
+
+| | noseason (41681) | control 1x (41703) | corpus median |
+|---|---|---|---|
+| neutral variance retained | **166.8%** | 63.7% | **28.9%** |
+| drift yardstick | 0.80 sd | 0.92 sd | 1.96 sd |
+| **functional genes beating drift** | **33** | 21 | **7** |
+| peak N | **2076** | 434 | — |
+| mean N | 385.7 | 83.6 | — |
+
+Neutral variance **increased** — the inert genes ended with 1.67x the standard
+deviation they had at the first census, where the corpus median run *loses*
+71% of it. That is the signature of a population large enough that drift stops
+dominating, and it is the opposite of the annual-bottleneck signature.
+Population peaked at 2076 against the control's 434.
+
+Both of [L66]'s frozen HIT criteria are met on this seed — retention above 40%
+(166.8%) and functional genes beating drift above the control median of 7 (33).
+`carnivory` moved **6.23 sd**, `herbivory` 3.03 sd, `biteForce` 2.92 sd.
+
+**Not scored. n=1 of a required 6 per arm, and the longyear arm has no seeds at
+all.** A single seed is exactly what the completion-order and founder-lottery
+problems have burned this project on repeatedly. Recording it as one
+observation, not as a result.
+
+One thing that is genuinely informative even at n=1, because it separates two
+things I had bundled: **41681 still went extinct**, at day 815. So removing the
+seasonal forcing restored selection response *without* preventing extinction.
+Whatever kills these populations is not the same thing that freezes their
+genes — and the strategic audit's causal chain had them as one mechanism.
+
+## Rotation reweighted toward the diagnostic
+
+[L66] is now the head of the queue with a strong first signal, and at 1/5 of
+throughput it needs ~10 hours to reach n=6 per arm. The full-arena dose series
+is the lower-priority question — its own early read is 1x 1/1, 3x 1/3, 5x 4/8,
+nowhere near its n>=20. Rotation goes to a weighted 6-way giving the two
+diagnostic arms **4 of 6 slots** instead of 2 of 5.
