@@ -5532,3 +5532,80 @@ newest seeds are both healthy, and the "roughly half are lost" framing
 from n=4 looks increasingly like it was driven by the two worst seeds
 landing first. **Completion order again** — 20014 and 20002 finished early
 *because* they were failing. Four of eleven ladder jobs remain.
+
+---
+
+## LADDER 1600 -> 2400 COMPLETE (n=11 usable). Final number, reported once.
+
+2026-08-10, 19:45 PDT. The ladder is done except seed 10008 (local, at day
+2360 of 2400 with N=718 — it will survive, but it is not counted below).
+Per the commitment made two cycles ago I did not touch this number while
+jobs were outstanding; this is the single revision, and it is the last one.
+
+The pooled table, **split by arm** because pooling a treatment into a
+persistence rate is exactly the kind of confound rule 7b exists to stop.
+All local runs are baseline (`k_photoCost` 0.012, 1x); v0.49 and v0.51 are
+executably identical so mixing those two builds is safe.
+
+**Baseline (1x), local, n=5 alive at day 1600:**
+
+| seed | N@1600 | N@2400 | |
+|---|---|---|---|
+| 4001 | 31 | **216** | grew 7x |
+| 1337 | 76 | 82 | held |
+| 10001 | 59 | 32 | declined 46% |
+| 10015 | 488 | 89 | declined 82% |
+| 4002 | 12 | 0 | died at day 2210 |
+
+(Seed 10011 died at day 1400, i.e. *before* the rung — excluded from the
+denominator, not counted as an 1600->2400 loss.)
+
+**Treatment (3x/5x photocost), Actions, n=6 alive at day 1600:** as tabled
+in the previous entry — 10004, 20001, 20007, 20010, 20002 alive, 20014 dead.
+
+### The number
+
+**9 of 11 populations alive at day 1600 are still alive at day 2400 (82%).**
+Baseline 4/5, treatment 5/6. The two arms agree to within one seed, so
+`k_photoCost` dose has **no detectable effect on persistence** over this
+rung — which is itself a result, and a negative one for the photocost line
+as a stability lever.
+
+### The correction this forces
+
+Every earlier estimate of this quantity was wrong in the same direction and
+for the same reason. The sequence was 50% -> 60% -> 50% -> "4 of 6" -> 82%.
+**Completion-order bias, again, and I fell for it three times.** A run that
+dies autohalts and lands immediately; a run that survives takes the full
+2400 days and lands last. Reading a persistence rate off a partially-
+reported block therefore *always* reads low, and gets less wrong monotonically
+as the block fills. I flagged this mechanism correctly at n=4 and still let
+myself revise the headline twice more before the block was complete. The
+operational fix already in the file (never quote a rate from an incomplete
+block) was right; what failed was obeying it.
+
+### What it does NOT say
+
+82% persistence is not 82% *stability*, and the difference matters more than
+the headline. Sorting the eleven by trajectory rather than by pulse:
+
+- **grew or held: 5** (4001, 1337, 10004, 20001, 20007)
+- **survived but declined substantially: 4** (10001 -46%, 10015 -82%,
+  20010 -62%, 20002 -73%)
+- **died: 2** (4002, 20014)
+
+So the mission-relevant fraction — populations that are actually *stationary*
+between day 1600 and 2400, rather than merely not-yet-extinct — is **5/11
+(45%)**, not 82%. A world that falls from 488 animals to 89 is on a
+trajectory, not at an equilibrium, and calling it "persisting" is the same
+class of error as reading R0 off a moving trailing window. The honest
+summary of the rung is: **most worlds survive it; fewer than half are
+steady through it.**
+
+### Standing consequence
+
+The stationarity gate stays the binding constraint on every ecological claim
+in this project (15/15 cold seeds failed it, measured 2026-08-10; nothing
+here changes that). The ladder tells us the surviving worlds mostly do not
+die — it does not tell us they have settled. Do not quote 82% as evidence
+of a stable ecosystem.
