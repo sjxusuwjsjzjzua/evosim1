@@ -5312,3 +5312,49 @@ its own terms — this entry does not pre-empt it.
 **Compute:** queue draining as predicted — 20 running + **15 queued**
 (was 16 last cycle) — so the 18/h standing rate is sustainable once the
 one-off 2400-day ladder jobs clear. No change to the rate.
+
+### Seed 10015 completes 2400 days — a clean survivor, and it softens the horizon estimate
+
+| window ends | R0 | mean N | N on that day |
+|---|---|---|---|
+| day 800 | **0.72** | 165 | 97 |
+| day 1200 | 1.00 | 187 | 379 |
+| day 1600 | 1.09 | 226 | **488** |
+| day 2000 | 1.28 | 236 | 133 |
+| day 2400 | **1.30** | 203 | **89** |
+
+Cold seed, 800-day reading **0.72** ("not viable"), 2400-day reading
+**1.30**, alive with 89 animals, matter clean. Another clean instance of
+the establishment pattern on an unselected seed.
+
+**Updated 1600→2400 tally**, now five seeds that were alive at day 1600:
+
+| seed | N@1600 | N@2400 | |
+|---|---|---|---|
+| 10004 | 20 | 44 | healthy |
+| 20007 | 83 | 74 | healthy |
+| **10015** | **488** | **89** | **healthy** (but −82% from its peak) |
+| 20002 | 26 | 7 | collapsing |
+| 20014 | 15 | 0 | dead |
+
+**3 healthy, 1 collapsing, 1 dead — 60% still healthy at 2400**, against
+the ~50% I estimated last cycle from n=4. So the horizon effect is real
+but I overstated its size: the implied 2400-day persistence is nearer
+**30%** than 25%, still well below the 50% measured at 1600 days.
+Correcting my own number in the less alarming direction, which is worth
+noting because the pressure runs the other way — a dramatic revision is
+more satisfying to report than a modest one.
+
+Note also 10015's instantaneous N swinging 488 → 89 while its *window
+means* stay flat (226 → 203). Instantaneous counts are far noisier than
+window means; the "healthy" verdicts above use N≥15 on a single day and
+would flicker on a different sampling day. A horizon-based persistence
+metric should use a window mean, not a point reading — recorded now, to
+be specified before the next scoring rather than after.
+
+Fired **seed 10015 to 4000 days** on the freed core, extending the
+long-horizon probe to a second seed. Same prediction as seed 1337's,
+applied to a cold unselected seed rather than one of the familiar trio —
+if both survive to 4000 with stable late-window R0, the horizon story has
+a floor; if this one dies where 1337 lives, seed identity matters more
+than horizon does.
