@@ -5789,3 +5789,64 @@ Two caveats I am not going to bury:
    versus 12 of 24 at 3x, so the 5x survivors are a far more heavily filtered
    set. A stronger survivor filter producing more impressive survivors is the
    null hypothesis here, not evidence of a lever.
+
+---
+
+## SCORED: the 4000-day long-horizon probe on seed 1337 is a MISS
+
+2026-08-10, ~21:00 PDT. Pre-registered criteria were: **HIT** = alive at day
+4000 with late-window R0 within **±0.31** of the early value; **MISS** = dies
+between 2400 and 4000, or R0 drops by more than 0.31.
+
+Result: **alive at 4000 with N=273** — it did not die, it grew (N@800 26 ->
+N@1600 76 -> N@2400 82 -> N@4000 273). But on matched 1000-day windows
+*inside the same run*, so run length cannot contaminate the comparison:
+
+| window | R0 | mean N |
+|---|---|---|
+| days 600-1600 | **1.56** | 72 |
+| days 1600-2600 | 1.30 | 103 |
+| days 3000-4000 | **1.02** | 243 |
+
+A drop of **0.54**, against a threshold of 0.31. **MISS.** The stationarity
+gate agrees independently: NOT STATIONARY on plants, bio, lai *and* animals.
+Matter conservation clean (6819 -> 6819, drift 0.000000%).
+
+Per rule 3, a missed prediction means the diagnosis was wrong — so what was
+wrong was the assumption that a world surviving to 4000 days would have
+*settled* by then. It has not. 4000 days is still transient for this system,
+which is a substantive finding about the timescale and not a constant that
+needs adjusting.
+
+### The tempting reading, and why I am not taking it
+
+R0 falling toward 1.0 while N rises looks exactly like density-dependent
+regulation approaching carrying capacity — which would make this MISS good
+news for the mission. Rolling 500-day windows give corr(mean N, R0) =
+**-0.870** over 12 windows, and R0 recovers when N falls (meanN 278 -> R0
+0.86; N drops to 220 -> R0 back to 1.12).
+
+**That correlation is not evidence, and I am not recording it as any.** R0 is
+computed as `births / (mean N x days) x mean lifespan` — **mean N is in its
+denominator**, so R0 and N are mechanically anti-correlated whatever the
+biology does. This is the same low-N R0 inflation already on file, wearing a
+different hat. The most that can be said honestly: if births were independent
+of N, R0 would scale as 1/N and would have fallen 4.6x as N went 60 -> 278;
+it fell 1.8x. So births do rise nearly in proportion to population, and
+*some* residual decline is left over. That residual is suggestive. It is not
+a measured density-dependent response, and it will not become one by being
+restated more confidently.
+
+A real test needs a metric that is not mechanically coupled to N, and its own
+pre-registration. Not proposing one this cycle — the frozen 1x-control
+prediction from the previous entry is the queue's head and should be filled
+before anything new is opened.
+
+### Compute action
+
+A local core freed when this probe finished. Started **2 local 1x-control
+seeds** (50001, 50002) at 1600 days on `arena-photocost-1x.json`, protocol
+matched to the standing batch so they pool into the same complete-block
+accounting at the day-800 cutoff. This feeds the already-frozen prediction
+rather than opening anything new, which matters because the scheduler is
+dropping ticks and the Actions rotation may take hours to reach arm 0.
