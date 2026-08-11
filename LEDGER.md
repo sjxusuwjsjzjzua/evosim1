@@ -5609,3 +5609,61 @@ in this project (15/15 cold seeds failed it, measured 2026-08-10; nothing
 here changes that). The ladder tells us the surviving worlds mostly do not
 die — it does not tell us they have settled. Do not quote 82% as evidence
 of a stable ecosystem.
+
+### CORRECTION to the entry above, same night, ~20 minutes later.
+
+Seed 10008 finished (N 677@1600 -> 681@2400, held) and digesting it exposed
+an error in the entry I had just written. **The "baseline (1x)" arm above
+does not exist.** All seven local `*-2400d` runs carry
+`k_photoCost` 0.012 / `maxPlants` 25000 / `maxAnimals` 11000 — i.e. they are
+all the `arena-speed-photocost` (3x) arm. The shipped v0.51 defaults are
+`k_photoCost` **0.004**, `maxPlants` **90000**, `maxAnimals` **40000**.
+A full cfg diff of 10008 against 1337 comes back **empty**: identical
+condition, different seed.
+
+Retracted, specifically:
+
+- the label "Baseline (1x), local" — it was 3x, arena-capped;
+- "**`k_photoCost` dose has no detectable effect on persistence**" — that
+  claim came from comparing 3x against 3x/5x while believing it was 1x
+  against 3x/5x. There is no 1x arm in the ladder at all, so the dose
+  question is **untested at this rung**, not answered.
+
+The pooled persistence count survives, because it never depended on the
+split. With 10008 added: **10 of 12 alive at day 1600 are alive at day 2400
+(83%)**.
+
+**How it happened, and it is the same mistake as the armeff pairing.** I
+listed cfg keys by substring match (`photo|arena|gut|intake`), saw 0.012
+repeated identically down the column, and read "uniform" as "baseline"
+without ever comparing against the build's own default. Uniformity across a
+set of runs says they share a condition; it says nothing about *which* one.
+The rule written after the armeff incident — compare the **entire** cfg dict,
+not a chosen subset — is what caught this, but only because I ran it
+afterwards on a hunch. Promoting it: **a run's arm is established by diffing
+its logged cfg against the build defaults, never by eyeballing agreement
+between runs.** Neither of those checks is optional and the cheap one is
+not a substitute.
+
+Updated trajectory sort, n=12, all one arm (3x/5x photocost, arena-capped):
+
+- **grew or held: 6** (4001, 1337, 10008, 10004, 20001, 20007)
+- **survived but declined substantially: 4** (10001, 10015, 20010, 20002)
+- **died: 2** (4002, 20014)
+
+So **6/12 (50%)** hold their animal count across the rung. The 45% figure
+above becomes 50% — and the caveat gets *stronger*, not weaker, because
+"held" is measured on animal count alone. Seed 10008 held its animals at
+~680 while its plants ran from 1745 (day 855) to 24,326 (day 2045), a 14x
+climb, and it **fails the stationarity gate outright** (+21.2% plants,
++25.8% biomass per 100 days over the last third). A world whose flora is
+still compounding at 21% per century-of-sim-time is not at equilibrium no
+matter how flat the animal line looks. Flat animals over a moving plant base
+is arguably a worse sign than a declining animal count, because it means the
+herbivores have stopped tracking their own food supply.
+
+Not scored here: that same run's `caps seen [0, 1]` flag. Standing plants
+peak at 24,691 against a 25,000 cap and never come within 0.5% of it, so the
+plant-count cap is not what tripped it. Until I know which counter `caps[]`
+increments, the arena patch's own written prediction ("cap stops binding")
+is **can't-tell**, not a hit.
