@@ -5259,3 +5259,56 @@ below arrival. Expected to drain as the ladder jobs finish. Watching it;
 if the queue is still growing next cycle rather than draining, the
 standing rate comes back down — a permanently growing backlog is wasted
 scheduling, not extra throughput.
+
+---
+
+## 1600-day persistence overestimates 2400-day persistence — n=4, and it was predicted
+
+Five 2400-day ladder runs have landed. Comparing each seed's state at day
+1600 (the protocol cutoff) against its state at 2400:
+
+| seed | N at 1600 | N at 2400 | verdict |
+|---|---|---|---|
+| 10004 | 20 | **44** | still healthy |
+| 20007 | 83 | **74** | still healthy |
+| 20002 | 26 | **7** | alive but collapsing |
+| 20014 | 15 | **0** (died ~2040) | **DIED after the cutoff** |
+| 10012 | 0 | 0 | already dead by 1600 |
+
+**Of the four seeds alive at day 1600: two are still healthy at 2400, one
+has collapsed to N=7, and one is dead.** So roughly **half of 1600-day
+"survivors" are gone or going by 2400.**
+
+This was the MISS branch of the long-horizon prediction, recorded last
+cycle on seed 20002 alone as "suggestive not decisive." It is now n=4 and
+the direction held. **1600-day persistence is itself a truncation
+artifact** — the same shape as the 800-day R0 problem in [L61b], one level
+up: a horizon short enough that populations still on their way out get
+counted as survivors.
+
+### Quantitative consequence
+
+The establishment batch measured **~50% persistence at 1600 days**. If
+about half of those are gone by 2400 — as these four suggest — then
+**persistence at 2400 days is roughly 25%**, and the honest headline moves
+again. Stated with the caveats it deserves: n=4 on the 1600→2400
+transition is small, and the two collapsing/dead cases are both 5x-arm
+seeds, so an arm effect cannot be excluded from this sample.
+
+**The metric must therefore always carry its horizon.** "Persistence 50%"
+is meaningless; "persistence 50% at 1600 days, ~25% at 2400" is a claim.
+Any future comparison has to fix the horizon in advance and report it,
+exactly as hard rule 7b already requires for trailing-window R0. That is
+the third time the same lesson has appeared today in a different costume —
+first the R0 averaging window, then the run-length confound, now the
+persistence horizon.
+
+**Live check in flight:** seed 1337 at 4000 days is currently past day
+2450 and still alive with 97 animals, so it has cleared the point where
+20014 died. Its own prediction (HIT if alive at 4000 with late-window R0
+within one noise SD of the early value) remains open and will be scored on
+its own terms — this entry does not pre-empt it.
+
+**Compute:** queue draining as predicted — 20 running + **15 queued**
+(was 16 last cycle) — so the 18/h standing rate is sustainable once the
+one-off 2400-day ladder jobs clear. No change to the rate.
