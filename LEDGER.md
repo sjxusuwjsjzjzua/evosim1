@@ -6876,3 +6876,43 @@ have not landed yet: seeds arriving now fired before the change. Seed 41600 is
 `run_number` 80 and got arm `80 % 3 = 2`, the old 3-way mapping — consistent
 with a run that started earlier and takes ~1.1 h to complete. Newer run numbers
 will hit arms 3 and 4.
+
+## SHIPPED: the checkpoint invariant is now a unit test, not a race against restarts [L64b]
+
+09:45 PDT. Ninth container restart killed the 320-day pair that was to verify
+the **animal** half of the [L64] restore. That run has never once survived to
+completion, and at nine restarts in ten hours it never will.
+
+So the property is asserted directly instead — `check.js` stage 6. It
+populates the accumulators, performs exactly the save / `logGenes()` / restore
+that `headless.js` performs, and requires the state to come back identical.
+Seconds instead of half an hour, and **a container restart cannot kill it.**
+
+    6. checkpoint ok   (round-trips; SELP n=137, SELA n=91)
+
+This covers `SELA` — the animal path — which the end-to-end run could never
+reach, because a 320-day sim needs to pass `animalStartDay` 260 and no local
+run has got that far in hours.
+
+Two things I had to fix in the test itself, both instructive:
+
+**It passed vacuously first.** SELP and SELA were both `n=0` after 120 ticks —
+the harness does not drive enough seeding, and the build drains the
+accumulators on its own cadence — so it round-tripped two empty arrays and
+printed `ok`. A test that can pass without exercising its property is worse
+than no test, because it reads as evidence. It now **fails** if the
+accumulators are empty, and populates them synthetically with distinctive
+values (`i + 0.5`, `-(i + 0.25)`) so a partial or shifted restore cannot look
+correct by accident.
+
+**Negative control run.** I removed the `SELP`/`SELA` restore — reproducing the
+original defect exactly — and confirmed the stage fails:
+
+    FAIL: checkpoint restore does not round-trip: SELP, SELA
+
+then put it back and confirmed it passes. A test that has never been seen to
+fail is a test whose failure mode is unknown.
+
+The end-to-end rule-7 check stays the primary evidence and it already passed for
+the plant path. This makes the same guarantee cheap, complete, and permanent —
+it runs on every build check from now on.
