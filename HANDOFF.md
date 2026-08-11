@@ -34,9 +34,17 @@ artificially inflated food base.
 
 **The fix: raise `k_photoCost`** (plant respiration cost), which sets the
 carrying-capacity equilibrium directly and makes the slot cap irrelevant.
-Confirmed via an isolation test at the *original* 90k/40k arena (no
-shrink) — identical results to the shrunk-arena version, so the arena
-shrink used throughout was purely a speed optimization, not load-bearing.
+**CORRECTED 2026-08-11 (adversarial audit F2).** The isolation test behind
+the old claim was ONE seed at 1200 days with `caps seen [0]`, and its own
+wording was conditional — *"the slot count was never the constraint **once
+this dose is applied**"*. This file dropped the condition and stated the
+shrink was "purely a speed optimization". That is **false at current run
+lengths**: across the 82-seed standing corpus the 25k plant slot array binds
+in **54% of 3x runs** (and 9% of 5x), worst cases pinned a quarter of all
+samples; even seed 1337 touches the bound by day 2400. Live plants and seeds
+share the array, which is why a "plants peak below maxPlants" check misses it.
+Treat the arena shrink as **ecologically load-bearing at 25k** and run dose
+comparisons at the full 90k/40k arena.
 
 **Dose-response tally (seeds with R0 > 1 = viable population):**
 
@@ -44,7 +52,7 @@ shrink used throughout was purely a speed optimization, not load-bearing.
 |---|---|---|---|
 | 2x | 0.008 | 2 | 1/2 |
 | 3x (original base) | 0.012 | 6 | 4/6 (67%) |
-| **5x** | **0.020** | **4** | **3/4 (75%), leading candidate** |
+| 5x | 0.020 | 4 | 3/4 (75%) — **NOT a leading candidate; see below** |
 
 **Combo arms tried on top of the base dose — all underperformed the dose
 alone, none promoted:**
@@ -75,12 +83,17 @@ yet landed as of this writing.
 **Tooling finding worth knowing:** a workflow run's top-level "completed"
 status can lag its actual simulation results indefinitely if the
 trailing `digest` Actions job queues behind the concurrency ceiling
-(discovered empirically — ~40-50 concurrent jobs is the real ceiling on
-this account, not the 20 originally assumed). Fetch per-seed results
+(the real ceiling is **20 simultaneous running jobs** — measured directly as
+20 running / 9 queued, which matches the documented per-plan cap. The
+"40-50" once recorded here counted running PLUS queued jobs and called that
+the ceiling; corrected 2026-08-10, re-flagged by adversarial audit F5 because
+this line had it exactly inverted). Fetch per-seed results
 directly via `git fetch origin runs/<label>/seed-<seed>` rather than
 trusting run-level status when checking for completions.
 
 **Next step once the pending batches land:** if 5x continues to lead,
+RETRACTED: the 3x-vs-5x question RESOLVED to **no difference** (permutation
+p=0.590, Fisher p=1.000); 3x stands. Do not promote 5x. Superseded text:
 promote it (not 3x) as the shipped `k_photoCost` CFG patch and add the
 version-log table row. `evosim-v0_49_0.html`/`v0_50_0.html` both still
 present pending that decision and v0.50's own verification.
@@ -118,7 +131,7 @@ concrete direction instead of re-deriving strategy:**
 
 ---
 
-## 1. Current state — v0.49.0
+## 1. Current state — v0.51.0
 
 **Achieved and replicated:**
 

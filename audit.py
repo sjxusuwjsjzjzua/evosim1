@@ -190,6 +190,49 @@ def section_corpus():
             L += ["> **FLAG: single-arm corpus.** Nothing here can support a "
                   "comparative claim.", ""]
 
+    # --- slot-cap binding, per arm. Added after adversarial audit F2. ---
+    # `caps` is a bitfield; bit 1 = plant slot array full. Live plants and SEEDS
+    # share that array, so a "standing plants never reached maxPlants" check does
+    # not detect it -- that exact reasoning error parked a real MISS as a
+    # can't-tell (F3), and left a control arm cap-confounded before it produced a
+    # single scoreable seed (F2). Mechanical, so it runs here every day.
+    capped = collections.defaultdict(lambda: [0, 0, []])
+    for p in paths:
+        try:
+            d = json.load(open(p))
+        except Exception:
+            continue
+        c = d.get("cols", {})
+        caps = c.get("caps")
+        if not caps:
+            continue
+        arm = arm_of(d.get("cfg", {}))
+        frac = sum(1 for x in caps if int(x) & 1) / len(caps)
+        capped[arm][0] += 1
+        if frac > 0:
+            capped[arm][1] += 1
+            capped[arm][2].append(frac)
+
+    if capped:
+        L += ["### Plant slot cap (`caps & 1`) — does `maxPlants` bind?", "",
+              "| arm | runs | runs where it binds | worst run (% of samples pinned) |",
+              "|---|---|---|---|"]
+        for arm, (n, nb, fr) in sorted(capped.items(), key=lambda kv: -kv[1][1]):
+            L.append("| %s | %d | **%d (%.0f%%)** | %.1f%% |"
+                     % (arm, n, nb, 100 * nb / n if n else 0,
+                        100 * max(fr) if fr else 0))
+        L.append("")
+        worst = [(a, v) for a, v in capped.items() if v[0] and v[1] / v[0] > 0.05]
+        if worst:
+            L += ["> **FLAG: `maxPlants` binds in one or more arms.** An arm whose "
+                  "runs hit the slot array is **cap-limited, not dose-limited** — "
+                  "the array size is setting the standing crop while whatever "
+                  "constant is nominally under test wears the label. Any "
+                  "cross-arm comparison involving a flagged arm is confounded by "
+                  "construction. Arms flagged: "
+                  + ", ".join("`%s` (%.0f%% of runs)" % (a, 100 * v[1] / v[0])
+                              for a, v in worst) + ".", ""]
+
     if lengths:
         L += ["Run lengths (binned, 400 sim-days) — **rule 7b: never compare a "
               "trailing-window statistic across these bins**:", "",
@@ -207,10 +250,19 @@ def section_corpus():
 # 3. PREDICTIONS
 # --------------------------------------------------------------------------
 
-PRED_RE = re.compile(r"^#+\s*(.*(?:PREDICTION|PRE-REGISTRAT|PRE-REGISTERED|prediction).*)$",
-                     re.I | re.M)
-SCORE_RE = re.compile(r"^#+\s*(.*(?:SCORED|\bHIT\b|\bMISS\b|CAN'T-TELL|RETRACT).*)$",
-                      re.I | re.M)
+_PRED = r"^#+\s*(.*(?:PREDICTION|PRE-REGISTRAT|PRE-REGISTERED|prediction).*)$"
+SCORE_RE = re.compile(r"^#+\s*(.*(?:SCOR|\bHIT\b|\bMISS\b|CAN'T-TELL|RETRACT|"
+                      r"RESOLVES?\b|null\b|retired\b|overturn|VOID|"
+                      r"validated|completes).*)$", re.I | re.M)
+
+# A heading can say "prediction" and BE the scoring of one ("The prediction,
+# scored honestly", "The pre-registered comparison RESOLVES"). Audit #1 filed
+# nothing in this category but had to trace all six flagged rows to prove five
+# were this exact false positive -- roughly a third of that audit's effort spent
+# disproving a regex. Anything already matching SCORE_RE is a scoring heading,
+# not an open prediction.
+def _is_pred(title):
+    return not SCORE_RE.match("# " + title)
 
 STOP = set("the a an and or of to in on for by is are was were be been with that this "
            "it its as at from not no than then so if but before after over under "
@@ -230,7 +282,8 @@ def section_predictions(text):
          "each as a question to answer, not a verdict.", ""]
 
     preds = [(text[:m.start()].count("\n") + 1, m.group(1).strip())
-             for m in PRED_RE.finditer(text)]
+             for m in re.finditer(_PRED, text, re.I | re.M)
+             if _is_pred(m.group(1).strip())]
     scores = [(text[:m.start()].count("\n") + 1, m.group(1).strip())
               for m in SCORE_RE.finditer(text)]
 

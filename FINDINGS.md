@@ -38,7 +38,10 @@ file exists to prevent).
   observed multiple times this session; fixed 2026-08-10 by removing the
   digest job from `experiment.yml` entirely. **Confidence: HIGH**
   (directly observed, root-caused, fixed).
-- **GitHub Actions concurrency ceiling on this account is roughly 40-50
+- **GitHub Actions concurrency ceiling on this account is 20 simultaneous
+  RUNNING jobs** (measured 2026-08-10: 20 running / 9 queued, the documented
+  per-plan cap). Superseded reading, kept only to stop it being re-adopted:
+  "roughly 40-50
   simultaneous jobs.** Found empirically (jobs stuck at `runner_id: 0`
   above this range). External audit's read: this is very likely just the
   documented per-plan cap (20 free / 40 pro / 60 team), not a genuine
@@ -58,12 +61,21 @@ are the project's own success criteria and had never been computed.
   the animal-era share, since the counters include the ~260-day pre-fauna
   period when plants starve and none are eaten. Fully emergent — nothing
   sets a grazing rate anywhere in the code.
-- **Carnivory only PARTIALLY controls herbivores. Confidence: HIGH.**
-  Predation causes 23.6% of animal deaths (median 19.9%) and exceeds 50%
-  in only **5/120** runs. Starvation dominates. Real herbivore
-  populations are usually predation-limited, so this is the weaker
-  pillar and the honest answer to "has carnivory ever controlled
-  herbivores here" is: not usually.
+- **Carnivory is NOT DEMONSTRATED AS EMERGENT. Confidence: HIGH.**
+  Predation's share of animal deaths grows with world age — 26.4% at day
+  800 to 35.4% by day 1600 on the same 21 mature survivors, majority cause
+  in 6/21. **But that metric cannot be read as an emergent-carnivory result**
+  (adversarial audit F1, 2026-08-11): ATTACK's arbiter score carries a
+  hardcoded `0.5 +` floor that no gene can remove, and across those same 21
+  runs median evolved `meatAttraction` is **0.0935**, so the constant supplies
+  **84%** of attack attraction at the median and 99.9% in one of the six
+  "majority predation" worlds. The control comparison is decisive: unfloored
+  `plantAttraction`, same genome, same selection, evolved to **0.80**.
+  Selection raises an attraction gene when it is free to; it is declining to
+  raise this one. Removing the floor in v0.50 cut kills/day 3/3.
+  The honest statement: **predation happens and grows, but whether carnivory
+  is emergent here is untested**, and the pillar cannot be scored until a
+  mechanism makes ATTACK reachable without a floor.
 - **The herding/confusion mechanism may help viability, but the effect is
   small. Confidence: LOW-MODERATE (downgraded from HIGH 2026-08-10).**
   The original "worth ~0.47 R0" figure was a **run-length artifact** —
@@ -192,8 +204,11 @@ are the project's own success criteria and had never been computed.
   `k_photoCost` 0.004/0.008/0.012/0.020 and both `k_gut` values, so it is
   not specific to a dose or seed set. The single exception went extinct.
   **Replaced by the two-outcome statement below.**
-- **The real picture: ~1/3 extinctions, and survivors mostly establish.**
-  (a) Roughly a third of runs go extinct early — terminal, unaffected by
+- **The real picture: ~half to two-thirds extinctions, and survivors mostly
+  establish.** (Corrected 2026-08-11, audit F5 — "~1/3" was measured on an
+  older, smaller set. Complete-block cold seeds: **3x 12/24 = 50% extinct,
+  5x 21/30 = 70%**; establishment batch 7/14 and 8/15 at 1600 days.)
+  (a) Half or more of runs go extinct early — terminal, unaffected by
   any cutoff. That is the genuine failure mode. (b) Among survivors,
   800-day R0 **understates** the established value by ~0.39 on average.
   These are two separate outcomes and neither substitutes for the other.

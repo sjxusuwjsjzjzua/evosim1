@@ -5991,3 +5991,139 @@ before the block is full.
 Actions at the cap: **20 running, 1 queued.** Corpus still 3x-only in landed
 results; arms 0 (1x) and 3 (shipped defaults) are in run_numbers 63-64,
 currently executing.
+
+---
+
+# ADVERSARIAL AUDIT #1 — responses. 2026-08-11, 22:55 PDT
+
+Five findings, all CONFIRMED, filed in `AUDIT-FINDINGS.md`. I re-verified the
+load-bearing arithmetic of F1 and F2 myself from the logs before responding,
+rather than accepting them on the auditor's word. **All five accepted.** Zero
+rejected — which is not the outcome I expected when I wrote the charter, and is
+worth saying plainly rather than smoothing over.
+
+---
+
+## F1 — ACCEPTED. The carnivory upgrade claim is retracted.
+
+Verified independently across the same 21 survivors:
+
+| | value |
+|---|---|
+| median evolved `meatAttraction` (ATTACK, floored) | **0.0935** |
+| median evolved `plantAttraction` (GRAZE, unfloored) | **0.8004** |
+| median share of ATTACK attraction supplied by the hardcoded `0.5 +` | **84%** |
+
+The six "majority predation" worlds carry `meatAttraction` of 0.1240, 0.0333,
+0.2109, 0.0347, 0.0935 and **0.0005** — that last one (seed 41111) runs 119,948
+attacks with predation at 51.5% of deaths on a gene indistinguishable from zero,
+i.e. **99.9% of its attack attraction is a constant in the source.**
+
+The comparison that settles it is one the auditor drew and I had not: the two
+genes sit in the same genome under the same selection. `plantAttraction` is
+unfloored and selection drove it to **0.80**. `meatAttraction` is floored and
+selection drove it to **0.09**. Selection is perfectly capable of raising an
+attraction gene — it is *actively declining to raise this one*, and the
+behaviour persists anyway because `evosim-v0_51_0.html:1741` adds 0.5 that no
+gene can remove. v0.50 removed that floor and kills/day fell 3/3, which I scored
+as a MISS and reverted into v0.51 — so I had the causal evidence in hand and
+filed it as a build regression rather than as what it also was: a demonstration
+that the constant, not the gene, is carrying the behaviour.
+
+**Retracted:** "6/21 survivors now has predation as the majority cause of animal
+death — *that is a real upgrade to the weakest mission pillar*". The arithmetic
+stands; the reading does not. Under this project's own test — *if a result had
+to be written into the code, it doesn't count* — a pillar cannot be scored on a
+metric that is 84% constant at the median.
+
+**Stands, narrowed:** predation is a growing share of animal deaths (26.4% at
+day 800 → 35.4% at day 1600, same runs, self-matched). That within-run growth is
+real and unaffected by the floor, since the floor is constant across the window.
+What is unavailable is calling it emergent carnivory.
+
+This is the first mission-test violation the project has caught in its own
+results rather than in its code, and I want it recorded that it was found by an
+outside reader on the same data I had summarised four hours earlier.
+
+## F2 — ACCEPTED, and acted on before the arm could produce data.
+
+The 25,000 plant-slot array binds in **54% of 3x runs** and in **4 of 4** of the
+1x control seeds inside their first 360 days. I had `plantsHi: 25000` printed in
+front of me in the previous heartbeat and read past it.
+
+A control arm that hits a slot ceiling before the cutoff it is scored at is not
+a dose control — it is `maxPlants` deciding the standing crop while
+`k_photoCost` wears the label. That is the *same artifact whose discovery
+started this investigation*, reintroduced by construction.
+
+Killed all four local 1x seeds. **Voiding — not amending — the frozen
+pre-registration at the previous entry.** Amending a prediction after seeing
+partial data is the hazard the auditor names; voiding it and writing a fresh one
+is clean, and legitimate here specifically because **no 1x seed reached day 800,
+so no outcome data has been seen.** The 25k-arena values 16/24 and 11/30 are
+retired as thresholds: they are not comparable to a full-arena arm.
+
+## F3 — ACCEPTED. Scoring the arena patch's prediction a MISS.
+
+`caps` is documented in the build I was reading (`:3255`, bit 1 = plant slots
+full) and provable from the log: all 52 flagged samples in seed 10008 have
+`plants + seeds` exactly 25000. My dismissal — "standing plants peak at 24,691,
+so the cap is not what tripped it" — failed because **seeds share the slot
+array**, which the build says three lines away. The 24,691 figure is also 1.24%
+below the cap, not the ">0.5% clearance" I claimed.
+
+`arena-speed-photocost.json` predicted the cap would stop binding. It binds on
+10.8% of that run's samples and on 54% of the 3x arm. **MISS**, not can't-tell.
+Per rule 3 that means the diagnosis was wrong, not that the constant needs
+raising. Fifth recorded instance of the better number already sitting in the
+digest unread — `analyze.py` printed `<<A BOUND IS DOING THE SELECTING` on this
+exact run.
+
+## F4 — ACCEPTED. The frozen block held two incompatible definitions.
+
+"alive at day 800" gives 16/24 and 11/30; "final animals 0" gives 12/24 and
+9/30. I froze both sentences in the same block. Superseded by the void under F2,
+but the lesson survives it: **a frozen prediction needs its metric in exactly
+one sentence.** Also taking the auditor's narrower point — the quantity is *"not
+yet dead at day 800"*, not persistence; four seeds alive at 800 died by 1245.
+
+## F5 — ACCEPTED. Stale current-truth files, fixing below.
+
+`HANDOFF.md` states the Actions ceiling as "40-50, **not the 20 originally
+assumed**" — the exact inverse of the measured value, in the file CLAUDE.md
+tells every session to read first. Plus 5x-as-leading-dose (resolved to no
+difference), extinction ≈1/3 (measured 50%/70%), the superseded predation
+figure, a "Current state — v0.49.0" header on a v0.51 build, and a CLAUDE.md
+Files table that never mentions `evosim-v0_51_0.html`.
+
+---
+
+## PRE-REGISTRATION: full-arena dose series (replaces the voided one)
+
+Written before any full-arena 1x or 5x seed exists. **One metric, one sentence:**
+a seed counts as SURVIVING if `animals > 0` at **day 800** exactly; nothing else
+is the metric, and the word "persistence" is not used for it — it is *not yet
+dead at day 800*.
+
+Arms, all at the shipped arena `maxPlants 90000 / maxAnimals 40000`, so the slot
+cap is off by construction in every arm rather than adjusted for:
+
+| arm | cfg |
+|---|---|
+| 1x | unpatched shipped build |
+| 3x | `cfg-patches/photocost-only-fullarena.json` (`k_photoCost` 0.012) |
+| 5x | `cfg-patches/photocost-hi-fullarena.json` (`k_photoCost` 0.020) |
+
+- **HIT** if, at n>=20 complete-block seeds per arm, survival is monotone
+  `1x >= 3x >= 5x` **and** `1x - 5x >= 20 percentage points`. Respiration cost is
+  then a real extinction lever, measured with the cap off.
+- **MISS** if the ordering is non-monotone, **or** `1x - 5x < 20 points`. Either
+  means the 3x-vs-5x gap seen at 25k (67% vs 37%) was substantially the slot cap,
+  not the dose.
+- **CAN'T-TELL** below n=20 per arm.
+- **Guard, stated in advance:** any arm in which more than 5% of samples carry
+  `caps & 1` is reported **cap-limited** and excluded from the comparison, whatever
+  its survival rate. This is the check whose absence produced F2.
+
+No threshold here is inherited from the 25k arena. Nothing in this prediction may
+be re-derived after data lands.
