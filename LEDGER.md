@@ -6671,3 +6671,37 @@ Also worth recording: `biteForce` moving 5.39 sd in the one surviving
 floor-off run is the strongest directional gene response measured in this
 project. Under v0.52 predation, weapons are under selection even where
 attraction is not.
+
+## Floor-on control starts landing: the floor makes no difference to the gene
+
+05:45 PDT. Two floor-on (control) seeds landed, giving the first paired read.
+
+| arm | n | median `meatAttraction` | alive |
+|---|---|---|---|
+| floor-off (`k_meatAttrFloor` 0) | 7 | **0.1084** | 1/7 |
+| floor-on (0.5, control) | 2 | **0.1323** | 0/2 |
+
+**Essentially identical, and both far below the 0.30 HIT threshold.** Removing
+the hardcoded ATTACK floor changed the evolved gene by roughly nothing. Neither
+arm is complete (5 and 10 outstanding) and survivors land last, so this is a
+direction and not a result — but it is the direction the strategic audit
+predicted: if `meatAttraction` is not under effective selection, then whether
+its score carries an additive 0.5 is irrelevant to where the gene ends up.
+
+Predation share stays high in both arms (37.0% and 42.3% in the controls), so
+v0.52's injury mechanism is doing its job regardless of the floor.
+
+## Local compute has lost the race with container restarts
+
+Six restarts in seven hours, most recently killing all three [L66] arms at days
+120-160 of 1600. Local cannot finish a 1600-day run, and a heartbeat cannot
+dispatch to Actions.
+
+**Fix: fold the diagnostic into the standing rotation** (`experiment.yml`,
+3-way -> 5-way, pushed to `main`). The scheduler is the only mechanism that
+runs unattended work here, so arms that need to finish belong in it rather than
+on local cores. Nothing is abandoned — the full-arena dose series keeps its
+frozen prediction and fills at ~2.4 jobs/h per arm instead of 4.
+
+Local is now used only for what can finish inside a restart window: 420-day
+early-indicator runs and the outstanding rule-7 re-verification.
