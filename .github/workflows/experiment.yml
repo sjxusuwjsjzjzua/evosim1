@@ -65,10 +65,21 @@ on:
   # with an empty queue. Overlap is NOT the cause -- the 4:07 run fired
   # while the 3:08 run was still in progress -- so this is plain tick
   # loss, which no workflow-side change can prevent.
-  # Mitigation is graceful degradation instead: spreading the same 18
-  # jobs/h across three independent ticks means a dropped tick costs 6
-  # jobs rather than all 18, and two consecutive drops still leave the
-  # hour two-thirds fed. Minutes are off-peak and mutually spaced.
+  # Mitigation was meant to be graceful degradation: spreading the same 18
+  # jobs/h across three independent ticks so a dropped tick costs 6 jobs
+  # rather than all 18. **That reasoning was wrong and is retracted.**
+  # Measured one hour after it shipped: between 02:35 and 03:35 UTC on
+  # 2026-08-11, ALL THREE ticks (:47, :07, :27) dropped -- not one, all of
+  # them -- leaving Actions at 11/20 with an empty queue. Drops are
+  # CORRELATED, not independent, so splitting a tick three ways buys
+  # nothing; it just makes each surviving tick smaller. The three crons are
+  # kept (they cost nothing and occasionally one does land) but the real
+  # defence is making a single surviving tick large enough to matter, so
+  # seeds/tick goes 6 -> 12. If all three land that is 36 jobs/h against a
+  # ~20 job/h service capacity, which builds a BOUNDED queue -- and a queue
+  # is precisely the buffer that carries the batch through the next hour of
+  # dropped ticks. Under-running the cap with an empty queue is the failure
+  # mode; a short queue is the fix, not a problem.
   schedule:
     - cron: '7 * * * *'
     - cron: '27 * * * *'
@@ -113,7 +124,7 @@ jobs:
           if [ -z "$seeds" ]; then
             base=$(( 40000 + ${{ github.run_number }} * 20 ))
             seeds="$base"
-            for k in 1 2 3 4 5; do seeds="$seeds,$((base+k))"; done
+            for k in 1 2 3 4 5 6 7 8 9 10 11; do seeds="$seeds,$((base+k))"; done
             echo "scheduled firing: derived seeds $seeds"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
@@ -154,14 +165,33 @@ jobs:
           # Scheduled firings pass no inputs; fall back to the current
           # protocol defaults so a standing batch is a valid replicate.
           if [ -z "$CFG_IN" ]; then
-            # Alternate arms by run parity so the standing batch accumulates
-            # matched cold-seed replicates of BOTH doses rather than deepening
-            # one arm forever. Odd runs = 5x, even = 3x base dose.
-            if [ $(( ${{ github.run_number }} % 2 )) -eq 1 ]; then
-              CFG_IN="cfg-patches/screen-photocost-hi.json"
-            else
-              CFG_IN="cfg-patches/arena-speed-photocost.json"
-            fi
+            # Rotate arms by run_number so the standing batch accumulates
+            # matched cold-seed replicates of the WHOLE dose series rather
+            # than deepening one arm forever.
+            #
+            # Widened 2026-08-10 from a 2-way (3x/5x) to a 4-way rotation.
+            # Reason: a collect-and-count of all 82 standing-batch seeds that
+            # had landed showed every single one sitting at k_photoCost 0.012
+            # or 0.02 -- there was NO run at the shipped default dose
+            # anywhere in the batch, and none at shipped defaults at all. So
+            # the 3x-vs-5x difference (67% vs 37% alive at day 800 on n=54
+            # complete blocks) had nothing to be a difference *from*, and no
+            # data described the build as it actually ships. Arms 0 and 3
+            # close both gaps:
+            #   0  1x-arena  -- dose control: same arena caps as 3x/5x, only
+            #                   k_photoCost differs, so 0.004/0.012/0.02 is a
+            #                   clean one-variable series.
+            #   3  (no cfg)  -- the shipped build at its own defaults, caps
+            #                   included. Not part of the dose series (its
+            #                   caps differ too); it answers the separate and
+            #                   more basic question of what the app does when
+            #                   someone just opens it.
+            case $(( ${{ github.run_number }} % 4 )) in
+              0) CFG_IN="cfg-patches/arena-photocost-1x.json" ;;
+              1) CFG_IN="cfg-patches/screen-photocost-hi.json" ;;
+              2) CFG_IN="cfg-patches/arena-speed-photocost.json" ;;
+              3) CFG_IN="" ;;   # shipped defaults, deliberately unpatched
+            esac
           fi
           [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_51_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
