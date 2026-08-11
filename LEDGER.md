@@ -5416,3 +5416,67 @@ had N=12, below the threshold — but 4002's establishment run ended at
 through. The two are the same trajectory sampled at different points, and
 the classification disagreement is exactly the horizon effect, not a
 definitional one.
+
+---
+
+## A continuously-firing batch can never give an unbiased persistence rate
+
+54 cold standing-batch seeds have now been collected, and pooled they read
+**17/54 = 31% persistence at 1600 days** — well below the establishment
+batch's 14/29 = 48%. Before recording that as a revision, checked whether
+it is real. It is not.
+
+Standing seeds are blocked by firing (`seed = 40000 + run_number*20 + k`,
+18 per firing), so each block can be checked for completeness:
+
+| block | seeds | reported | alive | apparent persistence |
+|---|---|---|---|---|
+| 54 | 41080-41097 | 12 / 18 | 7 | **58%** |
+| 55 | 41100-41117 | 12 / 18 | 4 | 33% |
+| 56 | 41120-41137 | 10 / 18 | 3 | 30% |
+| 59 | 41180-41197 | 16 / 18 | 3 | 19% |
+| 60 | 41200-41217 | 4 / 18 | 0 | **0%** |
+
+**Apparent persistence falls monotonically with how recently the block was
+fired** — 58% for the oldest, 0% for the newest. That is the completion-order
+bias in its purest form: a run that dies autohalts in a few hundred days
+and lands almost immediately, while a survivor grinds the full 1600 days
+and lands hours later. At any instant, recent firings have contributed
+only their deaths.
+
+**No block has fully reported**, so the standing batch currently supports
+*no* unbiased persistence estimate at all. The oldest block, at 12/18
+reported and 58%, is the closest to unbiased and sits **above** the
+establishment figure, not below it.
+
+**The 31% is discarded, not recorded as a revision.** The persistence
+figure stands at **~48% at 1600 days** from the establishment batch, which
+is the only essentially-complete cold sample (29/30).
+
+### Standing operational rule
+
+This will recur every cycle for as long as the standing batch runs, so it
+needs to be a rule rather than a per-cycle catch:
+
+> **Never compute a rate over the standing batch's accumulated results.
+> Restrict to firing-blocks where ≥17 of 18 seeds have reported, and state
+> which blocks were used. A block that is still filling contributes only
+> its fast deaths.**
+
+This is hard rule 7b's sibling — 7b says don't compare across different
+run *lengths*; this says don't aggregate across different run *ages*. Both
+are the same underlying error: pooling observations that have had unequal
+opportunity to show their outcome.
+
+I nearly recorded the 31% as a genuine downward revision of the mission's
+headline number, one cycle after committing to stop revising that number
+on small samples. The block check took two minutes and is now the standing
+procedure.
+
+**Compute note:** the queue drained hard this cycle (15 → 3 queued) as the
+one-off 2400-day ladder jobs finished, and the 5:02 PM scheduled run is
+still *queued* rather than running — the standing batch self-throttles at
+the concurrency cap instead of piling up, which is the desired behaviour.
+Scheduled cadence is holding at roughly hourly (+71, +48, +59, +54 min
+between fires), just consistently ~30 min late, which is normal for
+GitHub's scheduler.
