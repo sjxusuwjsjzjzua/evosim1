@@ -283,6 +283,7 @@ def digest(path):
     sec_trophic(c, P)
     sec_ceilings(d, P)
     sec_sel_health(d, P)
+    out['selectable'] = sec_selectable(d, P)
     out['stationary'] = stationary
 
     out['days'] = days
@@ -578,6 +579,99 @@ def cross(rows):
         vals += [r['eg'], r['harm']] + [r['drift'].get(k, float('nan')) for k in ('plants', 'bio', 'animals')]
         print('  %-14s ' % ('%s v%s' % (r['seed'], r['ver'])) +
               ' '.join('%12.3f' % v for v in vals))
+
+
+# Genes the simulation loop NEVER reads. Verified by grepping for AG.<name>
+# in the build: zero hits each. They mutate and drift exactly like every other
+# gene and are acted on by nothing, which makes them a built-in negative
+# control for "is selection detectable at all?".
+INERT_CONTROL = ['territoriality', 'ambushTendency', 'mateChoosiness',
+                 'parentalCare', 'pathogenResistance']
+
+
+def sec_selectable(d, P):
+    """THE SELECTION-RESPONSE GATE.
+
+    Added 2026-08-11 after a strategic audit found that evolved
+    meatAttraction was statistically indistinguishable from `territoriality`
+    -- a gene with identical bounds, identical sigma, identical founder start
+    and ZERO references anywhere in the simulation. Every mechanism claim in
+    this project rests on reading an evolved gene value, and nobody had ever
+    checked whether the population could move a gene at all.
+
+    Two numbers, both cheap:
+      1. neutral variance retention -- inert-gene SD now vs at the first
+         populated snapshot. Collapse means drift is swamping selection.
+      2. whether ANY functional gene has moved further than the furthest
+         inert gene. If not, "the gene did not move" is a statement about the
+         population, not about the mechanism under test.
+
+    This gate outranks the ecological sections below it. A run that fails it
+    cannot score a mechanism prediction, in either direction.
+    """
+    P('')
+    P('-- SELECTION RESPONSE (can this population move a gene at all?) ' + '-' * 14)
+    snaps = [x for x in d.get('genes', []) if x.get('animal', {}).get('n', 0) > 20]
+    names = d.get('geneNames', {}).get('animal', [])
+    if len(snaps) < 2 or not names:
+        P('  n/a  [needs >=2 gene snapshots with a populated animal census]')
+        return None
+    f, l = snaps[0]['animal'], snaps[-1]['animal']
+
+    ratios = []
+    for g in INERT_CONTROL:
+        if g not in names:
+            continue
+        i = names.index(g)
+        if i < len(f['sd']) and f['sd'][i] > 1e-9:
+            ratios.append(l['sd'][i] / f['sd'][i])
+    if not ratios:
+        P('  n/a  [no inert control genes found in this build]')
+        return None
+    keep = st.median(ratios)
+
+    # How far each gene moved, IN UNITS OF ITS OWN STANDING VARIATION
+    # (|dmean| / sd_at_first_census). Raw movement is unusable as a yardstick
+    # because gene ranges differ by five orders of magnitude -- parentalCare
+    # spans [0, 20000] and armour spans [0, 1], so an absolute comparison is
+    # just a ranking of gene ranges. The same mistake is live in sec_ne above,
+    # which averages parentalCare raw; flagged by the 2026-08-11 strategic
+    # audit and not fixed here to keep this one change reviewable.
+    def moved(i):
+        sd0 = f['sd'][i] if i < len(f['sd']) else 0.0
+        if sd0 <= 1e-12 or i >= len(f['mean']):
+            return None
+        return abs(l['mean'][i] - f['mean'][i]) / sd0
+
+    inert_move = [m for m in (moved(names.index(g)) for g in INERT_CONTROL
+                              if g in names) if m is not None]
+    ceiling = max(inert_move) if inert_move else 0.0
+
+    P('  neutral variance retained   %.1f%%   [inert-gene SD now / at first census]%s'
+      % (100 * keep, '   <<DRIFT DOMINATES' if keep < 0.40 else ''))
+    P('  drift yardstick             %.2f sd  [largest move by a gene nothing reads]' % ceiling)
+
+    beat = []
+    for g in names:
+        if g in INERT_CONTROL:
+            continue
+        mv = moved(names.index(g))
+        if mv is not None and mv > ceiling:
+            beat.append((mv, g))
+    beat.sort(reverse=True)
+    if beat:
+        P('  functional genes that beat drift: %d' % len(beat))
+        for mv, g in beat[:6]:
+            P('      %-22s moved %.2f sd' % (g, mv))
+    else:
+        P('  functional genes that beat drift: NONE')
+
+    ok = keep >= 0.40 and len(beat) > 0
+    if not ok:
+        P('  >> SELECTION NOT DEMONSTRABLE. No mechanism prediction is scoreable on')
+        P('  >> this run in EITHER direction -- a gene that did not move here is')
+        P('  >> evidence about the population, not about the mechanism.')
+    return ok
 
 
 if __name__ == '__main__':

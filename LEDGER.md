@@ -6419,3 +6419,52 @@ arm tests carnivory *"with no subsidy of any kind"*. That is **false**.
 `carrionFloor` 0.30 (`:1540`) still gives every animal 30% meat digestion at
 carnivory 0, and by routing kills through the carrion path I made that floor
 *more* load-bearing, not less. It silently replaced `0.5 +` as the subsidy.
+
+## SHIPPED: the selection-response gate [L65]
+
+`analyze.py` gains `sec_selectable`, run on every log, reporting two numbers
+and a verdict. It exists because the strategic audit found that nobody had ever
+checked the precondition for every ecological claim this project has made:
+**can the population move a gene at all?**
+
+The instrument is a control the build has carried the whole time. Five animal
+genes — `territoriality`, `ambushTendency`, `mateChoosiness`, `parentalCare`,
+`pathogenResistance` — mutate and drift exactly like the rest and are read by
+**nothing** (zero `AG.<name>` references). They are a built-in null.
+
+Two statistics:
+
+1. **Neutral variance retained** — inert-gene SD now vs at the first populated
+   census. Collapse means drift is swamping selection.
+2. **Drift yardstick** — the largest movement by a gene nothing reads,
+   expressed in units of that gene's own standing variation. A functional gene
+   has to beat it to count as responding.
+
+Normalising by standing variation rather than raw movement is load-bearing and
+was a bug on the first attempt: gene ranges span five orders of magnitude
+(`parentalCare` [0, 20000] vs `armour` [0, 1]), so an absolute comparison just
+ranks gene ranges. The first version duly reported `lifespan` and `maturityAge`
+as the only genes beating drift, which is an artifact of their bounds.
+**The same error is live in `sec_ne` above** — the audit found it averages
+`parentalCare` raw and consequently prints "rising 1.99x" on the corpus's most
+frozen run. Left in place for now so this change stays reviewable; it needs its
+own fix.
+
+### The corpus readout, n=59 runs with usable snapshots
+
+| | |
+|---|---|
+| neutral variance retained | median **28.9%** |
+| drift yardstick | median **1.96 sd** — by a gene nothing reads |
+| functional genes beating drift | median **7** of ~50 |
+| runs where **zero** functional genes beat drift | 5/59 |
+| **runs failing the gate** | **41/59 (69%)** |
+
+**Sixty-nine percent of runs cannot demonstrate that selection is acting on
+anything.** In those runs "the gene did not move" is a statement about the
+population, not about the mechanism under test — which is exactly the inference
+this project has been making since v0.39.
+
+The gate deliberately outranks the ecological sections below it in the digest.
+A run that fails it cannot score a mechanism prediction **in either direction**,
+including the v0.52 emergence test now queued.
