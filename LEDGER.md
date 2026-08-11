@@ -6323,3 +6323,99 @@ already on record.
 
 Standing batch confirmed **still firing** — six scheduled fires in the previous
 three hours, most recent 00:23 PDT.
+
+---
+
+# STRATEGIC AUDIT: the mechanism tests have been running in a population that cannot respond to them
+
+2026-08-11, 01:15 PDT. A second, strategic auditor was asked whether carnivory
+is even the right thing to work on. Its answer — verified independently below —
+is that **neither carnivory nor stability is the binding constraint; selection
+response is.** Everything here I re-measured myself before accepting.
+
+## 1. RETRACTION: my F1 "decisive comparison" was wrong
+
+I wrote, and reported, that the argument settling F1 was: *"unfloored
+`plantAttraction`, same genome, same selection, evolved to 0.80. Selection
+raises an attraction gene when it is free to; it is declining to raise this
+one."*
+
+**`plantAttraction` starts at 0.80** (`evosim-v0_52_0.html:702`). It did not
+evolve there. Measured across 31 surviving runs it ends at **0.823** — it moved
+**+0.02 in 1600 days**. The comparison I called decisive shows nothing about
+selection's ability to raise an attraction gene, because selection never raised
+that one either.
+
+F1's *conclusion* survives — ATTACK did carry a hardcoded floor that GRAZE and
+SCAVENGE lacked, and that remains a mission-test problem. Its *mechanism* does
+not. I built a story on a founder value and did not check it.
+
+## 2. The build contains a perfect negative control, and I never used it
+
+| gene | bounds | sigma | founder start | reads in the sim loop |
+|---|---|---|---|---|
+| `meatAttraction` (`:703`) | [0,1] | 0.04 | 0.10 | **1** (`:1797`) |
+| `territoriality` (`:708`) | [0,1] | 0.04 | 0.10 | **0** |
+
+Identical in every parameter; one is functional, the other is never read by
+anything. That is a built-in control for "is selection acting at all", and it
+has been sitting in the gene table the whole time.
+
+Measured over 31 surviving runs:
+
+- `meatAttraction` (functional) median **0.0994**
+- `territoriality` (**never read**) median **0.1824**
+- paired sign test: 20 lower / 11 higher, **two-tailed p = 0.150**
+
+**The functional gene is statistically indistinguishable from a gene the code
+never reads — and its point estimate is *lower*.** (The auditor got p = 0.23 on
+a larger n=45 including other run directories; same direction, same conclusion.)
+
+## 3. Drift is dominating
+
+Inert animal genes — pure drift by construction — retain a median **24.2%** of
+their starting standard deviation, and **28 of 31 runs lose more than half**.
+Selection cannot move a gene whose coefficient is below roughly 1/(2·Ne); at
+this level of variance loss, almost nothing qualifies.
+
+The auditor's proposed causal chain (CONFIRMED link by link, PLAUSIBLE
+end-to-end): a 40-day year (`:314`) shorter than the ~24-day mean lifespan →
+~18x annual population oscillation with troughs of 1-15 animals → annual
+bottleneck → tiny effective population size → no gene responds. That would
+explain the 50-70% extinctions, the emergence failures, *and* the SD 0.25-0.53
+seed-to-seed noise that made every CFG comparison underpowered — that noise is
+the founder lottery, not nuisance variance.
+
+## 4. What this means for everything I have concluded
+
+**I have been reading "the gene did not move" as evidence about the mechanism
+when it is evidence about selection response.** Every diagnosis in this project
+that rests on an evolved gene value is suspect on the same grounds — including
+my own v0.52 diagnosis. That does not make the v0.52 mechanism wrong (the
+injury/carrion physics defects are real and independently verified), but it
+does mean **the running emergence test may be unable to produce a signal either
+way**, and a MISS would not be a rule-3 wrong diagnosis. It would be a null
+instrument.
+
+## 5. v0.52 has a specific defect the auditor found, and I confirmed
+
+v0.52 routes **100% of predation payoff** through the corpse channel. Measured
+on my own v0.52 runs:
+
+| run | killMass | eaten | rotted | eaten |
+|---|---|---|---|---|
+| smoke-7001 | 315 | 91 | 988 | **8.4%** |
+| smoke-4001 | 340 | 149 | 901 | **14.2%** |
+| flooron-71002 | 508 | 223 | 1094 | **16.9%** |
+
+**83-92% of corpse mass rots unfound**, and the gene gating whether a killer
+eats its own kill — `carrionAttraction`, unfloored — sits at **0.089**, having
+started at 0.10. So v0.52 turned a one-locus problem into a **two-locus**
+one (`meatAttraction` to hunt, `carrionAttraction` to collect) in a population
+where one locus already cannot respond.
+
+Also, and this one is mine to own: the v0.52 pre-registration says the floor-off
+arm tests carnivory *"with no subsidy of any kind"*. That is **false**.
+`carrionFloor` 0.30 (`:1540`) still gives every animal 30% meat digestion at
+carnivory 0, and by routing kills through the carrion path I made that floor
+*more* load-bearing, not less. It silently replaced `0.5 +` as the subsidy.
