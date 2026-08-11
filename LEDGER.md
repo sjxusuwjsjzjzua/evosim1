@@ -7025,3 +7025,50 @@ the longer-lived floor-off runs are the ones with the *lowest* meat attraction.
 That is a selection effect on which runs can be measured, and it means this
 table cannot be read as an unbiased description of the arm. It answers the
 narrow question it was asked (was selection working?) and not a broader one.
+
+## [L66]'s frozen thresholds were calibrated against a non-comparable baseline
+
+13:40 PDT. Flagging this **before** either arm reaches n=6, so it cannot be a
+post-hoc rescue of an unwelcome result.
+
+Arms as they stand:
+
+| arm | n | neutral retention (med) | genes past drift (med) | peak N (med) |
+|---|---|---|---|---|
+| **1x-control** (v0.52, full arena) | 4 | **64.9%** | **16** | 1714 |
+| noseason (`seasonAmp` 0) | 2 | 140.7% | 21 | 2076 |
+| 3x (`k_photoCost` 0.012) | 11 | 31.3% | 9 | 313 |
+| 5x (`k_photoCost` 0.020) | 16 | 21.7% | 12 | 137 |
+
+**The matched control already passes both frozen HIT thresholds.** [L66] set
+HIT at retention above 40% and genes-past-drift above 7, calibrated against a
+**corpus median of 28.9% and 7** — but that corpus is v0.51, on the 25k
+cap-confounded arena, pooled across doses. The v0.52 full-arena control sits at
+**64.9% and 16** with nothing done to it.
+
+So a treatment arm could clear both thresholds while being no better than its
+own control, and I would have recorded a HIT. That is the same class of error
+as rule 7b: comparing a statistic against a baseline drawn from a different
+configuration.
+
+**What I am doing about it, and what I am not.** The frozen thresholds stay
+exactly as written — I am not moving a number to suit data. What changes is
+what the primary read *is*: **the comparison that means anything is treatment
+versus the matched 1x-control arm**, same build, same arena, same rotation,
+same seeds stream. The corpus-calibrated thresholds are reported alongside as
+what was originally written down, and an arm that clears them without beating
+its matched control is a **CAN'T-TELL, not a HIT.**
+
+Against the matched control the direction still holds — noseason 140.7% vs
+64.9% retention, 21 vs 16 genes — but the margin is far smaller than the
+corpus-calibrated framing implies, and at n=2 vs n=4 it is nothing yet.
+
+Worth noting separately: the 1x-control arm is **0 of 4 alive** despite a
+median peak N of 1714. High selection response, large populations, and
+extinction anyway. That reinforces the split noted at n=1 — whatever kills
+these worlds is not what freezes their genes.
+
+Also visible here: retention falls monotonically with `k_photoCost` (control
+64.9%, 3x 31.3%, 5x 21.7%) while peak N falls the same way (1714, 313, 137).
+Smaller populations, more drift — which is the mechanism [L66] is about,
+showing up in an arm that was not designed to test it.
