@@ -245,12 +245,25 @@ return {
           gene: LOG.gene.slice(), carn: LOG.carn.slice(), hgt: LOG.hgt.slice(),
           dage: LOG.dage.slice(), upk: LOG.upk.slice(), every: LOG.geneEvery,
           dageA: Array.from(DAGE), upkA: Array.from(UPK), upkn: UPKN,
+          // geneRow() ends by zeroing the accumulator (build :3528) --
+          // 'sel' is a WINDOW, not a cumulative total, so reading it drains it.
+          // Missing these two was a real defect: the first rule-7 check FAILED
+          // with every difference confined to sel/selN, e.g. plant selN 864
+          // where the unpatched run had 191776, because each checkpoint stole
+          // the selection window from the next real snapshot. The gene means
+          // and every logged column were already identical -- only the
+          // selection readout was corrupted, which is exactly the kind of
+          // quiet, plausible-looking damage rule 7 exists to catch.
+          selP: SELP.acc ? Array.from(SELP.acc) : null, selPn: SELP.n,
+          selA: SELA.acc ? Array.from(SELA.acc) : null, selAn: SELA.n,
         };
         logGenes();
         const __json = JSON.stringify(__buildLog());
         LOG.gene = __sg.gene; LOG.carn = __sg.carn; LOG.hgt = __sg.hgt;
         LOG.dage = __sg.dage; LOG.upk = __sg.upk; LOG.geneEvery = __sg.every;
         DAGE.set(__sg.dageA); UPK.set(__sg.upkA); UPKN = __sg.upkn;
+        if (__sg.selP) { SELP.acc.set(__sg.selP); SELP.n = __sg.selPn; }
+        if (__sg.selA) { SELA.acc.set(__sg.selA); SELA.n = __sg.selAn; }
         __writeCheckpoint(__json);
       } catch (__e) {}
     }

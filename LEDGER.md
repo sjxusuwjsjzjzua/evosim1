@@ -6568,3 +6568,41 @@ anything I have measured deliberately.
 Held open: 10 of 12 floor-off seeds outstanding, the entire floor-on arm
 outstanding, and the [L64] rule-7 verification still unfinished (its
 checkpoint-on run completed; the control run is in flight).
+
+## [L64] rule-7 verification FAILED, and the failure was worth having
+
+03:50 PDT. The check — final log byte-identical with `--checkpoint-days 100`
+versus `0`, same seed — came back **DIFFER**. I had committed the change an hour
+earlier with an explicit note that it was unverified. It is now verified as
+broken, and fixed.
+
+**What leaked.** Every single difference was confined to `sel` and `selN` in the
+gene snapshots. Not one logged column, not one gene mean, not one sd. Example:
+
+| | checkpointed | control |
+|---|---|---|
+| `genes[3].plant.selN` | **864** | **191776** |
+| `genes[3].animal.selN` | 16 | 208 |
+
+`geneRow()` ends by zeroing the accumulator (`:3528`) because `sel` is a
+**window**, not a cumulative total — so reading it drains it. My checkpoint call
+was stealing the selection window from the next real snapshot. I had saved and
+restored `LOG.gene`, `LOG.carn`, `LOG.hgt`, `LOG.dage`, `LOG.upk`,
+`LOG.geneEvery`, `DAGE`, `UPK` and `UPKN`, and missed `SELP`/`SELA`.
+
+Fixed by saving and restoring those two as well.
+
+**Why this is the good case.** The damage was quiet and plausible-looking: gene
+means and every trajectory column were perfectly identical, so any spot check
+short of a full byte comparison would have passed it. A corrupted `sel` readout
+would have gone into `sec_sel_health` and been read as biology. That is exactly
+the failure mode rule 7 exists to catch, and the only reason it was caught is
+that the rule specifies byte-identity rather than "looks the same".
+
+**Second defect, same edit.** The fix initially would not parse: the driver in
+`headless.js` lives inside a JS template literal, and my explanatory comment
+contained backticks quoting the build's code, which terminated the literal.
+`node --check` caught it immediately. Worth noting because the comment was
+*about* correctness and broke the file.
+
+Re-verification is running. **The change stays unverified until it reports.**
