@@ -207,17 +207,25 @@ return {
         // since dropped from, not just its current live count.
         plantsHi: P.hi, animalsHi: AN.hi,
       });
-      // CHECKPOINT. headless.js used to write the log exactly once, at the
-      // end, so a run killed mid-flight produced NOTHING -- the session
-      // container restarted twice on 2026-08-10 and threw away four
-      // multi-hour runs, one at day 2040 of 2400. Now every
-      // --checkpoint-days the full log is serialised to <out>.partial.json,
-      // which analyze.py reads exactly like a finished log (it is the same
-      // shape, just shorter). Costs one serialisation per interval; set
-      // --checkpoint-days 0 to disable.  [L62]
-      if (__ckptEvery > 0 && __buildLog && (W.tick % __ckptEvery === 0)) {
-        try { __writeCheckpoint(JSON.stringify(__buildLog())); } catch (__e) {}
-      }
+    }
+    // CHECKPOINT. headless.js used to write the log exactly once, at the
+    // end, so a run killed mid-flight produced NOTHING -- the session
+    // container restarted twice on 2026-08-10 and threw away four
+    // multi-hour runs, one at day 2040 of 2400. Now every
+    // --checkpoint-days the full log is serialised to <out>.partial.json,
+    // which analyze.py reads exactly like a finished log (it is the same
+    // shape, just shorter). Costs one serialisation per interval; set
+    // --checkpoint-days 0 to disable.  [L62]
+    //
+    // MUST NOT be nested inside the progress block above. It was until
+    // 2026-08-11, which meant a checkpoint only fired on ticks that were a
+    // multiple of BOTH intervals -- so --progress-days 40 --checkpoint-days
+    // 100 (19200 and 48000 ticks, ratio 2.5) wrote NO checkpoint at all,
+    // silently, and four running jobs were unprotected while the comment
+    // above claimed they were covered. The defaults happened to divide,
+    // which is why it survived review.  [L63]
+    if (__ckptEvery > 0 && __buildLog && (W.tick % __ckptEvery === 0)) {
+      try { __writeCheckpoint(JSON.stringify(__buildLog())); } catch (__e) {}
     }
     if (__autohalt && LOG.aGone && !ST.apop &&
         (W.tick - LOG.aGoneTick) > CFG.haltAfterDays * __tpd) { __haltedEarly = true; break; }
