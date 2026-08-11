@@ -225,7 +225,34 @@ return {
     // above claimed they were covered. The defaults happened to divide,
     // which is why it survived review.  [L63]
     if (__ckptEvery > 0 && __buildLog && (W.tick % __ckptEvery === 0)) {
-      try { __writeCheckpoint(JSON.stringify(__buildLog())); } catch (__e) {}
+      try {
+        // FRESH GENES IN THE CHECKPOINT.  [L64]
+        // __buildLog() does not call logGenes(), so until now a .partial.json
+        // carried a gene snapshot stale by up to LOG.geneEvery -- and on a run
+        // killed before its first post-fauna snapshot, every gene read exactly
+        // 0.0000. That made checkpoints useless for the one thing the current
+        // predictions are scored on (meatAttraction), and four container
+        // restarts in four hours destroyed every local gene reading.
+        //
+        // logGenes() draws no rng (verified: zero rng() calls in its body and
+        // in geneRow), so calling it here is RNG-safe. But it is NOT free of
+        // side effects -- it pushes onto five LOG arrays, can halve LOG.gene
+        // and double LOG.geneEvery at the cap, and ZEROES the DAGE and UPK
+        // accumulators. Left uncorrected it would steal those accumulators
+        // from the next real snapshot and silently change the final log.
+        // So: snapshot the mutable state, take the reading, restore exactly.
+        const __sg = {
+          gene: LOG.gene.slice(), carn: LOG.carn.slice(), hgt: LOG.hgt.slice(),
+          dage: LOG.dage.slice(), upk: LOG.upk.slice(), every: LOG.geneEvery,
+          dageA: Array.from(DAGE), upkA: Array.from(UPK), upkn: UPKN,
+        };
+        logGenes();
+        const __json = JSON.stringify(__buildLog());
+        LOG.gene = __sg.gene; LOG.carn = __sg.carn; LOG.hgt = __sg.hgt;
+        LOG.dage = __sg.dage; LOG.upk = __sg.upk; LOG.geneEvery = __sg.every;
+        DAGE.set(__sg.dageA); UPK.set(__sg.upkA); UPKN = __sg.upkn;
+        __writeCheckpoint(__json);
+      } catch (__e) {}
     }
     if (__autohalt && LOG.aGone && !ST.apop &&
         (W.tick - LOG.aGoneTick) > CFG.haltAfterDays * __tpd) { __haltedEarly = true; break; }

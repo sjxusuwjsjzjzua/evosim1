@@ -5,3 +5,6 @@
 # committing the whole runs/ tree.
 /runs/
 runs/standing-collect/
+
+# Python bytecode from importing analyze.py as a module in ad-hoc checks.
+__pycache__/
