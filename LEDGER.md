@@ -6831,3 +6831,48 @@ animals doing the hunting are not, in any measurable sense, *evolving* to hunt:
 the gene that governs interest in meat sits where it started, drifting, and it
 sits *lower* in the worlds where nothing nudges attacks into happening. The
 world got a working food chain and no evidence that it built one itself.
+
+## [L64] rule-7 verification PASSES — with a stated gap
+
+08:40 PDT, after three attempts killed mid-flight by container restarts. Same
+seed, `--checkpoint-days 100` vs `0`, 120 days:
+
+    BYTE-IDENTICAL — rule 7 PASS
+
+So the `SELP`/`SELA` restore fixes the defect the first check caught, and
+checkpointing no longer alters the final log. Fresh gene snapshots in
+`.partial.json` are now trustworthy.
+
+**The gap, stated rather than glossed:** 120 days is **pre-fauna**
+(`animalStartDay` 260), so this exercises the **plant** selection accumulator
+`SELP` and never populates `SELA`. The original failure showed differences in
+*both* (`plant.selN` 864 vs 191776 **and** `animal.selN` 16 vs 208), so the
+animal path is fixed by symmetry with an untested restore. A 320-day pair is
+running to close it; until that reports, the animal half is verified by
+construction, not by measurement.
+
+Short runs are the only ones that finish: eight container restarts in nine
+hours, the last killing everything at day 80.
+
+## Dose series: early read only, and a filter bug worth recording
+
+The full-arena v0.52 dose series is accumulating through the standing rotation.
+Alive at the matched day-800 cutoff: 1x **1/1**, 3x **1/3**, 5x **4/8**. The
+frozen prediction needs n>=20 per arm, so this is nowhere near scoreable and is
+recorded only to show the arms are filling.
+
+First attempt at that table returned **nothing**, because I filtered with
+`if 'daysPerYear' in cfg: continue` — intending "exclude the diagnostic arms"
+but actually excluding every run, since `daysPerYear` is a standard CFG key
+present in every log. That is the identical absence-vs-difference confusion the
+strategic audit found in `audit.py`'s `arm_of`, made again by me four hours
+after fixing it there. An arm is defined by a key **differing from default**,
+never by the key existing.
+
+## Rotation status
+
+The 5-way rotation is live on `main` (pushed 05:45 PDT) but the diagnostic arms
+have not landed yet: seeds arriving now fired before the change. Seed 41600 is
+`run_number` 80 and got arm `80 % 3 = 2`, the old 3-way mapping — consistent
+with a run that started earlier and takes ~1.1 h to complete. Newer run numbers
+will hit arms 3 and 4.
