@@ -74,12 +74,21 @@ on:
   # CORRELATED, not independent, so splitting a tick three ways buys
   # nothing; it just makes each surviving tick smaller. The three crons are
   # kept (they cost nothing and occasionally one does land) but the real
-  # defence is making a single surviving tick large enough to matter, so
-  # seeds/tick goes 6 -> 12. If all three land that is 36 jobs/h against a
-  # ~20 job/h service capacity, which builds a BOUNDED queue -- and a queue
-  # is precisely the buffer that carries the batch through the next hour of
-  # dropped ticks. Under-running the cap with an empty queue is the failure
-  # mode; a short queue is the fix, not a problem.
+  # defence is making a single surviving tick large enough to matter.
+  #
+  # ARITHMETIC CORRECTION, 2026-08-11. The previous version of this comment
+  # set seeds/tick to 12 and claimed "36 jobs/h against ~20 job/h service
+  # capacity ... builds a BOUNDED queue". That is simply wrong: when arrival
+  # EXCEEDS service the queue grows without limit, by definition. Measured an
+  # hour later: 20 running, **29 queued and climbing**, with a dispatched
+  # priority experiment (the v0.52 emergence test) stuck behind it.
+  # A queue is only a buffer when arrival is BELOW capacity.
+  #
+  # Sized properly now. Service capacity ~18 jobs/h at the 20-slot cap.
+  # Standing batch takes 4 seeds x 3 ticks = 12 jobs/h, deliberately leaving
+  # ~6 jobs/h of HEADROOM so a dispatched experiment starts within minutes
+  # instead of waiting out a backlog of screening seeds. Screening is the
+  # thing that should yield to a hypothesis under test, not the reverse.
   schedule:
     - cron: '7 * * * *'
     - cron: '27 * * * *'
@@ -124,7 +133,7 @@ jobs:
           if [ -z "$seeds" ]; then
             base=$(( 40000 + ${{ github.run_number }} * 20 ))
             seeds="$base"
-            for k in 1 2 3 4 5 6 7 8 9 10 11; do seeds="$seeds,$((base+k))"; done
+            for k in 1 2 3; do seeds="$seeds,$((base+k))"; done
             echo "scheduled firing: derived seeds $seeds"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
@@ -186,14 +195,19 @@ jobs:
             #                   caps differ too); it answers the separate and
             #                   more basic question of what the app does when
             #                   someone just opens it.
-            case $(( ${{ github.run_number }} % 4 )) in
-              0) CFG_IN="cfg-patches/arena-photocost-1x.json" ;;
-              1) CFG_IN="cfg-patches/screen-photocost-hi.json" ;;
-              2) CFG_IN="cfg-patches/arena-speed-photocost.json" ;;
-              3) CFG_IN="" ;;   # shipped defaults, deliberately unpatched
+            # FULL-ARENA ROTATION, 2026-08-11. The previous rotation had three
+            # of its four arms at maxPlants 25000, which adversarial audit F2
+            # showed BINDS in 54% of 3x runs -- so those arms were a maxPlants
+            # comparison wearing a k_photoCost label, and every seed they
+            # produced was confounded by construction. All arms now run at the
+            # shipped 90k/40k arena, where the slot cap does not bind.
+            case $(( ${{ github.run_number }} % 3 )) in
+              0) CFG_IN="" ;;   # 1x: shipped defaults, the control
+              1) CFG_IN="cfg-patches/photocost-only-fullarena.json" ;;   # 3x
+              2) CFG_IN="cfg-patches/photocost-hi-fullarena.json" ;;     # 5x
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_51_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_52_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi
