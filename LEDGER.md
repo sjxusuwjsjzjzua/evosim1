@@ -6284,3 +6284,42 @@ Same push moved the rotation off the cap-confounded 25k arena (audit F2: the
 slot cap binds in 54% of 3x runs, so three of the four arms were a `maxPlants`
 comparison wearing a `k_photoCost` label). All arms now run at the shipped
 90k/40k, and the screened build defaults to v0.52.
+
+## Heartbeat 00:36 PDT — third restart, and the priority test was queued behind confounded work
+
+**Third container restart** killed all three v0.52 smoke runs at days 300-360.
+The checkpoint fix earned its keep on its first real test: all three left valid
+day-300 logs, and the two seed-4001 runs are byte-identical to each other, so
+the restart cost wall time and nothing else. Under the pre-fix code (effective
+interval `LCM(progress, checkpoint)` = 200 days) they would have lost 100-160
+days each.
+
+**Queue ordering was wrong, and cancelling was the fix.** Measured 20 running /
+30 queued, with both dispatched v0.52 arms stuck behind standing-batch runs
+fired at 05:42-06:38 UTC — i.e. *before* the workflow resize landed, so still
+carrying **12 seeds each on the cap-confounded 25k arena** that audit F2 showed
+binds in 54% of 3x runs.
+
+That is screening data which is confounded by construction, delaying the one
+experiment in the project with a frozen, unanswered prediction. Cancelled four
+queued runs (`31462515105`, `31463557741`, `31464237518`, `31465854469`).
+Deliberately **not** cancelled: the two runs actually in flight (killing them
+would waste compute already spent) and `31468781906`, which fired after the
+resize and carries the corrected full-arena rotation.
+
+Result: queue 30 -> 25, and both v0.52 arms now have expanded matrices
+(12 + 12) sitting next in line rather than behind 12 confounded seeds.
+
+**Local refilled with 420-day runs, not 1600-day, and the reason is the restart
+cadence.** At the observed animal-era rate a 1600-day run needs 3+ hours while
+restarts arrive every 1-2 h, so locally it would never finish — Actions is the
+right home for the long arms. 420 days completes in ~40 min. The specific value
+of a *completed* local run: **gene means cannot be read from a checkpoint**
+(`__buildLog()` does not call `logGenes()`), and the frozen prediction scores on
+`meatAttraction`, so only a finished log can produce a reading at all. Seeds
+71001-71004 (two floor-on, two floor-off), distinct from the Actions arms
+70001-70012 so nothing double-counts. No new prediction: these execute the one
+already on record.
+
+Standing batch confirmed **still firing** — six scheduled fires in the previous
+three hours, most recent 00:23 PDT.
