@@ -6985,3 +6985,43 @@ throughput it needs ~10 hours to reach n=6 per arm. The full-arena dose series
 is the lower-priority question — its own early read is 1x 1/1, 3x 1/3, 5x 4/8,
 nowhere near its n>=20. Rotation goes to a weighted 6-way giving the two
 diagnostic arms **4 of 6 slots** instead of 2 of 5.
+
+## The v0.52 MISS is NOT a null-instrument artifact
+
+12:40 PDT. When I scored the emergence test I flagged an open worry: the
+strategic audit had shown 41/59 corpus runs cannot move any gene past drift, so
+a MISS might mean "the test never ran" rather than "the mechanism failed".
+Applying the selection gate retrospectively to the v0.52 corpus answers it.
+
+| | floor-OFF | floor-ON |
+|---|---|---|
+| runs with a usable gate reading | **8 of 12** | **11 of 12** |
+| neutral variance retained (median) | 34.9% | 27.7% |
+| functional genes past drift (median) | **5** | **10** |
+| **runs where ANY gene beat drift** | **8/8** | **11/11** |
+| `meatAttraction` (median, this subset) | 0.0089 | 0.1143 |
+
+**Every single run with a usable reading had genes beating drift.** Selection
+was demonstrably operating in both arms — a median of 5 genes in floor-off and
+10 in floor-on. It simply did not raise `meatAttraction`, and raised it *less*
+when the floor was removed.
+
+So the MISS stands on its own terms and is not the null instrument I was
+worried about. The mechanism question was genuinely asked and genuinely
+answered.
+
+Two caveats I am not burying:
+
+**Neutral retention is 28-35% in both arms**, below the 40% level at which I
+would call effect sizes reliable. Selection is *detectable* but the population
+is heavily drifted, so the *magnitude* of any difference here is noisy. That is
+the distinction [L65a] exists to draw and it applies to my own conclusion.
+
+**The gate subset is not the full arm.** Floor-off yields only 8 usable
+readings against floor-on's 11, because a run needs two populated gene censuses
+and floor-off populations boom-and-crash faster. Those 8 have median
+`meatAttraction` **0.0089**, far below the 0.0615 of the full 11-seed arm — so
+the longer-lived floor-off runs are the ones with the *lowest* meat attraction.
+That is a selection effect on which runs can be measured, and it means this
+table cannot be read as an unbiased description of the arm. It answers the
+narrow question it was asked (was selection working?) and not a broader one.
