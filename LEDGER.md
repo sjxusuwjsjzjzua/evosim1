@@ -5850,3 +5850,26 @@ matched to the standing batch so they pool into the same complete-block
 accounting at the day-800 cutoff. This feeds the already-frozen prediction
 rather than opening anything new, which matters because the scheduler is
 dropping ticks and the Actions rotation may take hours to reach arm 0.
+
+### Counting fix: the heartbeat's local-job count has been over-reporting
+
+`ps aux | grep -c '[n]ode headless.js'` — the command the heartbeat prompt
+specifies — counts **shell wrappers as well as workers**. A backgrounded run
+shows up twice: a `sh -c` parent at 0.0% CPU and the node child doing the
+actual work at ~99%. So the "6 processes on 4 cores, 2x oversubscribed" I
+reported in the last two cycles was wrong; verified with
+`ps -eo pid,ppid,pcpu`, the real worker count was 4 and the box was **exactly
+saturated, not oversubscribed**.
+
+Consequence worth owning: I twice declined to start work on the grounds that
+local was oversubscribed and had "no room to add". That reasoning was based on
+a miscount. It happened to land in the right place — 4 workers on 4 cores is
+saturation, so there genuinely was no room — but the number I justified it
+with was not the number I thought it was.
+
+Correct command for future cycles, counts workers only:
+
+    ps -eo pid,ppid,pcpu,args | grep '[h]eadless.js' | awk '$3>1'
+
+Current state under the corrected count: **4 workers on 4 cores** (50001,
+50002 on the 1x control; 10015, 4001 on the 4000-day probes). Fully busy.
