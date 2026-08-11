@@ -6206,3 +6206,51 @@ satisfy it. The gene value is the thing selection has to move.
 
 Rule 3 holds: **one behavioural change** (injury death). The other two do
 nothing at their defaults.
+
+## v0.52 VERIFICATION — all gates pass
+
+Run against day-300 checkpoints rather than waiting for 420-day finals, which
+is what checkpointing is for.
+
+| gate | result |
+|---|---|
+| `node check.js` | **PASS**, all five stages; arbiter enters WANDER GRAZE ATTACK FLEE |
+| **Matter conservation** | `matter 6605 -> 6605  drift 0.000000%` |
+| `caps seen` | `[0]` — no bound binding (full arena default) |
+| **Determinism** | seed 4001 run twice: 40 samples x 100 columns, **zero mismatches** |
+
+The mechanism does what it was built to do, at day 300 of seed 7001:
+
+| | v0.52 | v0.51 equivalent |
+|---|---|---|
+| attacks | 3271 | — |
+| kills | 162 | — |
+| **`killMass` (corpse mass from predation)** | **315** | **structurally 0** — a kill fired exactly when mass <= corpseMin, so `killAnimal` always took the detritus branch |
+| `eFlesh` / `fleshMass` | **0 by design** | the direct fresh-flesh channel no longer exists |
+| `eCarrion` | 646 | meat energy now flows entirely through the carrion path |
+
+**Attacks per kill rose to 20.2, from 13.0.** That is expected and correct:
+damage heals at `k_heal` between bites, so a hunt has to be *sustained* rather
+than merely cumulative. Killing did not get easier — the payoff got bigger. A
+kill now yields ~2 mass of corpse at the carrion rate instead of 0.098 mass of
+nibble at raw `carnivory`, which is roughly the order of magnitude intended.
+
+### A limitation of checkpoints, found here and worth recording
+
+**Gene means cannot be read from a `.partial.json`.** `__buildLog()` in
+`headless.js` does not call `logGenes()` (only the final write at `:226` does),
+so a checkpoint's `genes` array is stale — in this case every gene read exactly
+0.0000. That is not a v0.52 bug and not a corrupted file; it is the checkpoint
+being a snapshot of the *log*, not of the *population*. Trajectory columns are
+fine; gene snapshots are not. Anything scoring `meatAttraction` — which is the
+entire v0.52 prediction — must use a completed run.
+
+### Fired
+
+The 2x2, paired on the **same 12 seeds** so `k_meatAttrFloor` is the only
+difference between arms, 1600 days, shipped full arena:
+
+- `v052-flooroff` — `k_meatAttrFloor: 0`, the emergence test
+- `v052-flooron` — default 0.5, the paired control
+
+24 jobs. Prediction was frozen in the entry above before either was dispatched.
