@@ -6705,3 +6705,61 @@ frozen prediction and fills at ~2.4 jobs/h per arm instead of 4.
 
 Local is now used only for what can finish inside a restart window: 420-day
 early-indicator runs and the outstanding rule-7 re-verification.
+
+## The floor is not masking selection on `meatAttraction` — it is a PRECONDITION for it
+
+06:45 PDT. Five more seeds landed; 8 of 12 floor-off and 6 of 12 floor-on. The
+paired comparison on the 5 seeds present in both arms:
+
+| seed | `meatAttraction` floor-OFF | floor-ON | predation OFF | ON |
+|---|---|---|---|---|
+| 70001 | 0.1084 | 0.0265 | 14.5% | 39.6% |
+| 70003 | 0.0615 | 0.0678 | 40.9% | 64.5% |
+| 70006 | 0.0080 | 0.1407 | 17.7% | 42.3% |
+| 70007 | 0.1633 | **0.3286** | 63.2% | 43.3% |
+| 70009 | 0.0887 | 0.2148 | 35.3% | 56.0% |
+
+**Mean paired difference (off − on) = −0.0697.** Removing the hardcoded floor
+makes evolved `meatAttraction` **lower**, in 4 of 5 paired seeds. Arm medians
+agree: floor-off 0.0986 (0 of 8 above the 0.30 threshold), floor-on 0.1323 (1 of
+6 above it). Median predation share is also higher with the floor on, 42.8% vs
+36.2%.
+
+### This inverts the reasoning the whole audit rested on
+
+I framed the `0.5 +` floor as a **subsidy masking** the fact that selection was
+declining to raise `meatAttraction` — remove it, and the gene must earn its
+place. The data says the opposite, and the mechanism is coherent:
+
+**With the floor, ATTACK gets chosen often enough that `meatAttraction` is
+expressed, so selection has something to act on. Without it, ATTACK is rarely
+chosen, the gene stops affecting fitness, and it drifts.** The floor is not
+hiding selection on that gene; it is the precondition for any selection on it
+at all.
+
+That reframes F1 without overturning its core. The mission-test problem is
+real — a behaviour that only occurs because of a constant is not emergent. But
+the fix cannot be "delete the constant", because deleting it does not reveal
+selection, it removes it. Whatever replaces the floor has to make ATTACK
+*reachable often enough to be selected on* by some route the genome controls.
+
+Not scored: 4 and 6 seeds outstanding, survivors land last. But the direction
+is now consistent across paired seeds rather than a single-arm median, which is
+a much harder thing to explain away.
+
+Note the one seed above threshold is **70007 floor-ON at 0.3286** — in the arm
+that still has the subsidy, so it says nothing about emergence.
+
+## Local sim compute is dead; recording it rather than restarting it again
+
+Seventh container restart, this one killing all three arms at **day 80** — before
+`animalStartDay` 260, so before the simulation has animals at all. Restarts are
+arriving faster than a run reaches its own experiment.
+
+Stopping the pattern of restarting local sims every heartbeat. It has produced
+nothing for four cycles and costs a real slice of each one. Local is now for
+analysis of landed data and for verification runs short enough to finish
+(the rule-7 check is re-scoped to 150 days — plant selection is active
+pre-fauna, and the original failure showed up in `plant.selN`, so a short run
+tests the same path). Sims belong on Actions, which is why the [L66] arms went
+into the standing rotation last cycle.
