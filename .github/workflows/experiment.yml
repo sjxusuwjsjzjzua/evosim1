@@ -58,14 +58,21 @@ on:
   # An earlier version of this block fired 6 jobs every 6 h, which works out
   # to 1.1 of 20 slots -- about 5% utilisation. That was badly
   # under-provisioned and is exactly what left Actions near-idle.
-  # NOT minute 0. GitHub's scheduler is heaviest at the top of the hour and
-  # runs queued there are routinely delayed by tens of minutes or dropped
-  # outright; the documented mitigation is an off-peak minute. Observed
-  # 2026-08-10: cron '0 * * * *' pushed to main at 17:11 did not fire at
-  # 18:00 at all (checked 18:36, zero schedule-event runs, workflow state
-  # active). Moved to :37.
+  # THREE ticks per hour, 6 seeds each, rather than one tick of 18.
+  # GitHub's scheduler is best-effort and sheds load: observed 2026-08-10
+  # that the :37 cron fired at 1:09, 2:20, 3:08, 4:07 and 5:02 PM PDT and
+  # then DROPPED the 5:37 and 6:37 ticks entirely, leaving Actions at 13/20
+  # with an empty queue. Overlap is NOT the cause -- the 4:07 run fired
+  # while the 3:08 run was still in progress -- so this is plain tick
+  # loss, which no workflow-side change can prevent.
+  # Mitigation is graceful degradation instead: spreading the same 18
+  # jobs/h across three independent ticks means a dropped tick costs 6
+  # jobs rather than all 18, and two consecutive drops still leave the
+  # hour two-thirds fed. Minutes are off-peak and mutually spaced.
   schedule:
-    - cron: '37 * * * *'
+    - cron: '7 * * * *'
+    - cron: '27 * * * *'
+    - cron: '47 * * * *'
   workflow_dispatch:
     inputs:
       build:
@@ -106,7 +113,7 @@ jobs:
           if [ -z "$seeds" ]; then
             base=$(( 40000 + ${{ github.run_number }} * 20 ))
             seeds="$base"
-            for k in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17; do seeds="$seeds,$((base+k))"; done
+            for k in 1 2 3 4 5; do seeds="$seeds,$((base+k))"; done
             echo "scheduled firing: derived seeds $seeds"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
