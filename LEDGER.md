@@ -7081,3 +7081,24 @@ scratch — nothing to commit). Dispatched 24 fresh jobs directly at [L66]:
 (92001-08), all v0.52/1600d/full-arena. Standing `schedule:` trigger untouched,
 still firing on its own weighted rotation. No scoring this cycle per owner
 instruction — compute budget is tight this week; analysis resumes next pass.
+
+## [L66] SCORED vs matched control: MISS
+
+n: 1x-control 36, seasonAmp=0 30, daysPerYear=120 27 (all n>=6).
+
+| arm | retention (med) | genes-past-drift (med) | vs control |
+|---|---|---|---|
+| 1x-control | 64.1% | 9 | — |
+| seasonAmp=0 | 59.8% | 10 | retention lower, genes higher |
+| daysPerYear=120 | 75.5% | 7 | retention higher, genes lower |
+
+Frozen criterion: HIT needs BOTH treatments to beat the matched control on
+both metrics. Neither does — each wins one, loses one. **MISS.** The v0.52
+full-arena control itself has strong selection response (64.1%/9), so the
+annual-bottleneck hypothesis does not explain the residual gap to
+`meatAttraction`. Not analyzed further — low-token mode, full writeup next
+pass.
+
+Standing batch: 2 new standing seeds since last check; last scheduled Actions
+run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
+(still queued).
