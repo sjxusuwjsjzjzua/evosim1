@@ -7072,3 +7072,12 @@ Also visible here: retention falls monotonically with `k_photoCost` (control
 64.9%, 3x 31.3%, 5x 21.7%) while peak N falls the same way (1714, 313, 137).
 Smaller populations, more drift — which is the mechanism [L66] is about,
 showing up in an arm that was not designed to test it.
+
+## 2026-08-11 (low-token mode): batch dispatched, no analysis
+
+Collected all 285 standing-batch logs locally (`runs/rot-collect/`, gitignored
+scratch — nothing to commit). Dispatched 24 fresh jobs directly at [L66]:
+`l66-longyear` (seeds 90001-08), `l66-noseason` (91001-08), `l66-control1x`
+(92001-08), all v0.52/1600d/full-arena. Standing `schedule:` trigger untouched,
+still firing on its own weighted rotation. No scoring this cycle per owner
+instruction — compute budget is tight this week; analysis resumes next pass.
