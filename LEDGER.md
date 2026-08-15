@@ -7102,3 +7102,6 @@ pass.
 Standing batch: 2 new standing seeds since last check; last scheduled Actions
 run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
 (still queued).
+
+## Daily check: n grown, no rescore (already scored MISS)
+1x-control n=59 (62.6%/9), seasonAmp=0 n=70 (70.5%/9), daysPerYear=120 n=69 (65.0%/9). All three converging toward similar retention/genes-past-drift — consistent with prior MISS. No rescore, low-token mode.
