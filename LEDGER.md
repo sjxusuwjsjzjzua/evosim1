@@ -7108,3 +7108,4 @@ run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
 
 ## Daily check: n grown further, still consistent with MISS
 1x-control n=73 (64.6%/8), seasonAmp=0 n=110 (63.3%/10), daysPerYear=120 n=106 (60.1%/6). No rescore, low-token mode.
+## 2026-08-16 low-token: dispatched second l66 batch — l66-longyear2 (93001-08), l66-noseason2 (94001-08), l66-control1x-2 (95001-08), 24 jobs total
