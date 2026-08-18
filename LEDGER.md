@@ -7115,3 +7115,6 @@ run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
 
 ## Daily check: n large (108/180/188), all three arms converged — MISS confirmed at high n
 1x-control 63.5%/8, seasonAmp=0 62.3%/8, daysPerYear=120 59.0%/8. No separation. No rescore, low-token mode.
+
+## Daily check: n=124/212/221, unchanged, still MISS
+1x-control 64.1%/8, seasonAmp=0 60.1%/8, daysPerYear=120 56.4%/8. No rescore, low-token mode.
