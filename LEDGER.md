@@ -7121,3 +7121,6 @@ run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
 
 ## Daily check: n=138/242/245, unchanged, still MISS
 1x-control 63.5%/8, seasonAmp=0 58.5%/8, daysPerYear=120 59.0%/8. No rescore, low-token mode.
+
+## Daily check: n=150/266/269, unchanged, still MISS
+1x-control 64.7%/8, seasonAmp=0 58.5%/8, daysPerYear=120 57.7%/8. No rescore, low-token mode.
