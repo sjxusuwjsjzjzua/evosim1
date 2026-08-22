@@ -7127,3 +7127,6 @@ run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
 
 ## Daily check (after 10-day idle gap): n=155/296/289, unchanged, still MISS
 1x-control 63.2%/8, seasonAmp=0 58.5%/8, daysPerYear=120 57.3%/8. 359 new standing seeds accrued during gap, batch kept firing unattended. No rescore, low-token mode.
+
+## Daily check: n=174/329/327, unchanged, still MISS
+1x-control 62.4%/8, seasonAmp=0 58.0%/8, daysPerYear=120 57.3%/9. No rescore, low-token mode.
