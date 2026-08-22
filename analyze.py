@@ -306,20 +306,40 @@ def sec_stationary(c, n, tpd, P):
     that is a large part of why consecutive versions disagreed."""
     P('')
     P('-- STATIONARITY GATE ' + '-'*56)
+    # CORRECTED 2026-08-22. This gate fitted a straight LINE to the last third
+    # and flagged |slope| > 2%. Across 724 v0.52 survivors the median |slope| is
+    # 78% -- far too large to be drift. The system OSCILLATES: median coefficient
+    # of variation 65%, and slope signs are essentially random (77 positive / 59
+    # negative). A linear trend test on a cyclic signal reports the phase you
+    # happened to sample, not a trend, so "15/15 fail the stationarity gate" --
+    # the headline that motivated the whole effective-population-size
+    # investigation -- was largely an artifact of this function.
+    #
+    # A consumer-resource system is not supposed to be flat. What matters is
+    # whether it is cycling around a stable level or walking away from one, so
+    # the drift test is now on HALF-MEANS (phase-robust) and the oscillation is
+    # reported separately rather than counted as failure.
     w = max(20, n//3)
     bad = []
     for k in ('plants', 'bio', 'animals', 'soil'):
         if k not in c: continue
-        m = st.mean(c[k][-w:]) or 1
-        sl = 100*slope100(c[k][-w:])/m
-        flag = '  <<DRIFTING' if abs(sl) > 2.0 else ''
+        seg = [x for x in c[k][-w:]]
+        m = st.mean(seg) or 1
+        sl = 100*slope100(seg)/m
+        h = len(seg)//2
+        m1, m2 = st.mean(seg[:h]) or 1, st.mean(seg[h:])
+        drift = 100*(m2-m1)/m1                       # phase-robust
+        cv = 100*st.pstdev(seg)/m if m else 0        # oscillation amplitude
+        flag = '  <<DRIFTING' if abs(drift) > 25.0 else ''
         if flag: bad.append(k)
-        P('  %-10s %+8.2f %%/100 samples over last third%s' % (k, sl, flag))
+        P('  %-8s drift %+7.1f%%  cv %5.1f%%  (raw slope %+7.1f%%)%s'
+          % (k, drift, cv, sl, flag))
     if bad:
-        P('  >> NOT STATIONARY (%s). Gene means below are a SNAPSHOT OF A' % ', '.join(bad))
-        P('  >> TRANSIENT. Do not compare them against another version.')
+        P('  >> DRIFTING (%s): half-mean shift exceeds 25%%. Gene means are a' % ', '.join(bad))
+        P('  >> snapshot of a transient. High cv alone is NOT failure -- an')
+        P('  >> oscillating consumer-resource system is expected to cycle.')
     else:
-        P('  >> stationary. Gene means are comparable across versions.')
+        P('  >> not drifting. Cycling is fine; gene means are comparable.')
     return not bad
 
 

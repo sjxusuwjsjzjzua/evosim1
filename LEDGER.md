@@ -7271,3 +7271,73 @@ compensating for a bad payoff (v0.52 fixed the payoff and it did not help) but
 for *inconsistent* selection. Testable against cycle amplitude.
 
 No changes shipped from this pass — analysis only.
+
+---
+
+# v0.53 — seasonality becomes switchable [L0.53-1], and the week's pre-registrations
+
+## The change
+
+One parameterization, **behaviour-preserving at default**: `k_seasonPhen`
+(default 1.0) multiplies `W.seaSin` in `refreshTimeCache()`. `seasonAmp` gates
+only the light channel; the plant `seasonShift*` allocation genes are driven by
+`W.seaSin`, which carried the raw yearly sine. With `k_seasonPhen` both channels
+can be switched off, which no previous build could do — the 340-run
+`seasonAmp=0` arm was never seasonless.
+
+Verification: `node check.js` passes all six stages. Identity check against
+v0.52 at default settings is running; **v0.53 must be bit-identical to v0.52
+when `k_seasonPhen = 1.0`**, and nothing is scored off this build until that
+reports.
+
+Also shipped (tooling, no version bump): **the stationarity gate is corrected**.
+It fitted a line to the last third and flagged |slope| > 2%; median |slope|
+across 724 survivors is 78% because the system cycles. It now tests
+**half-mean drift** (phase-robust, threshold 25%) and reports coefficient of
+variation separately, with an explicit note that high cv is not failure.
+
+## PRE-REGISTERED, all three frozen before any seed runs
+
+Arms are v0.53, 1600 days, shipped full arena, against the **matched v0.53
+default control** — never against a historical corpus median.
+
+### H1 — are the cycles endogenous or an external clock?
+`cfg-patches/seasonless.json` (`k_seasonPhen` 0, `seasonAmp` 0).
+Baseline: control 40-day plant ACF **0.83**; 107/114 survivors show animals
+lagging plants by ~70d at r=0.64.
+- **ENDOGENOUS** if the seasonless arm still shows animals lagging plants in
+  >=70% of survivors with median peak cross-correlation **>= 0.4**, at any lag.
+  Predator-prey coupling then survives removal of the clock and the coupling in
+  section 3 of the analysis is real ecology.
+- **FORCED** if lag-correlation median falls **below 0.25** or the fraction of
+  survivors with animals lagging drops below 55% (chance). The observed
+  "coupling" was then two things independently tracking the same calendar, and
+  the strongest emergent result on record dissolves.
+- CAN'T-TELL between those, or at n<12 surviving seeds.
+
+### H2 — is extinction trough-limited?
+`cfg-patches/halfseason.json` (both channels at half).
+Baseline: control survival **68.2%**, median cv **65%**, early-trough survival
+curve 28/68/82/83% at min N 1-5 / 6-20 / 21-60 / >60.
+- **HIT** if median cv falls **below 45%** AND survival rises **above 78%**,
+  while median mean-N stays within +/-25% of control. Amplitude, not carrying
+  capacity, then sets extinction risk.
+- **MISS** if survival stays within +/-5 points of 68.2% despite cv falling
+  below 45%. Trough depth is then not the causal channel, only a correlate.
+- CAN'T-TELL if cv does not fall below 45% (the manipulation failed).
+
+### H3 — does carnivory need consistent selection, not a better payoff?
+`cfg-patches/seasonless-flooroff.json` (seasonless + `k_meatAttrFloor` 0).
+Baseline: v0.52 floor-off median `meatAttraction` **0.0615**, 0 of 11 above
+0.30; seasonal floor-off predation share 28.8%.
+- **HIT** if median `meatAttraction` exceeds **0.15** and predation share
+  exceeds **40%**. Selection on the gene was then being scrambled by the
+  oscillation, not defeated by the payoff — and v0.52's injury mechanism was
+  necessary but not sufficient.
+- **MISS** if median `meatAttraction` stays **below 0.10**. Carnivory's failure
+  is then neither payoff nor consistency, and the remaining candidates are the
+  digestion tradeoff and the founder value of 0.10 itself.
+- CAN'T-TELL between 0.10 and 0.15, or at n<12.
+
+Scoring rule carried forward from the [L66] error: **compare to the matched
+control arm, never to a historical median**, and report n per arm every time.
