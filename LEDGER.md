@@ -7130,3 +7130,144 @@ run recent, firing normally. 24 manually-dispatched l66-* jobs not yet landed
 
 ## Daily check: n=174/329/327, unchanged, still MISS
 1x-control 62.4%/8, seasonAmp=0 58.0%/8, daysPerYear=120 57.3%/9. No rescore, low-token mode.
+
+---
+
+# FULL ANALYSIS, 2026-08-22 — 1335 runs, and three things were being measured wrong
+
+First real analysis pass since low-token mode began. Corpus: **1335 logs**
+(1097 at v0.52), extracted to one table and sliced repeatedly rather than
+re-parsed. Matter conservation clean across all of them — the 37 runs flagged
+at ~1.4e-4 are the log's integer rounding at values >=1000 (verified: seed
+42402 has matter 5718 -> 5719, exactly two distinct values all run), not a leak.
+
+## 1. The ecosystem is in far better shape than the record says
+
+v0.52, 1600-day target, by arm:
+
+| arm | n | survived | med peak N | predation % of deaths | eaten/grown |
+|---|---|---|---|---|---|
+| CONTROL | 179 | **68.2%** | 1519 | 56.6% | 0.59 |
+| seasonAmp=0 | 340 | 68.8% | 1584 | 55.6% | 0.63 |
+| daysPerYear=120 | 339 | 70.2% | 1674 | 56.0% | 0.56 |
+| k_photoCost 0.012 | 189 | 63.0% | 765 | 56.1% | 0.56 |
+| k_photoCost 0.020 | 28 | 46.4% | 234 | 47.2% | 0.34 |
+| k_meatAttrFloor 0 | 11 | 45.5% | 2142 | **28.8%** | 0.57 |
+
+**~69% of cold seeds survive to 1600 days, predation is the majority cause of
+animal death (56%), and herbivores consume ~60% of plant production.** The
+"50-70% extinction" figure carried in `FINDINGS.md` came from the v0.51 25k
+cap-confounded corpus and does not describe the current build. The dose series
+also resolves: **higher `k_photoCost` is strictly worse** (5x drops survival to
+46% and peak N by 6x), so that whole line of investigation was pushing the
+wrong direction.
+
+## 2. THE STATIONARITY GATE HAS BEEN MEASURING THE WRONG THING
+
+The gate fits a linear trend to the last third and flags |slope| > 2%. Median
+|slope| across 724 survivors is **78%**. That is not drift — it is too large to
+be drift. It is an oscillating system being fitted with a straight line.
+
+Evidence it is oscillation, not trend:
+
+- median coefficient of variation **65%** — the population swings by two-thirds
+  of its own mean
+- **slope signs are ~random**: 77 positive / 59 negative across 136 survivors
+  (a real trend would be one-sided)
+- the phase-robust measure (|change in half-means|, 38%) is far smaller than
+  the phase-sensitive one (|last-third slope|, 64%)
+
+**A consumer-resource system is not supposed to be flat.** Every "NOT
+STATIONARY" verdict in this project, and the "15/15 fail the gate" headline
+that motivated the entire Ne investigation, is a linear test applied to a
+cyclic signal.
+
+## 3. The cycles are real consumer-resource coupling
+
+Cross-correlating plants against animals across 114 survivors:
+
+- **107 of 114 have animals LAGGING plants** (7 lead, 0 simultaneous)
+- median lag **+70 sim-days**, median peak correlation **0.64**
+
+Consumers trailing their resource by roughly a quarter period is the
+Lotka-Volterra signature, and **nothing in the code sets a lag**. This is the
+strongest evidence to date that the two trophic levels are genuinely coupled
+rather than independently drifting.
+
+## 4. The `seasonAmp=0` arm NEVER REMOVED SEASONALITY — half of [L66] is void
+
+`seasonAmp = 0` shows a 40-day plant autocorrelation of **0.838**, against the
+control's 0.831. Identical. Setting the seasonal amplitude to zero changed the
+periodicity not at all.
+
+Cause, found in the source: `refreshTimeCache()` at `:984` computes
+
+    W.seaSin = Math.sin(2*Math.PI*yearPhase());
+
+**with no `seasonAmp` term**, and `W.seaSin` is consumed at `:1325` to drive the
+plant seasonal-allocation genes `seasonShiftGrowth / Defence / Repro / Storage`.
+So `seasonAmp` gates the *light* channel only; the *phenological* channel runs
+at full strength regardless.
+
+Confirmed in the data: across 38 `seasonAmp=0` runs the plants evolved
+`seasonShiftRepro` **+0.091** and `seasonShiftGrowth` **+0.082**, with 84-95% of
+runs carrying non-trivial values. Plants in the "no-season" arm are still timing
+reproduction to a year that is supposed to have been switched off.
+
+**The arm is mislabeled and its result is uninterpretable.** I designed it, named
+it, and scored it without checking that the constant did what its name implied.
+
+The `daysPerYear=120` arm *is* valid — it moves `yearPhase()` and therefore both
+channels — and its 40-day ACF duly collapses to 0.224 while 120-day rises to
+0.600. That arm shows **no effect on survival (70.2% vs 68.2%) or on selection
+response**, so the annual-bottleneck hypothesis is dead on the valid arm too.
+
+## 5. What actually predicts extinction: early trough depth
+
+Non-circular test — trough measured over days 300-800, outcome measured after
+day 800:
+
+| early minimum N (days 300-800) | n | survived to 1600 |
+|---|---|---|
+| 1-5 | 74 | **28%** |
+| 6-20 | 63 | 68% |
+| 21-60 | 95 | 82% |
+| >60 | 103 | 83% |
+
+Monotonic, saturating around **N ≈ 20**. Extinction is governed by how deep the
+oscillation troughs, not by the mean or the peak (mean N correlates with
+survival at only r=+0.09; early trough depth is the dominant signal).
+
+Note this is **demographic, not genetic** — and it explains the otherwise odd
+observation that a seed can show strong selection response and still go extinct.
+Trough depth and selection response are separate axes.
+
+## 6. A lead I chased and dropped
+
+`carrion_pct` correlated with death at **r=-0.416**, which looked like a
+scavenging death-spiral. It is not: absolute carrion share is **0.5% in dying
+worlds and 0.3% in survivors**. Real correlation, trivial magnitude — dying
+worlds simply have more corpses per living animal. Recorded because the
+correlation coefficient alone would have supported a wrong story.
+
+## Hypotheses this generates
+
+**H1 (highest value, one-line change).** The cycles track `daysPerYear` in every
+arm, so they may be *forced* by the year rather than endogenous predator-prey
+dynamics. No arm has ever removed the yearly signal, because `seasonAmp` cannot.
+A v0.53 with a CFG multiplier on `W.seaSin` would give the first true no-season
+world and settle whether the coupling in section 3 is ecology or a shared
+external clock. This is the experiment [L66] intended to run and did not.
+
+**H2.** If extinction is trough-depth-limited (section 5) and troughs come from
+a 65%-CV oscillation, then anything that damps amplitude should raise survival
+without raising mean population. That is testable and it is *not* the same as
+raising carrying capacity.
+
+**H3.** Carnivory may fail to become emergent because prey abundance swings 65%:
+selection on `meatAttraction` is intermittent and may reverse sign between the
+peak and the trough of every cycle. Under that reading the floor is not
+compensating for a bad payoff (v0.52 fixed the payoff and it did not help) but
+for *inconsistent* selection. Testable against cycle amplitude.
+
+No changes shipped from this pass — analysis only.
