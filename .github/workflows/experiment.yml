@@ -218,16 +218,21 @@ jobs:
             # question and keeps a slot rather than being dropped.
             # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
             # instead of ~10.
-            case $(( ${{ github.run_number }} % 6 )) in
-              0) CFG_IN="" ;;   # 1x: shipped defaults, the control
-              1) CFG_IN="cfg-patches/longyear-120.json" ;;   # daysPerYear 40->120
-              2) CFG_IN="cfg-patches/noseason.json" ;;       # seasonAmp 0.35->0
-              3) CFG_IN="cfg-patches/longyear-120.json" ;;
-              4) CFG_IN="cfg-patches/noseason.json" ;;
-              5) CFG_IN="cfg-patches/photocost-only-fullarena.json" ;;   # 3x
+            # v0.53 ROTATION, 2026-08-22. [L66]'s arms are retired: the
+            # seasonAmp=0 arm was never seasonless (seasonAmp gates light only,
+            # W.seaSin drove plant phenology regardless -- 40d ACF 0.838 vs the
+            # control's 0.831 across 340 runs), and the valid daysPerYear=120
+            # arm showed no effect on survival or selection response at n=339.
+            # Replaced by the three v0.53 pre-registrations, each against the
+            # matched v0.53 default control which takes 1 of 4 slots.
+            case $(( ${{ github.run_number }} % 4 )) in
+              0) CFG_IN="" ;;                                        # control
+              1) CFG_IN="cfg-patches/seasonless.json" ;;             # H1
+              2) CFG_IN="cfg-patches/halfseason.json" ;;             # H2
+              3) CFG_IN="cfg-patches/seasonless-flooroff.json" ;;    # H3
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_52_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_53_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi

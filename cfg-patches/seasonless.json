@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.53.0","base":"0.53.0",
+ "note":"H1. The FIRST genuinely seasonless world. k_seasonPhen 0 (kills the plant phenology channel, which seasonAmp never touched) AND seasonAmp 0 (kills the light channel). Every cycle measured so far has a period equal to daysPerYear, so the consumer-resource lag (107/114 survivors, animals trailing plants by ~70d, r=0.64) may be a shared external clock rather than endogenous predator-prey dynamics. This arm is the only way to tell them apart.",
+ "cfg":{"k_seasonPhen":0,"seasonAmp":0}}
