@@ -89,10 +89,17 @@ on:
   # ~6 jobs/h of HEADROOM so a dispatched experiment starts within minutes
   # instead of waiting out a backlog of screening seeds. Screening is the
   # thing that should yield to a hypothesis under test, not the reverse.
+  # RATE CUT, 2026-08-23. Measured 110 runs QUEUED (~440 jobs) against a
+  # 20-slot cap: arrival had been sitting at capacity, so the backlog never
+  # drained and v0.53 work dispatched 23 h earlier had not started a single
+  # job. A queue only buffers when arrival is BELOW service -- the same
+  # arithmetic error as 2026-08-11, made again by leaving three ticks running
+  # after cutting seeds/tick.
+  # One tick per hour x 4 seeds = 4 jobs/h against ~18/h capacity. The backlog
+  # clears in ~30 h and everything after that starts promptly. 4 jobs/h is
+  # still ~670 seeds a week, far more than any arm needs.
   schedule:
     - cron: '7 * * * *'
-    - cron: '27 * * * *'
-    - cron: '47 * * * *'
   workflow_dispatch:
     inputs:
       build:

@@ -7341,3 +7341,4 @@ Baseline: v0.52 floor-off median `meatAttraction` **0.0615**, 0 of 11 above
 
 Scoring rule carried forward from the [L66] error: **compare to the matched
 control arm, never to a historical median**, and report n per arm every time.
+## Daily check 2026-08-23: 411 new standing seeds; v0.53 arms 0 landed — 110 runs QUEUED, arrival at capacity so backlog never drained. Cut cron 3/h -> 1/h (4 jobs/h vs ~18/h capacity) to drain it. No scoring.
