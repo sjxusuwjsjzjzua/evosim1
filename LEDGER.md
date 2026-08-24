@@ -7345,3 +7345,32 @@ control arm, never to a historical median**, and report n per arm every time.
 
 ## Daily 2026-08-24: v0.53 arms start landing (backlog draining after the cron cut)
 seasonless n=10 surv 90% cv 70.6% meatAttr 0.0962; halfseason n=9 surv 67% cv 115.0% meatAttr 0.0885; seasonless-flooroff n=1; CONTROL n=0 (h0 batch still queued). 465 new standing seeds also collected. No scoring — frozen criteria stand.
+
+## Daily 2026-08-24 (second pass): collector path bug fixed; all v0.53 data is still manual-dispatch only
+
+Collector was reading `<branch>:out/seed-N.json`; the workflow pushes the log at
+the branch **root** as `seed-N.json`. That silently returned "0 new" on the
+previous pass. Fixed: **385 standing logs recovered** (rot-collect 1274 -> 1659),
+plus 2 h-arm logs (v53-collect 20 -> 22). Per-file arm/surv/cv/meatAttr now
+cached to a TSV so daily passes stop re-parsing the whole corpus.
+
+v0.53 arms (no scoring — frozen criteria stand for the weekly pass):
+
+| arm | n | surv | cv% (2nd-half animals) | meatAttraction |
+|---|---|---|---|---|
+| CONTROL | 0 | — | — | — |
+| seasonless | 12 | 92% | 42.5 | 0.1032 |
+| halfseason | 9 | 67% | 96.5 | 0.0885 |
+| seasonless-flooroff | 1 | 0% | 342.0 | 0.1583 |
+
+**Structural fact worth recording: 22 v0.53 logs exist and all 22 come from the
+manual h1/h2/h3 dispatches. The standing 4-way rotation has delivered zero
+v0.53 seeds so far** — 56 runs (~224 jobs) are still queued behind the old 3/h-era
+backlog, and arm 0 (CONTROL) only appears in that rotation, which is why CONTROL
+is n=0 two days in. The 1/h cron is confirmed working (newest scheduled fires on
+`ba0cbd5` are ~1 h apart); the queue is draining, not growing. No new batch fired
+— arrival is already far below the backlog.
+
+Caveat on the cv column: this is second-half-of-`animals` cv computed by the
+daily collector, **not** `analyze.py`'s cv. H2's frozen 45% threshold is defined
+against analyze.py's statistic and must be scored with it, not with this column.
