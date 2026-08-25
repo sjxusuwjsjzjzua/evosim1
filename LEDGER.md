@@ -7374,3 +7374,8 @@ is n=0 two days in. The 1/h cron is confirmed working (newest scheduled fires on
 Caveat on the cv column: this is second-half-of-`animals` cv computed by the
 daily collector, **not** `analyze.py`'s cv. H2's frozen 45% threshold is defined
 against analyze.py's statistic and must be scored with it, not with this column.
+
+## Daily 2026-08-25: rotation delivering; CONTROL arm finally populated
+112 new seeds (standing 1659->1761, h-arms 22->32). v0.53 n now 130 across four arms — the standing rotation is landing, so CONTROL is no longer n=0.
+CONTROL n=25 surv 40% cv 116.4 meatAttr 0.1027 | seasonless n=35 surv 80% cv 55.4 meatAttr 0.0954 | halfseason n=34 surv 68% cv 94.0 meatAttr 0.0788 | seasonless-flooroff n=36 surv 64% cv 94.8 meatAttr 0.0796.
+No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv here is the collector's second-half-of-animals statistic, not analyze.py's.
