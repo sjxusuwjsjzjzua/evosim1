@@ -7379,3 +7379,8 @@ against analyze.py's statistic and must be scored with it, not with this column.
 112 new seeds (standing 1659->1761, h-arms 22->32). v0.53 n now 130 across four arms — the standing rotation is landing, so CONTROL is no longer n=0.
 CONTROL n=25 surv 40% cv 116.4 meatAttr 0.1027 | seasonless n=35 surv 80% cv 55.4 meatAttr 0.0954 | halfseason n=34 surv 68% cv 94.0 meatAttr 0.0788 | seasonless-flooroff n=36 surv 64% cv 94.8 meatAttr 0.0796.
 No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv here is the collector's second-half-of-animals statistic, not analyze.py's.
+
+## Daily 2026-08-26: 107 new standing seeds; v0.53 n=237
+Batch firing (standing 1761->1868; no new h-arm branches — those dispatches are exhausted, the rotation carries all four arms now).
+CONTROL n=56 surv 55% cv 98.8 meatAttr 0.1195 | seasonless n=64 surv 75% cv 73.5 meatAttr 0.1010 | halfseason n=58 surv 66% cv 92.0 meatAttr 0.0973 | seasonless-flooroff n=59 surv 66% cv 110.5 meatAttr 0.0716.
+No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the collector's second-half-of-animals statistic, not analyze.py's.
