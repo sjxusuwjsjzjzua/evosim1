@@ -7384,3 +7384,8 @@ No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv here is th
 Batch firing (standing 1761->1868; no new h-arm branches — those dispatches are exhausted, the rotation carries all four arms now).
 CONTROL n=56 surv 55% cv 98.8 meatAttr 0.1195 | seasonless n=64 surv 75% cv 73.5 meatAttr 0.1010 | halfseason n=58 surv 66% cv 92.0 meatAttr 0.0973 | seasonless-flooroff n=59 surv 66% cv 110.5 meatAttr 0.0716.
 No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the collector's second-half-of-animals statistic, not analyze.py's.
+
+## Daily 2026-08-27: 113 new standing seeds; v0.53 n=350
+Batch firing (standing 1868->1981; h-arm dispatches still exhausted, rotation carries all four arms).
+CONTROL n=84 surv 61% cv 98.8 meatAttr 0.1159 | seasonless n=92 surv 78% cv 62.2 meatAttr 0.1009 | halfseason n=88 surv 61% cv 92.0 meatAttr 0.0948 | seasonless-flooroff n=86 surv 64% cv 117.8 meatAttr 0.0781.
+No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the collector's second-half-of-animals statistic, not analyze.py's.
