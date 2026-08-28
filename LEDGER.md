@@ -7389,3 +7389,8 @@ No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the col
 Batch firing (standing 1868->1981; h-arm dispatches still exhausted, rotation carries all four arms).
 CONTROL n=84 surv 61% cv 98.8 meatAttr 0.1159 | seasonless n=92 surv 78% cv 62.2 meatAttr 0.1009 | halfseason n=88 surv 61% cv 92.0 meatAttr 0.0948 | seasonless-flooroff n=86 surv 64% cv 117.8 meatAttr 0.0781.
 No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the collector's second-half-of-animals statistic, not analyze.py's.
+
+## Daily 2026-08-28: 21 new standing seeds (slower cycle); v0.53 n=371
+Batch firing (standing 1981->2002; latest scheduled run #918 completed 10:50 UTC, ~5.75h before this check). Landing rate this cycle (21) is well below the recent ~100-113/day norm — noted, not investigated (exploratory analysis is out of scope for the daily low-token pass).
+CONTROL n=88 surv 60% cv 98.8 meatAttr 0.1195 | seasonless n=98 surv 79% cv 62.2 meatAttr 0.1041 | halfseason n=94 surv 64% cv 84.5 meatAttr 0.0932 | seasonless-flooroff n=91 surv 65% cv 119.4 meatAttr 0.0781.
+No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the collector's second-half-of-animals statistic, not analyze.py's.
