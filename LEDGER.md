@@ -7394,3 +7394,254 @@ No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the col
 Batch firing (standing 1981->2002; latest scheduled run #918 completed 10:50 UTC, ~5.75h before this check). Landing rate this cycle (21) is well below the recent ~100-113/day norm — noted, not investigated (exploratory analysis is out of scope for the daily low-token pass).
 CONTROL n=88 surv 60% cv 98.8 meatAttr 0.1195 | seasonless n=98 surv 79% cv 62.2 meatAttr 0.1041 | halfseason n=94 surv 64% cv 84.5 meatAttr 0.0932 | seasonless-flooroff n=91 surv 65% cv 119.4 meatAttr 0.0781.
 No scoring — frozen H1/H2/H3 criteria stand for the weekly pass; cv is the collector's second-half-of-animals statistic, not analyze.py's.
+
+---
+
+# WEEKLY PASS, 2026-08-29 — scoring H1/H2/H3 on 371 v0.53 seeds
+
+## Method, stated before the numbers
+
+Rule 7b compliance. Survivor run lengths span 300–1600 days (wall-clock cap,
+not extinction), so no trailing-window statistic is comparable across them
+untouched. Everything below is computed on a **fixed matched window, days
+400–800**, and survival is judged **at day 800**:
+
+- a run extinct before day 800 counts **dead**;
+- a run whose log reaches day 800 with animals alive counts **alive**;
+- a run still alive when its log ends before day 800 is **censored** and
+  excluded from the survival denominator entirely, not counted as a survivor.
+
+Censoring matters: it removes 11–27 runs per arm, and counting them as
+survivors would have inflated every arm unequally (seasonless and
+seasonless-flooroff carry 27 censored each against CONTROL's 11).
+
+`cv` here is `100*pstdev/mean` of `animals` over the window — the same form
+`analyze.py`'s stationarity gate reports, but on the matched window rather
+than on "the last third", which is length-dependent. The daily collector's cv
+column (second half of the run) is **not** this statistic and was never used
+for scoring.
+
+Scored against the **matched v0.53 CONTROL arm**, never a historical median.
+[L66]'s error, not repeated.
+
+| arm | at risk | alive | dead | censored | surv% | cv% | mean N | pred share | meatAttraction |
+|---|---|---|---|---|---|---|---|---|---|
+| CONTROL | 77 | 55 | 22 | 11 | **71.4%** | 55.7 | 309 | 61.0% | 0.1259 |
+| seasonless | 71 | 60 | 11 | 27 | 84.5% | 48.2 | 282 | 58.3% | 0.0908 |
+| halfseason | 80 | 57 | 23 | 14 | 71.2% | 43.2 | 259 | 52.3% | 0.1280 |
+| seasonless-flooroff | 64 | 44 | 20 | 27 | 68.8% | 58.6 | 337 | 25.0% | 0.0869 |
+
+## H1 — FORCED. Decisively.
+
+The pre-registered statistic (fraction of survivors with animals lagging
+plants at peak cross-correlation) came out at **40%** for the seasonless arm
+against a 55% chance floor — inside the FORCED clause — while median peak
+|r| stayed high at 0.79. Both halves of the criterion point the same way only
+once you look at what the peak is *of*, so the honest read needed a second,
+clearly-secondary statistic, reported here as such:
+
+**Autocorrelation of the population series, peak after the first trough:**
+
+| arm | ACF animals | period | ACF plants | period |
+|---|---|---|---|---|
+| CONTROL (full season) | **0.56** | **40 d** | **0.81** | **40 d** |
+| halfseason | 0.21 | 40 d | 0.68 | 35 d |
+| seasonless | **0.00** | — | **0.00** | — |
+| seasonless-flooroff | **0.00** | — | **0.00** | — |
+
+`daysPerYear` is 40. The cycle period *is* the year, in both kingdoms, and the
+autocorrelation scales with the forcing amplitude — 1.0 → 0.56, 0.5 → 0.21,
+0.0 → 0.00 — which is a dose-response on the forcing, not on ecology. With the
+clock removed there is **no periodicity left at any lag**. The lag-correlation
+that looked like predator-prey coupling was two kingdoms independently tracking
+the same calendar.
+
+**This overturns the strongest emergent result on record.** There is no
+Lotka-Volterra loop in this simulator. Populations still vary without the clock
+(seasonless cv 48.2%) but aperiodically — that is drift and noise, not a cycle.
+
+Note the seasonless arm also has the **highest survival of any arm, 84.5%**
+against CONTROL's 71.4%. Removing the seasonal forcing does not destabilise
+the world; it stabilises it. The forcing was a mortality source, not a driver.
+
+## H2 — MISS, cleanly.
+
+halfseason hit its manipulation check (cv 43.2%, below the 45% gate) and moved
+mean N only −16% (inside ±25%). Survival: **71.2% against CONTROL's 71.4%** —
+a 0.2-point difference. The pre-registration called this exactly: *"MISS if
+survival stays within ±5 points despite cv falling below 45%. Trough depth is
+then not the causal channel, only a correlate."*
+
+Amplitude is not what kills these populations. The ~70% survival ceiling has
+another cause, still unidentified, and per rule 3 the response is not to damp
+harder — the diagnosis was wrong.
+
+## H3 — MISS, cleanly.
+
+seasonless-flooroff: median `meatAttraction` **0.0869**, below the 0.10 MISS
+threshold; predation share 25.0%, far below the 40% HIT bar. Removing the
+oscillation *and* the subsidy leaves carnivory exactly where v0.52's payoff fix
+left it. Carnivory's failure is neither payoff (v0.52) nor consistency of
+selection (v0.53).
+
+## What the three misses jointly point at, and the measurement that found it
+
+Selection-response readout, matched window, animal genes, expressed in units of
+each gene's own standing SD across runs. The five genes the sim never reads
+(`territoriality`, `ambushTendency`, `mateChoosiness`, `parentalCare`,
+`pathogenResistance`) give the built-in drift yardstick [L65]:
+
+| gene | CONTROL Δ | flooroff Δ |
+|---|---|---|
+| *neutral drift yardstick* | *0.04 SD* | *0.08 SD* |
+| herbivory | **+0.79 SD** | **+1.00 SD** |
+| biteForce | **+0.79 SD** | **+1.04 SD** |
+| maxSpeed | +0.32 SD | +0.26 SD |
+| carnivory | +0.16 SD | +0.36 SD |
+| **plantAttraction** | **+0.03 SD** | **−0.04 SD** |
+| **meatAttraction** | +0.16 SD | **−0.08 SD** |
+| **carrionAttraction** | +0.08 SD | −0.16 SD |
+| **socialAttraction** | −0.05 SD | −0.08 SD |
+
+`plantAttraction` governs the act taken **98.7% of the time** and is
+statistically indistinguishable from a gene the simulator never reads. All four
+attraction genes sit at drift. Every gene that changes the *payoff* of an act —
+`herbivory`, `biteForce`, `maxSpeed` — moves 10–25× further.
+
+**The mechanism.** The arbiter is a hard argmax: `if (sc > bestS)`. An
+attraction gene multiplies one option's score. Under argmax a monotone
+rescaling of one option changes the animal's behaviour only in the set where it
+flips which option is largest, and it changes nothing at all anywhere else — so
+the fitness gradient on these genes is near zero almost everywhere. They are
+not weakly selected; they are structurally close to unselectable.
+
+**Why that is a mission-test failure, not a curiosity.** ATTACK's attraction
+term is `k_meatAttrFloor + meatAttraction` = `0.5 + ~0.10`. The constant
+supplies **83%** of it. Set the constant to 0 and predation share of animal
+deaths falls **61% → 25%**, and the gene does not compensate because it cannot.
+Predation in this simulator is presently a number in the source, not an evolved
+trait. *If a result had to be written into the code, it doesn't count.*
+
+## Action budget, for the record (matched window, % of acts)
+
+| arm | GRAZE | SCAV | ATTACK | FLEE | APPROACH | REST |
+|---|---|---|---|---|---|---|
+| CONTROL | 98.73 | 0.00 | 0.24 | 0.00 | 0.00 | 0.18 |
+| seasonless | 97.80 | 0.00 | 0.00 | 0.00 | 0.00 | 0.35 |
+| halfseason | 97.15 | 0.00 | 0.30 | 0.00 | 0.00 | 0.00 |
+| seasonless-flooroff | 98.37 | 0.20 | 0.00 | 0.00 | 0.00 | 1.47 |
+
+Behavioural monoculture is **worse** than HANDOFF §1 records (92.2%): GRAZE is
+98.7% of the action budget. `actAppr` is 0.00% — the herding mechanism [L47-3]
+still never fires. Under a hard argmax an animal that never attacks also never
+generates the behavioural variance selection would need in order to favour
+attacking, which is the same defect seen from the population side.
+
+
+---
+
+# v0.54 — the arbiter stops being an argmax [L0.54-1]
+
+## The change, and why this shape
+
+One structural change. `decide()`'s five candidate-scoring sites shared the
+pattern
+
+```js
+if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_X; }
+```
+
+and now share
+
+```js
+{ const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+  if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_X; } }
+```
+
+which is weighted reservoir sampling: after the scan the chosen candidate is
+drawn with probability exactly `score^k_choiceBeta / Σ score^k_choiceBeta`
+over everything offered. O(1) extra state, one `rng()` per offered candidate,
+no second pass, no candidate list — the hot loop keeps its shape. The
+`|| 5e-324` guard keeps a valid reservoir when `Math.pow` underflows to 0 on a
+near-zero score, so an animal whose only options are bad still takes one rather
+than falling through to WANDER.
+
+This is the Luce/matching-law choice rule, and the reason it is the right shape
+rather than a preference is in the measurement above: under argmax an
+attraction gene has a fitness gradient only where it flips the winner, and all
+four attraction genes consequently sit at drift while payoff genes move 10–25×
+further. Under `P ∝ score^β` the derivative of choice probability with respect
+to a multiplicative weight is `β(1−P)` — non-zero everywhere. The genes become
+selectable without anything being decided for them.
+
+`k_choiceBeta` defaults to **4.0**: an option scoring half the best is then
+taken about 1 time in 16. Sharp enough that foraging stays near-optimal, soft
+enough to generate the behavioural variance selection needs. Large β approaches
+the old argmax but never reproduces it exactly, so **this build is deliberately
+not RNG-identical to v0.53** and no bit-identity check applies — rule 7 governs
+measurement-only changes and this is a change of mechanism. Verification is
+`check.js` (six stages), matter conservation, and the isolation arm below.
+
+`node check.js evosim-v0_54_0.html` PASSES all six stages, and stage 3 confirms
+every arbiter branch is still reachable: REST WANDER GRAZE ATTACK SCAVENGE FLEE.
+
+## PRE-REGISTERED, frozen before any seed runs
+
+Arms are v0.54, 1600 days, shipped full arena. Everything is scored on the
+**matched window days 400–800 with survival judged at day 800 and censoring
+applied**, against the **matched v0.54 CONTROL arm**. Baselines below are the
+v0.53 numbers measured above, quoted only to say what is being moved from.
+
+### H4 — do the attraction genes become selectable at all?
+Isolation arm: `cfg-patches/beta-hi.json` (`k_choiceBeta` 12) — same code path,
+same draw count, only the sharpness differs, so any CONTROL-vs-beta-hi gap is
+the choice rule and not the changed RNG path.
+Baseline: v0.53 `plantAttraction` +0.03 SD, `meatAttraction` +0.16 SD, against
+a neutral yardstick of 0.04 SD.
+- **HIT** if v0.54 CONTROL shows median |Δ| ≥ **0.30 SD** for *both*
+  `plantAttraction` and `meatAttraction`, while the neutral-gene yardstick
+  stays below 0.15 SD, **and** the beta-hi arm stays below 0.15 SD on both.
+- **MISS** if either gene stays below **0.15 SD** in CONTROL.
+- CAN'T-TELL if CONTROL and beta-hi move together — the effect is then the RNG
+  path, not the rule.
+
+### H5 — does the behavioural monoculture break?
+Baseline: GRAZE **98.73%** of the action budget, ATTACK 0.24%, APPROACH 0.00%.
+- **HIT** if median GRAZE share falls below **90%** and survival stays within
+  10 points of v0.53 CONTROL's 71.4%.
+- **MISS** if GRAZE stays above **96%**.
+- **HARM** if survival falls below **50%**: the variance was bought at a price
+  the world cannot pay, and v0.54 is reverted rather than tuned.
+
+### H6 — is meat simply worth less than salad?
+`cfg-patches/meat-rich.json` (`meatValue` 24 → 40).
+Measured: a perfect carnivore extracts `24*0.85*1.0` = **20.4** per unit prey
+mass; a herbivore on undefended foliage extracts `tissueValue*digest` = **25.0**.
+Meat is worth less than salad *before* paying for the kill, the retaliation and
+the gut. The only constraint on record is `meatValue < energyPerMassA` (55) so
+a trophic level still loses energy; 40 gives a perfect carnivore 34.0 — a 1.36×
+advantage over the best foliage at a 38% trophic loss. The value comes from
+that argument, not from searching for one that produces carnivores.
+- **HIT** if median `carnivory` reaches **≥ 0.25** (v0.53: 0.072) and predation
+  share **≥ 45%**.
+- **MISS** if median `carnivory` stays below **0.15**.
+
+### H7 — the mission test: carnivory without the subsidy.
+`cfg-patches/beta-flooroff.json` (`k_meatAttrFloor` 0).
+Baseline: v0.53 flooroff predation share **25.0%**, `meatAttraction` 0.0869.
+- **HIT** if predation share reaches **≥ 40%** and median `meatAttraction`
+  **≥ 0.15** — carnivory then survives removal of the constant, and the gene,
+  now that it has a gradient, does the work the constant was doing.
+- **MISS** if predation share stays below **30%**. The floor is then still
+  load-bearing, carnivory is still not emergent, and the next candidate is the
+  energetics (H6), not the arbiter.
+
+Standing note: H5's HARM clause outranks the others. If the choice rule costs
+more survival than it buys in variance, v0.54 is reverted — a build that
+generates lovely behavioural diversity in populations that die is not progress.
+
+## Housekeeping, 2026-08-29
+`evosim-v0_50_0.html` and `evosim-v0_51_0.html` deleted — three and four
+versions superseded, results captured above, recoverable from git history.
+`evosim-v0_52_0.html` kept (it is the copy on `main`) and `evosim-v0_53_0.html`
+kept as v0.54's revert target per CLAUDE.md's deletion criterion.

@@ -225,7 +225,15 @@ jobs:
             # question and keeps a slot rather than being dropped.
             # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
             # instead of ~10.
-            # v0.53 ROTATION, 2026-08-22. [L66]'s arms are retired: the
+            # v0.54 ROTATION, 2026-08-29. H1/H2/H3 are SCORED and retired:
+            # H1 FORCED (seasonless ACF 0.00 vs control 0.56 at period 40d =
+            # daysPerYear exactly -- the cycles were the calendar, not ecology),
+            # H2 MISS (halfseason cv 43.2% but survival 71.2% vs control 71.4%),
+            # H3 MISS (flooroff meatAttraction 0.087, predation share 25%).
+            # The joint diagnosis: all four attraction genes sit at DRIFT
+            # because the arbiter was a hard argmax, so v0.54 replaces it with
+            # a Luce choice rule and the four new arms test that.
+            # PREVIOUS (v0.53) ROTATION, 2026-08-22. [L66]'s arms are retired: the
             # seasonAmp=0 arm was never seasonless (seasonAmp gates light only,
             # W.seaSin drove plant phenology regardless -- 40d ACF 0.838 vs the
             # control's 0.831 across 340 runs), and the valid daysPerYear=120
@@ -234,12 +242,12 @@ jobs:
             # matched v0.53 default control which takes 1 of 4 slots.
             case $(( ${{ github.run_number }} % 4 )) in
               0) CFG_IN="" ;;                                        # control
-              1) CFG_IN="cfg-patches/seasonless.json" ;;             # H1
-              2) CFG_IN="cfg-patches/halfseason.json" ;;             # H2
-              3) CFG_IN="cfg-patches/seasonless-flooroff.json" ;;    # H3
+              1) CFG_IN="cfg-patches/beta-hi.json" ;;                # H4 isolation
+              2) CFG_IN="cfg-patches/meat-rich.json" ;;              # H6
+              3) CFG_IN="cfg-patches/beta-flooroff.json" ;;          # H7
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_53_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_54_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi

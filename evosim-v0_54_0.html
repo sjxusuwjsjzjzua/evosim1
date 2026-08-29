@@ -300,7 +300,7 @@
 // 1. CONFIG — everything tunable lives here. EVERY k_ IS A GUESS.
 //==========================================================================
 // FORMAT_VERSION tracks the SAVE SCHEMA, not the build.  [L01]
-const VERSION = '0.51.0', FORMAT_VERSION = 36;
+const VERSION = '0.54.0', FORMAT_VERSION = 36;
 
 const CFG = {
   // ---- world (rebuild required) ----
@@ -332,6 +332,20 @@ const CFG = {
   lightNoiseAmp: 0.45,
   latitudeBand: 0.25,
   seasonAmp: 0.35,
+  k_seasonPhen: 1.0,     // PHENOLOGICAL seasonality multiplier.  [L0.53-1]
+                         // seasonAmp gates the LIGHT channel only. The plant
+                         // seasonShift* allocation genes are driven by W.seaSin
+                         // (refreshTimeCache), which was computed from the raw
+                         // yearly sine with NO seasonAmp term -- so setting
+                         // seasonAmp to 0 removed sunlight seasonality and left
+                         // plant phenology running at full strength. Measured:
+                         // the seasonAmp=0 arm had a 40-day plant autocorrelation
+                         // of 0.838 against the control's 0.831, i.e. identical,
+                         // and its plants still evolved seasonShiftRepro +0.091.
+                         // 340 runs of a 'no-season' arm that was never seasonless.
+                         // This multiplies seaSin so the phenological channel can
+                         // actually be switched off. 1.0 reproduces v0.52 exactly.
+
 
   // ---- soil ----
   nutrientCap: 12.00,     // INIT ONLY. Field is uncapped at runtime (matter ledger)
@@ -476,6 +490,44 @@ const CFG = {
   k_attack: 0.120,       // x biteForce x mass^0.75, flesh taken per tick
   k_armEff: 2.0,         // armour efficacy; benefit SATURATES as 1/(1+k*a)
   k_retal: 0.45,         // retaliation = target biteForce x aggression x this
+  k_health: 1.00,        // INJURY. Damage needed to kill = this x prey mass.
+                         // v0.51 and earlier had NO injury state: an attack
+                         // removed prey MASS and the prey died only once chewed
+                         // down to corpseMin, ~13 uninterrupted landed bites on
+                         // a median animal, while a survivor regrew and got
+                         // CHEAPER to run (upkeep is mass^0.75). Predation was a
+                         // mass-theft tax, not a mortality source.
+                         // WHY EXACTLY 1.00, and not a rounder-sounding smaller
+                         // number: under attrition the implicit requirement was
+                         // already 'remove one body mass' (mass -> corpseMin).
+                         // Setting k_health to 1 keeps TIME-TO-KILL IDENTICAL to
+                         // v0.51, so the only thing v0.52 changes is the PAYOFF
+                         // STRUCTURE -- a whole corpse eaten through the carrion
+                         // path instead of a nibble at raw carnivory. That is the
+                         // clean isolation of one variable. A first pass used
+                         // 0.25, which made kills 4x faster as well and put the
+                         // ATTACK rate at 18x grazing at founder genes; that
+                         // would have been two changes at once and an obvious
+                         // overshoot. At 1.00 it is 4.4x grazing, which is a real
+                         // carnivore niche rather than a free lunch.  [L0.52-1]
+  k_heal: 0.0012,        // damage decays by this fraction per tick, so injuries
+                         // heal in ~5 sim-days. Without it damage accumulates
+                         // over a lifetime and every animal eventually dies of
+                         // old scratches.  [L0.52-1]
+  shockDay: 0,           // PERTURBATION. 0 = inert (the shipped default, and
+                         // bit-identical to a build without the hook). Set via
+                         // CFG patch to cull shockFraction of live animals once
+                         // on that day, to measure whether the population has a
+                         // restoring force.  [L0.52-3]
+  shockFraction: 0,      // fraction of live animals culled on shockDay
+  k_choiceBeta: 4.0,     // act choice is now P(act) ~ score^this instead of a
+                         // hard argmax. Large values approach v0.53's argmax
+                         // but never reproduce it exactly.  [L0.54-1]
+  k_meatAttrFloor: 0.5,  // additive floor on ATTACK's attraction term. PARAMETER-
+                         // ISED, not changed: 0.5 reproduces v0.51 exactly. Set 0
+                         // to test whether carnivory survives unsubsidised, which
+                         // is the whole point of v0.52 and needs no new build.
+                         // [L0.52-2]
   k_gut: 0.0200,         // x (carn^2 + herb^2) — price of owning a gut. Raised
                          // 2.5x: at 0.008 herbivory only came off 99% -> 90%
                          // at max, so the term existed but was not priced
@@ -764,6 +816,12 @@ const W = {
   abandons:0,                // grazing targets dropped as not worth it
   corpses:0, aDeadKilled:0, attacks:0, scavenged:0,
   fleshMass:0, carrionMass:0,      // MASS, not bite counts — trophic flows
+  dmgDealt:0, killMass:0,          // injury dealt, and corpse mass created by
+                                   // predation rather than starvation. Under
+                                   // v0.52 fleshMass/eFlesh stay 0 by design:
+                                   // there is no direct fresh-flesh channel any
+                                   // more, a kill becomes a corpse and is eaten
+                                   // through the carrion path.  [L0.52-1]
   pSeeded:0, pGerm:0, aBorn:0,     // births, which the log never had at all
   ePhoto:0, ePlant:0, eFlesh:0, eCarrion:0,   // energy in, by source
   limN:0, limE:0, limM:0,          // what capped plant growth this tick
@@ -940,7 +998,7 @@ function sunElev(){ return Math.max(0, Math.sin(2*Math.PI*(dayPhase() - 0.25)));
 // PER-TICK CACHE. These depend only on W.tick but were being evaluated once
 // per plant per update — seasonSin alone was 6.4% of updatePlant. [L42-3]
 function refreshTimeCache(){
-  W.seaSin   = Math.sin(2*Math.PI*yearPhase());
+  W.seaSin   = Math.sin(2*Math.PI*yearPhase())*CFG.k_seasonPhen;   // [L0.53-1]
   W.lightMulNow = CFG.sunPeak*sunElev()*seasonF();
 }
 function seasonF(){ return Math.max(0, 1 + CFG.seasonAmp*Math.sin(2*Math.PI*yearPhase())); }
@@ -1377,6 +1435,7 @@ const AN = {
   age:null, stam:null, gen:null, up:null, tile:null, stage:null, tgt:null, act:null,
   lin:null, genome:null, free:null, freeN:0, rate:null, pursue:null, stall:null,
   risk:null,                       // EWMA of threat exposure, energy/tick [L47-3]
+  dmg:null,                        // accumulated injury, killed at k_health*mass [L0.52-1]
 };
 const AIDX = { start:null, items:null, cur:null };
 let TOFF = null, TOFFD = null;   // tile offsets sorted by distance
@@ -1388,6 +1447,7 @@ function initAnimals(){
   AN.mass=new Float32Array(M); AN.energy=new Float32Array(M);
   AN.gut=new Float32Array(M); AN.age=new Float32Array(M); AN.rate=new Float32Array(M);
   AN.risk=new Float32Array(M);                                      // [L47-3]
+  AN.dmg=new Float32Array(M);                                       // [L0.52-1]
   AN.pursue=new Float32Array(M); AN.stall=new Float32Array(M);
   AN.stam=new Float32Array(M); AN.gen=new Float32Array(M); AN.up=new Float32Array(M);
   AN.tile=new Int32Array(M); AN.stage=new Uint8Array(M);
@@ -1498,7 +1558,7 @@ function seedAnimalFounders(count){
     AN.mass[i] = bm;
     AN.energy[i] = CFG.animalFounderEnergy;
     AN.gut[i] = bm*CFG.nutrientPerMass;
-    AN.age[i] = 0; AN.stam[i] = 1; AN.gen[i] = 0; AN.up[i] = 0.05; AN.risk[i] = 0;
+    AN.age[i] = 0; AN.stam[i] = 1; AN.gen[i] = 0; AN.up[i] = 0.05; AN.risk[i] = 0; AN.dmg[i] = 0;
     AN.tgt[i] = -1; AN.act[i] = ACT_WANDER; AN.lin[i] = 0;
     AN.stage[i] = 1; AN.live++;
   }
@@ -1640,6 +1700,14 @@ function senseDecide(i){
   }
   const tx0 = (ax/W.tileSize)|0, ty0 = (ay/W.tileSize)|0;
   let bestS = 0, bestT = -1, bestAct = ACT_WANDER, found = 0, foundA = 0;
+  // LUCE CHOICE. The arbiter was a hard argmax, so a gene that only
+  // RESCALES one option's score had a fitness gradient just where the
+  // argmax flipped -- and all four attraction genes duly sat at drift
+  // while the payoff genes moved 10-25x further. Candidates are now drawn
+  // with P ~ score^k_choiceBeta by weighted reservoir sampling: one rng
+  // draw per offered candidate, O(1) state, exact.  [L0.54-1]
+  let bestW = 0;                    // running sum of score^beta
+  const CHOB = C.k_choiceBeta;
   // Plants and animals get SEPARATE detection budgets.  [L37]
 
   const nW = W.n;
@@ -1666,7 +1734,8 @@ function senseDecide(i){
       if (j === BANNED) continue;   // a banned plant no longer spends budget
       found++;
       const sc = plantScore(j, d, herb, fibreTol, toxRes, G[g+AG.plantAttraction], hunger);
-      if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_GRAZE; }
+      { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+        if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_GRAZE; } }
     }
     // Animals are always scanned now, not only when social.  [L39]
     const nNear = aE - aS;          // tile crowding, for the confusion effect
@@ -1704,7 +1773,8 @@ function senseDecide(i){
         if (rateC > 1e-12){
           const patchC = (omass < AGUT ? omass : AGUT)*cv;
           const sc = patchC/(d/ASPD + patchC/rateC)*G[g+AG.carrionAttraction]*hunger;
-          if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_SCAVENGE; }
+          { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+            if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_SCAVENGE; } }
         }
         continue;
       }
@@ -1720,27 +1790,41 @@ function senseDecide(i){
       const ratio = omass/Math.max(0.05, mass);
       const z = (ratio - G[g+AG.preySizeRatio])/Math.max(0.05, G[g+AG.preySizeTolerance]);
       const sizeMatch = Math.exp(-z*z);
-      const mv = carn*C.meatValue;                    // energy per unit flesh
+      // ATTACK IS NOW A KILL, NOT A NIBBLE, so its score has to be rederived
+      // from the payoff it actually delivers or [L31] is violated — the score
+      // is expected energy per tick and perception must agree with payoff.
+      // An attack tick buys DAMAGE, not flesh. The energy arrives in one lump
+      // when the prey dies and becomes a full corpse, which is then eaten
+      // through the ordinary carrion path. So the value of the target is the
+      // value of the CORPSE it will become, divided by the ticks of damage
+      // needed to get there.  [L0.52-1]
+      const mvK = C.meatValue*C.carrionValue*carrionDigest(carn);   // per unit corpse
       // AGGRESSION IS RISK TOLERANCE, NOT APPETITE, and retaliation is a
       // RATE, charged per bite tick — so it now subtracts from the intake rate
       // instead of from a per-mass value. [L39-2] [L47-2]
       const retal = G[og+AG.biteForce]*G[og+AG.aggression]*C.k_retal
                     *(1 - 0.9*G[g+AG.aggression]);
-      const rateA = AATKC*mv/((1 + C.k_armEff*G[og+AG.armour])*(1 + crowd)) - retal;
+      const dmgRate = AATKC/((1 + C.k_armEff*G[og+AG.armour])*(1 + crowd));
+      // ticks of sustained damage to bring this target down
+      const ttk = C.k_health*omass/Math.max(1e-9, dmgRate);
+      const rateA = omass*mvK/Math.max(1e-9, ttk) - retal;
       if (rateA > 1e-12){
-        const patchA = (omass < AGUT ? omass : AGUT)*mv;
+        const patchA = (omass < AGUT ? omass : AGUT)*mvK;
         // travel time to a target that is itself moving. Fast prey is far
         // away in TIME, which is the whole point of running. [L47-2]
         const close = ASPD - 0.6*G[og+AG.maxSpeed];
-        // ATTACK used to floor at 0.5 + meatAttraction, unlike GRAZE/SCAVENGE's
-        // unfloored attraction genes. v0.50 removed the floor to match them.
-        // REVERTED: the floor is LOAD-BEARING, not a harmless asymmetry.
-        // Unflooring cost 0.39 R0 and ~65% of kills across 3/3 paired seeds.
-        // Predation needs a baseline interest to stay reachable.  [L0.51-1]
+        // The floor is now CFG.k_meatAttrFloor rather than a literal 0.5, so
+        // the unsubsidised case can be tested by CFG patch. Default 0.5 is
+        // v0.51's behaviour exactly. History: v0.50 removed the floor and lost
+        // 0.39 R0 and ~65% of kills 3/3 — but that was under attrition killing,
+        // where a hunt paid ~13x less. Whether the floor is still load-bearing
+        // under injury killing is the open question v0.52 exists to answer, and
+        // it must not be assumed either way.  [L0.52-2]
         const sc = patchA/(d/(close > 0.05 ? close : 0.05) + patchA/rateA)
-                   *sizeMatch*(0.5 + G[g+AG.meatAttraction])
+                   *sizeMatch*(C.k_meatAttrFloor + G[g+AG.meatAttraction])
                    *(1 - G[g+AG.kinRecognition]*kin)*hunger;
-        if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_ATTACK; }
+        { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+          if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_ATTACK; } }
       }
 
       // threat, as an AVOIDED LOSS RATE: the flesh they take per tick, valued
@@ -1754,7 +1838,8 @@ function senseDecide(i){
         const ex = threatR/(1 + d/(closeT > 0.05 ? closeT : 0.05));
         if (ex > riskMax) riskMax = ex;
         const fs = ex*G[g+AG.fearThreshold];
-        if (fs > bestS){ bestS = fs; bestT = j; bestAct = ACT_FLEE; }
+        { const w = Math.pow(fs, CHOB) || 5e-324; bestW += w;
+          if (rng()*bestW < w){ bestS = fs; bestT = j; bestAct = ACT_FLEE; } }
       }
 
       // APPROACH is worth the share of your own predation loss that joining a
@@ -1766,7 +1851,8 @@ function senseDecide(i){
       if (crowd > 0 && AN.risk[i] > 0){
         const sc = AN.risk[i]*(crowd/(1+crowd))
                    *G[g+AG.socialAttraction]*(1 - G[g+AG.kinRecognition]*(1-kin));
-        if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_APPROACH; }
+        { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+          if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_APPROACH; } }
       }
     }
   }
@@ -1874,23 +1960,33 @@ function updateAnimal(i){
       // ONLY thing in the build that makes being in a group pay, and it is
       // physics — no animal is told to herd. [L47-3]
       const tt = AN.tile[tgt], nN = AIDX.start[tt+1] - AIDX.start[tt];
+      // INJURY, NOT ATTRITION.  [L0.52-1]
+      // Pre-v0.52 this line removed prey MASS and the prey died only once it
+      // had been chewed down to corpseMin — ~13 uninterrupted landed bites,
+      // during which a survivor simply regrew and got cheaper to run. An attack
+      // now deposits DAMAGE. Nothing is eaten here: when the damage kills, the
+      // prey becomes a full corpse via killAnimal's existing mass>corpseMin
+      // branch, and is then eaten through the ordinary carrion path like any
+      // other corpse. The killer is not fed automatically — that would be a
+      // hardcode, and leaving the corpse on the tile is also what makes
+      // kill-stealing possible without anything being told to steal.
       const dmg = CFG.k_attack*metT*G[g+AG.biteForce]*p75(mass)*(0.8+rng()*0.4)
                   /((1 + CFG.k_armEff*G[og+AG.armour])
                     *(1 + CFG.k_confusion*(nN > 1 ? nN-1 : 0)));
-      const flesh = Math.min(dmg, AN.mass[tgt],
-                             satiateBite(i, g, CFG.meatValue*G[g+AG.carnivory]));
-      if (flesh > 0){
-        AN.mass[tgt] -= flesh;
-        AN.gut[i] += flesh*CFG.nutrientPerMass;
-        const gainE = flesh*CFG.meatValue*G[g+AG.carnivory];
-        AN.energy[i] += gainE;
-        ate = flesh; W.attacks++; W.fleshMass += flesh; W.eFlesh += gainE;
-        AN.rate[i] += (gainE - AN.rate[i])*CFG.rateEwma;
+      if (dmg > 0){
+        AN.dmg[tgt] += dmg;
+        W.attacks++; W.dmgDealt += dmg;
         // it fights back, in proportion to what it is carrying
         AN.energy[i] -= G[og+AG.biteForce]*G[og+AG.aggression]*CFG.k_retal;
         AN.stam[i] = Math.max(0, AN.stam[i] - CFG.staminaDrain*2);
         moving = false; AN.sp[i] *= 0.5;
-        if (AN.mass[tgt] <= CFG.corpseMin){ W.aDeadKilled++; killAnimal(tgt); }
+        // MASS IS CONSERVED HERE BY DOING NOTHING TO IT. The attack moves no
+        // mass at all; every gram still moves through killAnimal and the
+        // carrion path, both of which already close the ledger.
+        if (AN.dmg[tgt] >= CFG.k_health*AN.mass[tgt]){
+          W.aDeadKilled++; W.killMass += AN.mass[tgt];
+          killAnimal(tgt);
+        }
       }
     }
   } else if (act === ACT_SCAVENGE && tgt >= 0 && AN.stage[tgt] === CORPSE){
@@ -1996,6 +2092,12 @@ function updateAnimal(i){
     + CFG.k_longevityA*life*m75/(G[g+AG.senescenceRate]+0.2)
     )*G[g+AG.metabolicRate]*sen*(1 + winter*(1-G[g+AG.thermalTolerance]));
   AN.energy[i] -= upkeep;
+  // INJURIES HEAL. Without this, damage accumulates over a lifetime and every
+  // animal eventually dies of accumulated scratches, which would make
+  // predation a slow poison rather than an act. Free in energy terms for now:
+  // v0.52 is one structural change, and charging for healing is a second one.
+  // [L0.52-1]
+  if (AN.dmg[i] > 0) AN.dmg[i] -= AN.dmg[i]*CFG.k_heal;
   AN.up[i] = upkeep;
   W.aUpSum += upkeep; W.aTicks++; if (ate > 0) W.aFeedTicks++;
   AN.age[i] += 1;
@@ -2056,7 +2158,7 @@ function updateAnimal(i){
       AN.x[c] = AN.x[i]; AN.y[c] = AN.y[i]; AN.tile[c] = AN.tile[i];
       AN.hd[c] = rng()*Math.PI*2; AN.sp[c] = 0;
       AN.mass[c] = birth; AN.energy[c] = invest; AN.gut[c] = 0;
-      AN.age[c] = 0; AN.stam[c] = 1; AN.gen[c] = AN.gen[i]+1; AN.risk[c] = 0;
+      AN.age[c] = 0; AN.stam[c] = 1; AN.gen[c] = AN.gen[i]+1; AN.risk[c] = 0; AN.dmg[c] = 0;
       // satiateBite reads AN.up, and a recycled slot still holds the previous
       // occupant's upkeep. Seed it with the Kleiber estimate already computed.
       AN.up[c] = nbUp;
@@ -2124,6 +2226,26 @@ function tick(){
     }
     // grazers are introduced once the vegetation exists, then netted briefly
     if (day === CFG.animalStartDay) seedAnimalFounders(CFG.animalFounders);
+    // PERTURBATION HOOK. Inert unless cfg.shockDay is set, so the default
+    // build is bit-identical to one without it. Culls a fraction of the LIVE
+    // animals once, on that day, through killAnimal so the matter ledger stays
+    // closed and occIdx bookkeeping is not bypassed. Exists because every
+    // metric this project has used for "stable" is satisfiable by something
+    // other than stability — R0 carries mean N in its denominator, persistence
+    // is not-yet-dead-at-a-cutoff, predation share is satisfiable by a
+    // constant. Regulation means a RESTORING FORCE: shock it and see whether it
+    // comes back. That cannot be faked by a constant.  [L0.52-3]
+    if (CFG.shockDay > 0 && day === CFG.shockDay && CFG.shockFraction > 0){
+      const victims = [];
+      for (let q = 0; q < AN.occN; q++){
+        const i = AN.occIdx[q];
+        if (AN.stage[i] === ALIVE && rng() < CFG.shockFraction) victims.push(i);
+      }
+      // collected first, then killed: killAnimal can call freeAnimal, which
+      // swap-removes from occIdx and would corrupt a live traversal
+      for (let q = 0; q < victims.length; q++) killAnimal(victims[q]);
+      logEvent('cull', { day: day, n: victims.length });
+    }
     else if (day > CFG.animalStartDay && day <= CFG.animalStartDay + CFG.animalReseedDays
              && AN.live < CFG.animalFloor){
       const need = CFG.animalFloor - AN.live;
@@ -2336,7 +2458,7 @@ function clearHistory(){
   HIST.n = 0; HIST.w = 0;
   W.eaten = 0; W.grown = 0; W.abandons = 0;
   W.corpses = 0; W.aDeadKilled = 0; W.attacks = 0; W.scavenged = 0;
-  W.fleshMass = 0; W.carrionMass = 0;
+  W.fleshMass = 0; W.carrionMass = 0; W.dmgDealt = 0; W.killMass = 0;
   W.pSeeded = 0; W.pGerm = 0; W.aBorn = 0;
   W.ePhoto = 0; W.ePlant = 0; W.eFlesh = 0; W.eCarrion = 0;
   W.limN = 0; W.limE = 0; W.limM = 0;
@@ -3221,7 +3343,13 @@ const LOGCOLS = ['tick','plants','seeds','animals','lai','matter','soil','det','
                  'aSeen',
                  // v0.35: the standing crop that is actually reachable, and
                  // animals that died old rather than hungry
-                 'pLocked','aDeadSen'];
+                 'pLocked','aDeadSen',
+                 // v0.52: injury. aDmg is mean carried damage as a FRACTION of
+                 // each animal's own lethal threshold, so it is comparable
+                 // across body sizes; killMass is corpse mass created by
+                 // predation, which under v0.52 is the only way a kill enters
+                 // the carrion economy at all.  [L0.52-1]
+                 'aDmg','dmgDealt','killMass'];
 const CARNBINS = 12;
 const CARNHIST = new Int32Array(CARNBINS);
 const DAGEBINS = 8;
@@ -3260,6 +3388,7 @@ function logSample(){
   let aG = 0, aW = 0, aA = 0, aR = 0, aE = 0, na = 0, aRe = 0, aRt = 0;
   let aAt = 0, aSc = 0, aFl = 0, aCarn = 0, carnMax = 0, ncorpse = 0, cmass = 0, aHerbG = 0;
   let aAgeS = 0, gutS = 0, aSizeS = 0, aTrS = 0, aJuv = 0, aMat = 0, aElevS = 0, aClimbS = 0;
+  let aDmgS = 0;                                                    // [L0.52-1]
   MASSP.length = 0; MASSA.length = 0;
   CARNHIST.fill(0); HGTHIST.fill(0);
   for (let i = 0; i < AN.hi; i++){
@@ -3269,6 +3398,9 @@ function logSample(){
     aAgeS += AN.age[i]; gutS += AN.gut[i]; MASSA.push(AN.mass[i]);
     aSizeS += AN.genome[i*AGENES+AG.size]; aTrS += AN.genome[i*AGENES+AG.toxinResistance];
     aElevS += W.elev[AN.tile[i]]; aClimbS += AN.genome[i*AGENES+AG.climbing];
+    // damage as a fraction of THIS animal's own lethal threshold, so the
+    // mean is comparable across body sizes.  [L0.52-1]
+    aDmgS += AN.dmg[i]/Math.max(1e-9, CFG.k_health*AN.mass[i]);
     { const gg = i*AGENES;
       if (AN.age[i] < AN.genome[gg+AG.maturityAge]
           || AN.mass[i] < CFG.maturityMassFrac*AN.genome[gg+AG.size]) aJuv++; else aMat++; }
@@ -3343,7 +3475,8 @@ function logSample(){
              W.pMature, W.accN ? W.accSum/W.accN : 0, W.pDeadSen,
              W.pReseed, W.aReseed,
              W.seenN ? W.seenA/W.seenN : 0,
-             totM > 0 ? lockM/totM : 0, W.aDeadSen];
+             totM > 0 ? lockM/totM : 0, W.aDeadSen,
+             na ? aDmgS/na : 0, W.dmgDealt, W.killMass];
   if (v.length !== LOGCOLS.length){        // a silent off-by-one shifts every
     console.warn('LOG COLUMN MISMATCH', v.length, LOGCOLS.length);   // column
   }

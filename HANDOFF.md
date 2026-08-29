@@ -17,6 +17,59 @@ count.
 
 ---
 
+## 0.4. CURRENT STATE — v0.54.0, 2026-08-29. Read this before §0.5 and §1.
+
+Everything below §0.4 is older and several of its headline claims are now
+**overturned**. Specifically: §1's predator-prey coupling result is dead, and
+§1's "92.2% GRAZE" monoculture figure is optimistic.
+
+**Scored this week on 371 v0.53 seeds (matched window days 400–800, survival at
+day 800, censoring applied — see LEDGER.md "WEEKLY PASS, 2026-08-29"):**
+
+- **H1 FORCED.** The population cycles are the calendar. Autocorrelation of the
+  animal series peaks at 0.56 with period **40 days = `daysPerYear` exactly**;
+  plants 0.81 at 40 days. Halve the forcing and the ACF halves (0.21). Remove it
+  and there is **no periodicity at any lag, in either kingdom** (ACF 0.00).
+  There is no Lotka-Volterra loop in this simulator, and the lag-coupling that
+  was this project's headline emergent result was two kingdoms tracking one
+  clock. The seasonless arm also has the **best survival of any arm (84.5% vs
+  control 71.4%)** — the season was a mortality source, not a driver.
+- **H2 MISS.** Damping the oscillation worked (cv 55.7% → 43.2%) and changed
+  survival by 0.2 points. Trough depth does not set extinction risk. The ~70%
+  survival ceiling is unexplained.
+- **H3 MISS.** Removing the oscillation *and* the ATTACK floor leaves
+  `meatAttraction` at 0.087 and predation share at 25%.
+
+**The joint diagnosis, and the thing to hold onto:** every attraction gene sits
+at **drift**. `plantAttraction` governs the act taken 98.7% of the time and
+moves +0.03 SD against a neutral-gene yardstick of 0.04 SD; `meatAttraction`,
+`carrionAttraction` and `socialAttraction` are the same. Meanwhile `herbivory`
+and `biteForce` move +0.79 to +1.04 SD. The cause is structural: the arbiter was
+`if (sc > bestS)`, a hard argmax, and a gene that only rescales one option's
+score has a fitness gradient just where it flips the winner.
+
+**Mission-test consequence:** ATTACK's attraction term is
+`k_meatAttrFloor + meatAttraction` = `0.5 + ~0.10`. The constant supplies 83% of
+it; set it to 0 and predation share falls 61% → 25% with no compensation from
+the gene. **Predation is currently a number in the source, not an evolved
+trait.**
+
+**v0.54 ships the fix** [L0.54-1]: the arbiter is now a Luce choice,
+`P(act) ∝ score^k_choiceBeta` (default 4.0), implemented as weighted reservoir
+sampling inside the existing scan. Deliberately not RNG-identical to v0.53.
+Four pre-registered arms are in LEDGER.md — H4 (do the genes become selectable),
+H5 (does the 98.7% GRAZE monoculture break), H6 (a perfect carnivore extracts
+20.4 per unit prey mass against a herbivore's 25.0 — meat is worth less
+than salad, `meat-rich.json` tests `meatValue` 24→40), H7 (the mission test:
+does carnivory survive `k_meatAttrFloor` 0 now the gene has a gradient).
+
+**Measurement discipline that produced all of the above, worth reusing:** fixed
+matched window, survival judged at a fixed day, runs still alive when their log
+ends **censored out of the denominator** rather than counted as survivors — that
+alone moves survival by up to 14 points per arm.
+
+---
+
 ## 0.5. Trophic-balance investigation, 2026-08-10 — read this before §1
 
 Owner asked for a hands-off, fully autonomous push toward "herbivory
@@ -131,7 +184,7 @@ concrete direction instead of re-deriving strategy:**
 
 ---
 
-## 1. Current state — v0.51.0
+## 1. Current state — v0.51.0 (HISTORICAL; superseded by §0.4)
 
 **Achieved and replicated:**
 
