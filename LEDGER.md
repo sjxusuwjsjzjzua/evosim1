@@ -7645,3 +7645,22 @@ generates lovely behavioural diversity in populations that die is not progress.
 versions superseded, results captured above, recoverable from git history.
 `evosim-v0_52_0.html` kept (it is the copy on `main`) and `evosim-v0_53_0.html`
 kept as v0.54's revert target per CLAUDE.md's deletion criterion.
+
+## Operational notes, 2026-08-29
+
+**The v0.53-arm backlog was left to drain, deliberately.** At the time of the
+rotation switch 56 scheduled runs (~224 jobs) were queued, all created against
+the old workflow commit, so they will keep producing seeds on the now-retired
+H1/H2/H3 arms for roughly twelve hours. Cancelling them was considered and
+rejected: it costs ~56 API calls to buy back about 7% of the coming week's
+v0.54 yield. Recorded so this reads as a decision rather than an oversight.
+Scheduled jobs check out the working branch at execution time, so those runs
+still resolve their old cfg-patch paths correctly — they produce valid v0.53
+data, just data on questions that are now answered.
+
+**Arm classifier updated for the v0.54 namespace.** `arm()` now keys on
+`k_choiceBeta`, which exists only from v0.54; a run without it is pre-v0.54 and
+gets a `v53-` prefix rather than being folded into a v0.54 arm. This is the
+absence-is-not-difference rule that produced bogus arms twice before, applied
+in advance this time. The existing 371-row cache was relabelled in place rather
+than re-parsed.
