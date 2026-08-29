@@ -7503,7 +7503,7 @@ each gene's own standing SD across runs. The five genes the sim never reads
 | **carrionAttraction** | +0.08 SD | −0.16 SD |
 | **socialAttraction** | −0.05 SD | −0.08 SD |
 
-`plantAttraction` governs the act taken **98.7% of the time** and is
+`plantAttraction` governs the act taken **97.0% of the time** and is
 statistically indistinguishable from a gene the simulator never reads. All four
 attraction genes sit at drift. Every gene that changes the *payoff* of an act —
 `herbivory`, `biteForce`, `maxSpeed` — moves 10–25× further.
@@ -7524,16 +7524,35 @@ trait. *If a result had to be written into the code, it doesn't count.*
 
 ## Action budget, for the record (matched window, % of acts)
 
-| arm | GRAZE | SCAV | ATTACK | FLEE | APPROACH | REST |
-|---|---|---|---|---|---|---|
-| CONTROL | 98.73 | 0.00 | 0.24 | 0.00 | 0.00 | 0.18 |
-| seasonless | 97.80 | 0.00 | 0.00 | 0.00 | 0.00 | 0.35 |
-| halfseason | 97.15 | 0.00 | 0.30 | 0.00 | 0.00 | 0.00 |
-| seasonless-flooroff | 98.37 | 0.20 | 0.00 | 0.00 | 0.00 | 1.47 |
+**CORRECTED before publication — the first version of this table was wrong.**
+I computed act shares by differencing the first and last sample of each `act*`
+column, treating them as cumulative counters. They are not: `logRow()` rebuilds
+`aG/aW/aA/aR/aAt/aSc/aFl` from a fresh scan over living animals every sample,
+so each is a **snapshot of how many animals are in that act right now**.
+Differencing endpoints of a snapshot series is meaningless — it produced
+negative shares on the v0.54 smoke run, which is how the error surfaced. The
+correct statistic is the mean of each column over the window, normalised by the
+mean total. Both versions are below so the size of the error is on record.
 
-Behavioural monoculture is **worse** than HANDOFF §1 records (92.2%): GRAZE is
-98.7% of the action budget. `actAppr` is 0.00% — the herding mechanism [L47-3]
-still never fires. Under a hard argmax an animal that never attacks also never
+| arm | n | GRAZE | SCAV | ATTACK | FLEE | APPR | REST | WANDER |
+|---|---|---|---|---|---|---|---|---|
+| CONTROL | 55 | 97.03 | 0.25 | 0.69 | 0.10 | 0.00 | 0.44 | 0.91 |
+| seasonless | 60 | 96.69 | 0.22 | 0.53 | 0.16 | 0.00 | 0.55 | 1.18 |
+| halfseason | 57 | 96.91 | 0.21 | 0.50 | 0.16 | 0.00 | 0.56 | 1.06 |
+| seasonless-flooroff | 44 | 96.05 | 0.33 | 0.33 | 0.43 | 0.03 | 0.68 | 1.66 |
+
+(The withdrawn figures were GRAZE 98.73 / ATTACK 0.24 / SCAV 0.00 for CONTROL.)
+
+**What the correction changes: nothing load-bearing, and that is worth stating
+precisely rather than waving at.** The `aDead*` columns used for predation share
+*are* genuinely cumulative (verified by monotonicity), so the 61% → 25% result
+and H3/H7 stand. H1's autocorrelations, H2's cv and survival, and the whole
+selection-response table use snapshot series correctly and are untouched. Only
+this table moved, and its conclusion survives at the corrected numbers: GRAZE is
+**97.0%** of the action budget — still worse than HANDOFF §1's recorded 92.2% —
+and `actAppr` is 0.00–0.03%, so the herding mechanism [L47-3] still never fires.
+The sentence elsewhere in this entry reading "the act taken 98.7% of the time"
+should read **97.0%**. Under a hard argmax an animal that never attacks also never
 generates the behavioural variance selection would need in order to favour
 attacking, which is the same defect seen from the population side.
 
@@ -7606,12 +7625,26 @@ a neutral yardstick of 0.04 SD.
   path, not the rule.
 
 ### H5 — does the behavioural monoculture break?
-Baseline: GRAZE **98.73%** of the action budget, ATTACK 0.24%, APPROACH 0.00%.
+Baseline (corrected figures): GRAZE **97.03%** of the action budget, ATTACK
+0.69%, SCAVENGE 0.25%, APPROACH 0.00%.
 - **HIT** if median GRAZE share falls below **90%** and survival stays within
   10 points of v0.53 CONTROL's 71.4%.
 - **MISS** if GRAZE stays above **96%**.
 - **HARM** if survival falls below **50%**: the variance was bought at a price
   the world cannot pay, and v0.54 is reverted rather than tuned.
+
+**Audit trail on this threshold, because it matters.** The 90%/96% bars were
+written and committed before the v0.54 smoke run finished, against the
+*withdrawn* 98.73% baseline; the act-column correction landed afterwards and
+moved the baseline to 97.03%. The bars are left exactly as frozen — moving a
+pre-registered threshold after seeing data is the failure this discipline
+exists to prevent, and the correction narrows the gap between baseline and HIT
+rather than widening it, so the test got *harder*, not easier. Note also that
+the single v0.54 smoke seed (1337, days 300-420, n=1, not an arm, not scored)
+came in at GRAZE **90.18%** / ATTACK 4.42% / SCAV 1.40% / WANDER 2.84% — right
+at the HIT bar. That is one seed on a 120-day window and proves nothing; it is
+recorded here so that if the arms land near 90% nobody has to wonder whether
+the bar was drawn around a result already seen. It was not.
 
 ### H6 — is meat simply worth less than salad?
 `cfg-patches/meat-rich.json` (`meatValue` 24 → 40).
@@ -7664,3 +7697,20 @@ gets a `v53-` prefix rather than being folded into a v0.54 arm. This is the
 absence-is-not-difference rule that produced bogus arms twice before, applied
 in advance this time. The existing 371-row cache was relabelled in place rather
 than re-parsed.
+
+## v0.54 smoke verification, seed 1337, 420 days (n=1 — verification, not a result)
+
+- **matter 6819 -> 6819, drift 0.000000%.** Exact through 9,387 animal births
+  and 9,777 deaths, so the Luce arbiter does not leak or create matter.
+- `node check.js evosim-v0_54_0.html`: all six stages pass; stage 3 reports
+  REST WANDER GRAZE ATTACK SCAVENGE FLEE all entered.
+- All three CFG arms apply cleanly against v0.54 and each conserves matter to
+  0.000000%: beta-hi (k_choiceBeta 12), meat-rich (meatValue 40),
+  beta-flooroff (k_meatAttrFloor 0).
+- Population survived the full 420 days (225 animals, 7,993 plants standing)
+  and the corrected stationarity gate reports **not drifting**. Only 100
+  unaided days after life support ends, so the run is far too short to judge
+  anything ecological — it establishes that the build runs, not that it is good.
+
+Nothing above is scored. H4-H7 are scored only against the matched v0.54
+CONTROL arm on the days 400-800 window, at n>=12 per arm.

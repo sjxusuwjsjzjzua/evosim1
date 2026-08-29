@@ -41,7 +41,7 @@ day 800, censoring applied — see LEDGER.md "WEEKLY PASS, 2026-08-29"):**
   `meatAttraction` at 0.087 and predation share at 25%.
 
 **The joint diagnosis, and the thing to hold onto:** every attraction gene sits
-at **drift**. `plantAttraction` governs the act taken 98.7% of the time and
+at **drift**. `plantAttraction` governs the act taken 97.0% of the time and
 moves +0.03 SD against a neutral-gene yardstick of 0.04 SD; `meatAttraction`,
 `carrionAttraction` and `socialAttraction` are the same. Meanwhile `herbivory`
 and `biteForce` move +0.79 to +1.04 SD. The cause is structural: the arbiter was
@@ -58,7 +58,7 @@ trait.**
 `P(act) ∝ score^k_choiceBeta` (default 4.0), implemented as weighted reservoir
 sampling inside the existing scan. Deliberately not RNG-identical to v0.53.
 Four pre-registered arms are in LEDGER.md — H4 (do the genes become selectable),
-H5 (does the 98.7% GRAZE monoculture break), H6 (a perfect carnivore extracts
+H5 (does the 97.0% GRAZE monoculture break), H6 (a perfect carnivore extracts
 20.4 per unit prey mass against a herbivore's 25.0 — meat is worth less
 than salad, `meat-rich.json` tests `meatValue` 24→40), H7 (the mission test:
 does carnivory survive `k_meatAttrFloor` 0 now the gene has a gradient).
