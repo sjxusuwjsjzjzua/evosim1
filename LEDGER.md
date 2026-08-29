@@ -7714,3 +7714,8 @@ than re-parsed.
 
 Nothing above is scored. H4-H7 are scored only against the matched v0.54
 CONTROL arm on the days 400-800 window, at n>=12 per arm.
+
+## Daily 2026-08-29: first v0.54 seeds land
+12 new standing seeds (2002->2014); batch firing. v0.54 CONTROL n=4 surv 25% cv 187.7 meatAttr 0.1105 | beta-hi n=4 surv 25% cv 165.8 meatAttr 0.1157 | meat-rich n=0 | beta-flooroff n=0. v0.53 arms unchanged (v53-CONTROL n=88 etc.), backlog still draining as planned.
+NOT the H5 HARM clause: that reads at n>=12, and at n=4 the number is dominated by completion-order bias — extinct runs autohalt early and land first, so every partially-reported block reads low. Recorded so the next cycle does not mistake it for a signal.
+No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
