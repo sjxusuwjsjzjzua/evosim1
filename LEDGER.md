@@ -7719,3 +7719,8 @@ CONTROL arm on the days 400-800 window, at n>=12 per arm.
 12 new standing seeds (2002->2014); batch firing. v0.54 CONTROL n=4 surv 25% cv 187.7 meatAttr 0.1105 | beta-hi n=4 surv 25% cv 165.8 meatAttr 0.1157 | meat-rich n=0 | beta-flooroff n=0. v0.53 arms unchanged (v53-CONTROL n=88 etc.), backlog still draining as planned.
 NOT the H5 HARM clause: that reads at n>=12, and at n=4 the number is dominated by completion-order bias — extinct runs autohalt early and land first, so every partially-reported block reads low. Recorded so the next cycle does not mistake it for a signal.
 No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
+
+## Daily 2026-08-30: all four v0.54 arms populated
+22 new standing seeds (2014->2036); batch firing; v0.54 backlog cleared enough that all four arms now report. CONTROL n=8 surv 50% cv 138.2 meatAttr 0.1000 | beta-hi n=8 surv 62% cv 61.6 meatAttr 0.0995 | meat-rich n=8 surv 62% cv 95.3 meatAttr 0.0675 | beta-flooroff n=6 surv 33% meatAttr 0.1554. v0.53 arms unchanged.
+H5 HARM clause NOT triggered: it reads at n>=12 and CONTROL is n=8 at 50%, still inside the completion-order bias window (extinct runs autohalt early and land first). Next cycle should cross n=12 — check it then.
+No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
