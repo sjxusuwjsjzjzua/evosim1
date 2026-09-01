@@ -7729,3 +7729,8 @@ No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
 19 new standing seeds (2036->2055); batch firing. CONTROL n=13 surv 54% cv 117.6 meatAttr 0.0824 | beta-hi n=12 surv 58% cv 89.2 meatAttr 0.0779 | meat-rich n=12 surv 75% cv 66.5 meatAttr 0.0918 | beta-flooroff n=12 surv 58% cv 118.4 meatAttr 0.1830. v0.53 arms unchanged.
 H5 HARM check at n>=12: CONTROL survival 54%, above the 50% revert threshold, so v0.54 stands. Caveat for the weekly pass: this is the collector's alive-at-log-end figure, not the matched-window day-800 survival the criterion is defined on — rescore it properly before treating 54% as final.
 No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
+
+## Daily 2026-09-01: v0.54 arms at n=16-20
+19 new standing seeds (2055->2074); batch firing. CONTROL n=20 surv 60% cv 90.2 meatAttr 0.0859 | beta-hi n=16 surv 50% cv 90.3 meatAttr 0.0892 | meat-rich n=16 surv 75% cv 81.3 meatAttr 0.1250 | beta-flooroff n=16 surv 69% cv 102.8 meatAttr 0.1554. v0.53 arms unchanged.
+H5 HARM clause still not triggered: CONTROL survival 60% at n=20, up from 54% at n=13 as the completion-order bias unwinds.
+No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
