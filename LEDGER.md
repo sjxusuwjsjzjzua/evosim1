@@ -7744,3 +7744,8 @@ No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
 19 new standing seeds (2101->2120); batch firing. CONTROL n=30 surv 57% cv 111.9 meatAttr 0.1000 | beta-hi n=28 surv 57% cv 90.3 meatAttr 0.1461 | meat-rich n=28 surv 79% cv 74.8 meatAttr 0.1250 | beta-flooroff n=28 surv 61% cv 107.8 meatAttr 0.1086. v0.53 arms unchanged.
 H5 HARM clause still clear: CONTROL survival 57% at n=30. All four arms now well past the n>=12 scoring minimum.
 No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
+
+## Daily 2026-09-04: v0.54 arms at n=32-36
+26 new standing seeds (2120->2146); batch firing. CONTROL n=36 surv 53% cv 114.8 meatAttr 0.1109 | beta-hi n=36 surv 56% cv 97.4 meatAttr 0.1467 | meat-rich n=36 surv 78% cv 80.0 meatAttr 0.1041 | beta-flooroff n=32 surv 62% cv 98.5 meatAttr 0.1024. v0.53 arms unchanged.
+H5 HARM clause still clear: CONTROL survival 53% at n=36, above the 50% threshold but the narrowest margin so far — worth watching, and it must be rescored on the matched-window day-800 definition at the weekly pass rather than on this alive-at-log-end figure.
+No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
