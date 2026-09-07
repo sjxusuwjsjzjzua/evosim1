@@ -7759,3 +7759,8 @@ No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass. One week o
 26 new standing seeds (2173->2199); batch firing. CONTROL n=49 surv 57% cv 112.5 meatAttr 0.1123 | beta-hi n=48 surv 54% cv 102.7 meatAttr 0.1187 | meat-rich n=48 surv 73% cv 86.9 meatAttr 0.1041 | beta-flooroff n=48 surv 54% cv 108.8 meatAttr 0.0615. v0.53 arms unchanged.
 H5 HARM clause clear: CONTROL survival 57% at n=49.
 No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
+
+## Daily 2026-09-07: v0.54 arms at n=52-56
+27 new standing seeds (2199->2226); batch firing. CONTROL n=56 surv 57% cv 111.6 meatAttr 0.1065 | beta-hi n=56 surv 55% cv 102.7 meatAttr 0.1105 | meat-rich n=56 surv 73% cv 84.2 meatAttr 0.1129 | beta-flooroff n=52 surv 56% cv 108.8 meatAttr 0.0636. v0.53 arms unchanged.
+H5 HARM clause clear: CONTROL survival 57% at n=56.
+No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
