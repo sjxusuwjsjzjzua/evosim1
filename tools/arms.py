@@ -14,13 +14,19 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'runs', 'arms.tsv')
 
 def arm(c):
-    # v0.54+ first: k_choiceBeta exists only from v0.54 on.
+    # v0.55+ first: invadeFrac exists only from v0.55 on.
+    if 'invadeFrac' in c:
+        if c.get('invadeFrac', 0) > 0: return 'invade-carn'
+        if c.get('k_mixed', 0.018) == 0: return 'mixed-flat'
+        if c.get('meatValue', 24.0) != 24.0: return 'meat-rich-55'
+        return 'CONTROL'
+    # v0.54: k_choiceBeta exists only from v0.54 on.
     if 'k_choiceBeta' in c:
         b = c['k_choiceBeta']; mv = c.get('meatValue', 24.0); fl = c.get('k_meatAttrFloor', 0.5)
         if b == 12.0: return 'beta-hi'
         if mv != 24.0: return 'meat-rich'
         if fl == 0:    return 'beta-flooroff'
-        if b == 4.0 and mv == 24.0 and fl == 0.5: return 'CONTROL'
+        if b == 4.0 and mv == 24.0 and fl == 0.5: return 'v54-CONTROL'
         return 'v54-other'
     sp = c.get('k_seasonPhen')
     if sp is None: return None                      # pre-v0.53
@@ -68,7 +74,8 @@ for r in open(CACHE):
     if len(p) < 6 or p[1] in ('-', ''): continue
     acc.setdefault(p[1], []).append(p)
 print('%-24s %4s %6s %8s %10s' % ('arm', 'n', 'surv', 'cv%', 'meatAttr'))
-for k in ['CONTROL','beta-hi','meat-rich','beta-flooroff','v54-other',
+for k in ['CONTROL','invade-carn','mixed-flat','meat-rich-55',
+          'v54-CONTROL','beta-hi','meat-rich','beta-flooroff','v54-other',
           'v53-CONTROL','v53-seasonless','v53-halfseason','v53-seasonless-flooroff','v53-other']:
     v = acc.get(k)
     if not v:

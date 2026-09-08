@@ -7982,3 +7982,8 @@ herbivore does from undefended foliage, subject to staying under
 replicated survival gain is therefore not calibrating a constant against a
 statistic — but the replication is required precisely because that distinction
 is easy to lose.
+
+## Daily 2026-09-08: v0.55 arms not started yet (rotation gated on the identity check)
+No new standing seeds this cycle (2246 branches, all already collected during this pass's recovery re-fetch). Batch confirmed firing — a scheduled run started 14:28 UTC, ~2h before the check — but still on the v0.54 rotation, because the v0.55 rotation is deliberately held off `main` until rule 7's bit-identity check reports. Final v0.54 block: v54-CONTROL n=60 surv 58% | beta-hi n=60 58% | meat-rich n=60 75% | beta-flooroff n=60 53%.
+`tools/arms.py` taught the v0.55 arms (keyed on invadeFrac / k_mixed / meatValue) and the v0.54 control renamed `v54-CONTROL` so the two builds' controls can never merge into one bucket. Cache rebuilt from scratch to apply the new namespace.
+No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
