@@ -7905,10 +7905,28 @@ if (CFG.invadeFrac > 0 && CFG.invadeGenes && rng() < CFG.invadeFrac){
 `invadeFrac` defaults to 0 and `invadeGenes` to null, and the `rng()` draw is
 taken **only** when `invadeFrac > 0`. Rule 7's identity check therefore applies
 rather than being waived: **v0.55 must be bit-identical to v0.54 at defaults.**
-That check (seed 4242, 300 days, full column and gene-snapshot diff) is running
-as this is written and **nothing is scored off this build until it reports** —
-the same discipline v0.53 was held to. If it fails, the probe is wrong and the
-version does not ship.
+**Result: PASS**, but the first attempt at the check was worthless and that is
+worth recording. A 300-day cold comparison was killed twice by container
+restarts and both partials stopped at **day 200** — and `animalStartDay` is
+**260**, so neither run had founded a single animal. `seedAnimalFounders()` is
+the only function v0.55 touches, so a day-200 diff cannot exercise the change at
+all: it would have printed a clean identity result while testing nothing. That
+is the same vacuous-test failure `check.js` stage 6 was rewritten to avoid, and
+it nearly repeated here because the two runs agreed perfectly.
+
+Restructured so the changed function actually runs. Both builds, same seed, with
+an identity-harness CFG that moves `animalStartDay` forward so founding happens
+inside a run short enough to finish between restarts (the harness patch is not
+an experimental arm and is applied identically to both sides, so it cannot
+create or mask a difference):
+
+- seed 4242, `animalStartDay` 20, 90 days — animals founded, **every one of the
+  100 columns identical, gene snapshots identical**. PASS.
+- seed 909, `animalStartDay` 120, 230 days — the fauna-heavy replicate, run
+  because the first died back quickly and gave the animal machinery little
+  exercise.
+
+Nothing is scored off this build until both report.
 
 Verified already: `node check.js evosim-v0_55_0.html` passes all six stages;
 `cfg-patches/invade-carn.json` applies (`invadeFrac` 0.25 with the four named
