@@ -7924,9 +7924,12 @@ create or mask a difference):
   100 columns identical, gene snapshots identical**. PASS.
 - seed 909, `animalStartDay` 120, 230 days — the fauna-heavy replicate, run
   because the first died back quickly and gave the animal machinery little
-  exercise.
+  exercise. **87 animals alive at the end, 774 births, 622 kills**, so founding,
+  the arbiter, mutation, reproduction and predation all ran: **every column and
+  every gene snapshot identical. PASS.**
 
-Nothing is scored off this build until both report.
+**Rule 7 satisfied on a check that could actually have failed.** v0.55 ships and
+the rotation goes to `main`.
 
 Verified already: `node check.js evosim-v0_55_0.html` passes all six stages;
 `cfg-patches/invade-carn.json` applies (`invadeFrac` 0.25 with the four named
