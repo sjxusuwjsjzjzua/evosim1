@@ -17,7 +17,60 @@ count.
 
 ---
 
-## 0.4. CURRENT STATE — v0.54.0, 2026-08-29. Read this before §0.5 and §1.
+## 0.3. CURRENT STATE — v0.55.0, 2026-09-08. Read this first.
+
+**v0.54's four pre-registered hypotheses all MISSED.** Scored on 240 seeds,
+matched window days 400–800, survival at day 800 with censoring:
+
+| arm | surv% | GRAZE% | pred share | carnivory | meatAttraction |
+|---|---|---|---|---|---|
+| CONTROL | 66.7% | 96.33 | 54.4% | 0.061 | 0.078 |
+| beta-hi (β=12) | 73.5% | 96.90 | 62.4% | 0.093 | 0.120 |
+| meat-rich (meatValue 40) | **92.2%** | 95.90 | 64.1% | 0.070 | 0.115 |
+| beta-flooroff | 59.6% | 96.72 | 24.5% | 0.058 | 0.083 |
+
+- **H4 MISS.** The Luce arbiter did not make the attraction genes selectable:
+  `plantAttraction` +0.07 SD against a 0.059 SD neutral-drift yardstick. The
+  gradient argument was correct and irrelevant — ATTACK is 0.8% of the action
+  budget, so making a negligible term differentiable leaves it negligible.
+- **H5 MISS.** GRAZE 96.33%; the monoculture did not break. HARM clause clear.
+- **H6 MISS on carnivory (0.070) — but the arm survived 92.2% against the
+  control's 66.7%, Fisher p = 0.0022, with no diet shift at all.** Predation
+  share 54.4 → 64.1%, SCAVENGE 0.36 → 0.61%. Reading: the animal level is
+  energy-limited and worth-more flesh lets it recycle more of the energy it
+  already contains. Largest survival effect in the project's history. Up for
+  fresh-seed replication as H10 before `meatValue` 40 is promoted.
+- **H7 MISS.** Predation share 24.5% with the floor off — identical to v0.53.
+  Carnivory is still not emergent after three structural attempts.
+
+**Three failed diagnoses in a row (payoff, consistency, choice rule) mean stop
+guessing the mechanism.** What is measured: prey are NOT scarce (an animal
+detects another on 0.53–0.79 of its scans; 14.2 kills/day out of ~264 animals);
+payoff is not the blocker (meat at 1.36× the best foliage moved carnivory by
+0.009); perception is not the blocker. What is left is the genome landscape —
+`k_mixed`'s own comment says it "makes the frontier CONCAVE", penalising exactly
+the intermediates between the herbivore corner (herbivory ≈0.70, carnivory
+≈0.06 in every arm ever measured) and any carnivore corner.
+
+**But from the herbivore corner an unreachable peak and an absent peak look
+identical**, which is what made the last three versions guesses. **v0.55 adds an
+invasion probe** [L0.55-1]: `invadeFrac`/`invadeGenes` hand a fraction of
+founders a named genotype. Inert and bit-identical to v0.54 at defaults. Arms:
+H8 (does a carnivore peak exist), H9 (`k_mixed` 0 — is the concavity the
+barrier), H10 (replicate meat-rich).
+
+**Debt on the books:** `k_choiceBeta` is an unvalidated mechanism — falsified
+diagnosis, no measurable benefit, one extra `rng()` per candidate. If the v0.55
+block gives it no reason to exist, the arbiter reverts to argmax in v0.56.
+
+**Operational:** `runs/` and the scratchpad do NOT survive a container restart;
+every log is recoverable from its `runs/<label>/seed-<N>` branch, and
+`tools/collect.sh` + `tools/arms.py` are now committed rather than living in
+scratch.
+
+---
+
+## 0.4. Previous state — v0.54.0, 2026-08-29 (HISTORICAL)
 
 Everything below §0.4 is older and several of its headline claims are now
 **overturned**. Specifically: §1's predator-prey coupling result is dead, and

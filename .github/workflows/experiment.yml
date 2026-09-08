@@ -225,7 +225,20 @@ jobs:
             # question and keeps a slot rather than being dropped.
             # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
             # instead of ~10.
-            # v0.54 ROTATION, 2026-08-29. H1/H2/H3 are SCORED and retired:
+            # v0.55 ROTATION, 2026-09-08. H4/H5/H6/H7 all MISSED and are
+            # retired. H4: the Luce arbiter did not make the attraction genes
+            # selectable (plantAttraction +0.07 SD vs a 0.059 SD drift
+            # yardstick) -- the gradient exists now but ATTACK is 0.8% of the
+            # action budget, so the act it governs is too small to matter.
+            # H5: GRAZE 96.33%, monoculture intact. H6: carnivory 0.070, but
+            # the arm survived 92.2% vs control 66.7% (p=0.0022) WITHOUT a diet
+            # shift -- the week's real finding, now up for replication as H10.
+            # H7: predation share 24.5% with the floor off, unchanged from
+            # v0.53 -- carnivory is still not emergent after three structural
+            # attempts. New arms stop guessing at mechanisms: H8 asks by
+            # invasion probe whether a carnivore peak exists at all, H9 asks
+            # whether k_mixed's concave frontier is the barrier.
+            # PREVIOUS (v0.54) ROTATION, 2026-08-29. H1/H2/H3 are SCORED and retired:
             # H1 FORCED (seasonless ACF 0.00 vs control 0.56 at period 40d =
             # daysPerYear exactly -- the cycles were the calendar, not ecology),
             # H2 MISS (halfseason cv 43.2% but survival 71.2% vs control 71.4%),
@@ -242,12 +255,12 @@ jobs:
             # matched v0.53 default control which takes 1 of 4 slots.
             case $(( ${{ github.run_number }} % 4 )) in
               0) CFG_IN="" ;;                                        # control
-              1) CFG_IN="cfg-patches/beta-hi.json" ;;                # H4 isolation
-              2) CFG_IN="cfg-patches/meat-rich.json" ;;              # H6
-              3) CFG_IN="cfg-patches/beta-flooroff.json" ;;          # H7
+              1) CFG_IN="cfg-patches/invade-carn.json" ;;            # H8 existence
+              2) CFG_IN="cfg-patches/mixed-flat.json" ;;             # H9 valley
+              3) CFG_IN="cfg-patches/meat-rich-55.json" ;;           # H10 replication
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_54_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_55_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi

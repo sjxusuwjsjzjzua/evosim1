@@ -7764,3 +7764,221 @@ No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
 27 new standing seeds (2199->2226); batch firing. CONTROL n=56 surv 57% cv 111.6 meatAttr 0.1065 | beta-hi n=56 surv 55% cv 102.7 meatAttr 0.1105 | meat-rich n=56 surv 73% cv 84.2 meatAttr 0.1129 | beta-flooroff n=52 surv 56% cv 108.8 meatAttr 0.0636. v0.53 arms unchanged.
 H5 HARM clause clear: CONTROL survival 57% at n=56.
 No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
+
+---
+
+# WEEKLY PASS, 2026-09-08 — H4/H5/H6/H7 scored. All four MISS.
+
+Method identical to last week and stated before the numbers: matched window
+**days 400–800**, survival judged **at day 800**, runs still alive when their
+log ends before day 800 **censored out of the denominator**. Act shares are the
+mean of the snapshot columns over the window (the correction of 2026-08-29).
+Scored against the **matched v0.54 CONTROL arm**.
+
+**Recovery note.** The container restarted before this pass and wiped `runs/`
+and the scratchpad — 2,278 collected logs gone locally. Every one was
+recoverable from its `runs/<label>/seed-<N>` branch, which is what that design
+is for, and re-collection took minutes. The collector and the arm classifier
+are now committed as `tools/collect.sh` and `tools/arms.py` instead of living
+in a scratch directory that does not survive a restart.
+
+| arm | at risk | alive | dead | cens | surv% | cv% | mean N | GRAZE% | pred share | ACF(animals) | period |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| CONTROL | 48 | 32 | 16 | 12 | 66.7% | 62.7 | 272 | 96.33 | 54.4% | 0.41 | 40 d |
+| beta-hi | 49 | 36 | 13 | 11 | 73.5% | 61.8 | 206 | 96.90 | 62.4% | 0.50 | 40 d |
+| meat-rich | 51 | 47 | 4 | 9 | **92.2%** | 50.4 | 255 | 95.90 | 64.1% | 0.33 | 40 d |
+| beta-flooroff | 52 | 31 | 21 | 8 | 59.6% | 62.8 | 233 | 96.72 | 24.5% | 0.40 | 40 d |
+
+## H4 — MISS. The argmax was not why the attraction genes were unselectable.
+
+Selection response in v0.54 CONTROL (n=32), against a neutral-gene drift
+yardstick of **0.059 SD**:
+
+| gene | CONTROL Δ | beta-hi Δ |
+|---|---|---|
+| plantAttraction | **+0.07 SD** | −0.03 SD |
+| meatAttraction | −0.16 SD | −0.02 SD |
+| carrionAttraction | +0.00 SD | −0.16 SD |
+| socialAttraction | −0.01 SD | −0.05 SD |
+| herbivory | +0.75 SD | +0.80 SD |
+| biteForce | +1.14 SD | +1.01 SD |
+
+`plantAttraction` moved 0.07 SD against a 0.059 SD drift yardstick — MISS by the
+frozen clause ("MISS if either gene stays below 0.15 SD"). Replacing the hard
+argmax with `P(act) ∝ score^4` did not make the attraction genes selectable.
+beta-hi vs CONTROL survival 73.5% vs 66.7%, Fisher p=0.51: no detectable
+difference from the choice rule in either direction.
+
+**Why the diagnosis was wrong, stated so it is not re-tried.** The gradient
+argument was right and irrelevant. Under the Luce rule doubling `meatAttraction`
+does multiply P(ATTACK) by 2^4, so the gradient genuinely exists everywhere
+now — but ATTACK is **0.82% of the action budget**, so the whole act it governs
+contributes too little to lifetime energy for a change in its probability to
+register against drift. The attraction genes are neutral not because choice was
+discrete but because **the acts they weight barely matter to fitness**. Making a
+negligible term differentiable leaves it negligible.
+
+## H5 — MISS. HARM clause not triggered.
+
+GRAZE 96.33% against the frozen MISS threshold of 96%. The monoculture did not
+break: non-graze share went from 2.97% (v0.53) to 3.67%. Survival 66.7%, well
+clear of the 50% HARM bar, so v0.54 is not reverted under its own rule. Against
+v0.53 CONTROL's 71.4% the difference is 4.7 points, Fisher p=0.69 — the choice
+rule neither helped nor hurt measurably.
+
+## H6 — MISS on its stated criterion, and the most important result of the week anyway.
+
+`meatValue` 24 → 40 left `carnivory` at **0.0701** against a MISS threshold of
+0.15, and left GRAZE at 95.9%. Predation share did clear its bar (64.1% ≥ 45%),
+but the frozen rule scores on `carnivory` and `carnivory` did not move. **MISS.**
+
+What it did instead was survive: **92.2% to day 800 against the matched
+control's 66.7%** — 47/51 versus 32/48, Fisher two-sided **p = 0.0022** — with
+cv 50.4 against 62.7 and mean N within 7% of control. That is the largest
+survival effect any arm has produced in this project, and nobody predicted it.
+
+The mechanism is not a diet shift, because the diet genes did not move.
+Predation share rose 54.4 → 64.1% and SCAVENGE 0.36 → 0.61% of acts while
+ATTACK barely moved (0.82 → 1.10%). Reading: the animal trophic level is
+**energy-limited**, and making flesh worth more lets it recover more of the
+energy already inside it — from kills and from its own dead — without anyone
+becoming a carnivore. Raising the value of meat fed the herbivores.
+
+This is a candidate default, not a settled one. It is one block, and it was a
+by-product of a prediction that missed, which is exactly the shape of result
+that later turns out to be a fluke. It gets a fresh-seed replication (H10)
+before `meatValue` 40 is promoted.
+
+## H7 — MISS. The mission test still fails.
+
+beta-flooroff predation share **24.5%** against a MISS threshold of 30%, and
+median `meatAttraction` 0.0833. Compare v0.53's flooroff arm: 25.0% and 0.0869.
+**The Luce arbiter changed nothing here at all.** With `k_meatAttrFloor` at 0,
+ATTACK falls to 0.28% of acts and predation collapses to a quarter of deaths,
+exactly as before. Predation in this simulator is still a constant in the
+source rather than an evolved trait, and that is now three structural attempts
+(v0.52 payoff, v0.53 consistency, v0.54 choice rule) that have failed to change
+it.
+
+## What three failures in a row actually license
+
+Rule 3 says a miss means the diagnosis was wrong. Three misses on three
+different diagnoses say something stronger: **stop guessing at the mechanism
+and measure the landscape.**
+
+Everything measured is consistent with a single reading not yet tested. Prey
+are not scarce — an animal detects another animal on **0.53–0.79 of its scans**,
+and 14.2 animals are killed per day out of ~264. Payoff is not the blocker —
+meat at 1.36× the best foliage moved `carnivory` by 0.009. Perception is not the
+blocker — three interventions on it changed nothing. What is left is the shape
+of the genome landscape itself: diet is priced as
+`k_gut*(carn² + herb²) + k_digest*max(0, carn+herb−1)² + k_mixed*max(0, carn*herb − mixedFree)`,
+and `k_mixed`'s own source comment says it "makes the frontier CONCAVE" — it
+penalises precisely the intermediate genotypes a lineage must pass through to
+travel from the herbivore corner (herbivory ≈ 0.70, carnivory ≈ 0.06 in every
+arm ever measured) to a carnivore corner. Selection does not cross valleys.
+
+But a valley only matters if there is something on the other side, and from the
+herbivore corner **an unreachable peak and an absent peak look identical.**
+That ambiguity is what has made the last three versions guesses. v0.55 resolves
+it by measurement rather than by another mechanism.
+
+---
+
+# v0.55 — an invasion probe, so the next question is measured instead of guessed [L0.55-1]
+
+## The change
+
+One structural change, **inert and RNG-neutral at defaults**. `seedAnimalFounders()`
+gains:
+
+```js
+if (CFG.invadeFrac > 0 && CFG.invadeGenes && rng() < CFG.invadeFrac){
+  for (const nm in CFG.invadeGenes){
+    const gi = AG[nm];
+    if (gi === undefined) continue;
+    G[g+gi] = clamp(CFG.invadeGenes[nm], AMIN[gi], AMAX[gi]);
+  }
+}
+```
+
+`invadeFrac` defaults to 0 and `invadeGenes` to null, and the `rng()` draw is
+taken **only** when `invadeFrac > 0`. Rule 7's identity check therefore applies
+rather than being waived: **v0.55 must be bit-identical to v0.54 at defaults.**
+That check (seed 4242, 300 days, full column and gene-snapshot diff) is running
+as this is written and **nothing is scored off this build until it reports** —
+the same discipline v0.53 was held to. If it fails, the probe is wrong and the
+version does not ship.
+
+Verified already: `node check.js evosim-v0_55_0.html` passes all six stages;
+`cfg-patches/invade-carn.json` applies (`invadeFrac` 0.25 with the four named
+genes present in the logged cfg) and conserves matter to **0.000000%**.
+
+**Why this and not a fourth mechanism.** It hands a fraction of founders a named
+genotype. It does not make carnivores evolve, cannot manufacture the result it
+tests, and answers the one question that has made the last three versions
+guesswork: *is there a carnivore peak to reach at all?* If lineages handed a
+working carnivore genotype are purged anyway, then no valley-crossing mechanism
+is worth building and the far peak has to be constructed before it can be
+reached. If they persist, the peak exists, the barrier is the path, and a
+landscape change is justified — with evidence, for once.
+
+The mission test cuts in favour of this: a probe that reports "no peak" is a
+result *read out of* the model. A mechanism added on a guess that happens to
+produce carnivores would be a result written *into* it.
+
+## Debt recorded, not hidden
+
+`k_choiceBeta` (v0.54) is now an **unvalidated mechanism**: its motivating
+diagnosis is falsified (H4), it produced no measurable benefit (H5 MISS, H7
+unchanged, survival p=0.69 against v0.53), and it costs one `rng()` per scored
+candidate. It is kept for now only because this week's block was measured on it
+and pulling it would strand that baseline. **Standing decision: if nothing in
+the v0.55 block gives the Luce rule a reason to exist, the arbiter reverts to
+argmax in v0.56.** Written down so it is a decision with a deadline rather than
+a mechanism that quietly becomes permanent.
+
+## PRE-REGISTERED, frozen before any seed runs
+
+Arms are v0.55, 1600 days, shipped full arena, scored on the matched window
+days 400–800 with survival at day 800 and censoring, against the matched v0.55
+CONTROL, at n ≥ 25 per arm.
+
+### H8 — does the carnivore peak exist at all?
+`cfg-patches/invade-carn.json` — 25% of founders at `carnivory` 0.85,
+`herbivory` 0.15, `meatAttraction` 0.60, `biteForce` 2.0.
+- **PEAK EXISTS** if ≥ 5% of animals sit above `carnivory` 0.5 in the day-800
+  carnivory histogram, in ≥ 50% of surviving seeds.
+- **NO PEAK** if < 1% of animals are above `carnivory` 0.5 in ≥ 80% of
+  survivors. Carnivores handed the genotype are then purged by the physics, the
+  far peak does not exist, and every mechanism aimed at helping selection
+  *reach* it has been aimed at nothing. The next move would be building the
+  peak — a reason for meat to be worth specialising on — not another path.
+- CAN'T-TELL between those, or at fewer than 25 surviving seeds.
+
+### H9 — is the concave frontier the barrier?
+`cfg-patches/mixed-flat.json` (`k_mixed` 0.018 → 0), no seeding.
+Baseline: `carnivory` 0.061 (CONTROL), 0.070 (meat-rich), 0.058 (flooroff) —
+the corner has not moved in any arm at any version.
+- **HIT** if median `carnivory` exceeds **0.20** and predation share ≥ 45%.
+  The concavity was then the barrier and selection crosses on its own once the
+  valley is filled.
+- **MISS** if median `carnivory` stays below **0.12**.
+
+### H10 — replicate the meat-rich survival effect before promoting it.
+`cfg-patches/meat-rich-55.json` (`meatValue` 24 → 40), fresh seeds.
+Baseline: v0.54 meat-rich 92.2% vs CONTROL 66.7%, p = 0.0022.
+- **CONFIRMED** if survival again exceeds the matched CONTROL by **≥ 15 points**
+  at n ≥ 25 with Fisher p < 0.05. `meatValue` 40 is then promoted to the shipped
+  default as a CFG patch with its own LEDGER row.
+- **NOT CONFIRMED** if the gap falls below **8 points**. The v0.54 result was
+  then a fluke of one block, and it is recorded as such rather than quietly
+  dropped.
+
+Note on H10 and rule 5: `meatValue` 40 was chosen from a written physical
+argument (a perfect carnivore should not extract less per unit mass than a
+herbivore does from undefended foliage, subject to staying under
+`energyPerMassA`) **before** any survival number existed. Promoting it on a
+replicated survival gain is therefore not calibrating a constant against a
+statistic — but the replication is required precisely because that distinction
+is easy to lose.
