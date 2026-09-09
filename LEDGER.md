@@ -8008,3 +8008,8 @@ is easy to lose.
 No new standing seeds this cycle (2246 branches, all already collected during this pass's recovery re-fetch). Batch confirmed firing — a scheduled run started 14:28 UTC, ~2h before the check — but still on the v0.54 rotation, because the v0.55 rotation is deliberately held off `main` until rule 7's bit-identity check reports. Final v0.54 block: v54-CONTROL n=60 surv 58% | beta-hi n=60 58% | meat-rich n=60 75% | beta-flooroff n=60 53%.
 `tools/arms.py` taught the v0.55 arms (keyed on invadeFrac / k_mixed / meatValue) and the v0.54 control renamed `v54-CONTROL` so the two builds' controls can never merge into one bucket. Cache rebuilt from scratch to apply the new namespace.
 No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
+
+## Daily 2026-09-09: first v0.55 seeds land, all four arms present
+23 new standing seeds (2246->2269); batch firing; the v0.55 rotation is live on main and delivering. CONTROL n=4 surv 75% cv 83.1 meatAttr 0.2005 | invade-carn n=7 surv 43% cv 125.3 meatAttr 0.1079 | mixed-flat n=4 surv 25% cv 131.8 meatAttr 0.1099 | meat-rich-55 n=4 surv 75% cv 115.7 meatAttr 0.0760. v0.54 block closed at n=60-64/arm, v0.53 unchanged.
+Nothing readable yet at n=4-7 — completion-order bias (extinct runs autohalt early and land first) dominates every arm this early, and H8's carnivory-histogram criterion needs n>=25. The invade-carn meatAttraction of 0.108 is NOT evidence about the invaders: it is a population mean over mostly-native animals, since only 25% of founders carry the probe genotype.
+No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
