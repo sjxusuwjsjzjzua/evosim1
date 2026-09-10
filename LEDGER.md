@@ -8013,3 +8013,8 @@ No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
 23 new standing seeds (2246->2269); batch firing; the v0.55 rotation is live on main and delivering. CONTROL n=4 surv 75% cv 83.1 meatAttr 0.2005 | invade-carn n=7 surv 43% cv 125.3 meatAttr 0.1079 | mixed-flat n=4 surv 25% cv 131.8 meatAttr 0.1099 | meat-rich-55 n=4 surv 75% cv 115.7 meatAttr 0.0760. v0.54 block closed at n=60-64/arm, v0.53 unchanged.
 Nothing readable yet at n=4-7 — completion-order bias (extinct runs autohalt early and land first) dominates every arm this early, and H8's carnivory-histogram criterion needs n>=25. The invade-carn meatAttraction of 0.108 is NOT evidence about the invaders: it is a population mean over mostly-native animals, since only 25% of founders carry the probe genotype.
 No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
+
+## Daily 2026-09-10: v0.55 arms at n=8-12
+24 new standing seeds (2269->2293); batch firing. CONTROL n=8 surv 62% cv 87.3 meatAttr 0.1676 | invade-carn n=12 surv 67% cv 114.7 meatAttr 0.1663 | mixed-flat n=12 surv 50% cv 102.0 meatAttr 0.1099 | meat-rich-55 n=11 surv 73% cv 124.6 meatAttr 0.1030. Older blocks unchanged.
+Neither escalation trigger fires: CONTROL is n=8, under the n>=12 survival threshold, and H8 needs n>=25 plus its carnivory-histogram read.
+No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
