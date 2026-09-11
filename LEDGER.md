@@ -8392,3 +8392,67 @@ so it is far better powered than H11's 1.5% heterotrophy line.
 ## Daily 2026-09-11
 No new seeds since the earlier check this session (2,316 branches). Batch firing: runs 997 and 998 in progress, fired 11:11 and 16:23 UTC, both on 9865b16. The paired-design workflow landed after 16:23, so the next fire is the first to use it.
 v0.56 cells: c1 n=3 (void, founded as a point mass before the shift fix), others n=0. Older blocks unchanged.
+
+## 2026-09-12 — the MVT guard overrides the genome, and removing it moves the mission metric
+
+The dead-end audit found a four-line early return at `evosim-v0_56_0.html:1916`:
+
+```js
+if (grazeYield(i, cur, herb, fibreTol, toxRes, AREACH) >= AN.rate[i]*C.mvtLeave) return;
+```
+
+An animal already grazing an adequate plant returns before `AN.act[i] = bestAct`,
+discarding the whole scan. SCAVENGE, ATTACK, APPROACH and FLEE all go with it. An
+animal with high evolved `carrionAttraction` standing next to a corpse keeps
+grazing. No genome can reach this rule.
+
+Direction test, seed 909, `animalStartDay` 120, 230 days, window from day 150:
+
+| mvtLeave | animals | GRAZE% | SCAV% | ATTACK% | abandons | heterotrophy |
+|---|---|---|---|---|---|---|
+| 0 | 322 | 96.06 | 0.77 | 0.67 | 0 | 0.872% |
+| 1.0 (shipped) | 94 | 96.75 | 0.76 | 1.06 | 31,719 | 0.447% |
+| 5.0 | 31 | 67.84 | 2.84 | 1.02 | 145,159 | **3.280%** |
+
+The audit proposed `mvtLeave` 0 as the test. That is backwards: at 0 the
+right-hand side is 0, `grazeYield >= 0` always holds, the guard always fires and
+abandons is exactly 0. Disabling the guard needs a high value, not a low one.
+
+At 5.0 the guard rarely fires, GRAZE falls 96.75% to 67.84%, SCAVENGE rises 3.7x
+and heterotrophy rises 7.3x to 3.280% — against a median of 0.302% across 1,502
+runs and a max of 3.95%. This is the first intervention in the project's history
+to move the mission metric without raising a food-value constant.
+
+It costs population: 94 animals to 31. That is the trade and it is not yet
+characterised.
+
+**Consequence for the running 2x2.** It is testing founder values of
+`carrionAttraction` while the guard discards the scan in the large majority of
+grazing decisions. The founder value cannot matter much when the decision it
+feeds is thrown away. The 2x2 is close to void as designed, which also explains
+why v0.56's smoke moved heterotrophy only 0.262% to 0.447%.
+
+Also from the audit, not yet verified by me: the metric decomposes as
+`transfer x epsilon x consumedFraction x carrionDigest`, reproducing measured
+values at corr 0.958 across 1,037 runs, with a ceiling of 3.3-4.4% at shipped
+constants. If that holds, the 5% bar both earlier audits used is above the
+model's arithmetic maximum, and the 3.280% above is near the ceiling rather than
+merely high.
+
+## H14, frozen before the runs
+
+`mvtLeave` dose series {0, 1.0, 2.5, 5.0}, one seed through all four cells,
+matched window days 400-800, survival at day 800, censoring applied, n >= 40 per
+cell. One prediction under amended rule 1.
+
+- **HIT** if median heterotrophy rises monotonically with `mvtLeave` and the
+  5.0 cell exceeds **1.5%**, more than 4x the 0.302% corpus median.
+- **MISS** if the 5.0 cell stays below **0.6%**.
+- **Survival is a reported secondary, not a gate.** The n=1 result suggests the
+  guard is holding the population up; if survival at 5.0 falls below 25% the
+  trade is recorded and the next question is whether a gene can be given the
+  guard's job rather than a constant.
+
+The guard is a hardcoded behavioural rule that overrides evolved preference. By
+the mission test the current build's herbivore monoculture does not count as
+emergent. Whatever H14 returns, the rule has to become a gene or go.

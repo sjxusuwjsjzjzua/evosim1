@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.56.0","base":"0.56.0",
+ "note":"H14 dose cell, mvtLeave 0. The shipped 1.0 makes an animal already grazing an adequate plant discard its entire scan (build :1916), SCAVENGE and FLEE included, so evolved attraction genes cannot act. Higher values fire the guard less often. At 0 the guard always fires and abandons is exactly 0; at 5.0 a single seed moved heterotrophy 0.447 to 3.280 percent while population fell from 94 to 31.",
+ "cfg":{"mvtLeave":0}}

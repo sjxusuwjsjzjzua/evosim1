@@ -14,6 +14,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'runs', 'arms.tsv')
 
 def arm(c):
+    # H14 dose series. mvtLeave has always existed, so absence means the
+    # shipped 1.0 rather than a separate arm.
+    if 'founderGenesA' in c and c.get('mvtLeave', 1.0) != 1.0:
+        return 'mvt-%g' % c['mvtLeave']
+    if 'founderGenesA' in c and not (c.get('founderGenesA') or {}) \
+       and c.get('k_meatAttrFloor', 0.5) == 0.5 and c.get('meatValue', 24.0) == 24.0:
+        return 'mvt-1 (shipped)'
     # v0.56 2x2 factorial: founderGenesA exists only from v0.56 on. The cell is
     # named by BOTH factors so no cell can be merged with another.
     if 'founderGenesA' in c:
@@ -81,7 +88,8 @@ for r in open(CACHE):
     if len(p) < 6 or p[1] in ('-', ''): continue
     acc.setdefault(p[1], []).append(p)
 print('%-24s %4s %6s %8s %10s' % ('arm', 'n', 'surv', 'cv%', 'meatAttr'))
-for k in ['v56 carrion0.80/floorON','v56 carrion0.10/floorON',
+for k in ['mvt-0','mvt-1 (shipped)','mvt-2.5','mvt-5',
+          'v56 carrion0.80/floorON','v56 carrion0.10/floorON',
           'v56 carrion0.80/floorOFF','v56 carrion0.10/floorOFF',
           'CONTROL','invade-carn','mixed-flat','meat-rich-55',
           'v54-CONTROL','beta-hi','meat-rich','beta-flooroff','v54-other',
