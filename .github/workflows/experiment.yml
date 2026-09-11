@@ -130,6 +130,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       seed_matrix: ${{ steps.parse.outputs.matrix }}
+      cell_matrix: ${{ steps.parse.outputs.cells }}
     steps:
       - id: parse
         run: |
@@ -137,14 +138,21 @@ jobs:
           # Scheduled firings supply no inputs at all. Derive 6 fresh cold
           # seeds from the run number so a standing batch never repeats a
           # seed it has already burned.
+          # PAIRED DESIGN, 2026-09-12. The matrix used to be four seeds inside
+          # ONE cell chosen by run_number % 4, which confounded the cell with
+          # the dispatch block perfectly -- and dispatch block moves the
+          # headline metric under no treatment at all. Now one seed per firing
+          # goes through ALL FOUR cells. founderGenesA shifts the gene after
+          # the founder RNG draws and takes no draw itself, so at a given seed
+          # every cell founds the identical world apart from the shifted gene.
+          # That removes between-seed variance from the comparison entirely.
           if [ -z "$seeds" ]; then
-            base=$(( 40000 + ${{ github.run_number }} * 20 ))
-            seeds="$base"
-            for k in 1 2 3; do seeds="$seeds,$((base+k))"; done
-            echo "scheduled firing: derived seeds $seeds"
+            seeds=$(( 40000 + ${{ github.run_number }} * 20 ))
+            echo "scheduled firing: paired seed $seeds across all four cells"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
+          echo "cells=[0,1,2,3]" >> "$GITHUB_OUTPUT"
 
   run:
     needs: setup
@@ -156,6 +164,7 @@ jobs:
       fail-fast: false
       matrix:
         seed: ${{ fromJson(needs.setup.outputs.seed_matrix) }}
+        cell: ${{ fromJson(needs.setup.outputs.cell_matrix) }}
     steps:
       # A `schedule:` trigger ONLY ever fires from the default branch, but
       # main deliberately holds just the shipped v0.49 build and no
@@ -268,7 +277,7 @@ jobs:
             # arm showed no effect on survival or selection response at n=339.
             # Replaced by the three v0.53 pre-registrations, each against the
             # matched v0.53 default control which takes 1 of 4 slots.
-            case $(( ${{ github.run_number }} % 4 )) in
+            case ${{ matrix.cell }} in
               0) CFG_IN="" ;;                                        # carrion 0.80, floor ON
               1) CFG_IN="cfg-patches/carrion-lo.json" ;;             # carrion 0.10, floor ON
               2) CFG_IN="cfg-patches/floor-off-56.json" ;;           # carrion 0.80, floor OFF
@@ -298,21 +307,21 @@ jobs:
             --progress-days "$PROG_IN" \
             --max-wall-min 330 \
             $CFG_ARGS \
-            --out "out/seed-${{ matrix.seed }}.json"
+            --out "out/seed-${{ matrix.seed }}c${{ matrix.cell }}.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.label || 'standing' }}-seed-${{ matrix.seed }}
+          name: ${{ inputs.label || 'standing' }}-c${{ matrix.cell }}-seed-${{ matrix.seed }}
           path: out/
           retention-days: 30
       - name: push result to a per-seed scratch branch
         run: |
-          BR="runs/${{ inputs.label || 'standing' }}/seed-${{ matrix.seed }}"
+          BR="runs/${{ inputs.label || 'standing' }}/seed-${{ matrix.seed }}c${{ matrix.cell }}"
           git config user.name "evosim-actions-bot"
           git config user.email "actions@users.noreply.github.com"
           git checkout --orphan "$BR"
           git rm -rf --quiet . || true
-          cp "out/seed-${{ matrix.seed }}.json" .
-          [ -f "out/seed-${{ matrix.seed }}.json.progress.json" ] && cp "out/seed-${{ matrix.seed }}.json.progress.json" . || true
-          git add "seed-${{ matrix.seed }}.json" "seed-${{ matrix.seed }}.json.progress.json" 2>/dev/null || git add "seed-${{ matrix.seed }}.json"
+          cp "out/seed-${{ matrix.seed }}c${{ matrix.cell }}.json" .
+          [ -f "out/seed-${{ matrix.seed }}c${{ matrix.cell }}.json.progress.json" ] && cp "out/seed-${{ matrix.seed }}c${{ matrix.cell }}.json.progress.json" . || true
+          git add "seed-${{ matrix.seed }}c${{ matrix.cell }}.json" "seed-${{ matrix.seed }}c${{ matrix.cell }}.json.progress.json" 2>/dev/null || git add "seed-${{ matrix.seed }}c${{ matrix.cell }}.json"
           git commit -m "evosim experiment: ${{ inputs.label || 'standing' }} seed ${{ matrix.seed }}"
           git push --force origin "$BR"

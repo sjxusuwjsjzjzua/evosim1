@@ -1125,7 +1125,13 @@ function seedFounders(count){
       for (const nm in CFG.founderGenesP){
         const gi = PG[nm];
         if (gi === undefined) continue;
-        G[g+gi] = clamp(CFG.founderGenesP[nm], PMIN[gi], PMAX[gi]);
+        // SHIFT, do not SET. Setting overwrote the morph spread and
+        // founderNoise, founding the population as a point mass on the very
+        // gene under test -- zero heritable variation, so selection had
+        // nothing to act on. Shifting by the offset from the START value
+        // translates the distribution and preserves its variance, and takes no
+        // rng() draw, so this stays RNG-neutral even when active.
+        G[g+gi] = clamp(G[g+gi] + CFG.founderGenesP[nm] - PSTART[gi], PMIN[gi], PMAX[gi]);
       }
     }
     P.x[i] = rng()*W.size; P.y[i] = rng()*W.size;
@@ -1565,7 +1571,13 @@ function seedAnimalFounders(count){
       for (const nm in CFG.founderGenesA){
         const gi = AG[nm];
         if (gi === undefined) continue;
-        G[g+gi] = clamp(CFG.founderGenesA[nm], AMIN[gi], AMAX[gi]);
+        // SHIFT, do not SET. Setting overwrote the morph spread and
+        // founderNoise, founding the population as a point mass on the very
+        // gene under test -- zero heritable variation, so selection had
+        // nothing to act on. Shifting by the offset from the START value
+        // translates the distribution and preserves its variance, and takes no
+        // rng() draw, so this stays RNG-neutral even when active.
+        G[g+gi] = clamp(G[g+gi] + CFG.founderGenesA[nm] - ASTART[gi], AMIN[gi], AMAX[gi]);
       }
     }
     // INVASION PROBE. Hands a fraction of founders a named genotype so a
