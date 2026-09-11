@@ -8301,3 +8301,98 @@ number that needs to move by 5× is not success, and the founder prior was only
 one of three binding constraints the audit named — scale and duration are
 untouched, and duration (13.9 generations against a 27-mutational-SD
 displacement) is the next build.
+
+---
+
+# 2026-09-12 — Duration does NOT rescue carnivory. Measured, and it killed the next build.
+
+The prior audit named three binding constraints: founder prior, scale, duration.
+I was about to wire founder-pool chaining to attack duration. Measured first.
+
+## Step 1 — duration looks decisive, scale does not (n=1,507 survivors)
+
+Heterotrophy fraction by generations reached at day 800:
+
+| generations | n | median heterotrophy |
+|---|---|---|
+| 2.5–11.5 | 376 | 0.128% |
+| 11.5–19.4 | 376 | 0.194% |
+| 19.4–34.8 | 376 | 0.400% |
+| 34.8–88.1 | 379 | **0.760%** |
+
+Monotone **5.9×**. By population size the same corpus gives 0.245 → 0.363%
+across a 10× range of N, non-monotone — **scale does not bind.**
+
+Two corrections to figures I repeated from the audit without checking:
+generations are **median 19.5, p90 47.9, max 88.1**, not 13.9; corpse mass
+uneaten over the matched window is **53.0%** across 1,428 logs, not 67.5%.
+
+## Step 2 — the confound
+
+`aGen` is mean generation number, so a high count is **fast turnover**, not
+necessarily more evolutionary time. Faster turnover at fixed N means more deaths
+per day, more corpse mass per day, and more incidental scavenging — heterotrophy
+would rise **with no gene change at all**. Both channels turned out to be
+present: kills per animal per day rise 0.066 → 0.162 (2.5×) across the same
+quartiles, while Δ`carrionAttraction` rises 0.0054 → 0.0296 and Δ`carnivory`
+0.0202 → 0.0865.
+
+But more generations means more mutational steps, which moves **every** gene
+further, selected or not. Gene movement alone proves nothing.
+
+## Step 3 — normalised against the drift yardstick. This is the answer.
+
+Median |Δ| relative to the verified-inert genes, same denominator throughout:
+
+| generations | carrionAttraction | carnivory | herbivory | biteForce |
+|---|---|---|---|---|
+| 2.5–11.5 | 0.65× | 0.54× | 1.24× | 5.98× |
+| 11.5–19.4 | 0.64× | 0.49× | 1.93× | 8.39× |
+| 19.4–34.8 | 0.72× | 0.56× | 2.72× | 11.20× |
+| 34.8–88.1 | **0.69×** | 0.84× | **2.79×** | **13.60×** |
+
+**Duration amplifies selection — but only on genes already under selection.**
+`biteForce` goes 5.98× → 13.60× and `herbivory` 1.24× → 2.79× as generations
+rise. `carrionAttraction` sits at **0.65–0.72×, below drift, dead flat across a
+35× range of evolutionary time.**
+
+**So wiring pool chaining would have bought nothing for carnivory.** That build
+is cancelled. The 5.9× heterotrophy dose-response in step 1 is therefore mostly
+the mechanical channel — more turnover, more corpses, more incidental
+scavenging — not selection on carrion-seeking.
+
+*Caveat on the normaliser, stated rather than buried:* the denominator is a
+median of raw |Δ| across four inert genes whose ranges differ (`parentalCare`
+spans [0, 20000]), so its absolute level is not trustworthy. The comparison that
+matters is immune to that: `carrionAttraction` and `biteForce` are divided by
+the **same** denominator in every row, so "biteForce's ratio rises 2.3× with
+duration while carrionAttraction's does not move" holds regardless.
+
+## What this actually reveals — a two-gene coadaptation trap
+
+`carrionAttraction` decides whether an animal goes to a corpse. `carnivory`
+decides how much energy it extracts once there. **Each is unselectable while the
+other is near zero.** With `carrionAttraction` founding at 0.10 almost nothing
+scavenges, so `carnivory` has nearly no fitness consequence — and it duly sits
+at 0.49–0.84× drift, *also* below the null, at every duration. Neither gene can
+climb because the other is at the bottom.
+
+That is not a preference problem, a payoff problem, or a time problem. It is a
+fitness landscape where the first step in either direction is flat.
+
+**v0.56's founder change is the escape from exactly that trap** — and for a much
+better reason than the symmetry argument I shipped it with. Forcing
+`carrionAttraction` to 0.80 makes animals encounter corpses, which gives
+`carnivory` a fitness consequence for the first time, which lets selection act on
+the digestion gene. The smoke run is consistent: scavenging 0.30% → 0.76% of
+acts, heterotrophy 0.262% → 0.447%.
+
+**This makes a sharper prediction than H11, and it is the one to score:**
+
+**H13 — `carnivory` becomes selectable once meat is actually eaten.** In the
+v0.56 symmetric cells, `carnivory`'s drift-normalised movement should exceed
+**1.0×** (it has never exceeded 0.84× in 1,507 runs at any duration), while the
+`carrion0.10` cells reproduce the historical 0.49–0.84×. HIT if the symmetric
+cells clear 1.0× and the 0.10 cells do not. MISS if the symmetric cells stay
+below 0.9×. This is a **within-corpus comparison against a 1,507-run baseline**,
+so it is far better powered than H11's 1.5% heterotrophy line.
