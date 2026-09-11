@@ -2598,7 +2598,7 @@ nothing about behaviour changed, only a claim that was overstated.
 
 Worth flagging for whoever picks up the absorbing-state question: the 6x
 slope means selection on `meatAttraction` now has 6x the behavioural
-leverage above the founder value that it had before, which is a real
+effect above the founder value that it had before, which is a real
 (if deliberate) second-order consequence of this version, and is *not*
 what the v0.50 prediction was written against.
 
