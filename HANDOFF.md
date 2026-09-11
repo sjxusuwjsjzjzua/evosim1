@@ -255,7 +255,7 @@ food base is fixed, `k_retal`, `k_armEff`, `k_mixed` (omnivory cost),
 `maxAnimals` headroom — all fired, predictions on record, results not
 yet landed as of this writing.
 
-**Tooling finding worth knowing:** a workflow run's top-level "completed"
+**Tooling finding useful:** a workflow run's top-level "completed"
 status can lag its actual simulation results indefinitely if the
 trailing `digest` Actions job queues behind the concurrency ceiling
 (the real ceiling is **20 simultaneous running jobs** — measured directly as
@@ -724,7 +724,7 @@ formula or constant, so this column is unchanged from v0.47.
 
 ---
 
-## 6. Current tunables worth knowing
+## 6. Current tunables useful
 
 ```
 k_photoCost 0.004    k_darkResp 0.25       (plant respiration on lit leaf)

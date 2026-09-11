@@ -1459,7 +1459,7 @@ byte-identical, final matter/plants/animals identical. 315→322 ticks/s
 (contended with another job running alongside it — directional, not a clean
 benchmark, but consistent with the hypothesis).
 
-### A structural naming problem, found while writing this section, worth knowing about
+### A structural naming problem, found while writing this section, useful about
 
 Every `[Lnn]` tag before v0.37 is a flat, ever-incrementing sequence (now
 past L66). Since v0.37, a version that bundles several changes tags them
@@ -1674,7 +1674,7 @@ autohalting (vs 6060's 685). `caps seen [0]` clean again. **Revised count:
 3 of 5 seeds at the base dose survived the full 1200 days (60%), not 3 of
 4.** The two extinctions don't look like the same failure mode as each
 other, let alone the old pre-photocost boom-bust crashes: 6060 was unhealthy
-throughout (ratio 0.13, tiny harmonic N), 6363 looked like a fundamentally
+throughout (ratio 0.13, tiny harmonic N), 6363 looked like a
 viable population that still tipped over late — closer to normal stochastic
 extinction risk at a small population size than a diagnosable flaw.
 `k_photoCost` is still the strongest lever found this session by a wide
@@ -1810,7 +1810,7 @@ of this investigation.
 — note this batch's own trailing `digest` Actions job got stuck queued
 behind the concurrency ceiling even though all 3 simulations finished;
 fetched the per-seed results directly via git branch instead of waiting
-on it, worth remembering as the general pattern going forward — a run's
+on it, useful as the general pattern going forward — a run's
 top-level "completed" status lags behind its actual simulation results
 whenever the digest step queues):
 
@@ -2752,7 +2752,7 @@ check happened first, which is the process working the way it was
 supposed to. What stands is the narrower, duller claim: *aRate/aUpkeep is
 a survivorship-filtered, heavily-smoothed statistic that sits just above
 1 in almost any run, and therefore carries much less information about
-population health than its tightness suggests.* That is worth knowing
+population health than its tightness suggests.* That is useful
 precisely because its stability is misleading.
 
 **The probe run itself is compromised as evidence.** Seed 1337 at
@@ -3132,7 +3132,7 @@ The session container restarted and killed all four running jobs:
 writes output only at completion, so all four produced nothing and were
 restarted from scratch. No data integrity issue — runs are deterministic
 per (build, seed, cfg), so the restarts reproduce exactly what was lost —
-but roughly four core-hours of CPU went with it. Worth noting as an
+but roughly four core-hours of CPU went with it. Noted as an
 argument for `--progress-days` checkpointing that can actually be resumed,
 which does not currently exist.
 
@@ -3446,7 +3446,7 @@ into "coupling ⇒ viability" through repetition. It does not. Seed 30002
 is what the unexplained 77% looks like, and it is one more reason not to
 go looking for a constant that raises predation share.
 
-Also worth noting against the reverse-causality reading: if high R0 were
+Also against the reverse-causality reading: if high R0 were
 simply *producing* high predation share via more encounters, a run with
 R0 0.80 should not be showing 42%. That does not resolve the direction
 question, but it does mean the reverse path is not a complete
@@ -3737,7 +3737,7 @@ Viable populations are precisely those where animals live, on average,
 just about exactly to their own evolved breeding age. That the
 correlation is only +0.26 while the group means are 0.99 vs 0.67 suggests
 a **threshold** relationship rather than a linear one — clearing ratio≈1
-is what matters, and exceeding it further buys little. Worth noting as a
+is what matters, and exceeding it further buys little. Noted as a
 candidate structural criterion, not yet a finding: n=22 viable runs, and
 the ratio is partly definitional (both terms involve age).
 
@@ -4834,7 +4834,7 @@ day ~500 to day 2400. Its 800-day reading of 0.64 was the averaging
 window swallowing the establishment transient, exactly as [L61b]
 diagnosed. Seed 10008 still needed to complete the pair.
 
-**A qualifier worth noting, because it cuts against my own volatility
+**A qualifier, because it cuts against my own volatility
 story:** 10001 is remarkably *stable* — rolling R0 stays inside
 1.08-1.13 across five consecutive windows, and N stays 60-115. That is
 nothing like seed 1337 (1.49 → 1.60 → 1.18) or 4001 (N swinging 48 →
@@ -6602,7 +6602,7 @@ that the rule specifies byte-identity rather than "looks the same".
 **Second defect, same edit.** The fix initially would not parse: the driver in
 `headless.js` lives inside a JS template literal, and my explanatory comment
 contained backticks quoting the build's code, which terminated the literal.
-`node --check` caught it immediately. Worth noting because the comment was
+`node --check` caught it immediately. Noted because the comment was
 *about* correctness and broke the file.
 
 Re-verification is running. **The change stays unverified until it reports.**
@@ -7063,7 +7063,7 @@ Against the matched control the direction still holds — noseason 140.7% vs
 64.9% retention, 21 vs 16 genes — but the margin is far smaller than the
 corpus-calibrated framing implies, and at n=2 vs n=4 it is nothing yet.
 
-Worth noting separately: the 1x-control arm is **0 of 4 alive** despite a
+Separately: the 1x-control arm is **0 of 4 alive** despite a
 median peak N of 1714. High selection response, large populations, and
 extinction anyway. That reinforces the split noted at n=1 — whatever kills
 these worlds is not what freezes their genes.

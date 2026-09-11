@@ -26,6 +26,14 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 | `experiment.js` | runs N seeds through `headless.js` and feeds them to `analyze.py` in one shot. `node experiment.js --build <html> --days <n> --label <name> [--cfg patch.json] [--n 3]` |
 | `.github/workflows/experiment.yml` | same thing on GitHub-hosted runners instead of the session sandbox — one seed per runner (real parallelism), free, doesn't need a session open. Trigger via the Actions tab or `actions_run_trigger`. Results land two ways: as a downloadable artifact, and pushed to a per-seed scratch branch `runs/<label>/seed-<seed>` (fetchable with plain `git` — artifacts sit on blob storage this sandbox's egress policy blocks, so the branch is the reliable path for Claude). |
 
+## Output style
+
+`STYLE.md` governs every response, commit message, comment and doc in this repo.
+Enforced by `bash tools/style-check.sh`, which greps tracked files for the
+banned-phrase list and exits non-zero on a hit. Run it before committing prose.
+When a coined phrase is removed for being one, add the exact string to the list
+in the same commit.
+
 ## The mission metric
 
 **Heterotrophy fraction** = `eCarrion / (ePlant + eCarrion)` over a matched
