@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 BANNED=$(sed -n '/^    worth noting$/,/^    delve$/p' STYLE.md | sed 's/^    //' | grep -v '^$')
 fail=0
 while IFS= read -r phrase; do
-  hits=$(git grep -n -i -F "$phrase" -- ':!STYLE.md' ':!AUDIT-*.md' ':!HOST-FINDINGS.md' 2>/dev/null)
+  hits=$(git grep -n -i -F "$phrase" -- ':!STYLE.md' ':!AUDIT-*.md' ':!HOST-FINDINGS.md' ':!tools/style-check.sh' 2>/dev/null)
   if [ -n "$hits" ]; then
     echo "BANNED: \"$phrase\""
     echo "$hits" | sed 's/^/  /'
