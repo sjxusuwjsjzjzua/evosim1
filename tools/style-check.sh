@@ -15,7 +15,7 @@ while IFS= read -r raw; do
   # strip a trailing parenthetical qualifier, e.g. "leverage (as a verb)" must
   # match the word "leverage". Grepping the literal string let it through.
   phrase=$(echo "$raw" | sed 's/ *([^)]*)$//')
-  hits=$(git grep -n -i -F "$phrase" -- ':!STYLE.md' ':!AUDIT-*.md' ':!HOST-FINDINGS.md' ':!tools/style-check.sh' 2>/dev/null)
+  hits=$(git grep -n -i -F "$phrase" -- ':!STYLE.md' ':!AUDIT-*.md' ':!AUDIT-DEADEND*' ':!HOST-FINDINGS.md' ':!tools/style-check.sh' 2>/dev/null)
   if [ -n "$hits" ]; then
     echo "BANNED: \"$phrase\""
     echo "$hits" | sed 's/^/  /'

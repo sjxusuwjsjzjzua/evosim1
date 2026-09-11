@@ -32,7 +32,7 @@ ever been varied and the search has been one-at-a-time.
 **So my answer is: neither rewrite nor keep iterating the same way. Run a
 screening sweep over the untouched dimensions first, under amended rule 1 which
 now permits it, and only conclude dead-end if nothing in that space moves the
-metric.** Confidence 5. I have not tested this and it is the obvious
+metric.** Confidence 5. I have not tested this. It is the obvious
 self-serving answer for someone who does not want to throw away 34 days of work,
 which is why the auditor should attack it.
 
