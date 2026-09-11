@@ -98,6 +98,30 @@ filler — deleting one never loses information.
     seamlessly
     leverage (as a verb)
     delve
+    load-bearing
+    by construction
+    smoking gun
+    earns its keep
+    earned its keep
+    first-class outcome
+    in its purest form
+    thumb on the scale
+    dressed up as
+    the whole point
+    is the signature of
+    laundered
+    damning
+    devastating
+    sacred cow
+    precisely what
+    genuinely
+    honestly
+    the honest
+    an honest
+    that stings
+    against my own interests
+    learned expensively
+    becoming theatre
 
 **This list grows, and that is the mechanism.** Whenever a coined phrase or
 slogan is written here and then removed for being one, add the exact string

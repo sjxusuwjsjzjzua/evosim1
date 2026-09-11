@@ -81,7 +81,7 @@ requestAnimationFrame(frame);`;
 // A generic, infinitely-deep stub: readable, writable, callable, chainable.
 // Standing in for every DOM element / window / navigator / etc. the script's
 // top-level (non-function-body) statements touch on load. Nothing rendered
-// is ever read back, so "wrong" values here are harmless by construction —
+// is ever read back, so "wrong" values here are harmless by design —
 // the only failure mode this needs to avoid is throwing.
 function makeStub() {
   const target = function stub() {};

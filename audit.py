@@ -272,7 +272,7 @@ SCORE_RE = re.compile(r"^#+\s*(.*(?:SCOR|\bHIT\b|\bMISS\b|CAN'T-TELL|RETRACT|"
                       r"validated|completes).*)$", re.I | re.M)
 
 # A heading can say "prediction" and BE the scoring of one ("The prediction,
-# scored honestly", "The pre-registered comparison RESOLVES"). Audit #1 filed
+# scored", "The pre-registered comparison RESOLVES"). Audit #1 filed
 # nothing in this category but had to trace all six flagged rows to prove five
 # were this exact false positive -- roughly a third of that audit's effort spent
 # disproving a regex. Anything already matching SCORE_RE is a scoring heading,

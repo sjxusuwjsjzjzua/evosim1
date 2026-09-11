@@ -55,7 +55,7 @@ Logs scanned: **112**
 | k_photoCost=0.02 | 1 | **0 (0%)** | 0.0% |
 | k_photoCost=0.012 | 1 | **0 (0%)** | 0.0% |
 
-> **FLAG: `maxPlants` binds in one or more arms.** An arm whose runs hit the slot array is **cap-limited, not dose-limited** — the array size is setting the standing crop while whatever constant is nominally under test wears the label. Any cross-arm comparison involving a flagged arm is confounded by construction. Arms flagged: `k_photoCost=0.012, maxAnimals=11000, maxPlants=25000` (52% of runs), `k_photoCost=0.02, maxAnimals=11000, maxPlants=25000` (9% of runs), `k_photoCost=0.008, maxAnimals=11000, maxPlants=25000` (100% of runs).
+> **FLAG: `maxPlants` binds in one or more arms.** An arm whose runs hit the slot array is **cap-limited, not dose-limited** — the array size is setting the standing crop while whatever constant is nominally under test wears the label. Any cross-arm comparison involving a flagged arm is confounded by design. Arms flagged: `k_photoCost=0.012, maxAnimals=11000, maxPlants=25000` (52% of runs), `k_photoCost=0.02, maxAnimals=11000, maxPlants=25000` (9% of runs), `k_photoCost=0.008, maxAnimals=11000, maxPlants=25000` (100% of runs).
 
 Run lengths (binned, 400 sim-days) — **rule 7b: never compare a trailing-window statistic across these bins**:
 
@@ -124,7 +124,7 @@ Lines carrying numeric claims: **495**. Most recent 40:
 | 5769 | as a world matures. The previously recorded headline (23.6% of deaths, >50% |
 | 5770 | in only 5/120 runs) is consistent with the day-800 number and was almost |
 | 5773 | survivors (6/21) now has predation as the *majority* cause of animal death — |
-| 5777 | **Starvation still dominates**: median 64% of deaths. So the honest read is |
+| 5777 | **Starvation still dominates**: median 64% of deaths. So the read is |
 | 5785 | 35% is "predation share among worlds that made it", not "among worlds". |
 | 5787 | therefore *not* reporting it as a dose effect. It reads 5x = 49.0% |
 | 5788 | (n=9) against 3x = 24.7% (n=12) — but only 9 of 30 5x worlds survived |

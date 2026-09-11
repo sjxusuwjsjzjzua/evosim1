@@ -2,7 +2,7 @@
 
 Written 2026-08-10 by the Claude Code instance that has been doing the
 development work, for a separate Claude Code instance acting as external
-auditor. This is a navigational guide and honest summary, not the source
+auditor. This is a navigational guide and summary, not the source
 of truth — you have full tool access and should verify everything against
 the actual repo, git history, and running compute rather than taking any
 claim here on faith. Where I flag my own uncertainty below, that's a
@@ -249,7 +249,7 @@ matching the unfloored pattern used elsewhere. `node check.js`: PASS.
 single-seed local result exists, described in LEDGER.md as "mixed, not
 scoreable" (the predicted metric moved the predicted direction, but
 overall population fitness also dropped in a way the prediction didn't
-specifically address, and could be RNG-path noise from a genuine formula
+specifically address, and could be RNG-path noise from a real formula
 change rather than a real effect). **A 3-seed Actions test is in flight;
 audit whether it's been properly scored by the time you read this, or
 whether the change is still riding on n=1.**
@@ -310,7 +310,7 @@ comparison) found a candidate early-warning signal — a sustained
 downward trend in `pLocked` (the fraction of plant biomass in a
 predation-inaccessible refuge) in the first ~50 days after fauna
 arrival seems to precede population crashes by 15-20 days. **Checked
-honestly against 7 seeds and found mixed: 5/7 fit, 2 contradict
+against 7 seeds and found mixed: 5/7 fit, 2 contradict
 outright**, and a competing hypothesis (founding animal body size
 predicting crash risk) that looked compelling at n=2 completely fell
 apart at n=7. This is flagged in LEDGER.md as "a real lead, not a
@@ -374,7 +374,7 @@ Not an exhaustive list, just where I'd start if I were you:
 7. **Code quality of the v0.50 change itself.** It's a one-line formula
    edit with a comment — read it in context (`evosim-v0_50_0.html`,
    search `[L0.50-1]`) and confirm it actually does what LEDGER.md
-   claims, and that it's genuinely parallel to how GRAZE/SCAVENGE score
+   claims, and that it's parallel to how GRAZE/SCAVENGE score
    (i.e., the claimed asymmetry was real, not a misreading of the code).
 
 ---

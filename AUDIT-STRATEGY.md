@@ -26,7 +26,7 @@ versions asking why behaviour genes do not respond to selection, in a
 population where **almost no selection coefficient is large enough to be
 visible above drift.**
 
-The load-bearing measurement: across 45 runs, evolved `meatAttraction`
+The required measurement: across 45 runs, evolved `meatAttraction`
 (median 0.117, >0.30 in 4/45) is **statistically indistinguishable from
 `territoriality`** (median 0.161, >0.30 in 4/45) — a gene with **zero
 references anywhere in the simulation** (`grep -c 'AG.territoriality'` = 0)
@@ -224,12 +224,12 @@ shipped full arena:
   extinction rate exceeds 90% (removing winter may change productivity enough
   to be a different world).
 
-Note honestly what this arm is and is not. Changing `daysPerYear` is a change
+Note what this arm is and is not. Changing `daysPerYear` is a change
 to the world's physics, in the same class as `k_photoCost` — it does not write
 a behaviour into the code, so it does not fail the mission test. But it is a
 **diagnostic**, not a proposed ship. If it confirms the diagnosis, the shipped
 fix should be whatever lets a population buffer a seasonal cycle *by
-evolving* — which is a genuinely open design question and should not be
+evolving* — which is a open design question and should not be
 pre-decided here.
 
 ---
@@ -303,7 +303,7 @@ Point 4 is the real argument and it is available *now*, before v0.52 lands.
 It is also the strongest reason to believe the Q1 experiment matters more than
 the Q2 one: **at this productivity and this oscillation amplitude, a
 specialist carnivore population is demographically impossible regardless of
-how good the ATTACK formula is.** That would be a genuine finding about the
+how good the ATTACK formula is.** That would be a real finding about the
 physics — and the way to establish it is to raise the trough, not the floor.
 
 ---

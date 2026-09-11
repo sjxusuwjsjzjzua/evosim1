@@ -100,7 +100,7 @@ the first.
 harsh will invent ten findings whether or not ten exist.
 
 **Stay inside the hard rules or argue against them explicitly.** `CLAUDE.md`'s
-rules were learned expensively; several encode a specific past failure.
+rules were learned from a specific failure; several encode a specific past failure.
 Recommending one be dropped is allowed — recommending it while ignoring the
 recorded rationale is not.
 
@@ -120,6 +120,6 @@ or stop — and what would have to be true for you to change that verdict.
    **`[auditor-only]` findings are the ones that justify the exercise** — they
    are what the host could not see about itself.
 5. Answer every surfaced finding in writing in `LEDGER.md`: accept or reject,
-   each with a reason. Rejecting with a stated reason is a first-class outcome.
+   each with a reason. Rejecting with a stated reason is a an acceptable outcome.
 6. Anything acted on still obeys the normal discipline. The audit is not a
    bypass.

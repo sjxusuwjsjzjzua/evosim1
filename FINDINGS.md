@@ -73,7 +73,7 @@ are the project's own success criteria and had never been computed.
   `plantAttraction`, same genome, same selection, evolved to **0.80**.
   Selection raises an attraction gene when it is free to; it is declining to
   raise this one. Removing the floor in v0.50 cut kills/day 3/3.
-  The honest statement: **predation happens and grows, but whether carnivory
+  The statement: **predation happens and grows, but whether carnivory
   is emergent here is untested**, and the pillar cannot be scored until a
   mechanism makes ATTACK reachable without a floor.
 - **The herding/confusion mechanism may help viability, but the effect is
@@ -213,7 +213,7 @@ are the project's own success criteria and had never been computed.
   800-day R0 **understates** the established value by ~0.39 on average.
   These are two separate outcomes and neither substitutes for the other.
   **Confidence: MODERATE-HIGH** — n=18 and highly consistent (17/18), but
-  survivor-biased by construction (runs that died young cannot appear)
+  survivor-biased by design (runs that died young cannot appear)
   and the settled cutoff is not yet determined.
 - **NO run in this project has ever been an equilibrium measurement.**
   Stationarity gate on all 30 cold seeds: **15/15 fail in both arms**,
@@ -298,7 +298,7 @@ any UNKNOWN row would need that seed re-run, which hasn't happened.
 |---|---|---|
 | v0.39 carnivory unblock (body radius, attack-score-linear, pursuit escape hatches) | **CONFOUNDED (plausible, not confirmed)** | The measured shift (attacks 50→4447, flesh share 0.1%→1.14%) is a claim about ATTACK becoming *reachable*, which the three mechanism fixes plausibly explain on their own — but how *attractive* ATTACK was relative to GRAZE also depends on plant abundance, which this run didn't control for. Direction of the finding (attack became reachable) likely survives; the specific magnitude doesn't have a clean claim to standing. |
 | v0.42 performance (canopy interception fix, "86% more plants") | **CONFOUNDED on the plant-count figure, CLEAN on the runtime figure** | The 82.1s→61.6s speedup is a wall-clock measurement, unaffected by any ecological confound. But "11,519 plants, 86% more than before" cannot be read as evidence of a healthier plant population — 11,519 could simply be closer to (or at) `maxPlants`. The interception-formula fix itself (a real bug: over-counting light in bands above a plant's own canopy) is independently correct by code reading, separate from either number. |
-| v0.44 scorecard (senseRange/toxinResistance/acceleration/turnRate off rails; herbivory pin; size collapse) | **UNKNOWN, genuinely** | The gene-bound diagnoses for senseRange/toxinResistance/acceleration/turnRate are geometric/kinematic arguments, not food-availability arguments, and likely stand regardless. But `herbivory` pinning near max and `size` collapsing toward the floor are exactly the shape a starvation-driven (food-scarce) population would produce, which an artifact-capped plant population could cause independent of any real selective pressure. Genuinely can't tell without a re-run at a k_photoCost that keeps plants off the cap. |
+| v0.44 scorecard (senseRange/toxinResistance/acceleration/turnRate off rails; herbivory pin; size collapse) | **UNKNOWN** | The gene-bound diagnoses for senseRange/toxinResistance/acceleration/turnRate are geometric/kinematic arguments, not food-availability arguments, and likely stand regardless. But `herbivory` pinning near max and `size` collapsing toward the floor are exactly the shape a starvation-driven (food-scarce) population would produce, which an artifact-capped plant population could cause independent of any real selective pressure. can't tell without a re-run at a k_photoCost that keeps plants off the cap. |
 | v0.47 six-prediction scorecard, currency unification (L47-2) | **PARTIALLY PROTECTED** | The currency fix normalizes GRAZE/ATTACK/FLEE scores by mass specifically *because* the section itself already flagged that shrinking `size` (v0.44) was contaminating cross-action comparisons — that self-correction reduces (doesn't eliminate) sensitivity to food abundance. The toxin split-brain fix (L47-1) is a pure logic/bookkeeping bug, independent of plant supply — CLEAN. The `k_confusion:0` finding (L47-3) is the one item from this section actually re-tested this session under the fixed food base (`confusion-off-retest`, see above) — R0 stayed <1 on both seeds pulled so far, directionally consistent with the original finding surviving, though not yet a full re-confirmation (n=2, no confusion-ON comparison at the same dose pulled alongside it yet). |
 | HANDOFF.md §2 pin taxonomy (p<2/p=2/p>2 framework itself) | **CLEAN — it's a framework, not a data claim** | The taxonomy is a way of *classifying* a pinned gene's evidentiary status, not itself a claim about any specific run's ecology. It doesn't depend on plant abundance. Individual pins classified using it (e.g. the v0.44 examples above) inherit that row's tag, not this one. |
 

@@ -208,7 +208,7 @@ is how it ended up at 5% utilisation on the first attempt. When the in-flight co
 (check cheaply — `list_workflow_jobs` with `filter: latest` on a couple of
 recent runs, or count non-completed runs, never a full unfiltered dump),
 refill it: extend an under-sampled arm with more seeds, or — preferred —
-design a genuinely new, falsifiable hypothesis (rule 1 still applies to
+design a new, falsifiable hypothesis (rule 1 still applies to
 every one of these, no exceptions for volume) and fire it. This is meant
 to sustain wide-and-shallow exploration continuously, not to pad the
 count with duplicate seeds on already-confirmed findings. Pair every
@@ -245,8 +245,7 @@ stated goal: unbottleneck Claude, maximize freedom and resources for this
 project. PRs and broader `main` merges are now in scope when judged
 helpful; touching another repo is technically in scope too, though nothing
 in this project currently has a use for it. **Claude's own operating rule,
-stated back to the owner and not contradicted:** use this for genuinely
-*completed, verified* milestones — a settled `k_photoCost` dose, a scored
+stated back to the owner and not contradicted:** use this for *completed, verified* milestones — a settled `k_photoCost` dose, a scored
 v0.50 — not for the continuous stream of in-progress experimental commits,
 which stay on `claude/evolution-sim-v047-audit-jft25c` until they resolve
 into something real. Merging half-tested state into `main` would promote

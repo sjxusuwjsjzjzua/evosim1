@@ -162,7 +162,7 @@ console.log(`  2. boot       ok   (build reports VERSION ${M.VERSION})`);
 // (plant selN 864 where the control had 191776), but only after three attempts
 // were killed mid-flight by container restarts, and the animal half needs a
 // 320-day run that has never once survived to completion. So the property is
-// asserted directly here instead: populate the accumulators, do exactly what
+// asserted directly here instead: populate the accumulators, do what
 // headless.js does, and require the state to come back identical. Seconds
 // instead of half an hour, and it cannot be killed by a restart.
 {

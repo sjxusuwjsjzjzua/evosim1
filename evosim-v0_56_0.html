@@ -364,7 +364,7 @@ const CFG = {
   k_height: 0.00120,
   k_root: 0.00035,
   k_photoCost: 0.00400,  // x eff^2 x lit-leaf — quadratic, or eff pins to a rail.
-                         // WAS 0.01: 4x the leaf term by construction, and
+                         // WAS 0.01: 4x the leaf term by design, and
                          // 56-70% of total plant upkeep in every run measured.
                          // At 0.004 it is 31%, and mass / leaf / height /
                          // longevity finally carry real signal
@@ -533,7 +533,7 @@ const CFG = {
   k_meatAttrFloor: 0.5,  // additive floor on ATTACK's attraction term. PARAMETER-
                          // ISED, not changed: 0.5 reproduces v0.51 exactly. Set 0
                          // to test whether carnivory survives unsubsidised, which
-                         // is the whole point of v0.52 and needs no new build.
+                         // is the point of v0.52 and needs no new build.
                          // [L0.52-2]
   k_gut: 0.0200,         // x (carn^2 + herb^2) — price of owning a gut. Raised
                          // 2.5x: at 0.008 herbivory only came off 99% -> 90%
@@ -1305,7 +1305,7 @@ function updatePlant(i, step){
   const relLight = W.canopyR[cb];                        // [L42-1]
   let bw = W.canopyW[cb], inter = W.canopyI[cb];
   if (bw < myW){
-    // grew past the last canopy rebuild: fall back to the honest value
+    // grew past the last canopy rebuild: fall back to the value
     bw = myW;
     inter = relLight*(1 - Math.exp(-C.k_shade*Math.max(W.canopy[cb], leaf)/A));
   }
@@ -1860,13 +1860,13 @@ function senseDecide(i){
       if (rateA > 1e-12){
         const patchA = (omass < AGUT ? omass : AGUT)*mvK;
         // travel time to a target that is itself moving. Fast prey is far
-        // away in TIME, which is the whole point of running. [L47-2]
+        // away in TIME, which is the point of running. [L47-2]
         const close = ASPD - 0.6*G[og+AG.maxSpeed];
         // The floor is now CFG.k_meatAttrFloor rather than a literal 0.5, so
         // the unsubsidised case can be tested by CFG patch. Default 0.5 is
         // v0.51's behaviour exactly. History: v0.50 removed the floor and lost
         // 0.39 R0 and ~65% of kills 3/3 — but that was under attrition killing,
-        // where a hunt paid ~13x less. Whether the floor is still load-bearing
+        // where a hunt paid ~13x less. Whether the floor is still required
         // under injury killing is the open question v0.52 exists to answer, and
         // it must not be assumed either way.  [L0.52-2]
         const sc = patchA/(d/(close > 0.05 ? close : 0.05) + patchA/rateA)
@@ -1937,7 +1937,7 @@ function steer(i, tx, ty, frac){
   while (dh < -Math.PI) dh += 2*Math.PI;
   AN.hd[i] += clamp(dh, -turnCap, turnCap);
   const accCap = G[g+AG.acceleration]*CFG.accelScale;
-  // Turning radius is speed/turnCap. If it exceeds the distance to the target the animal orbits forever and starves — which is exactly what they...  [L43]
+  // Turning radius is speed/turnCap. If it exceeds the distance to the target the animal orbits forever and starves — which is what they...  [L43]
   const dist = Math.sqrt(dx*dx + dy*dy);
   let want2 = G[g+AG.maxSpeed]*frac;
   if (turnCap > 1e-5) want2 = Math.min(want2, Math.max(0.02, dist*turnCap));
@@ -1990,7 +1990,7 @@ function updateAnimal(i){
         const tox    = bite*toxLoss(toxRaw, meal);
         AN.energy[i] -= tox; W.eToxin += tox;
         ate = bite;
-        // net of poison, or the animal scores a toxic plant honestly and then
+        // net of poison, or the animal scores a toxic plant and then
         // remembers it as clean, and the MVT test never learns to avoid it
         AN.rate[i] += (bite*CFG.tissueValue*Math.max(0, digest) - tox - AN.rate[i])*CFG.rateEwma;
         if (P.mass[tgt] < CFG.seedlingMass*0.3){ W.pDeadEat++; killPlant(tgt); }
@@ -3742,7 +3742,7 @@ function download(obj, name){
   setTimeout(()=>URL.revokeObjectURL(url), 2000);
 }
 
-// CFG PATCH — the whole point of v0.37. A tuning iteration is now a 2KB file, not a 177KB rebuild of the app.  [L65]
+// CFG PATCH — the point of v0.37. A tuning iteration is now a 2KB file, not a 177KB rebuild of the app.  [L65]
 const CFG0 = Object.assign({}, CFG);
 function saveCfg(){
   const patch = {};

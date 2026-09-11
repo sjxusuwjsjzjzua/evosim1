@@ -5,7 +5,7 @@ this project's work and files findings. Claude then answers every finding in
 writing. Both halves are committed.
 
 This file is the auditor's charter. It is also the thing that stops the audit
-from becoming theatre, which is the failure mode it is most exposed to.
+from becoming a formality, which is the failure mode it is most exposed to.
 
 ---
 
@@ -26,7 +26,7 @@ of the file that was already open.
 A critic handed the sentence "Baseline (1x), local — 4/5 survived" has no way
 to know that sentence is false. It will critique the framing of a table whose
 contents are wrong, and it will sound insightful doing it. Worse, the report is
-written by the same mind that made the error, so the blind spot is laundered
+written by the same mind that made the error, so the blind spot is passed off
 into the input.
 
 So the auditor gets the repo, the logs, and `DAILY-AUDIT.md`'s counted facts —

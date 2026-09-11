@@ -17,72 +17,70 @@ count.
 
 ---
 
-## 0.2. CURRENT STATE — v0.56.0, 2026-09-11. PIVOT. Read this first.
+## 0.2. Current state — v0.56.0, 2026-09-11
 
-A program-level adversarial audit returned **PIVOT**. Everything below §0.2 is
-older and parts of it are now known to have been aimed at the wrong target.
+A program audit returned a pivot verdict. Sections below 0.2 are older and parts
+of them targeted the wrong gene.
 
-### The one fact that reframes the project
+`ACT_ATTACK` transfers no energy (`evosim-v0_56_0.html:1985-2009`). Meat energy
+reaches an animal only through `ACT_SCAVENGE` (`:2025`), which is gated by
+`carrionAttraction` (`:1794`). That gene had no runs, no hypotheses, and no CFG
+patch could reach it. `meatAttraction` and `k_meatAttrFloor` gate ATTACK and took
+four structural attempts and 155 runs.
 
-**`ACT_ATTACK` transfers zero energy** (`evosim-v0_56_0.html:1985–2009`). Every
-calorie of meat flows through `ACT_SCAVENGE` (`:2025`), gated by
-**`carrionAttraction`** (`:1794`) — a gene with zero runs, zero hypotheses, two
-occurrences in the whole file, and no CFG reachability.
+Mission metric: heterotrophy fraction = `eCarrion/(ePlant + eCarrion)` over a
+matched window. Across 1,502 survivors the median is 0.302%, max 3.95%, none
+above 5%. Five structural versions moved it 0.285% to 0.211%. Only `meatValue` 40
+moved it (0.86-0.99%), and that is a constant rather than selection. 53% of
+corpse mass is never eaten.
 
-`meatAttraction` and `k_meatAttrFloor` — the gate on an act that feeds nobody —
-absorbed **four structural attempts and 155 runs** (v0.50, v0.52, v0.53-H3,
-v0.54-H7).
+Constraints measured against the corpus:
 
-### The mission metric — use this, it did not exist before today
-
-**Heterotrophy fraction** = `eCarrion/(ePlant + eCarrion)`, matched window.
-Across **1,502 survivors**: median **0.302%**, max 3.95%, **0 above 5%**.
-Five structural versions moved it 0.285% → 0.211%. The only mover is `meatValue`
-40 (0.86–0.99%) — a constant, not selection. Companion fact: **67.5% of corpse
-mass rots uneaten**. "Predation share of deaths 62%" is compatible with nobody
-eating anything, and for weeks it was.
-
-### Why the previous five versions could not have worked
-
-| binding constraint | measured | touched by v0.50–v0.55? |
+| constraint | measurement | addressed by v0.50-v0.55 |
 |---|---|---|
-| founder prior against meat | `plantAttraction` 0.80 vs `carrionAttraction` 0.10; under `k_choiceBeta` 4 that is **4096:1** | no |
-| scale of the niche | carnivore carrying capacity **8–21 individuals**, 3–6% of N | no |
-| duration | a run is **13.9 generations**; the needed gene displacement is **27 mutational SDs** | no |
-| genome reachability | 150 CFG constants, **11 ever varied**, 12 distinct configs in 2,341 runs | no |
+| founder prior | `plantAttraction` 0.80 vs `carrionAttraction` 0.10 | no |
+| niche size | carnivore carrying capacity 8-21 individuals | no |
+| duration | median 19.5 generations at day 800 | no |
+| genome reachability | 150 CFG constants, 11 ever varied | no |
 
-### v0.56 — two structural changes, factorially separated
+Duration was tested and rejected as the barrier. Normalised against the inert
+genes, `biteForce` rises 5.98x to 13.60x and `herbivory` 1.24x to 2.79x across
+generation quartiles, while `carrionAttraction` stays at 0.65-0.72x, below drift,
+flat across a 35x range of evolutionary time. The planned founder-pool chaining
+build was cancelled on that result.
 
-- **[L0.56-1]** `carrionAttraction` founder **0.10 → 0.80**, equal to
-  `plantAttraction`. This *removes* a thumb on the scale; it does not add one.
-- **[L0.56-2]** `founderGenesA` / `founderGenesP` make the founder genome
-  CFG-reachable at all. RNG-neutral when null.
+`carrionAttraction` decides whether an animal approaches a corpse and `carnivory`
+decides what it extracts. Each is unselectable while the other is near zero, and
+`carnivory` also sits below drift at 0.49-0.84x. v0.56 raises the founder value
+to break that.
 
-Rotation is a **2×2**: `{carrionAttraction 0.80 | 0.10} × {k_meatAttrFloor 0.5 | 0}`,
-n ≥ 60 per cell, primary endpoint the mission metric. H11 (was the founder prior
-the barrier) and H12 (is the floor still load-bearing once meat is edible) are
-frozen in `LEDGER.md`.
+### v0.56 changes
 
-### Method changes that outlive this version
+- [L0.56-1] `carrionAttraction` founder 0.10 to 0.80, equal to `plantAttraction`.
+- [L0.56-2] `founderGenesA` / `founderGenesP` shift founder gene values from a
+  CFG patch. Shift rather than set: setting overwrote the morph spread and
+  founded the population as a point mass on the gene under test.
 
-- **Rule 10**: a frozen threshold must exceed the SE of its own statistic at the
-  planned n. H4's line was 0.15 SD against an SE of 0.222; H10 had 14% power.
-  Much of the seven-MISS streak was power, not biology.
-- **Rule 11**: report the tail, not the median. "GRAZE never below 93%" was
-  false — 126 of 1,075 runs are below, min 78.3%, and
-  `runs/rot-collect/59400.json` holds a herd, an arms race and 66% corpse
-  consumption *inside an arm scored MISS on its median*. Emergence is a minority
-  state; an arm-median pipeline is built to miss it.
-- **Rule 12**: a large effect that missed its pre-registered variable is logged
-  as a notable unpredicted effect, not discarded.
-- **Neutral yardstick corrected**: `ambushTendency` is READ (`:1769`) and was in
-  the null. Every past selection verdict was biased toward "not demonstrable".
+Rotation is a 2x2 of `{carrionAttraction 0.80 | 0.10}` x `{k_meatAttrFloor 0.5 |
+0}`, one seed through all four cells so the comparison is paired.
 
-### Next build, already justified
+### Method changes
 
-Founder-pool chaining exists in the build ([L37-3], `:1542`, `:3762`) and is
-**entirely unwired in `headless.js`**. Wiring it is the only way past 13.9
-generations, which is the duration constraint above.
+- Rule 10: a frozen threshold must exceed the SE of its own statistic at the
+  planned n. H4 used 0.15 SD against an SE of 0.222; H10 had 14% power.
+- Rule 11: report the tail. "GRAZE never below 93%" was false; 126 of 1,075 runs
+  are below, minimum 78.3%.
+- Rule 12: a large effect that missed its pre-registered variable is logged, not
+  discarded.
+- `ambushTendency` was in the inert-gene yardstick and the sim reads it
+  (`:1769`). Removed. Past selection verdicts were biased toward MISS.
+
+### Open
+
+An audit of the pivot itself (`AUDIT-PIVOT-2026-09-12.md`) found further
+problems, four confirmed, two fixed so far. Unresolved: the "4096:1" founder
+ratio quoted in several files is wrong (realized ratio ~240); H11 is
+indeterminate at the planned n; `score55.py` and `arms.py` cannot score the 2x2.
 
 ---
 
@@ -218,7 +216,7 @@ lengths**: across the 82-seed standing corpus the 25k plant slot array binds
 in **54% of 3x runs** (and 9% of 5x), worst cases pinned a quarter of all
 samples; even seed 1337 touches the bound by day 2400. Live plants and seeds
 share the array, which is why a "plants peak below maxPlants" check misses it.
-Treat the arena shrink as **ecologically load-bearing at 25k** and run dose
+Treat the arena shrink as **ecologically required at 25k** and run dose
 comparisons at the full 90k/40k arena.
 
 **Dose-response tally (seeds with R0 > 1 = viable population):**
@@ -245,7 +243,7 @@ attraction genes don't have — predation could never fully switch off.
 Unfloored to match. `node check.js` PASS. First single-seed ecological
 result is mixed (actAttack dropped as predicted on an already-near-zero-
 carnivory seed, but R0 also dropped, which wasn't part of the specific
-prediction and may be RNG-path noise from a genuine formula change, same
+prediction and may be RNG-path noise from a real formula change, same
 caveat v0.49 carried). **Not scored yet — needs the 3-seed Actions test,
 still in flight.**
 
@@ -278,7 +276,7 @@ concrete direction instead of re-deriving strategy:**
 
 1. **Land the pending batches** (5x dose confirmations, riskEwma/retal/
    armEff/confusion-off/animal-headroom/mixedfree, v0.50 3-seed test and
-   its two combo re-tests). Digest each honestly, fold into LEDGER.
+   its two combo re-tests). Digest each, fold into LEDGER.
 2. **Score v0.50's L0.50-1 prediction** once its 3-seed Actions test
    lands — this has been sitting unscored on n=1 too long.
 3. **Run the clean same-cfg pLocked-trend test** (previous section) —
@@ -372,7 +370,7 @@ concrete direction instead of re-deriving strategy:**
 **Not achieved:**
 
 - **Herding, partially mechanised, not confirmed working.** `socialAttraction`
-  was impossible to select for by construction before v0.47 — appeared only
+  was impossible to select for by design before v0.47 — appeared only
   as a cost, absorbing `>0.02` gate, no dilution/vigilance/confusion anywhere
   in the model. [L47-3] gave it a confusion mechanism and an `AN.risk` EWMA.
   Result so far: `socialAttraction` mean rose to 0.235 with 0% pinned at min
@@ -517,7 +515,7 @@ fauna 37 days old and still inside the reseed-subsidy window — not a peer of
 1337 (1200d) or 4001 (930d). Its gene-frequency snapshot (`eToxin`,
 carnivory histogram, `actAppr`) is usable at the same weight as the other
 two; its population-dynamics numbers (R0, refuge collapse) are not, and are
-exactly what would be needed to settle item 2 below. **Next step, Tier A
+what would be needed to settle item 2 below. **Next step, Tier A
 (extends an already-approved seed's run, originates nothing new) but
 requires the owner's go-ahead per this session's explicit instruction not to
 act on the k_confusion:0 finding further without it:** either resume seed
@@ -570,7 +568,7 @@ longer runs cheap enough that this is measurable over more generations.
 
 **6. Sexual reproduction / per-gene crossover.** Long-planned, never built.
 Without it there is no biological species concept and the speciation half of the
-mission is untestable. This is the largest genuinely outstanding feature.
+mission is untestable. This is the largest outstanding feature.
 
 **7. Investigate the bimodal plant height in v0.42 seed 3012.** Check whether
 the two clusters are separated in the lineage tree. If they are, that's

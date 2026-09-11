@@ -215,7 +215,7 @@ jobs:
             # of its four arms at maxPlants 25000, which adversarial audit F2
             # showed BINDS in 54% of 3x runs -- so those arms were a maxPlants
             # comparison wearing a k_photoCost label, and every seed they
-            # produced was confounded by construction. All arms now run at the
+            # produced was confounded by design. All arms now run at the
             # shipped 90k/40k arena, where the slot cap does not bind.
             # FIVE-WAY, 2026-08-11. Arms 3 and 4 are the selection-response
             # diagnostic [L66]. They were being run locally, but six container

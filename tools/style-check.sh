@@ -6,7 +6,10 @@
 # strings) and the audit reports (they quote external agents verbatim).
 set -u
 cd "$(dirname "$0")/.."
-BANNED=$(sed -n '/^    worth noting$/,/^    delve$/p' STYLE.md | sed 's/^    //' | grep -v '^$')
+# Take EVERY 4-space-indented line after the "Banned phrases" heading. An
+# earlier version ranged from "worth noting" to "delve" and silently ignored
+# every entry appended after delve.
+BANNED=$(sed -n '/^### Banned phrases/,$p' STYLE.md | grep -E '^    [a-z]' | sed 's/^    //')
 fail=0
 while IFS= read -r raw; do
   # strip a trailing parenthetical qualifier, e.g. "leverage (as a verb)" must

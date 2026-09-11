@@ -697,7 +697,7 @@ def sec_selectable(d, P):
     # yardstick -- purely because its neutral retention was 28.7%. That AND is
     # wrong: heavy drift and detectable selection are not mutually exclusive.
     # A population can lose most of its neutral variance and still show clear
-    # directional movement in the genes under selection, which is exactly what
+    # directional movement in the genes under selection, which is what
     # 70007 does.
     # The two numbers answer different questions and are now reported as such:
     #   `keep`  = how much drift there was  -> how NOISY any estimate is

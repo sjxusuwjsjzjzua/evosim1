@@ -81,7 +81,7 @@ number typed into the file.
 
 ### Why this is not merely a caveat
 
-The project already has direct causal evidence that the constant is load-bearing
+The project already has direct causal evidence that the constant is required
 for exactly this metric, and it is in the source comment above the line
 (`:1737-1740`) and in `LEDGER.md:3752-3800`: v0.50 removed the floor (gain-pivoted
 at the founder value) and **kills/day fell in 3/3 paired seeds** — the one v0.50
@@ -89,16 +89,16 @@ result that survived the run-length correction (`LEDGER.md:3860-3866`, "kills pe
 survives"). The source comment says it outright: *"the floor is LOAD-BEARING …
 Predation needs a baseline interest to stay reachable."*
 
-So the file records (a) that the constant is load-bearing for predation and
+So the file records (a) that the constant is required for predation and
 (b) that predation-as-mortality-regulator is "a real upgrade to the weakest
 mission pillar", and **no entry connects them.** Under the project's own test —
 *if a result had to be written into the code, it doesn't count* — the second
 claim cannot stand at its current strength while the first is true.
 
-Note the honest limit, which I am not hiding: `carnivory` (a different gene) does
+Note the limit, which I am not hiding: `carnivory` (a different gene) does
 gate ATTACK, since `rateA` is proportional to `carn*meatValue` and the
 `rateA > 1e-12` guard kills the branch at `carnivory = 0`; evolved `carnivory` in
-these runs is 0.08-0.35, genuinely nonzero. Predation here is therefore not
+these runs is 0.08-0.35, nonzero. Predation here is therefore not
 *purely* the constant. But the quantity that decides ATTACK *versus* GRAZE — the
 attraction multiplier — is 84% constant at the median and ~100% in two of the
 runs being counted as the pillar's best evidence.
@@ -136,7 +136,7 @@ data lands rather than after.**
 
 > Confirmed via an isolation test at the *original* 90k/40k arena (no shrink) —
 > identical results to the shrunk-arena version, so the arena shrink used
-> throughout was purely a speed optimization, not load-bearing.
+> throughout was purely a speed optimization, not required.
 
 The underlying test (`LEDGER.md:1690-1704`) was **one seed (1337), 1200 days,
 `k_photoCost` 0.012, `caps seen [0]` clean**, plus a second full-arena seed. Its
@@ -196,10 +196,10 @@ while `k_photoCost` is nominally the variable — **the exact artifact whose
 discovery started this whole investigation** (`FINDINGS.md:129-136`, "`maxPlants`
 (a slot-array size, not a biological limit) was binding regardless of predation in
 every default-config run"). Lowering `k_photoCost` back to 0.004 while holding the
-shrunk arena reintroduces it by construction, and the frozen prediction was
+shrunk arena reintroduces it by design, and the frozen prediction was
 written without checking.
 
-### An honest limit on this finding
+### A limit on this finding
 
 Within the 3x arm, cap-binding does **not** separate outcomes: alive-at-day-800 is
 9/13 among capped runs and 7/11 among uncapped (Fisher p = 1.000). So I am *not*
@@ -357,7 +357,7 @@ L3576 and L4371 and L4412 are themselves *scoring* headings that the keyword
 matcher classified as predictions, and L3597 (the `k_intake` reciprocal arm) was
 scored at `LEDGER.md:4080-4093` under the heading "intake-down completes at
 matched windows: null, and the arm is retired", with the Ambiguous branch
-explicitly fired. The sixth, L5714, is the 1x control — genuinely open because no
+explicitly fired. The sixth, L5714, is the 1x control — open because no
 1x seed has reached day 800 yet (see F4, which is about its wording, not its
 absence). **Nothing filed. If it is worth avoiding tomorrow's re-derivation,
 `audit.py` could match on `[Lnn]` tags or explicit `SCORED:` markers rather than
