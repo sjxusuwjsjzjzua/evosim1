@@ -8018,3 +8018,98 @@ No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
 24 new standing seeds (2269->2293); batch firing. CONTROL n=8 surv 62% cv 87.3 meatAttr 0.1676 | invade-carn n=12 surv 67% cv 114.7 meatAttr 0.1663 | mixed-flat n=12 surv 50% cv 102.0 meatAttr 0.1099 | meat-rich-55 n=11 surv 73% cv 124.6 meatAttr 0.1030. Older blocks unchanged.
 Neither escalation trigger fires: CONTROL is n=8, under the n>=12 survival threshold, and H8 needs n>=25 plus its carnivory-histogram read.
 No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
+
+---
+
+# WEEKLY PASS, 2026-09-11 — nothing scored. The n gate is not moved.
+
+**H8, H9 and H10 cannot be scored this week.** The v0.55 pre-registration says
+"at n ≥ 25 per arm", and H8 spells out "CAN'T-TELL ... at fewer than 25
+surviving seeds". The arms have **10–13 surviving seeds each**. The rotation
+only went live on 2026-09-09 because the v0.54 block ran the preceding week, so
+this is a phase lag between the rotation switch and the weekly cadence, not a
+throughput failure — at ~4 survivors per arm per day the gate clears in roughly
+five more days.
+
+The gate stays where it was written. This matters more than usual here, because
+the preliminary numbers are about as one-sided as data gets and the temptation
+to call it early is correspondingly large.
+
+| arm | at risk | alive | dead | cens | surv% | cv% | mean N | GRAZE% | pred share | carnivory | % above carn 0.5 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| CONTROL | 12 | 10 | 2 | 0 | 83.3% | 56.7 | 316 | 97.53 | 62.4% | 0.1572 | 0.00 |
+| invade-carn | 14 | 10 | 4 | 2 | 71.4% | 56.2 | 168 | 96.57 | 59.4% | 0.0560 | 0.00 |
+| mixed-flat | 13 | 10 | 3 | 2 | 76.9% | 59.8 | 258 | 96.96 | 60.8% | 0.0723 | 0.00 |
+| meat-rich-55 | 15 | 13 | 2 | 1 | 86.7% | 70.4 | 299 | 93.29 | 65.4% | 0.0617 | 0.00 |
+
+Preliminary only, none of it scored: invade-carn is **0.00% above carnivory 0.5
+in 10 of 10 survivors**, mixed-flat's `carnivory` sits at 0.0723 against H9's
+0.12 MISS line, and meat-rich-55 leads on survival again (86.7% vs 83.3%) but by
+3.4 points rather than v0.54's 25.5. Every one of those is the shape the frozen
+criteria were written to catch, and every one of them is below the n the
+criteria demand. They are recorded as direction, not as findings.
+
+## The probe is verified non-vacuous — and this was worth checking
+
+A purged invader and an invader that never existed produce the identical day-800
+histogram: all zeros. Last week's rule-7 near-miss was exactly this failure, so
+the probe was checked directly rather than inferred.
+
+Run: v0.55, seed 31337, invade-carn genotype plus `animalStartDay` 20 so the
+first gene snapshot lands days after founding, before selection can act.
+
+- Day 26, six days after founding: **`carnivory` mean 0.2538** against a
+  predicted `0.25*0.85 + 0.75*~0.05` = **0.25**.
+- The histogram is genuinely **bimodal**: bins `[32,16,30,2,0,0,0,0,0,0,15,0]` —
+  **15.8% of animals in bin 10 (carnivory 0.83–0.92)**, a distinct carnivore
+  mode sitting apart from the native herbivores.
+- `herbivory` 0.4926 and `biteForce` 1.1370, both between the native and invader
+  values, as a 25% mix requires.
+
+The probe does what it says. In the live arms the invaders are already down to
+0–0.7% by day 305 — **45 days, roughly one to four generations after founding** —
+and to 0.00% across days 400–800 in every survivor. Whatever H8 resolves to, it
+will be resolving a real measurement.
+
+One side effect worth recording: invade-carn's mean N is **168 against
+CONTROL's 316**. Seeding carnivores roughly halves the population before the
+carnivores themselves disappear.
+
+## Arithmetic that will matter when H8 resolves, from the shipped constants
+
+Not a run, not a prediction — just what the cost function says, written down now
+so it is not reverse-engineered after the result arrives.
+
+Diet upkeep is `k_gut*(carn² + herb²) + k_digest*max(0, carn+herb−1)² +
+k_mixed*max(0, carn*herb − mixedFree)` with `k_gut` 0.020, `k_digest` 0.004,
+`k_mixed` 0.018, `mixedFree` 0.060:
+
+| genotype | diet upkeep |
+|---|---|
+| specialist carnivore (0.85, 0.15) | **0.01612** |
+| evolved herbivore (0.06, 0.70) | **0.00987** |
+| founder (0.05, 0.60) | 0.00725 |
+
+**The specialist carnivore pays 1.63× the evolved herbivore's diet upkeep.** On
+the intake side it extracts `meatValue*carrionValue*carrionDigest(0.85)` =
+`24*0.85*0.895` = **18.26** per unit prey mass, against a herbivore's
+`tissueValue*herb` = **17.5** per unit foliage *before* any plant defence
+reduces it. So the two corners are comparable on intake per unit mass while the
+carnivore pays 1.63× the standing cost — and must find, catch and survive its
+food, where the herbivore walks up to something that cannot move.
+
+That is a sketch of a corner that is not a peak. It is consistent with H8's
+preliminary 10-of-10 zeros and with three versions of failed interventions, and
+it is exactly what "the far peak has to be built before it can be reached"
+would mean concretely. **It is not scored and not acted on** — H8 gets to
+answer first.
+
+## No new version and no new arm this week
+
+Shipping a v0.56 off unscored arms would be the same error rule 3 exists to
+prevent, and adding a fifth arm would dilute four that are already under-powered
+— the saturation note's "don't invent volume" applies directly. The four arms
+keep running untouched.
+
+The `k_choiceBeta` revert decision also waits: it was made conditional on "the
+v0.55 block", and the v0.55 block is not in yet.
