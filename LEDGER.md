@@ -8392,3 +8392,7 @@ v0.56 symmetric cells, `carnivory`'s drift-normalised movement should exceed
 cells clear 1.0× and the 0.10 cells do not. MISS if the symmetric cells stay
 below 0.9×. This is a **within-corpus comparison against a 1,507-run baseline**,
 so it is far better powered than H11's 1.5% heterotrophy line.
+
+## Daily 2026-09-11
+No new seeds since the earlier check this session (2,316 branches). Batch firing: runs 997 and 998 in progress, fired 11:11 and 16:23 UTC, both on 9865b16. The paired-design workflow landed after 16:23, so the next fire is the first to use it.
+v0.56 cells: c1 n=3 (void, founded as a point mass before the shift fix), others n=0. Older blocks unchanged.
