@@ -102,7 +102,7 @@ matched window days 400–800, survival at day 800 with censoring:
   budget, so making a negligible term differentiable leaves it negligible.
 - **H5 MISS.** GRAZE 96.33%; the monoculture did not break. HARM clause clear.
 - **H6 MISS on carnivory (0.070) — but the arm survived 92.2% against the
-  control's 66.7%, Fisher p = 0.0022, with no diet shift at all.** Predation
+  control's 66.7%, Fisher p = 0.0022, with no diet shift.** Predation
   share 54.4 → 64.1%, SCAVENGE 0.36 → 0.61%. Reading: the animal level is
   energy-limited and worth-more flesh lets it recycle more of the energy it
   already contains. Largest survival effect in the project's history. Up for
@@ -391,7 +391,7 @@ concrete direction instead of re-deriving strategy:**
   roughly doubled (3.8% → 7.8%) but is still far from the ≥20% target.
 
 **v0.48 and v0.49 are both mechanical/tooling versions, not biology
-versions.** v0.48 fixed a bug that silently disabled the extinction halt at
+versions.** v0.48 fixed a bug that disabled the extinction halt at
 default config ([L0.48-1]) and a performance win in the two hottest
 functions ([L0.48-2]), verified RNG-neutral against v0.47 on an exact-match
 diff. v0.49 replaced the five hottest per-tick loops' `0..P.hi`/`0..AN.hi`
@@ -553,7 +553,7 @@ The most recent log (seed 1337 default, 1200d) shows mean `maturityAge` 36.0
 d against mean death age 12.1 d — animals dying well before that, which is a
 different problem (see the demography line in §1) and doesn't by itself say
 whether the gene is railed, since `analyze.py`'s GENE BOUNDS section for that
-run doesn't list `maturityAge` among the pinned genes at all. Don't assume
+run doesn't list `maturityAge` among the pinned genes. Don't assume
 either the old "pinned at min" finding or its opposite — check the next
 log's GENE BOUNDS section directly before reasoning further about the mass
 gate (`mass >= 0.60*size`) or newborn provisioning.
@@ -599,7 +599,7 @@ memory, but they are the Ne meter — keep at least four per kingdom if you cut.
 
 **13. Cosmetic debt.** `laiOf()` is dead code after [L47-6]. `PIDX` can file a
 recycled slot under a stale tile for up to `plantStagger` ticks — self-correcting,
-but it silently drops that plant from detection meanwhile.
+but it drops that plant from detection meanwhile.
 
 ---
 
@@ -615,13 +615,13 @@ runs. The owner's
 job either way is to approve what originates a run, not to carry a build to
 their phone or to click go on every mechanical follow-through. The owner can
 still run a build by hand any time (spot checks, or to watch it) — that log
-works exactly the same way through the steps below. Long runs are still the
+works the same way through the steps below. Long runs are still the
 constraint that matters: anything under ~900 sim-days can't see a carnivory
 sweep, which historically starts around day 800, and true stationarity has
 needed hundreds of sim-years (v0.42 ran 367). Prefer the longest run that's
 practical over a short one — a run taking too long is a reason to stop it
 early with `<out>.stop` (see `headless.js`'s header) or move it to GitHub
-Actions, not a reason to quietly shorten the day target without saying so.
+Actions, not a reason to shorten the day target without saying so.
 
 ### What Claude does, in order
 
@@ -688,7 +688,7 @@ owner's word, regardless of tier.
 `headless.js`/`experiment.js` make running the sim *easy* — that was true and
 dangerous even before they existed, and it does not stop being dangerous now
 that it's sanctioned. The discipline that keeps it honest is Step 0: a
-prediction on record before the run, one change at a time, no quietly trying a
+prediction on record before the run, one change at a time, no trying a
 few variants to see which looks better. `check.js` still prints no statistic,
 on purpose — it checks the code resolves, nothing about the ecology.
 
@@ -725,24 +725,24 @@ formula or constant, so this column is unchanged from v0.47.
 ## 6. Current tunables useful
 
 ```
-k_photoCost 0.004    k_darkResp 0.25       (plant respiration on lit leaf)
-k_reach 0.0731       reachMassPow 0.333    (reach = k·size^p, a LENGTH)
-k_climbReach 4.0                           (reach × (1 + k·climbing))
-k_bodyRadius 0.60                          (attack/scavenge reach)
-k_sense 2.0e-6       cubic in range
-k_gut 0.020          k_digest 0.004        mixedFree 0.06   k_mixed 0.018
-k_accel 0.012        k_turn 0.009
-a_base 0.012         FIXED, not mass-scaled
+k_photoCost 0.004 k_darkResp 0.25 (plant respiration on lit leaf)
+k_reach 0.0731 reachMassPow 0.333 (reach = k·size^p, a LENGTH)
+k_climbReach 4.0 (reach × (1 + k·climbing))
+k_bodyRadius 0.60 (attack/scavenge reach)
+k_sense 2.0e-6 cubic in range
+k_gut 0.020 k_digest 0.004 mixedFree 0.06 k_mixed 0.018
+k_accel 0.012 k_turn 0.009
+a_base 0.012 FIXED, not mass-scaled
 maturityMassFrac 0.60
 carrionFloor 0.30
-haltAfterDays 200    logDays 5             poolSize 650
+haltAfterDays 200 logDays 5 poolSize 650
 
   new in v0.47
-k_confusion 0.060    attack rate / (1 + k·(neighbours−1)). 0 disables herding.
-riskEwma 0.010       smoothing on AN.risk, the per-animal threat estimate
-mutFastMax 0.25      above this mutationRate, mutate gene-by-gene
-compactEvery 2400    ticks between free-list compactions. 0 disables.
-fastRenderMs 100     min ms between frames once above watch speed
+k_confusion 0.060 attack rate / (1 + k·(neighbours−1)). 0 disables herding.
+riskEwma 0.010 smoothing on AN.risk, the per-animal threat estimate
+mutFastMax 0.25 above this mutationRate, mutate gene-by-gene
+compactEvery 2400 ticks between free-list compactions. 0 disables.
+fastRenderMs 100 min ms between frames once above watch speed
 ```
 
 Genome strides: plant **48** (39 active + 9 pad), animal **64** (54 active + 10

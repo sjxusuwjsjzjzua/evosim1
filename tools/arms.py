@@ -15,7 +15,7 @@ CACHE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'runs', 'arms.t
 
 def arm(c):
     # v0.56 2x2 factorial: founderGenesA exists only from v0.56 on. The cell is
-    # named by BOTH factors so no cell can be silently merged with another.
+    # named by BOTH factors so no cell can be merged with another.
     if 'founderGenesA' in c:
         fg = c.get('founderGenesA') or {}
         ca = fg.get('carrionAttraction', 0.80)      # v0.56 build default

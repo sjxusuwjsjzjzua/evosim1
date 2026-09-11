@@ -81,9 +81,9 @@ and is CONFIRMED directly: inert-gene SD sits at 0.02-0.03 against a founder
 `runs/standing-collect/seed-41111.json`, inert `tag1` SD by day:
 
 ```
-day 305  n=173  tag1 sd 0.1482      day  905  n=151  tag1 sd 0.0134
-day 605  n= 78  tag1 sd 0.1095      day 1205  n=244  tag1 sd 0.0036
-day 705  n= 52  tag1 sd 0.0000  <-- bottleneck   day 1600  n=103  tag1 sd 0.0031
+day 305 n=173 tag1 sd 0.1482 day 905 n=151 tag1 sd 0.0134
+day 605 n= 78 tag1 sd 0.1095 day 1205 n=244 tag1 sd 0.0036
+day 705 n= 52 tag1 sd 0.0000 <-- bottleneck day 1600 n=103 tag1 sd 0.0031
 ```
 
 Across that same day-605→705 window `meatAttraction` goes 0.117 → **0.000**
@@ -104,9 +104,9 @@ genome fixed and it happened to carry `meatAttraction ≈ 0`."
 threshold. Its trajectory, against its matched inert control:
 
 ```
-day  305  n=308  meatAttraction 0.187   territoriality 0.131   inertSD 0.146
-day  405  n= 74  meatAttraction 0.329   territoriality 0.335   inertSD 0.029
-day 1600  n=298  meatAttraction 0.411   territoriality 0.322   inertSD 0.029
+day 305 n=308 meatAttraction 0.187 territoriality 0.131 inertSD 0.146
+day 405 n= 74 meatAttraction 0.329 territoriality 0.335 inertSD 0.029
+day 1600 n=298 meatAttraction 0.411 territoriality 0.322 inertSD 0.029
 ```
 
 Both genes jump +0.20 in the same 100-day window, at the same bottleneck, and
@@ -169,9 +169,9 @@ So one mechanism produces all three failures:
 40-day seasonal forcing, shorter than a generation
         ↓
 consumer-resource oscillation, 18× median amplitude, troughs of 1-15
-        ↓                                    ↓
-50-70% extinction              Ne ≈ 2  →  no gene responds to selection
-(the stability failure)            (the emergence failure)
+        ↓ ↓
+50-70% extinction Ne ≈ 2 → no gene responds to selection
+(the stability failure) (the emergence failure)
 ```
 
 It also explains a problem the project has recorded but not diagnosed:
@@ -179,7 +179,7 @@ within-cfg seed-to-seed R0 noise of SD 0.25-0.53, making every CFG comparison
 4-7× underpowered (`FINDINGS.md:240-247`). At `Ne ≈ 2`, a run's outcome is
 mostly determined by which of six founder morphs won the first bottleneck.
 **The "seed noise" that has been treated as a statistical nuisance is the
-founder lottery, and it is the same finding.**
+founder lottery, the same finding.**
 
 ### What this means for the plan
 
@@ -261,7 +261,7 @@ because the paired-control fix above must also be run on completed logs.
 **H3. The floor-off arm changes the selection regime, not just the level.**
 With `k_meatAttrFloor = 0.5`, `meatAttraction` contributes ±20% of ATTACK's
 attraction term — the floor does not merely supply 84% of the weight (F1), it
-**shields the gene from selection**, which is why it reads as neutral. With
+**shields the gene from selection**, which is why it is neutral. With
 the floor at 0, the gene becomes the entire term. So the floor-off arm should
 show *more* selection on `meatAttraction` in **either** direction. A result
 where floor-off `meatAttraction` moves *down* faster than floor-on is
@@ -276,7 +276,7 @@ share of animal deaths; **inertSD** = final/first inert-gene SD ratio.
 
 | observed | reading | next move |
 |---|---|---|
-| **m > 0.30, p ≥ 20% in ≥half, and m − t > 0.15 in ≥⅔ of seeds** | HIT, and it is selection, not drift | Score it. Carnivory passes the mission test for the first time. Then ship `k_meatAttrFloor: 0` as the default via CFG patch and re-baseline. |
+| **m > 0.30, p ≥ 20% in ≥half, and m − t > 0.15 in ≥⅔ of seeds** | HIT, and it is selection, not drift | Score it. Carnivory passes the mission test. Then ship `k_meatAttrFloor: 0` as the default via CFG patch and re-baseline. |
 | **m > 0.30 but m ≈ t** | drift, not selection | **Not a HIT.** Report as "unresolved — `Ne` too low to distinguish". Go to the Q1 experiment. |
 | **m < 0.15, and inertSD < 0.25 (the corpus norm)** | the test never ran | **Not a MISS of the injury diagnosis.** This is the modal outcome and the one to plan for: the population was frozen, so no gene could have moved. Rule 3 does not apply, because the prediction was not actually tested. Go to the Q1 experiment. |
 | **m < 0.15 with inertSD > 0.40** | genuine MISS | The population *could* have moved the gene and did not. Injury was not the barrier. Then, and only then, is "this physics cannot support a third trophic level at this productivity" on the table — and even then only after checking the delivery ratio in Q3.1 below. |
@@ -337,7 +337,7 @@ So the ATTACK score at `:1774-1783` values a target at the **whole corpse**
 (`mvK` = `meatValue·carrionValue·carrionDigest(carn)` = 6.83/mass at founder
 carnivory, up from 1.20 in v0.51 — a 5.7× rise in *perceived* return), while
 the realized capture is under 10%. **v0.52 raised the perceived payoff ~5.7×
-and plausibly lowered the realized payoff, and that is precisely the [L31]
+and plausibly lowered the realized payoff, the [L31]
 violation the change was written to fix**, moved from the ATTACK branch to the
 ATTACK→SCAVENGE handoff.
 
@@ -401,7 +401,7 @@ is `dmgRate/(k_health·mass_i) × (value of its whole life)`.
 Two specific errors follow, both of which shrink perceived threat:
 
 1. **`carnivory_j` multiplies the threat, but the damage formula at
-   `:1943-1945` contains no `carnivory` term at all.** Under v0.52 *any*
+   `:1943-1945` contains no `carnivory` term.** Under v0.52 *any*
    animal that picks ATTACK does full damage. Median evolved `carnivory` is
    0.102, so prey underestimate threat by ~10×.
 2. **`aggression_j` also multiplies it**, and aggression gates nothing in the
@@ -473,7 +473,7 @@ population, behavioural monoculture) and the entire carnivory line is
 downstream of this one number.
 
 **2. `analyze.py`'s `Ne` meter reports "rising" on the most genetically frozen
-run in the corpus — CONFIRMED, and it is the reason item 1 went unseen.**
+run in the corpus — CONFIRMED, the reason item 1 went unseen.**
 `sec_ne` (`analyze.py:325-362`) has two defects:
 
 - **Baseline is `snaps[1]`, not `snaps[0]`** (`:348`). On seed 41121 the

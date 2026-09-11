@@ -27,7 +27,7 @@ code, it doesn't count.* A population that looks "balanced" because a
 constant was tuned to force that outcome, rather than because selection
 found it, is a failure by this project's own standard — regardless of how
 good the numbers look. This is the single most important thing to check
-an autonomous agent's work against, because it's exactly the kind of
+an autonomous agent's work against, because it's the kind of
 corner that's easy to cut under time/token pressure without anyone
 noticing in the moment.
 
@@ -67,7 +67,7 @@ noticing in the moment.
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work queue. Section 0.5 (added this session) is a compressed synthesis of everything below — read that first if you want the short version before diving into LEDGER.md's blow-by-blow. |
 | `CLAUDE.md` | the operating rules for whichever Claude session is working on this project. This is unusual and important: **the project's own constitution, including a self-documented history of permission grants the owner made mid-session** (see §5). Read this before assuming any normal caution/approval norms apply — several of them have been explicitly lifted for this specific investigation, in writing, with the owner's own words quoted. |
 | `START-PROMPT.md` | onboarding text for a fresh session picking up the project. |
-| `analyze.py` | turns a raw simulation log into a human-readable digest (conservation checks, stationarity gate, demography, gene bounds, action budget, etc.). `python3 analyze.py log1.json [log2.json ...]` |
+| `analyze.py` | turns a raw simulation log into a human-readable digest (conservation checks, stationarity gate, demography, gene bounds, action budget, etc.). `python3 analyze.py log1.json [log2.json...]` |
 | `check.js` | correctness harness — parses the build, boots it, runs a few ticks, checks no exception. **Says nothing about ecological correctness**, only that the code resolves. `node check.js <build.html>` |
 | `headless.js` | runs a build outside the browser via a Node `vm` context, for automated experiments. Deterministic per seed. Writes progress/stop-file support for long runs. See its own header comment for full usage. |
 | `experiment.js` | wraps `headless.js` for N seeds + digest in one shot. |
@@ -171,7 +171,7 @@ not contradicted by the owner:**
   in this project has had a use for it.
 
 **Audit angle worth taking seriously:** an agent operating under
-"unlimited, don't ask" permission is exactly the situation where subtle
+"unlimited, don't ask" permission is the situation where subtle
 self-serving interpretation (relaxing rigor while technically staying
 inside the letter of what's still required) is hardest to catch from
 inside the work. Check the actual commit history and LEDGER.md entries
@@ -186,7 +186,7 @@ Two pools, both currently in heavy use:
 
 **Local (this sandbox's 4 CPU cores):** background `headless.js`
 processes launched via the Bash tool's `run_in_background` (NOT manual
-`nohup &` — that was tried once, the processes silently died across
+`nohup &` — that was tried once, the processes died across
 conversation turns, documented as a real mistake in the transcript).
 Output written to `runs/local-photocost-extra/*.json`.
 

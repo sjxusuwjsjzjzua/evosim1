@@ -3,7 +3,7 @@
 #
 # Actions pushes each seed's log to a scratch branch runs/<label>/seed-<N>,
 # with the file at the branch ROOT as `seed-<N>.json` -- NOT under out/.
-# Getting that path wrong silently collected nothing for a full cycle on
+# Getting that path wrong collected nothing for a full cycle on
 # 2026-08-24, which is why it is spelled out here.
 #
 # runs/ is gitignored and does NOT survive a container restart; the branches

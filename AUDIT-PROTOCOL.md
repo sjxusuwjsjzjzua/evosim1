@@ -45,7 +45,7 @@ sit for days do.
    Ask the dumb questions. What has been true so long that it stopped being
    visible?
 2. **Predictions never scored.** §3 of the report lists candidates. A prediction
-   that quietly never resolves is the cheapest way for a wrong diagnosis to
+   that never resolves is the cheapest way for a wrong diagnosis to
    survive contact with evidence.
 3. **Numbers that drifted without a retraction.** §5 indexes every numeric
    claim with a line ref. The same quantity quoted differently in two entries,
@@ -99,7 +99,7 @@ ignore it.
 
 **Answer every finding in writing.** Accept or reject, each with a reason,
 appended to `LEDGER.md` under the date. A finding that is rejected is fine — a
-finding that is silently ignored defeats the whole mechanism.
+finding that is ignored defeats the whole mechanism.
 
 **The auditor proposes; it does not decide.** This matters more here than in
 most projects. The mission test says a result written into the code doesn't
@@ -116,7 +116,7 @@ prediction. The audit is not a bypass.
 ## Running it
 
 ```
-python3 audit.py                # regenerates DAILY-AUDIT.md
+python3 audit.py # regenerates DAILY-AUDIT.md
 ```
 
 Then spawn the auditor against the repo with `AUDIT-PROTOCOL.md` and

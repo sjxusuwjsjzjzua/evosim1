@@ -452,7 +452,7 @@ const CFG = {
                          // 0), most plants paid the dominant cost term for
                          // near-zero return, 65% of plant mortality was
                          // starvation, and height/root/regrowth together held
-                         // under 5% of the budget — no selective handle at all.
+                         // under 5% of the budget — no selective handle .
                          // Real dark respiration is a fraction of the lit rate,
                          // not the whole of it. [L40-1]
   k_bodyRadius: 0.60,    // BODY RADIUS = k_bodyRadius * mass^0.333, a length, so
@@ -548,13 +548,13 @@ const CFG = {
   corpseMin: 0.04,       // below this a corpse is gone and the slot freed
   carrionValue: 0.85,    // corpse flesh is worth slightly less than fresh
   carrionFloor: 0.30,    // digestion of CARRION at carnivory 0. Applied as a
-                         // SLOPE, not a clamp — see carrionDigest(). As max(carn, floor) it made every carnivory below 0.30 worth exactly the same, so the gene that...  [L08]
+                         // SLOPE, not a clamp — see carrionDigest(). As max(carn, floor) it made every carnivory below 0.30 worth the same, so the gene that...  [L08]
   energyPerMassA: 55.0,  // energy to build one unit of animal mass. meatValue
                          // over this is the trophic transfer: keep it near the
                          // plant path (tissueValue/energyPerMass = 42%).
   k_intake: 0.01486,     // x biteForce x mass^biteMassPow, mass eaten per tick.
                          // PIVOTED, NOT RAISED. 0.013 x 5^0.75 / 5^0.667 holds intake exactly constant at the founder size of 5, so v0.36 changes the SHAPE of the...  [L09]
-  biteMassPow: 0.667,    // A7/CURVATURE. Was 0.75, which is exactly the exponent
+ biteMassPow: 0.667, // A7/CURVATURE. Was 0.75, which is the exponent
                          // on a_mass in animal upkeep, so intake and the dominant maintenance term cancelled and `size` was metabolically free.  [L10]
   k_toughBite: 3.0,
   k_fibreBite: 1.15,     // fibre now saturates instead of clamping at zero      // toughness resistance to the bite
@@ -1709,7 +1709,7 @@ function senseDecide(i){
     // ESCAPE HATCHES. This used to return before the hunger and threat checks
     // with nothing but pursuitPersistence (up to 500 ticks) to end it, so any
     // animal that picked ATTACK could lose a sim-day for nothing — which is
-    // real purifying selection on aggression and duly drove it to ~0.1. Break
+    // real purifying selection on aggression and drove it to ~0.1. Break
     // the chase if it is not closing, or if the chase is starving us. [L39-3]
     const starving = AN.energy[i] < C.pursuitBailEnergy*AN.up[i]*C.ticksPerDay;
     if (AN.act[i] === ACT_ATTACK && p >= 0 && AN.stage[p] === ALIVE
@@ -1721,7 +1721,7 @@ function senseDecide(i){
   let bestS = 0, bestT = -1, bestAct = ACT_WANDER, found = 0, foundA = 0;
   // LUCE CHOICE. The arbiter was a hard argmax, so a gene that only
   // RESCALES one option's score had a fitness gradient just where the
-  // argmax flipped -- and all four attraction genes duly sat at drift
+  // argmax flipped -- and all four attraction genes sat at drift
   // while the payoff genes moved 10-25x further. Candidates are now drawn
   // with P ~ score^k_choiceBeta by weighted reservoir sampling: one rng
   // draw per offered candidate, O(1) state, exact.  [L0.54-1]
@@ -2094,7 +2094,7 @@ function updateAnimal(i){
   // with the animal. Nothing then opposed shrinking: intake goes as mass^0.667
   // against upkeep mass^0.75, newborn provisioning is offspringInvestment*nbUp
   // so a tiny newborn gets the same DAYS of reserve as a big one, and v0.44's
-  // maturity mass gate made large size slow to breed. Size duly collapsed
+  // maturity mass gate made large size slow to breed. Size collapsed
   // 5.07 -> 1.09 with 81% pinned at the minimum. A genuine fixed overhead is
   // why there is no mammal smaller than a shrew. It puts a floor under body
   // size without touching any benefit: roughly unchanged at mass 5, ~2.8x
@@ -3358,7 +3358,7 @@ const LOGCOLS = ['tick','plants','seeds','animals','lai','matter','soil','det','
                  // as a surviving one
                  'pReseed','aReseed',
                  // v0.34: encounters per look. Under ~0.2 no animal-animal
-                 // gene can be under selection at all, whatever its sel reads.
+                 // gene can be under selection , whatever its sel reads.
                  'aSeen',
                  // v0.35: the standing crop that is actually reachable, and
                  // animals that died old rather than hungry
@@ -3367,7 +3367,7 @@ const LOGCOLS = ['tick','plants','seeds','animals','lai','matter','soil','det','
                  // each animal's own lethal threshold, so it is comparable
                  // across body sizes; killMass is corpse mass created by
                  // predation, which under v0.52 is the only way a kill enters
-                 // the carrion economy at all.  [L0.52-1]
+                 // the carrion economy .  [L0.52-1]
                  'aDmg','dmgDealt','killMass'];
 const CARNBINS = 12;
 const CARNHIST = new Int32Array(CARNBINS);

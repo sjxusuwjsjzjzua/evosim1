@@ -14,10 +14,10 @@
  *
  * The splice point is one exact, literal anchor string taken from the tail
  * of the file. If a future build changes that block, this throws instead of
- * silently running the wrong thing — update ANCHOR to match.
+ * running the wrong thing — update ANCHOR to match.
  *
  * A long run is a black box until it finishes, which is dangerous for
- * exactly the reason rule 1 exists — so this writes real state out while it
+ * the reason rule 1 exists — so this writes real state out while it
  * runs, through two plain files (not a debugger port, not a signal into a
  * busy synchronous loop, both of which are unreliable mid-tick-loop):
  *
@@ -220,8 +220,8 @@ return {
     // MUST NOT be nested inside the progress block above. It was until
     // 2026-08-11, which meant a checkpoint only fired on ticks that were a
     // multiple of BOTH intervals -- so --progress-days 40 --checkpoint-days
-    // 100 (19200 and 48000 ticks, ratio 2.5) wrote NO checkpoint at all,
-    // silently, and four running jobs were unprotected while the comment
+    // 100 (19200 and 48000 ticks, ratio 2.5) wrote NO checkpoint ,
+    // without error, and four running jobs were unprotected while the comment
     // above claimed they were covered. The defaults happened to divide,
     // which is why it survived review.  [L63]
     if (__ckptEvery > 0 && __buildLog && (W.tick % __ckptEvery === 0)) {
@@ -239,7 +239,7 @@ return {
         // side effects -- it pushes onto five LOG arrays, can halve LOG.gene
         // and double LOG.geneEvery at the cap, and ZEROES the DAGE and UPK
         // accumulators. Left uncorrected it would steal those accumulators
-        // from the next real snapshot and silently change the final log.
+        // from the next real snapshot and change the final log.
         // So: snapshot the mutable state, take the reading, restore exactly.
         const __sg = {
           gene: LOG.gene.slice(), carn: LOG.carn.slice(), hgt: LOG.hgt.slice(),
@@ -252,7 +252,7 @@ return {
           // where the unpatched run had 191776, because each checkpoint stole
           // the selection window from the next real snapshot. The gene means
           // and every logged column were already identical -- only the
-          // selection readout was corrupted, which is exactly the kind of
+          // selection readout was corrupted, which is the kind of
           // quiet, plausible-looking damage rule 7 exists to catch.
           selP: SELP.acc ? Array.from(SELP.acc) : null, selPn: SELP.n,
           selA: SELA.acc ? Array.from(SELA.acc) : null, selAn: SELA.n,

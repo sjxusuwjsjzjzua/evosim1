@@ -248,7 +248,7 @@ Three things are wrong here and all were checkable in under a minute:
 
 1. **The build states it.** `evosim-v0_51_0.html:3255` — `// caps is a bitfield:
    1 plant slots full, 2 animal slots full, 4 seed bank full`, and `:3256` —
-   `(P.freeN === 0 ? 1 : 0)`. There was nothing to wait to know.
+   `(P.freeN === 0 ? 1: 0)`. There was nothing to wait to know.
 2. **The log proves it.** In `runs/stationarity/seed-10008-2400d.json`, all **52
    of 480** samples flagged `caps & 1` have `plants + seeds` equal to **exactly
    25000 = maxPlants**, e.g. day 1700 (24133 + 867), day 1955 (23407 + 1593), day
@@ -263,7 +263,7 @@ stop binding — is a **MISS on this run** (10.8% of samples pinned), not a
 can't-tell, and per hard rule 3 that means the diagnosis was wrong rather than
 that the constant needs to be bigger. It is a MISS on 54% of the 3x arm corpus-
 wide (F2). `analyze.py:67-69` had already printed
-`caps seen [0, 1]   <<A BOUND IS DOING THE SELECTING, nothing below means what it
+`caps seen [0, 1] <<A BOUND IS DOING THE SELECTING, nothing below means what it
 looks like` on this exact run; the LEDGER itself has flagged four prior instances
 of "the better number was already in the digest and going unread"
 (`LEDGER.md:4985-4989`). This is the fifth.
@@ -317,7 +317,7 @@ prediction rather than a re-derivation — before the first 1x seed reaches day 
 ## F5. `FINDINGS.md` and `HANDOFF.md` carry four superseded numbers with no retraction
 
 **Severity: HYGIENE — but `FINDINGS.md`'s stated purpose is to be the one file a
-new session trusts, and every item below is exactly the failure it was created to
+new session trusts, and every item below is the failure it was created to
 prevent.**
 **CONFIRMED.**
 

@@ -66,7 +66,7 @@ and could not tell it was looping; the owner noticed before any instrument did.
 3. **One structural change per version — AMENDED 2026-09-11.** Multiple
    structural changes may ship in one version **when they are independently
    motivated and the arms are a factorial that separates them.** Attribution is
-   what the rule protects, and a 2×2 with matched arms buys attribution that
+   what the rule protects, and a 2×2 with matched arms gives attribution that
    serialisation buys with a week of latency. One change per version plus weekly
    scoring capped learning at roughly one bit per week against unlimited compute;
    that cap, not the compute, was the bottleneck.
@@ -80,7 +80,7 @@ and could not tell it was looping; the owner noticed before any instrument did.
 
 6. **Constant changes ship as a CFG patch, not a new HTML.** A new HTML is only
    for a change of *shape*.
-   **Note 2026-09-11:** this rule silently excluded the genome. Founder gene
+   **Note 2026-09-11:** this rule excluded the genome. Founder gene
    values were not CFG-reachable, so the starting genome — which turned out to
    contain the monoculture — could not be tested by patch. `founderGenesA` /
    `founderGenesP` [L0.56-2] fix that.
@@ -110,7 +110,7 @@ and could not tell it was looping; the owner noticed before any instrument did.
     78.3%, and `runs/rot-collect/59400.json` contains a herd (APPROACH 3.95%),
     an arms race (`maxSpeed` 3.2× control) and 66% corpse consumption — inside
     an arm scored MISS on its median. Emergence is a minority state. An
-    arm-median pipeline is built to miss exactly the thing this project exists
+    arm-median pipeline is built to miss the thing this project exists
     to find.
 
 12. **NEW — a large effect that missed its pre-registered variable is recorded
@@ -130,7 +130,7 @@ selection test toward MISS.
 
 Verified-inert set: `territoriality`, `mateChoosiness`, `parentalCare`,
 `pathogenResistance`. Re-verify by grep before each use; a gene that gains a
-reader silently invalidates every past comparison.
+reader invalidates every past comparison.
 
 ## Before touching a constant
 
@@ -191,7 +191,7 @@ runner frees up) at all times, not just in bursts.
 
 **CORRECTED 2026-08-10: the real ceiling is 20 simultaneous *running*
 jobs, not the 40-50 previously recorded here.** Measured directly —
-20 running / 9 queued across four dispatched runs, exactly the documented
+20 running / 9 queued across four dispatched runs, the documented
 per-plan cap, which is what the external audit predicted. The old figure
 came from counting *jobs in flight* (running + queued) and calling it the
 ceiling. Above 20, new jobs queue rather than run, which is fine and

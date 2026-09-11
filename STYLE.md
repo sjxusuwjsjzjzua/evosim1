@@ -122,6 +122,29 @@ filler — deleting one never loses information.
     against my own interests
     learned expensively
     becoming theatre
+    exactly the
+    exactly what
+    exactly how
+    exactly why
+    is precisely
+    precisely the
+    silently
+    quietly
+    duly
+    survives contact with
+    survives removal of
+    the conclusion survives
+    buys attribution
+    buys nothing
+    the shape of a
+    the shape a
+    the same shape as
+    reads as
+    reads low
+    and it is the
+    and that is the
+    for the first time
+    in the first place
 
 **This list grows, and that is the mechanism.** Whenever a coined phrase or
 slogan is written here and then removed for being one, add the exact string

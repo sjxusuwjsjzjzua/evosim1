@@ -75,7 +75,7 @@ Run lengths (binned, 400 sim-days) — **rule 7b: never compare a trailing-windo
 
 Every heading that declares a prediction, and whether a later heading appears to score it. Matching is keyword overlap and is **advisory, not authoritative** — an UNSCORED row may simply be a naming mismatch. Treat each as a question to answer, not a verdict.
 
-Predictions found: **5**  ·  apparently unscored: **1**
+Predictions found: **5** · apparently unscored: **1**
 
 | LEDGER line | prediction | status | matched scoring |
 |---|---|---|---|
@@ -83,13 +83,13 @@ Predictions found: **5**  ·  apparently unscored: **1**
 | 3597 | Reciprocal arm — prediction, written before the run | **UNSCORED?** | — |
 | 5000 | PRE-REGISTRATION: harmonic N as a persistence predictor, tested out-of | scored | L5143: SCORED: harmonic-N predictor is a MISS. R0 beat it out-of-sa |
 | 5112 | Long-horizon probe — prediction, written before the run | scored | L5795: SCORED: the 4000-day long-horizon probe on seed 1337 is a MI |
-| 5714 | PRE-REGISTERED PREDICTION (written before any 1x seed exists) | scored | L6170: PRE-REGISTERED PREDICTION — written before any scoring seed  |
+| 5714 | PRE-REGISTERED PREDICTION (written before any 1x seed exists) | scored | L6170: PRE-REGISTERED PREDICTION — written before any scoring seed |
 
 > A prediction that is never scored is the cheapest way for a wrong diagnosis to survive. Each row above marked UNSCORED needs either a scoring entry or an explicit note saying why it cannot be scored.
 
 ## 4. OPEN COMMITMENTS
 
-Statements in LEDGER.md that promise a future action or forbid one. The auditor should check whether each was honoured — a commitment quietly dropped is indistinguishable, from the outside, from one that was kept.
+Statements in LEDGER.md that promise a future action or forbid one. The auditor should check whether each was honoured — a commitment dropped is indistinguishable, from the outside, from one that was kept.
 
 | line | statement |
 |---|---|
@@ -116,7 +116,7 @@ Lines carrying numeric claims: **495**. Most recent 40:
 | 5726 | a rate **>= 67%** and the ordering 1x >= 3x > 5x holds. That would make |
 | 5729 | - **MISS** if the 1x arm falls **below 50%** (i.e. nearer the 5x arm than the |
 | 5733 | - **CAN'T-TELL** between 50% and 67%, or at n<24 complete-block seeds. |
-| 5743 | **all three ticks (:47, :07, :27) dropped**, leaving 11/20 running with an |
+| 5743 | **all three ticks (:47,:07,:27) dropped**, leaving 11/20 running with an |
 | 5760 | \| cutoff \| median \| >30% of deaths \| >50% of deaths \| |
 | 5762 | \| matched day 800 \| **26.4%** \| — \| — \| |
 | 5763 | \| endpoint, day 1600 \| **35.4%** (mean 31.5, range 4.7-57.8) \| 11/21 \| 6/21 \| |

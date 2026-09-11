@@ -73,7 +73,7 @@ vs real 480 · absence-vs-difference in arm assignment, twice · act columns
 differenced as cumulative when they are per-sample snapshots · a rule-7 identity
 check that verified nothing because both runs stopped before animals existed ·
 queueing arithmetic wrong twice, once producing a 110-run backlog that starved a
-week · collector path bug that silently collected nothing for a cycle.
+week · collector path bug that collected nothing for a cycle.
 
 ## Standing rules that shape the rate of work
 `CLAUDE.md` hard rules 1–9: every run needs a written falsifiable prediction;

@@ -57,7 +57,7 @@ on:
   #   unbounded backlog for no extra throughput.
   # An earlier version of this block fired 6 jobs every 6 h, which works out
   # to 1.1 of 20 slots -- about 5% utilisation. That was badly
-  # under-provisioned and is exactly what left Actions near-idle.
+ # under-provisioned and is what left Actions near-idle.
   # THREE ticks per hour, 6 seeds each, rather than one tick of 18.
   # GitHub's scheduler is best-effort and sheds load: observed 2026-08-10
   # that the :37 cron fired at 1:09, 2:20, 3:08, 4:07 and 5:02 PM PDT and
@@ -169,7 +169,7 @@ jobs:
       # A `schedule:` trigger ONLY ever fires from the default branch, but
       # main deliberately holds just the shipped v0.49 build and no
       # cfg-patches/ -- so a scheduled run checking out main would fail
-      # instantly on a missing build, exactly the way the 2026-08-10 16:44
+ # instantly on a missing build, the way the 2026-08-10 16:44
       # batch did. Pin scheduled runs to the working branch, which carries
       # the current build and the patches. Manual dispatches keep using
       # whatever ref they were fired against.

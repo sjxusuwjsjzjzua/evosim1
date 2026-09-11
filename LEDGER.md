@@ -44,7 +44,7 @@ one of these did something unintended.
 | L37-3 | **Founder pool.** `Export founder pool` samples ~650 standing genomes per kingdom (reservoir sampling). Loading one makes `seedFounders`/`seedAnimalFounders` draw from evolved genetics instead of random morphs around `START`. Fixed seed does *not* give a reproducible starting flora, because any code change shifts RNG draw ordering — so every version comparison to date was confounded with a fresh evolutionary history. Pool genomes are copied without `founderNoise`, or the warm start is thrown away. |
 | L37-4 | **`sel` baseline corrected to the mature pool.** It was parents minus the *whole standing population* — adults compared against a pool that is 82% juveniles (animals) or overwhelmingly seedlings (plants), so any gene merely correlated with reaching adulthood read as a selection coefficient. Measured at day 200: 9 of 39 plant genes shift >10%, and `germinationDelay` shifts **+377** — larger than the +242 that was being reported as its selection coefficient. `geneRow` now also emits `nMature` and `matureMean`. |
 | L37-5 | **`aSeen` accumulator moved above the MVT early return.** It was sampled only on thinks where an animal did *not* stay on its plant — a biased minority of a headline diagnostic. |
-| L37-6 | **Death classification made mutually exclusive.** `pDeadAge`/`aDeadAge` incremented *alongside* one of the other three causes, so the counters would stop summing to total deaths the moment anything aged out — which is exactly the outcome v0.38 is trying to produce. |
+| L37-6 | **Death classification made mutually exclusive.** `pDeadAge`/`aDeadAge` incremented *alongside* one of the other three causes, so the counters would stop summing to total deaths the moment anything aged out — which is the outcome v0.38 is trying to produce. |
 | L37-7 | **Log sampled every 5 sim-days** (`CFG.logDays`), not every day. Nothing downstream reads daily resolution. |
 | L37-8 | **Comment backlog moved to this file.** |
 
@@ -71,10 +71,10 @@ trees outgrow browsers. `k_reach` is pivoted from 0.025 to 0.0731 so reach is
 
 | size | reach 0.37 | reach 0.38 | access at h=0.11 |
 |------|-----------|-----------|------------------|
-| 5    | 0.125     | 0.125     | 0.595 -> 0.595 |
-| 10   | 0.250     | 0.158     | 0.922 -> 0.746 |
-| 13.2 | 0.330     | 0.173     | 0.964 -> 0.795 |
-| 16   | 0.400     | 0.184     | 0.980 -> 0.824 |
+| 5 | 0.125 | 0.125 | 0.595 -> 0.595 |
+| 10 | 0.250 | 0.158 | 0.922 -> 0.746 |
+| 13.2 | 0.330 | 0.173 | 0.964 -> 0.795 |
+| 16 | 0.400 | 0.184 | 0.980 -> 0.824 |
 
 The exponent is `CFG.reachMassPow`, so every future adjustment to it is a
 config patch, not a build. `control-v0_37-reach.json` reverts it to the linear
@@ -103,7 +103,7 @@ last unit is the slowest. Two size-13 animals had to occupy nearly the same
 point to interact.
 
 **[L39-2] Attack score linear in carnivory.** It was
-`sc = (meat - risk) * aggression * ...` with `meat ∝ carnivory`, so the score
+`sc = (meat - risk) * aggression *...` with `meat ∝ carnivory`, so the score
 was proportional to **carnivory × aggression** — two near-zero founding genes.
 That is the exact failure the C1 note says it fixed, one factor over.
 Aggression now discounts the *retaliation* term instead
@@ -113,7 +113,7 @@ the score is linear in carnivory.
 **[L39-3] Pursuit escape hatches.** The pursuit block returned before the hunger
 and threat checks with nothing but `pursuitPersistence` (up to 500 ticks) to end
 it. An animal that picked ATTACK could lose a sim-day for nothing — real
-purifying selection on aggression, which duly sat at 0.097. It now breaks on
+purifying selection on aggression, which sat at 0.097. It now breaks on
 `stallLimit` or on dropping below `pursuitBailEnergy` days of reserve. `stall`
 is also incremented in the ATTACK, SCAVENGE, and APPROACH branches; it was only
 ever incremented in GRAZE, so `stallLimit` protected grazers alone.
@@ -183,8 +183,8 @@ and saves still load and `FORMAT_VERSION` stays at 36.
 
 | gene | was | now |
 |------|-----|-----|
-| size | .5–16 | .5–**24** |
-| acceleration, turnRate | .01–1 | .01–**4** |
+| size |.5–16 |.5–**24** |
+| acceleration, turnRate |.01–1 |.01–**4** |
 | senseRange | 1–60 | 1–**200** |
 | toxinResistance | 0–1 | 0–**3** |
 | herbivory | 0–1 | 0–**2** |
@@ -271,7 +271,7 @@ from a warm state. Bump it only when save()/load() field layout changes.
 
 ### [L02] — line ~313
 
-`k_stem: 1.50,          // canopy given up per unit of realized height`
+`k_stem: 1.50, // canopy given up per unit of realized height`
 
 WAS 250, which no plant ever reaches: realised mass runs 6-90 and P90 12-115,
 so sqrt(m/250) stayed at 0.05-0.68 and 97% of every flora sat in canopy band
@@ -298,7 +298,7 @@ under 107 distinct pairs. 5 passes at lineageEvery 960 is 10 sim-days.
 
 ### [L05] — line ~376
 
-`visMass: 4.0,          // plant mass at which a plant is half as finda`
+`visMass: 4.0, // plant mass at which a plant is half as finda`
 
 0 disables height-limited browsing entirely. ANCHORED, NOT GUESSED: 0.025 =
 1/AMAX(size), so the largest animal the gene table allows can just browse a
@@ -309,14 +309,14 @@ survivors — and gave aAccess 0.66-0.98 and pEscape 0.00 in three seeds.
 
 ### [L06] — line ~386
 
-`mvtLeave: 1.0,         // leave a plant yielding less than this x the`
+`mvtLeave: 1.0, // leave a plant yielding less than this x the`
 
 an infinite one. Detection had NO size term, so a 0.5-mass seedling was as
 visible as a 184-mass tree — which is why 100% of recruitment was eaten.
 
 ### [L07] — line ~407
 
-`corpseMin: 0.04,       // below this a corpse is gone and the slot fre`
+`corpseMin: 0.04, // below this a corpse is gone and the slot fre`
 
 WAS 0.0025 — a half-life of 0.58 sim-days, at which 97% of all corpse mass
 rotted unfound (1.4 mass/day eaten against ~40 rotting) and carrion delivered
@@ -324,17 +324,17 @@ rotted unfound (1.4 mass/day eaten against ~40 rotting) and carrion delivered
 
 ### [L08] — line ~414
 
-`energyPerMassA: 55.0,  // energy to build one unit of animal mass. mea`
+`energyPerMassA: 55.0, // energy to build one unit of animal mass. mea`
 
 SLOPE, not a clamp — see carrionDigest(). As max(carn, floor) it made every
-carnivory below 0.30 worth exactly the same, so the gene that carrion exists
+carnivory below 0.30 worth the same, so the gene that carrion exists
 to bootstrap had no gradient to climb and sat at 0.0127 with 92% of the
 population at its minimum. Scavenging is the stepping stone to predation and
 it cannot be gated behind the gene it is meant to start.
 
 ### [L09] — line ~425
 
-`biteMassPow: 0.667,    // A7/CURVATURE. Was 0.75, which is exactly the`
+`biteMassPow: 0.667, // A7/CURVATURE. Was 0.75, which is the`
 
 PIVOTED, NOT RAISED. 0.013 x 5^0.75 / 5^0.667 holds intake exactly constant at
 the founder size of 5, so v0.36 changes the SHAPE of the size/intake curve and
@@ -371,9 +371,9 @@ its benefit.
 
 ### [L12] — line ~555
 
-`['size',              .5,      16,   1.2,    5   ],`
+`['size',.5, 16, 1.2, 5 ],`
 
-A9/DRIFT. Was .2-40. mutateAnimal CLAMPS to [min,max], and a clamped random
+A9/DRIFT. Was.2-40. mutateAnimal CLAMPS to [min,max], and a clamped random
 walk migrates toward the middle of its declared range, so a 0.2-40 range put a
 permanent pull toward 20.1 on a founder of 5. With harmonic-mean population
 2-13 in v0.35 that pull beat selection outright: size went 4.6->9.7,
@@ -385,7 +385,7 @@ reason, and never asymmetrically about the founder.
 
 ### [L13] — line ~617
 
-`['climbing',           0,       1,   .04,   .10 ],`
+`['climbing', 0, 1,.04,.10 ],`
 
 53 — takes the first reserved padding slot. Indices 0-52 unchanged, so old
 logs still read correctly; the ACTIVE COUNT changes, so fossil records and
@@ -393,7 +393,7 @@ saved genomes from before v0.29 are not comparable.
 
 ### [L14] — line ~712
 
-`pReseed:0, aReseed:0,                    // life support, so it cannot`
+`pReseed:0, aReseed:0, // life support, so it cannot`
 
 starved: aDeadAge counts only the hard 3x-lifespan cutoff and read zero across
 50 years while 37% of deaths sat in the oldest age bin
@@ -439,7 +439,7 @@ way rather than as a Laplacian because every flux is added to one tile and
 subtracted from the other in the same statement, so a variable rate cannot
 break conservation the way a per-tile stencil would. Soil therefore creeps
 through barren ground instead of equalising across it, and a desert stays
-soil-poor rather than quietly filling from its neighbours with nutrient
+soil-poor rather than filling from its neighbours with nutrient
 nothing there can use.
 
 ### [L19] — line ~939
@@ -571,7 +571,7 @@ defences and reach included. The arbiter and the MVT test share it, so what an
 animal chooses and what it then earns can never disagree. Poison saturates: it
 can spoil a meal, not bankrupt the eater. Shared by the target score, the MVT
 yield and the bite, which were three separate expressions of the same idea and
-could quietly disagree with each other. CARRION DIGESTIBILITY. A SLOPE, NOT A
+could disagree with each other. CARRION DIGESTIBILITY. A SLOPE, NOT A
 CLAMP (design 6.1). Same 0.30 at carnivory 0 and the same 1.0 at carnivory 1
 as max(carn, floor) gave, but with a gradient the whole way, so the first rung
 of the 7.2 ladder exists.
@@ -603,7 +603,7 @@ million times — 6.3 per animal per day. UNITS WARNING. Since v0.32 this
 returns an MVT gain in ENERGY PER TICK, while SCAVENGE, ATTACK, APPROACH,
 WANDER and REST all return dimensionless weights. They happen to balance
 within a factor of two at the current constants. Any change to tissueValue,
-gutCapMult or k_intake rescales GRAZE against every other action silently. If
+gutCapMult or k_intake rescales GRAZE against every other action . If
 the arbiter ever needs retuning, put all seven scores in the same currency
 first.
 
@@ -658,7 +658,7 @@ decided entirely by genes — there is no predator flag anywhere.
 
 ### [L40] — line ~1553
 
-`const still = AN.sp[j] < 0.02 ? G[og+AG.ambushTendency] : 0;`
+`const still = AN.sp[j] < 0.02 ? G[og+AG.ambushTendency]: 0;`
 
 camouflage finally does something: it is a detection roll, not a damage
 reduction. Until phase 4 it was a cost with no benefit. C3: sitting still
@@ -746,7 +746,7 @@ birth / nbUp / invest / buildE are hoisted above the growth block (A8) so
 growGate can read the real clutch cost. Kept here as comments only. RESERVES
 ARE UPKEEP-DAYS, NOT ENERGY. Plant storage and the animal energy cap were both
 fixed versions ago; this was the one site left in raw energy, and selection
-duly drove it to 0.763 against an upkeep of 0.0423 — eighteen ticks of life
+drove it to 0.763 against an upkeep of 0.0423 — eighteen ticks of life
 for a newborn. 84% of all animal deaths landed in the first quarter of
 maturity and aBorn tracked aDeadStarve exactly. The newborn's own upkeep is
 the parent's by Kleiber, which is the only estimate available before it
@@ -814,7 +814,7 @@ something is clearly closer.
 `function drawCorpse(i, z, amb, pad, offs){`
 
 Trophic colouring, ready for phase 4: green herbivore through to red
-carnivore. A corpse reads as a dull, desaturated disc — it must be visibly NOT
+carnivore. A corpse is a dull, desaturated disc — it must be visibly NOT
 an animal, because watching scavengers gather on one is the phase 4 spectacle.
 
 ### [L56] — line ~2859
@@ -1100,7 +1100,7 @@ zero-filled until the first `rebuildCanopy`, so cover is 0 for the first
   gene.
 - **`PIDX` staleness.** A slot released and re-allocated to a seed at a new
   tile stays filed under the old tile until the next rebuild. Self-correcting —
-  the `d2 > sr2` test uses live coordinates — but it silently drops that plant
+  the `d2 > sr2` test uses live coordinates — but it drops that plant
   from detection for up to `plantStagger` ticks.
 - **`nNear` includes corpses.** See L47-3.
 
@@ -1126,7 +1126,7 @@ first-pass ones.
 **The two seeds' plant communities were on different trajectories before a
 single animal existed, let alone after:**
 
-|  | day 260 plants | day 260 `pOcc` | day 260 `lai` | `caps` seen, days 215-265 |
+| | day 260 plants | day 260 `pOcc` | day 260 `lai` | `caps` seen, days 215-265 |
 |---|---|---|---|---|
 | 1337 default | 15,619 | 0.30 | 1.22 | 0 (never) |
 | 4002 default | 53,180 | 0.79 | 1.42 | 1 (bit 0 — plant slots), 6 of 11 samples |
@@ -1141,7 +1141,7 @@ animal exists yet in either trace at that point.
 **Once fauna do arrive (day 265 in both, exactly — the reseed schedule
 isn't seed-randomized), the two seeds diverge just as sharply:**
 
-|  | day 265 animals | day 265 `pLocked` | day 300-305 animals | day 300-305 `pLocked` |
+| | day 265 animals | day 265 `pLocked` | day 300-305 animals | day 300-305 `pLocked` |
 |---|---|---|---|---|
 | 1337 default | 209 | 0.808 | 134-142 | 0.820-0.835 (stable) |
 | 4002 default | 45 | 0.392 | 9,326 | 0.245 (falling) |
@@ -1250,14 +1250,14 @@ not a settled result. All three default-arm seeds have now failed this gate
   other seeds, or a longer run of this one, before it means anything."**
   Flagging this explicitly rather than either dropping the caveat (which
   would overclaim the isolation-arm result) or dropping the new data point
-  (which would hide a real complication) — this is exactly the kind of
+  (which would hide a real complication) — this is the kind of
   thing rule 5 exists for: don't calibrate anything against this run's
   demography numbers alone.
 
 **Net: the default-arm 3-seed set is now complete by seed count (1337, 4001,
 4002), but not complete by data quality** — 4002's short, bound-hitting,
 subsidy-window run is not a peer of the other two, and its most striking
-number (the R0/refuge collapse) is exactly the one most compromised by that.
+number (the R0/refuge collapse) is the one most compromised by that.
 The clean reads from this pass are the gene-frequency snapshots (`actAppr`
 now 4/4 clean miss, `eToxin`/`carnivory` both now 2-of-3 leaning one way
 without closing) — the population-dynamics reads need a longer version of
@@ -1277,7 +1277,7 @@ off — except this run had that mechanism turned *on*. Whether that means the
 confusion mechanism isn't actually what's saving the other seeds, or whether
 every population in this simulation goes through a rough overshoot right
 after fauna first establishes and the confusion mechanism only matters for
-what happens *after* that rough patch, is exactly the open question this
+what happens *after* that rough patch, is the open question this
 pass can't answer with the data in hand. It needs either a longer run of
 this same seed past its wall-clock cutoff, or a look at what 1337 and 4001
 were doing in their own first forty days with fauna — not a new seed.
@@ -1322,12 +1322,12 @@ digest artifact, recovered here from the job's console log instead.
   Seed 4001 default: `eToxin` **30.5%** of intake — a clear rise past the
   17.2% baseline, the opposite result on the same arm. Two seeds, one hit one
   miss, is not a repeating pattern either direction — this needs the third
-  default seed (4002, in flight) before it can be scored at all. Recorded as
+  default seed (4002, in flight) before it can be scored. Recorded as
   **can't-tell**, not miss.
 - **L47-2 (one currency) — still open, and now visibly seed-dependent.**
   Seed 1337 default's carnivory histogram was dominated by the near-zero bin
-  (`[2, 369, ...]`). Seed 4001 default's is **not** — `[0, 0, 0, 2, 84, 80, 5,
-  2, ...]`, 164 of 173 standing animals sitting in the two moderate-carnivory
+  (`[2, 369,...]`). Seed 4001 default's is **not** — `[0, 0, 0, 2, 84, 80, 5,
+  2,...]`, 164 of 173 standing animals sitting in the two moderate-carnivory
   bins, `carnivory` gene at `sel -0.0137` (roughly flat, not still climbing
   or falling hard). That is a real population sitting at moderate carnivory,
   not near zero — on the same build, same arbiter fix, different seed. The
@@ -1421,7 +1421,7 @@ if (LOG.aGone && !ST.apop && !CFG.animalReseedDays && !LOG.halted
 `!CFG.animalReseedDays` required that *constant* to be falsy. It defaults to
 60 and nothing in the shipped build ever changes it, so this condition could
 never be true at default config, regardless of how long a world sat
-animal-free. This is exactly the bug the comment above it describes fixing
+animal-free. This is the bug the comment above it describes fixing
 ("seed 6175 ran 3,800 animal-free days... half the run producing nothing")
 — it just never actually worked. `headless.js`'s own autohalt (`!ST.apop`
 with no reseed-days gate at all) never had this bug; this brings the shipped
@@ -1469,7 +1469,7 @@ flat sequence has already grown past both 47 and 48** — there is a real,
 pre-existing bare `[L47]` (line ~1835 in the source, about growth/breeding
 order) and a real bare `[L48]` (line ~1872, about clutch-cost hoisting),
 both unrelated to the v0.47 audit or this version, both from years before
-either. `L47-1..6` already silently collided with the older bare `[L47]`;
+either. `L47-1..6` already collided with the older bare `[L47]`;
 adding bare `L48-1`/`L48-2` would have collided with the older bare `[L48]`
 too, which is why this version's tags are `L0.48-1`/`L0.48-2` instead — the
 version string itself, not just its integer, so a dot makes it un-collidable
@@ -1558,7 +1558,7 @@ on the unmodified v0.48.0 build and this change, same seed both times:
 
 Matter conservation — the one hard invariant that has to hold regardless of
 RNG path — holds exactly in every run, and the tiny leak in seed 4001's
-unmodified run disappeared rather than worsened. Performance is exactly the
+unmodified run disappeared rather than worsened. Performance is the
 mixed picture predicted: a real, substantial win at the population scale the
 fix targets (44-47k, where the `P.hi`-vs-live gap is large), and a real
 regression at a scale where that gap stays modest (the per-birth/death
@@ -1593,7 +1593,7 @@ The regression at modest population (seed 1337, -28%) is real and
 unaddressed. The fixed per-event cost of maintaining `P.occIdx`/`AN.occIdx`
 doesn't scale with the `hi`-vs-occupied gap, so at low inflation it's pure
 overhead. Worth revisiting only if it turns out to matter in practice — most
-runs of interest are exactly the large/inflated-population regime this
+runs of interest are the large/inflated-population regime this
 targets, and the fix can't be *worse* than the pre-v0.49 behavior once a
 world has actually busted (a scan of a smaller occupied list is never slower
 than a scan of a larger `hi`-bounded one), so the downside is bounded to
@@ -1689,7 +1689,7 @@ returning to a bigger, slower arena?
 
 **Confound resolved — the arena shrink was never required.**
 `photocost-isolate-arena` seed 1337: `k_photoCost` 0.012 alone, ORIGINAL
-`maxPlants` 90,000 / `maxAnimals` 40,000, no arena shrink at all. Result is
+`maxPlants` 90,000 / `maxAnimals` 40,000, no arena shrink. Result is
 **numerically identical** to the small-arena version of the same seed: R0
 1.21, harmonic N 43, plants oscillating 7,000-11,000, `pLocked` refuge
 0.83-0.88, `caps seen [0]` clean, death/maturityAge ratio 0.60. Plants
@@ -1711,7 +1711,7 @@ itself.
 1. **The gutcost combo — 3rd seed lands weaker, tempering the early read.**
    Seed 1337: R0 1.37, ratio 0.73, caps clean. Seed 4001: R0 1.07, ratio
    2.61 (best yet), caps clean. **Seed 6161 (local, 3rd): R0 0.91**
-   (borderline — under 1 for the first time on this combo), **ratio 0.23**
+   (borderline — under 1 on this combo), **ratio 0.23**
    (poor — worse than either of the first two), and **`caps seen [0,1]`**
    (the plant slot cap bound at some point, unlike the first two). No
    extinction on any of the 3, which is still real signal, but the
@@ -1751,7 +1751,7 @@ GRAZE (`plantScore`, via `plantAttraction`) and SCAVENGE
 unfloored, reaching true zero. Flagged in HANDOFF.md as an untouched
 structural asymmetry since the v0.47 audit: **predation could never fully
 switch off the way herbivory and scavenging can**, meaning any population
-that never evolves real carnivory is still silently scored *as if* it were
+that never evolves real carnivory is still scored *as if* it were
 half-interested in attacking, every single think, every tick. Changed
 `*(0.5 + G[g+AG.meatAttraction])` to `*G[g+AG.meatAttraction]` — now
 matches the unfloored pattern used everywhere else in the arbiter.
@@ -1769,7 +1769,7 @@ further toward true zero in runs that already showed near-zero carnivory
 of this session's photocost-positive runs) are not obviously worse. **Miss**
 = `actAttack` share collapses everywhere, including runs that previously
 sustained real predation — that would mean the floor was required for
-keeping predation viable at all, not just an asymmetry, and the change
+keeping predation viable, not just an asymmetry, and the change
 should be reverted rather than defended.
 
 Only `node check.js` run so far (PASS, VERSION 0.50.0, arbiter branches
@@ -1939,7 +1939,7 @@ already found is close to the ceiling for this population scale.
 
 An external Claude Code audit (full review: `EVOSIM-EXTERNAL-REVIEW.md` on
 `main`) found a real bug in [L0.50-1]: `*(0.5 + meatAttraction)` →
-`*meatAttraction` removes the floor **and** silently changes the gain.
+`*meatAttraction` removes the floor **and** changes the gain.
 At the founder value (`meatAttraction` 0.10), the old formula scored
 0.5+0.10=0.60; the new one scored just 0.10 — a 6x reduction riding along
 with the floor removal, violating one-structural-change-per-version in
@@ -2120,7 +2120,7 @@ retraction (n=2 is too small to close the herding question outright, and
 both populations were also failing on food/survival grounds independent
 of herding, which muddies attributing the flat `actAppr` specifically to
 the EWMA change rather than to general population collapse). Recorded
-rather than left silently unprocessed. Third seed (4002) still
+rather than left unprocessed. Third seed (4002) still
 outstanding; if it also shows actAppr flat, that's reasonably strong
 grounds to close this specific mechanism as insufficient on its own and
 return to the absorbing-state hypothesis (see the v0.50 UNRESOLVED flag)
@@ -2186,8 +2186,8 @@ the point already flagged in the noise-floor section — the whole
 neighborhood of CFG space being explored here sits close to R0≈1, with
 result-to-result variance (seed, not treatment) large enough to swing
 individual runs from ~0.4 to ~1.0 without a clear treatment signal. That's
-exactly the regime where small-n "leading candidate" claims are least
-trustworthy, and exactly why the noise-floor/n≥30 protocol above is the
+the regime where small-n "leading candidate" claims are least
+trustworthy, and why the noise-floor/n≥30 protocol above is the
 right next step rather than reading any of these numbers as a verdict on
 their respective hypotheses. None of these labels is being promoted,
 retested at higher n, or deprioritized further based on this batch alone
@@ -2339,7 +2339,7 @@ informal tally built from the original seeds (1337/4001/4002/6464/6060/
 n=7: (a) genuine high variance and this is still noise at small n, or (b)
 the original seed set was inadvertently non-representative (picked in
 the course of exploration rather than drawn cold). Not concluding either
-way yet — this is exactly why the noise-floor protocol exists, and it's
+way yet — this is why the noise-floor protocol exists, and it's
 doing its job by surfacing this gap early rather than after a doomed
 promotion decision. 8 more seeds still to land for this batch.
 
@@ -2699,7 +2699,7 @@ point estimate.
 
 **Mission-test guard, stated up front:** this is a sensitivity probe,
 not a search for a `k_intake` that produces R0>1. No value of `k_intake`
-gets promoted on the basis of raising R0 — that is exactly the
+gets promoted on the basis of raising R0 — that is the
 outcome-tuning-in-a-physics-costume error already logged against the
 `k_photoCost` dose selection. The question here is *whether the system
 regulates*, and a HIT means leaving `k_intake` alone.
@@ -2853,7 +2853,7 @@ for what it does to R0."*
 
 **Cap-binding frequency is exactly that criterion, and it is already
 measured in every log.** It is computed entirely from plant dynamics,
-makes no reference to animals, and answers precisely the question the
+makes no reference to animals, and answers the question the
 intervention was introduced to answer: does the plant population stay
 off the array bound? By that criterion the ranking is unambiguous:
 **5x (frac 0.008, peak 12067) ≫ 3x (0.061) > default (0.083) ≫ 2x
@@ -2908,7 +2908,7 @@ formula change shifts the RNG path.
 **Root cause, found in the export path (`v0_49` line 3504):**
 
 ```js
-a[j] = Math.abs(v) >= 1000 ? Math.round(v) : +v.toFixed(4);
+a[j] = Math.abs(v) >= 1000 ? Math.round(v): +v.toFixed(4);
 ```
 
 **Every logged value ≥1000 is rounded to an integer on export.** Matter
@@ -3253,7 +3253,7 @@ strike against the already-withdrawn regulation reading.
 Two cycles ago, after seed 1337 went extinct, I reframed this arm as
 testing "does +50% intake reliably drive extinction (boom-bust via faster
 plant depletion)?" **That reframing does not survive seed 4001.** One
-extinction in two seeds is exactly the base rate — the cold noise-floor
+extinction in two seeds is the base rate — the cold noise-floor
 sample puts extinction at **5/15 (33%)** for the base dose, so 1/2 is
 unremarkable. There is no extinction effect to report.
 
@@ -3272,7 +3272,7 @@ of ~0.28-0.31. Suggestive that more efficient eating makes things
 *worse*, not better — but n=2, and I am not calling it until 4002 lands.
 Noting explicitly that seeds 1337/4001/4002 are, per the cold-seed
 result, an unusually *favourable* trio at base dose (1.21/1.03/1.31, mean
-1.18, against the cold-seed mean of 0.674) — which is exactly why the
+1.18, against the cold-seed mean of 0.674) — which is why the
 paired design matters here and why the unpaired comparison against 0.674
 would be misleading in the opposite direction.
 
@@ -3322,7 +3322,7 @@ and the prediction is written for the pattern across seeds.
 
 ---
 
-## The mission scorecard, computed for the first time — and it is much better news than this session's narrative
+## The mission scorecard, computed — and it is much better news than this session's narrative
 
 Free analysis across **120 runs with usable mortality ledgers**. This
 session has been almost entirely demography and methodology; nobody had
@@ -3364,7 +3364,7 @@ pre-fauna period, during which plants starve and none are eaten — so
 
 Real, but secondary — starvation dominates. In most real herbivore
 populations predation is the leading cause of death, so ~24% is on the
-low side. This is the weaker of the two pillars, and it is the
+low side. This is the weaker of the two pillars, the
 answer to "has carnivory ever controlled herbivores here": not usually.
 
 ### The finding that reframes the session: trophic coupling tracks viability
@@ -3378,9 +3378,9 @@ answer to "has carnivory ever controlled herbivores here": not usually.
 - corr(R0, plant-grazing share) = **+0.391** (p < 1e-4)
 - corr(R0, eaten/grown) = +0.274 (p ≈ 0.003)
 
-**The runs where animals sustain themselves are exactly the runs where
+**The runs where animals sustain themselves are the runs where
 the food web is working hardest.** Predation share is nearly double in
-viable runs, and it is the strongest correlate of viability found
+viable runs, the strongest correlate of viability found
 anywhere this session — stronger than any constant tested across ~24 CFG
 arms.
 
@@ -3411,7 +3411,7 @@ replacement. Consistent with the coupling story, though it was a
 
 **Not proposing a constant to change on this basis.** The obvious move —
 find a parameter that raises predation share and promote it — would be
-outcome-tuning in exactly the form already logged against the
+outcome-tuning in the form already logged against the
 `k_photoCost` selection, and worse, would be tuning against a metric
 whose causal direction is unknown. The right next step is to *separate
 the causal directions*, and the position until then is that this
@@ -3515,7 +3515,7 @@ confusion *mechanism* is required, worth ~0.47 R0.
 My first pass at this filtered on seven named cfg keys and paired
 whatever matched. It produced seed 1337 "ON" with R0 0.44, which I
 recognised as wrong because base-dose 1337 is 1.21 — the filter had
-silently matched the `armeff-test` run (`k_armEff` 2→1), a key I had not
+matched the `armeff-test` run (`k_armEff` 2→1), a key I had not
 thought to exclude, and the dict kept whichever file was globbed first.
 The fix was to stop enumerating keys and instead require an exact match
 on the *entire* cfg dict minus seed and `k_confusion`. Recording it
@@ -3618,7 +3618,7 @@ matched base-dose values: 1.21, 1.03, 1.31).
 
 **Mission-test guard, restated:** this is a gradient probe. **No
 `k_intake` value will be promoted on the basis of producing a higher
-R0**, whatever this returns — that is precisely the outcome-tuning trap
+R0**, whatever this returns — that is the outcome-tuning trap
 already logged against the `k_photoCost` dose selection, and the fact
 that this arm has a more interesting mechanism behind it does not make
 the trap any less of one. What a HIT would license is a *diagnosis*
@@ -3782,7 +3782,7 @@ proportional to `meatAttraction`, so low-`meatAttraction` animals stop
 attacking entirely while a shrinking high-`meatAttraction` minority keeps
 going. A stable mean share can hide that. Seed 1337's carnivory halving
 (0.195 → 0.088) is consistent with predation decaying out of the
-population, which is exactly the **absorbing-state** failure flagged when
+population, which is the **absorbing-state** failure flagged when
 this change was first corrected.
 
 **Reverted, per the prediction's own pre-registered consequence** ("the
@@ -3818,7 +3818,7 @@ fix (reachability via exploration noise in *action selection*, so the
 gene itself can stay unfloored) is now the live candidate, and it is a
 different mechanism rather than a constant tweak. **Not
 attempted here**: it needs its own version and its own written prediction,
-and stacking it onto a revert would repeat exactly the mistake being
+and stacking it onto a revert would repeat the mistake being
 reverted.
 
 **File hygiene, pending verification:** once the seed-1337 confirmation
@@ -3919,7 +3919,7 @@ run went.** I had *already established* that 15/15 runs fail the
 stationarity gate. Knowing that R0 is a moving target and still comparing
 across different cutoffs is the specific inconsistency here.
 
-Adding a hard rule to `CLAUDE.md` so this cannot recur silently:
+Adding a hard rule to `CLAUDE.md` so this cannot recur :
 **never compare R0 (or any trailing-window statistic) across runs of
 different length — match the cutoff explicitly, and state the cutoff
 in any comparison.** Endpoint totals (kills, births, matter) are worse
@@ -3957,7 +3957,7 @@ exposed to the confound.
 ### The limit of the fix, stated rather than buried
 
 Matching cutoffs **cannot** be done for runs that ended before 800 days —
-**36 of 131 runs (27%)** halted early, and those are precisely the
+**36 of 131 runs (27%)** halted early, and those are the
 early-extinction cases, i.e. the low-R0 tail. So every matched-window
 statistic above is **conditional on surviving to ~800 days** and is
 survivor-biased upward.
@@ -3977,7 +3977,7 @@ questions and neither supersedes the other:
 **Practical rule going forward, added to the same discipline as 7b:**
 report matched-window R0 *and* the extinction rate as two separate
 numbers. Folding extinctions into a matched-window mean is impossible
-(they have no window) and silently dropping them inflates every arm.
+(they have no window) and dropping them inflates every arm.
 A single headline R0 for an arm is not a well-defined quantity in this
 project.
 
@@ -4006,7 +4006,7 @@ re-confirms that truncation is exactly equivalent to a shorter run.
 figure was itself the 1200-day-window value — one of the numbers the
 run-length correction invalidated earlier today. The check was scored
 against the corrected 800-day value, 0.728954. Flagging that the
-prediction text contained a stale number rather than quietly using the
+prediction text contained a stale number rather than using the
 right one.)*
 
 ### The ladder
@@ -4293,9 +4293,9 @@ have been the binding constraint all day. It also costs nothing in
 compute, whereas doubling the cutoff doubles every run.
 
 **Deliberately not implementing it this cycle.** Changing how `analyze.py`
-computes R0 would silently reinterpret every number in this file, and
+computes R0 would reinterpret every number in this file, and
 three of the four ladder runs that would validate the choice land within
-the hour. Queued as the top item, with the shape already clear: an
+the hour. Queued as the top item, with the design already clear: an
 explicit post-establishment window (`animalStartDay` + a settling margin)
 rather than a trailing-N-samples rule.
 
@@ -4359,7 +4359,7 @@ and 10008 land — those are cold, unselected, and will show whether the
 cycle is general.
 
 **Matter flag on this run is the known rounding artifact**, not a new
-problem: `7533 -> 7534`, seed 4001, exactly the case root-caused earlier
+problem: `7533 -> 7534`, seed 4001, the case root-caused earlier
 today as the `Math.round` on export for values ≥1000. Noting it because
 `analyze.py` prints `<<LEAK` and a future reader should not re-chase it.
 
@@ -4430,8 +4430,7 @@ cycles but now quantified on the pre-registered sample:
 
 Note the 3 seeds per arm that survived but ran <600 days are *not*
 counted in the new column — they are neither extinct-by-day-585 nor
-measurable post-establishment. Reporting `n=12` rather than quietly
-folding them in.
+measurable post-establishment. Reporting `n=12` rather than folding them in.
 
 **3x vs 5x on the new metric: 1.25 vs 1.20, 9/12 vs 7/12.** Still
 indistinguishable at this n, consistent with the pre-registered
@@ -4478,7 +4477,7 @@ is deleted once the real output lands.
 Implementation note worth recording because the first attempt was wrong:
 I initially forward-declared `__buildLog` and assigned it after the tick
 loop, so the checkpoint hook inside the loop always saw `null` and
-silently never fired — the smoke test caught it only because I checked
+never fired — the smoke test caught it only because I checked
 for the file rather than assuming. Fixed by defining the builder *before*
 the loop; it is a closure over live `LOG`/`W` state, so it reads whatever
 exists at call time. Gene snapshots need no special handling: the build
@@ -4524,14 +4523,14 @@ post-establishment window exists.
 - `timeout-minutes` **180 → 350** and `--max-wall-min` **165 → 330**.
   GitHub hosted runners cap a job at 6 h; this sits near that ceiling with
   margin for checkout/upload, and makes 1600-2400 day runs feasible on
-  Actions at all.
+  Actions.
 - default `days` **800 → 1600**, since an 800-day run cannot exclude the
   founding transient.
 
 ### Correction to the [L62] entry above: my "verified end to end" was not
 
 The entry above says the checkpoint work was *"verified end to end"*. It
-was not, and the gap is the same shape as the errors this file has been
+was not, and the gap is the same as the errors this file has been
 cataloguing all day.
 
 I tested that the **new** path worked — a partial appeared, `analyze.py`
@@ -4592,7 +4591,7 @@ died.
 
 **The rule, which I had been following by accident and then broke by
 reasoning about it:** the workflow *file* must be on the default branch
-for `workflow_dispatch` inputs to register at all, but the *run* must
+for `workflow_dispatch` inputs to register, but the *run* must
 target the branch that holds the builds and patches. Every earlier
 successful batch today used the feature-branch ref; I switched to `main`
 only because that is where I had just pushed, and that switch is exactly
@@ -4629,11 +4628,11 @@ Two hard limits, both verified this cycle:
 
 1. **The Routine's `allowed_tools` contains no `mcp__github__*`.** Listed
    directly from the trigger config. A heartbeat turn cannot call the
-   GitHub MCP tools at all.
+   GitHub MCP tools.
 2. **The ambient `$GITHUB_TOKEN` has Actions read but not
-   `actions:write`.** Tested directly: `GET .../actions/runs` succeeds
+   `actions:write`.** Tested directly: `GET.../actions/runs` succeeds
    (it correctly listed the 30 in-flight jobs), while
-   `POST .../workflows/experiment.yml/dispatches` returns
+   `POST.../workflows/experiment.yml/dispatches` returns
    **403 "Resource not accessible by integration"**.
 
 So a heartbeat can *check* Actions and *collect* results, but **cannot
@@ -4644,7 +4643,7 @@ until an interactive turn arrived.
 
 **My fault, and specifically:** I wrote that Routine prompt. I observed
 the MCP limitation when creating it, wrote *"work with local compute only…
-say so in your report rather than silently skipping the Actions half"* —
+say so in your report rather than skipping the Actions half"* —
 i.e. I encoded the limitation as something to *narrate* rather than
 something to *solve*, and step 3 of the prompt only ever said "keep all
 available **local cores** busy". Actions was not in the instruction.
@@ -4668,7 +4667,7 @@ only mechanism that works with no interactive turn happening. Added to
 - **Checkout pinned to the working branch for scheduled runs.**
   `schedule:` only ever fires from the default branch, and `main`
   deliberately holds only the shipped v0.49 with no `cfg-patches/` — an
-  unpinned scheduled run would fail instantly, which is precisely how the
+  unpinned scheduled run would fail instantly, which is how the
   16:44 batch died. Caught before shipping this time.
 
 ### Fix 2 — the heartbeat prompt now checks what it can
@@ -4791,7 +4790,7 @@ this very batch once all 30 land, at no extra compute.
 
 **Not switching metrics mid-batch.** The 30-seed run has a pre-registered
 prediction stated in R0 terms; changing the criterion now, having seen 20
-results, is precisely the forking-path move the external audit warned
+results, is the forking-path move the external audit warned
 about. Score the prediction as written, then propose persistence
 probability as the successor metric with its own pre-registration.
 
@@ -4895,7 +4894,7 @@ moved.
 > the population reaches zero and no measurement choice recovers it.
 
 That is a real, defensible characterisation of where the simulation
-currently stands — and it is the first time this project has had one that
+currently stands — the first time this project has had one that
 survived its own scrutiny.
 
 ### R0-vs-persistence, on the fuller sample
@@ -4911,8 +4910,7 @@ comparison rather than adopted mid-batch.
 **Standing batch is confirmed working:** first scheduled run fired
 **1:09 PM PDT** (a delayed 12:37 tick — GitHub's scheduler runs loose,
 which is normal and not a fault), 12 sim jobs, seeds 41080-41091 derived
-from `run_number` exactly as designed. The mechanism that failed silently
-overnight is now demonstrably live.
+from `run_number` exactly as designed. The mechanism that failed overnight is now demonstrably live.
 
 ---
 
@@ -4952,7 +4950,7 @@ Across all 25 runs with a computable post-establishment window
 | harmonic mean N | **0.82** | 54.7 | 18.4 |
 | **minimum N reached** | **0.83** | **15.5** | **1.0** |
 
-And the five extinct-despite-R0≥1 cases are exactly the ones that came
+And the five extinct-despite-R0≥1 cases are the ones that came
 near zero:
 
 | | n | mean R0 | harmonic N | min N |
@@ -5054,7 +5052,7 @@ The threshold would have gone 5/5 on those five (41085 harm 25 alive,
 41088 harm 44 alive, 41087 harm 4 extinct, 41102 harm 11 extinct, 41110
 harm 3 extinct) — **recorded but explicitly not counted.** Scoring a
 pre-registered test at n=5 after specifying n≥8, because the early
-numbers look good, is precisely the move the guard clause exists to
+numbers look good, is the move the guard clause exists to
 prevent. Waiting for the batch to fill.
 
 **Completion-order bias again, and worth restating because it will keep
@@ -5065,7 +5063,7 @@ off a partially-collected batch is an overestimate — the same trap as the
 establishment batch, where the first 8 results were 8/8 extinct and the
 final figure was ~50%.
 
-### Seed 10011 ladder: extinct, and it is the threshold's clearest failure mode
+### Seed 10011 ladder: extinct, the threshold's clearest failure mode
 
 Local 2400-day run went extinct around day 1200 (halted 1400, final N 0),
 **exactly matching its 1600-day Actions run** in the establishment batch,
@@ -5111,7 +5109,7 @@ the ceiling is now saturated.**
 Seed 1337 survived 2400 days but was still fluctuating there (rolling R0
 1.60 → 1.18, N 37 → 118 → 85), and its slopes had not fallen below
 `analyze.py`'s DRIFTING threshold. So "does a population that reaches
-1600-2400 days actually stay?" is unanswered, and it is the question the
+1600-2400 days actually stay?" is unanswered, the question the
 protocol cutoff rests on.
 
 Fired: **seed 1337, 4000 days**, base dose, on the local core freed by
@@ -5126,7 +5124,7 @@ Fired: **seed 1337, 4000 days**, base dose, on the local core freed by
 - **MISS — late extinction is common:** the population dies between day
   2400 and 4000, or R0 over the late window falls more than 0.31 below
   the earlier value. Reading: 1600-day "persistence" is itself a
-  truncation artifact of exactly the kind [L61b] found in R0, and the
+  truncation artifact of the kind [L61b] found in R0, and the
   ~50% persistence figure is an overestimate that shrinks with horizon.
 - **Can't-tell:** run terminates early for a non-ecological reason
   (container restart with no usable checkpoint, wall-clock cap).
@@ -5237,7 +5235,7 @@ the metric built on it was wrong.
 **It also bears on the long-horizon probe now running.** Seed 20002 looked
 healthy at the 1600-day protocol cutoff — R0 1.49, alive, 26 animals in
 its establishment run — and by 2400 days is down to 7 and plainly heading
-out. That is exactly the MISS branch of the 4000-day prediction on seed
+out. That is the MISS branch of the 4000-day prediction on seed
 1337: **1600-day "persistence" may itself be a truncation artifact**, the
 same shape as the 800-day R0 problem [L61b]. One seed, a different one
 from the probe, so it is suggestive rather than decisive — recorded now,
@@ -5279,7 +5277,7 @@ has collapsed to N=7, and one is dead.** So roughly **half of 1600-day
 This was the MISS branch of the long-horizon prediction, recorded last
 cycle on seed 20002 alone as "suggestive not decisive." It is now n=4 and
 the direction held. **1600-day persistence is itself a truncation
-artifact** — the same shape as the 800-day R0 problem in [L61b], one level
+artifact** — the same as the 800-day R0 problem in [L61b], one level
 up: a horizon short enough that populations still on their way out get
 counted as survivors.
 
@@ -5404,14 +5402,14 @@ Tested against the stricter definition — mean N over the final 200 days
 **Identical. Not one seed changes classification.** The concern was
 reasonable and it was wrong — the establishment persistence figures are
 robust to the definition, so 50%/47% stand as measured. Recording the
-negative result rather than quietly dropping the worry, since "I checked
+negative result rather than dropping the worry, since "I checked
 and it was fine" is information too.
 
 Note this does *not* rescue seed 4002 above: at its own 1600-day mark it
 had N=12, below the threshold — but 4002's establishment run ended at
 1600 with a different population than its 2400-day continuation passes
 through. The two are the same trajectory sampled at different points, and
-the classification disagreement is exactly the horizon effect, not a
+the classification disagreement is the horizon effect, not a
 definitional one.
 
 ---
@@ -5436,13 +5434,13 @@ Standing seeds are blocked by firing (`seed = 40000 + run_number*20 + k`,
 
 **Apparent persistence falls monotonically with how recently the block was
 fired** — 58% for the oldest, 0% for the newest. That is the completion-order
-bias : a run that dies autohalts in a few hundred days
+bias: a run that dies autohalts in a few hundred days
 and lands almost immediately, while a survivor grinds the full 1600 days
 and lands hours later. At any instant, recent firings have contributed
 only their deaths.
 
 **No block has fully reported**, so the standing batch currently supports
-*no* unbiased persistence estimate at all. The oldest block, at 12/18
+*no* unbiased persistence estimate. The oldest block, at 12/18
 reported and 58%, is the closest to unbiased and sits **above** the
 establishment figure, not below it.
 
@@ -5498,12 +5496,12 @@ loss — GitHub's scheduler is documented best-effort and sheds load — and
 
 So the fix is to make a dropped tick cheap rather than to stop it
 happening. Same 18 jobs/hour, now split across **three independent ticks
-at :07, :27 and :47, six seeds each**. A dropped tick costs 6 jobs instead
+at:07,:27 and:47, six seeds each**. A dropped tick costs 6 jobs instead
 of all 18; two consecutive drops still leave the hour two-thirds fed.
 
 **Consequential side-effect on the rate rule recorded last cycle:** blocks
 are now 6 seeds, not 18, so "fully reported" means **≥6 of 6**. Noting it
-because the rule as written last cycle ("≥17 of 18") would silently never
+because the rule as written last cycle ("≥17 of 18") would never
 match again, and a rule that can never fire is worse than no rule.
 
 ## Ladder 1600→2400: n=6 now, and the earlier alarm was overstated
@@ -5537,10 +5535,10 @@ landing first. **Completion order again** — 20014 and 20002 finished early
 2026-08-10, 19:45 PDT. The ladder is done except seed 10008 (local, at day
 2360 of 2400 with N=718 — it will survive, but it is not counted below).
 Per the commitment made two cycles ago I did not touch this number while
-jobs were outstanding; this is the single revision, and it is the last one.
+jobs were outstanding; this is the single revision, the last one.
 
 The pooled table, **split by arm** because pooling a treatment into a
-persistence rate is exactly the kind of confound rule 7b exists to stop.
+persistence rate is the kind of confound rule 7b exists to stop.
 All local runs are baseline (`k_photoCost` 0.012, 1x); v0.49 and v0.51 are
 executably identical so mixing those two builds is safe.
 
@@ -5575,7 +5573,7 @@ for the same reason. The sequence was 50% -> 60% -> 50% -> "4 of 6" -> 82%.
 **Completion-order bias, again, and I fell for it three times.** A run that
 dies autohalts and lands immediately; a run that survives takes the full
 2400 days and lands last. Reading a persistence rate off a partially-
-reported block therefore *always* reads low, and gets less wrong monotonically
+reported block therefore *always* is low, and gets less wrong monotonically
 as the block fills. I flagged this mechanism correctly at n=4 and still let
 myself revise the headline twice more before the block was complete. The
 operational fix already in the file (never quote a rate from an incomplete
@@ -5623,14 +5621,14 @@ Retracted, specifically:
 - the label "Baseline (1x), local" — it was 3x, arena-capped;
 - "**`k_photoCost` dose has no detectable effect on persistence**" — that
   claim came from comparing 3x against 3x/5x while believing it was 1x
-  against 3x/5x. There is no 1x arm in the ladder at all, so the dose
+  against 3x/5x. There is no 1x arm in the ladder, so the dose
   question is **untested at this rung**, not answered.
 
 The pooled persistence count survives, because it never depended on the
 split. With 10008 added: **10 of 12 alive at day 1600 are alive at day 2400
 (83%)**.
 
-**How it happened, and it is the same mistake as the armeff pairing.** I
+**How it happened, the same mistake as the armeff pairing.** I
 listed cfg keys by substring match (`photo|arena|gut|intake`), saw 0.012
 repeated identically down the column, and read "uniform" as "baseline"
 without ever comparing against the build's own default. Uniformity across a
@@ -5726,7 +5724,7 @@ animals 0, complete blocks only.**
 - **MISS** if the 1x arm falls **below 50%** (i.e. nearer the 5x arm than the
   3x arm), or if the ordering is non-monotonic. Either would mean 0.012 sits
   at an optimum rather than on a slope, and the 3x-vs-5x gap is not a dose
-  response at all.
+  response.
 - **CAN'T-TELL** between 50% and 67%, or at n<24 complete-block seeds.
 
 The unpatched arm 3 is deliberately *not* part of this prediction — it varies
@@ -5737,9 +5735,9 @@ someone just opens it?) and gets its own scoring when it has seeds.
 
 Shipped one hour ago on the theory that spreading 18 jobs/h over three ticks
 makes a dropped tick cost 6 instead of 18. Measured 02:35 -> 03:35 UTC:
-**all three ticks (:47, :07, :27) dropped**, leaving 11/20 running with an
+**all three ticks (:47,:07,:27) dropped**, leaving 11/20 running with an
 empty queue. Drops are correlated, not independent, so splitting a tick three
-ways buys nothing. Kept the three crons (free, occasionally one lands) but
+ways gains nothing. Kept the three crons (free, occasionally one lands) but
 raised seeds/tick 6 -> 12 so a single surviving tick is worth landing, and
 accepted a bounded queue as the actual buffer. An empty queue under the cap
 is the failure mode; a short queue is the fix.
@@ -5898,8 +5896,8 @@ killed by a container restart on a different container. Same seed, same cfg,
 same build — so if the RNG draw sequence is truly a function of (build, seed,
 cfg) and nothing else, the two must agree exactly up to the shorter cutoff.
 
-    seed 4001   480 samples x 97 columns to day 2400 -> ZERO mismatches
-    seed 10015  320 samples x 97 columns to day 1600 -> ZERO mismatches
+    seed 4001 480 samples x 97 columns to day 2400 -> ZERO mismatches
+    seed 10015 320 samples x 97 columns to day 1600 -> ZERO mismatches
 
 Every logged column, not just population: births, mass, gene means, all of
 it. This is rule 7's guarantee holding across a process kill, a container
@@ -5911,8 +5909,7 @@ short cutoff really is equivalent to having run the short one.
 My first pass at that comparison hardcoded `ticksPerDay = 60`. The real value
 is **480**. The effect was to compare only 60 samples instead of 480 — it
 made the check eight times weaker while still reporting "identical", which is
-the dangerous direction for a verification to fail in: a check that quietly
-tests less than it claims still prints a pass.
+the dangerous direction for a verification to fail in: a check that tests less than it claims still prints a pass.
 
 Chased whether that constant had contaminated anything else this session. It
 had not: every other use went through `cfg.get('ticksPerDay', 60)`, and a
@@ -6127,7 +6124,7 @@ be re-derived after data lands.
 
 ---
 
-# v0.52 — PREDATION KILLS BY INJURY, NOT ATTRITION  [L0.52-1]
+# v0.52 — PREDATION KILLS BY INJURY, NOT ATTRITION [L0.52-1]
 
 2026-08-11. First mechanism change since v0.50 was reverted. Diagnosis came
 from adversarial audit F1 plus a full read of the energy code and 21 survivor
@@ -6139,7 +6136,7 @@ logs.
 |---|---|
 | **No injury state existed.** An attack removed prey MASS; the prey died only once chewed to `corpseMin` — ~13 uninterrupted landed bites. A survivor regrew and got CHEAPER to run (upkeep ∝ mass^0.75). | `:1877-1893`; measured bites/kill median **13.0** |
 | "7.7% attack success" was **my misreading** — it is `1/bites-per-kill`. `W.attacks++` sits inside `if (flesh > 0)`, so misses are not in the denominator. Attacks essentially always land. | `:1887` |
-| **A predator's kill produced no carrion.** `killAnimal` makes a corpse only when `mass > corpseMin`, but a kill fired exactly when `mass <= corpseMin`. | `:1420-1431` |
+| **A predator's kill produced no carrion.** `killAnimal` makes a corpse only when `mass > corpseMin`, but a kill fired when `mass <= corpseMin`. | `:1420-1431` |
 | **Fresh meat had no digestion floor; carrion did** — backwards. At founder carnivory 0.05 a corpse was worth 6.8/mass and a live animal 1.2/mass. Logs: 33x more energy from carrion than predation. | `:1885` vs `:1903` |
 | **Retaliation is a flat per-bite charge** cancelling meat gain below carnivory ≈ 0.031. Measured mean **0.0318** — parked exactly on the gate below which ATTACK is never scored, so no selection can act on carnivory. | `:1890`, `:1729` |
 
@@ -6193,13 +6190,13 @@ satisfy it. The gene value is the thing selection has to move.
 ## Also in v0.52, both inert at defaults
 
 - `k_meatAttrFloor` (0.5) parameterizes the hardcoded ATTACK floor, so the
-  unsubsidised test is a CFG patch rather than another build.  [L0.52-2]
+  unsubsidised test is a CFG patch rather than another build. [L0.52-2]
 - `shockDay`/`shockFraction` (0) cull a fraction of live animals once, through
   `killAnimal` so the matter ledger stays closed. Purpose: **regulation is a
   restoring force**, and every metric this project has used for "stable" is
   satisfiable by something else — R0 carries mean N in its denominator,
   persistence is not-yet-dead-at-a-cutoff, predation share is satisfiable by a
-  constant. Shock it and see whether it returns. That cannot be faked.  [L0.52-3]
+  constant. Shock it and see whether it returns. That cannot be faked. [L0.52-3]
 
 Rule 3 holds: **one behavioural change** (injury death). The other two do
 nothing at their defaults.
@@ -6212,7 +6209,7 @@ is what checkpointing is for.
 | gate | result |
 |---|---|
 | `node check.js` | **PASS**, all five stages; arbiter enters WANDER GRAZE ATTACK FLEE |
-| **Matter conservation** | `matter 6605 -> 6605  drift 0.000000%` |
+| **Matter conservation** | `matter 6605 -> 6605 drift 0.000000%` |
 | `caps seen` | `[0]` — no bound binding (full arena default) |
 | **Determinism** | seed 4001 run twice: 40 samples x 100 columns, **zero mismatches** |
 
@@ -6222,7 +6219,7 @@ The mechanism does what it was built to do, at day 300 of seed 7001:
 |---|---|---|
 | attacks | 3271 | — |
 | kills | 162 | — |
-| **`killMass` (corpse mass from predation)** | **315** | **structurally 0** — a kill fired exactly when mass <= corpseMin, so `killAnimal` always took the detritus branch |
+| **`killMass` (corpse mass from predation)** | **315** | **structurally 0** — a kill fired when mass <= corpseMin, so `killAnimal` always took the detritus branch |
 | `eFlesh` / `fleshMass` | **0 by design** | the direct fresh-flesh channel no longer exists |
 | `eCarrion` | 646 | meat energy now flows entirely through the carrion path |
 
@@ -6260,7 +6257,7 @@ that queue behind screening seeds.
 
 The workflow comment I wrote two hours earlier said, of the 12-seeds-per-tick
 resize: *"If all three land that is 36 jobs/h against a ~20 job/h service
-capacity, which builds a BOUNDED queue -- and a queue is precisely the buffer
+capacity, which builds a BOUNDED queue -- and a queue is the buffer
 that carries the batch through the next hour of dropped ticks."*
 
 **That is wrong by definition.** A queue is a buffer only when arrival is
@@ -6313,7 +6310,7 @@ restarts arrive every 1-2 h, so locally it would never finish — Actions is the
 right home for the long arms. 420 days completes in ~40 min. The specific value
 of a *completed* local run: **gene means cannot be read from a checkpoint**
 (`__buildLog()` does not call `logGenes()`), and the frozen prediction scores on
-`meatAttraction`, so only a finished log can produce a reading at all. Seeds
+`meatAttraction`, so only a finished log can produce a reading. Seeds
 71001-71004 (two floor-on, two floor-off), distinct from the Actions arms
 70001-70012 so nothing double-counts. No new prediction: these execute the one
 already on record.
@@ -6415,7 +6412,7 @@ Also, and this one is mine to own: the v0.52 pre-registration says the floor-off
 arm tests carnivory *"with no subsidy of any kind"*. That is **false**.
 `carrionFloor` 0.30 (`:1540`) still gives every animal 30% meat digestion at
 carnivory 0, and by routing kills through the carrion path I made that floor
-*more* required, not less. It silently replaced `0.5 +` as the subsidy.
+*more* required, not less. It replaced `0.5 +` as the subsidy.
 
 ## SHIPPED: the selection-response gate [L65]
 
@@ -6440,7 +6437,7 @@ Two statistics:
 Normalising by standing variation rather than raw movement is required and
 was a bug on the first attempt: gene ranges span five orders of magnitude
 (`parentalCare` [0, 20000] vs `armour` [0, 1]), so an absolute comparison just
-ranks gene ranges. The first version duly reported `lifespan` and `maturityAge`
+ranks gene ranges. The first version reported `lifespan` and `maturityAge`
 as the only genes beating drift, which is an artifact of their bounds.
 **The same error is live in `sec_ne` above** — the audit found it averages
 `parentalCare` raw and consequently prints "rising 1.99x" on the corpus's most
@@ -6459,7 +6456,7 @@ own fix.
 
 **Sixty-nine percent of runs cannot demonstrate that selection is acting on
 anything.** In those runs "the gene did not move" is a statement about the
-population, not about the mechanism under test — which is exactly the inference
+population, not about the mechanism under test — which is the inference
 this project has been making since v0.39.
 
 The gate deliberately outranks the ecological sections below it in the digest.
@@ -6494,7 +6491,7 @@ gene nothing reads.
   genes beating the drift yardstick rises above the control median of **7**.
   That establishes the bottleneck — not the ATTACK formula, not `k_photoCost` —
   as what has been suppressing gene response, and makes every subsequent
-  emergence test scoreable for the first time.
+  emergence test scoreable.
 - **MISS** if neutral variance retained stays below **25%** in both treatment
   arms. Then effective population size is set by reproductive skew or spatial
   structure rather than by seasonal bottlenecks, the diagnosis is wrong under
@@ -6634,7 +6631,7 @@ mechanism does make predation a genuine mortality source.
 *above* `meatAttraction`.
 
 So the current trajectory is a **MISS on the gene criterion and a HIT on the
-predation criterion**, which is precisely the pairing the pre-registration was
+predation criterion**, which is the pairing the pre-registration was
 written to distinguish, and precisely why raw predation share was excluded as
 the primary criterion. Not scored until 12 of 12.
 
@@ -6732,7 +6729,7 @@ place. The data says the opposite, and the mechanism is coherent:
 expressed, so selection has something to act on. Without it, ATTACK is rarely
 chosen, the gene stops affecting fitness, and it drifts.** The floor is not
 hiding selection on that gene; it is the precondition for any selection on it
-at all.
+.
 
 That reframes F1 without overturning its core. The mission-test problem is
 real — a behaviour that only occurs because of a constant is not emergent. But
@@ -6750,7 +6747,7 @@ that still has the subsidy, so it says nothing about emergence.
 ## Local sim compute is dead; recording it rather than restarting it again
 
 Seventh container restart, this one killing all three arms at **day 80** — before
-`animalStartDay` 260, so before the simulation has animals at all. Restarts are
+`animalStartDay` 260, so before the simulation has animals. Restarts are
 arriving faster than a run reaches its own experiment.
 
 Stopping the pattern of restarting local sims every heartbeat. It has produced
@@ -6763,7 +6760,7 @@ into the standing rotation last cycle.
 
 ---
 
-# SCORED: the v0.52 emergence test is a MISS  [L0.52-SCORE]
+# SCORED: the v0.52 emergence test is a MISS [L0.52-SCORE]
 
 2026-08-11, 07:45 PDT. 11 of 12 seeds in each arm, paired on the same seeds.
 
@@ -6820,7 +6817,7 @@ survival. Every axis got worse.
 
 ## What actually happened in that world
 
-Animals in v0.52 hunt properly for the first time. A predator's bite injures
+Animals in v0.52 hunt properly. A predator's bite injures
 rather than nibbling a crumb of flesh, injuries accumulate, and a prey animal
 that loses the fight dies whole and becomes a carcass that anything can eat.
 Predation went from a rounding error to the majority cause of death. But the
@@ -6881,11 +6878,11 @@ the **animal** half of the [L64] restore. That run has never once survived to
 completion, and at nine restarts in ten hours it never will.
 
 So the property is asserted directly instead — `check.js` stage 6. It
-populates the accumulators, performs exactly the save / `logGenes()` / restore
+populates the accumulators, performs the save / `logGenes()` / restore
 that `headless.js` performs, and requires the state to come back identical.
 Seconds instead of half an hour, and **a container restart cannot kill it.**
 
-    6. checkpoint ok   (round-trips; SELP n=137, SELA n=91)
+    6. checkpoint ok (round-trips; SELP n=137, SELA n=91)
 
 This covers `SELA` — the animal path — which the end-to-end run could never
 reach, because a 320-day sim needs to pass `animalStartDay` 260 and no local
@@ -6897,7 +6894,7 @@ Two things I had to fix in the test itself, both instructive:
 the harness does not drive enough seeding, and the build drains the
 accumulators on its own cadence — so it round-tripped two empty arrays and
 printed `ok`. A test that can pass without exercising its property is worse
-than no test, because it reads as evidence. It now **fails** if the
+than no test, because it is evidence. It now **fails** if the
 accumulators are empty, and populates them synthetically with distinctive
 values (`i + 0.5`, `-(i + 0.25)`) so a partial or shifted restore cannot look
 correct by accident.
@@ -6928,7 +6925,7 @@ should have done last cycle instead of reasoning about run numbers:
 So run 83 was the last on the old rotation — which is why the seeds landing all
 morning mapped `83 % 3`, exactly as the old 3-way specifies, and why I kept
 seeing dose arms and no diagnostic arms. Run **84 is `84 % 5 = 4`, the
-`noseason` arm**, and it is the first one running.
+`noseason` arm**, the first one running.
 
 Nothing to score yet: 8 of the 9 post-change runs are queued behind a 20-slot
 cap with **21 jobs already waiting**. At ~12 jobs/h arriving against ~18/h
@@ -6957,7 +6954,7 @@ missing is time.
 Neutral variance **increased** — the inert genes ended with 1.67x the standard
 deviation they had at the first census, where the corpus median run *loses*
 71% of it. That indicates a population large enough that drift stops
-dominating, and it is the opposite of the annual-bottleneck signature.
+dominating, the opposite of the annual-bottleneck signature.
 Population peaked at 2076 against the control's 434.
 
 Both of [L66]'s frozen HIT criteria are met on this seed — retention above 40%
@@ -7194,7 +7191,7 @@ rather than independently drifting.
 
 `seasonAmp = 0` shows a 40-day plant autocorrelation of **0.838**, against the
 control's 0.831. Identical. Setting the seasonal amplitude to zero changed the
-periodicity not at all.
+periodicity not.
 
 Cause, found in the source: `refreshTimeCache()` at `:984` computes
 
@@ -7214,7 +7211,7 @@ reproduction to a year that is supposed to have been switched off.
 it, and scored it without checking that the constant did what its name implied.
 
 The `daysPerYear=120` arm *is* valid — it moves `yearPhase()` and therefore both
-channels — and its 40-day ACF duly collapses to 0.224 while 120-day rises to
+channels — and its 40-day ACF collapses to 0.224 while 120-day rises to
 0.600. That arm shows **no effect on survival (70.2% vs 68.2%) or on selection
 response**, so the annual-bottleneck hypothesis is dead on the valid arm too.
 
@@ -7303,7 +7300,7 @@ Baseline: control 40-day plant ACF **0.83**; 107/114 survivors show animals
 lagging plants by ~70d at r=0.64.
 - **ENDOGENOUS** if the seasonless arm still shows animals lagging plants in
   >=70% of survivors with median peak cross-correlation **>= 0.4**, at any lag.
-  Predator-prey coupling then survives removal of the clock and the coupling in
+  Predator-prey coupling then holds without the clock and the coupling in
   section 3 of the analysis is real ecology.
 - **FORCED** if lag-correlation median falls **below 0.25** or the fraction of
   survivors with animals lagging drops below 55% (chance). The observed
@@ -7345,7 +7342,7 @@ seasonless n=10 surv 90% cv 70.6% meatAttr 0.0962; halfseason n=9 surv 67% cv 11
 ## Daily 2026-08-24 (second pass): collector path bug fixed; all v0.53 data is still manual-dispatch only
 
 Collector was reading `<branch>:out/seed-N.json`; the workflow pushes the log at
-the branch **root** as `seed-N.json`. That silently returned "0 new" on the
+the branch **root** as `seed-N.json`. That returned "0 new" on the
 previous pass. Fixed: **385 standing logs recovered** (rot-collect 1274 -> 1659),
 plus 2 h-arm logs (v53-collect 20 -> 22). Per-file arm/surv/cv/meatAttr now
 cached to a TSV so daily passes stop re-parsing the whole corpus.
@@ -7511,7 +7508,7 @@ flips which option is largest, and it changes nothing at all anywhere else — s
 the fitness gradient on these genes is near zero almost everywhere. They are
 not weakly selected; they are structurally close to unselectable.
 
-**Why that is a mission-test failure, .** ATTACK's attraction
+**Why that is a mission-test failure,.** ATTACK's attraction
 term is `k_meatAttrFloor + meatAttraction` = `0.5 + ~0.10`. The constant
 supplies **83%** of it. Set the constant to 0 and predation share of animal
 deaths falls **61% → 25%**, and the gene does not compensate because it cannot.
@@ -7544,7 +7541,7 @@ precisely rather than waving at.** The `aDead*` columns used for predation share
 *are* cumulative (verified by monotonicity), so the 61% → 25% result
 and H3/H7 stand. H1's autocorrelations, H2's cv and survival, and the whole
 selection-response table use snapshot series correctly and are untouched. Only
-this table moved, and its conclusion survives at the corrected numbers: GRAZE is
+this table moved, and its conclusion holds at the corrected numbers: GRAZE is
 **97.0%** of the action budget — still worse than HANDOFF §1's recorded 92.2% —
 and `actAppr` is 0.00–0.03%, so the herding mechanism [L47-3] still never fires.
 The sentence elsewhere in this entry reading "the act taken 98.7% of the time"
@@ -7659,7 +7656,7 @@ that argument, not from searching for one that produces carnivores.
 `cfg-patches/beta-flooroff.json` (`k_meatAttrFloor` 0).
 Baseline: v0.53 flooroff predation share **25.0%**, `meatAttraction` 0.0869.
 - **HIT** if predation share reaches **≥ 40%** and median `meatAttraction`
-  **≥ 0.15** — carnivory then survives removal of the constant, and the gene,
+  **≥ 0.15** — carnivory then holds without the constant, and the gene,
   now that it has a gradient, does the work the constant was doing.
 - **MISS** if predation share stays below **30%**. The floor is then still
   required, carnivory is still not emergent, and the next candidate is the
@@ -7682,7 +7679,7 @@ rotation switch 56 scheduled runs (~224 jobs) were queued, all created against
 the old workflow commit, so they will keep producing seeds on the now-retired
 H1/H2/H3 arms for roughly twelve hours. Cancelling them was considered and
 rejected: it costs ~56 API calls to buy back about 7% of the coming week's
-v0.54 yield. Recorded so this reads as a decision rather than an oversight.
+v0.54 yield. Recorded so this is a decision rather than an oversight.
 Scheduled jobs check out the working branch at execution time, so those runs
 still resolve their old cfg-patch paths correctly — they produce valid v0.53
 data, just data on questions that are now answered.
@@ -7713,7 +7710,7 @@ CONTROL arm on the days 400-800 window, at n>=12 per arm.
 
 ## Daily 2026-08-29: first v0.54 seeds land
 12 new standing seeds (2002->2014); batch firing. v0.54 CONTROL n=4 surv 25% cv 187.7 meatAttr 0.1105 | beta-hi n=4 surv 25% cv 165.8 meatAttr 0.1157 | meat-rich n=0 | beta-flooroff n=0. v0.53 arms unchanged (v53-CONTROL n=88 etc.), backlog still draining as planned.
-NOT the H5 HARM clause: that reads at n>=12, and at n=4 the number is dominated by completion-order bias — extinct runs autohalt early and land first, so every partially-reported block reads low. Recorded so the next cycle does not mistake it for a signal.
+NOT the H5 HARM clause: that reads at n>=12, and at n=4 the number is dominated by completion-order bias — extinct runs autohalt early and land first, so every partially-reported block is low. Recorded so the next cycle does not mistake it for a signal.
 No scoring — frozen H4/H5/H6/H7 criteria stand for the weekly pass.
 
 ## Daily 2026-08-30: all four v0.54 arms populated
@@ -7841,7 +7838,7 @@ energy already inside it — from kills and from its own dead — without anyone
 becoming a carnivore. Raising the value of meat fed the herbivores.
 
 This is a candidate default, not a settled one. It is one block, and it was a
-by-product of a prediction that missed, which is exactly the shape of result
+by-product of a prediction that missed, which is the shape of result
 that later turns out to be a fluke. It gets a fresh-seed replication (H10)
 before `meatValue` 40 is promoted.
 
@@ -7849,7 +7846,7 @@ before `meatValue` 40 is promoted.
 
 beta-flooroff predation share **24.5%** against a MISS threshold of 30%, and
 median `meatAttraction` 0.0833. Compare v0.53's flooroff arm: 25.0% and 0.0869.
-**The Luce arbiter changed nothing here at all.** With `k_meatAttrFloor` at 0,
+**The Luce arbiter changed nothing here.** With `k_meatAttrFloor` at 0,
 ATTACK falls to 0.28% of acts and predation collapses to a quarter of deaths,
 exactly as before. Predation in this simulator is still a constant in the
 source rather than an evolved trait, and that is now three structural attempts
@@ -7870,7 +7867,7 @@ blocker — three interventions on it changed nothing. What is left is the shape
 of the genome landscape itself: diet is priced as
 `k_gut*(carn² + herb²) + k_digest*max(0, carn+herb−1)² + k_mixed*max(0, carn*herb − mixedFree)`,
 and `k_mixed`'s own source comment says it "makes the frontier CONCAVE" — it
-penalises precisely the intermediate genotypes a lineage must pass through to
+penalises the intermediate genotypes a lineage must pass through to
 travel from the herbivore corner (herbivory ≈ 0.70, carnivory ≈ 0.06 in every
 arm ever measured) to a carnivore corner. Selection does not cross valleys.
 
@@ -7953,7 +7950,7 @@ candidate. It is kept for now only because this week's block was measured on it
 and pulling it would strand that baseline. **Standing decision: if nothing in
 the v0.55 block gives the Luce rule a reason to exist, the arbiter reverts to
 argmax in v0.56.** Written down so it is a decision with a deadline rather than
-a mechanism that quietly becomes permanent.
+a mechanism that becomes permanent.
 
 ## PRE-REGISTERED, frozen before any seed runs
 
@@ -7989,8 +7986,7 @@ Baseline: v0.54 meat-rich 92.2% vs CONTROL 66.7%, p = 0.0022.
   at n ≥ 25 with Fisher p < 0.05. `meatValue` 40 is then promoted to the shipped
   default as a CFG patch with its own LEDGER row.
 - **NOT CONFIRMED** if the gap falls below **8 points**. The v0.54 result was
-  then a fluke of one block, and it is recorded as such rather than quietly
-  dropped.
+  then a fluke of one block, and it is recorded as such rather than dropped.
 
 Note on H10 and rule 5: `meatValue` 40 was chosen from a written physical
 argument (a perfect carnivore should not extract less per unit mass than a
@@ -8020,7 +8016,7 @@ No scoring — frozen H8/H9/H10 criteria stand for the weekly pass.
 # WEEKLY PASS, 2026-09-11 — nothing scored. The n gate is not moved.
 
 **H8, H9 and H10 cannot be scored this week.** The v0.55 pre-registration says
-"at n ≥ 25 per arm", and H8 spells out "CAN'T-TELL ... at fewer than 25
+"at n ≥ 25 per arm", and H8 spells out "CAN'T-TELL... at fewer than 25
 surviving seeds". The arms have **10–13 surviving seeds each**. The rotation
 only went live on 2026-09-09 because the v0.54 block ran the preceding week, so
 this is a phase lag between the rotation switch and the weekly cadence, not a
@@ -8163,7 +8159,7 @@ matched window 400–800:
 
 Five structural versions moved it from 0.285% to 0.211%. The only thing that has
 ever moved it is doubling `meatValue` — a constant, not selection. That is the
-mission test failing , and it went unnoticed for 34 days
+mission test failing, and it went unnoticed for 34 days
 because nothing aggregated to the mission.
 
 The auditor's companion number: **67.5% of corpse mass rots uneaten.** Animals
@@ -8201,7 +8197,7 @@ rule 10: compute the SE before freezing the threshold.
 yardstick. Removed from `analyze.py` and `tools/score55.py`. Every past
 selection-response verdict was biased toward "not demonstrable".
 
-**F7 the analysis unit is wrong — ACCEPTED, and it is the largest.**
+**F7 the analysis unit is wrong — ACCEPTED, the largest.**
 "GRAZE has never fallen below 93%" was false: 126 of 1,075 runs are below,
 minimum 78.3%. `runs/rot-collect/59400.json` contains a herd (APPROACH 3.95%),
 an arms race (`maxSpeed` 3.2× control) and 66% corpse consumption — **inside an
@@ -8227,7 +8223,7 @@ question, not the run. A screening sweep is one prediction.
 
 ## v0.56 — two structural changes, shipped together, deliberately
 
-Rule 3 is amended in the same commit rather than quietly broken. Both changes are
+Rule 3 is amended in the same commit rather than broken. Both changes are
 independently motivated and the rotation is a **2×2 factorial** that separates
 them, which buys the attribution serialisation was buying at a cost of a week per
 bit.
@@ -8237,7 +8233,7 @@ equal to `plantAttraction`.
 
 **[L0.56-2] The genome becomes CFG-reachable.** `founderGenesA` / `founderGenesP`
 apply a `{gene: value}` map to every founder of each kingdom. Rule 6 said
-constants ship as patches; it silently excluded the one array that turned out to
+constants ship as patches; it excluded the one array that turned out to
 hold the answer. RNG-neutral when null.
 
 `node check.js evosim-v0_56_0.html`: all six stages pass.
@@ -8369,7 +8365,7 @@ duration while carrionAttraction's does not move" holds regardless.
 `carrionAttraction` decides whether an animal goes to a corpse. `carnivory`
 decides how much energy it extracts once there. **Each is unselectable while the
 other is near zero.** With `carrionAttraction` founding at 0.10 almost nothing
-scavenges, so `carnivory` has nearly no fitness consequence — and it duly sits
+scavenges, so `carnivory` has nearly no fitness consequence — and it sits
 at 0.49–0.84× drift, *also* below the null, at every duration. Neither gene can
 climb because the other is at the bottom.
 
@@ -8379,11 +8375,11 @@ fitness landscape where the first step in either direction is flat.
 **v0.56's founder change is the escape from exactly that trap** — and for a much
 better reason than the symmetry argument I shipped it with. Forcing
 `carrionAttraction` to 0.80 makes animals encounter corpses, which gives
-`carnivory` a fitness consequence for the first time, which lets selection act on
+`carnivory` a fitness consequence, which lets selection act on
 the digestion gene. The smoke run is consistent: scavenging 0.30% → 0.76% of
 acts, heterotrophy 0.262% → 0.447%.
 
-**This makes a sharper prediction than H11, and it is the one to score:**
+**This makes a sharper prediction than H11, the one to score:**
 
 **H13 — `carnivory` becomes selectable once meat is actually eaten.** In the
 v0.56 symmetric cells, `carnivory`'s drift-normalised movement should exceed

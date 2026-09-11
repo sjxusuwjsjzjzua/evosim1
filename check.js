@@ -106,14 +106,14 @@ if (!M) fail('BOOT', new Error('export shim did not run'));
 console.log(`  2. boot       ok   (build reports VERSION ${M.VERSION})`);
 
 // ---- 2b. structural invariants --------------------------------------
-// These are the two things that silently break a build while every other
+// These are the two things that break a build while every other
 // stage still reports ok.
 //
 // (a) LOGCOLS vs the value array. The build only console.warn()s a length
 //     mismatch (it does not throw), and a warning scrolls past unnoticed --
 //     so a miscounted new column shifts EVERY column after it and the run
 //     still "passes". Adding a column means editing two lists that must stay
-//     index-aligned, which is exactly the kind of edit that goes wrong.
+//     index-aligned, which is the kind of edit that goes wrong.
 // (b) The headless ANCHOR. headless.js splices its driver in by matching a
 //     literal block at the tail of the build. A change there passes every
 //     check below and then makes every single headless run throw, which is
@@ -185,10 +185,10 @@ console.log(`  2. boot       ok   (build reports VERSION ${M.VERSION})`);
     dage: snapArr(M.DAGE), upk: snapArr(M.UPK),
   };
   // A round-trip of two empty arrays passes trivially. Refuse to report ok in
-  // that case -- a vacuous pass is worse than no test, because it reads as
+  // that case -- a vacuous pass is worse than no test, because it is
   // evidence. First version of this stage did exactly that and said "ok".
   // A round-trip of empty arrays passes trivially. Refuse to report ok in that
-  // case -- a vacuous pass is worse than no test because it reads as evidence.
+  // case -- a vacuous pass is worse than no test because it is evidence.
   // The first version of this stage did exactly that and printed "ok".
   if (!(before.selP && before.selPn > 0) || !(before.selA && before.selAn > 0)) {
     console.error('FAIL: accumulators not populated (SELP n=' + before.selPn +
@@ -220,7 +220,7 @@ console.log(`  2. boot       ok   (build reports VERSION ${M.VERSION})`);
   if (!same(before.upk, snapArr(M.UPK))) bad.push('UPK');
   if (bad.length) {
     console.error('FAIL: checkpoint restore does not round-trip: ' + bad.join(', '));
-    console.error('      headless.js would silently corrupt these in the FINAL log.');
+    console.error('      headless.js would corrupt these in the FINAL log.');
     process.exit(1);
   }
   console.log('  6. checkpoint ok   (round-trips; SELP n=' + before.selPn +

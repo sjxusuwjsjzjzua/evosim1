@@ -52,8 +52,7 @@ In roughly five weeks: an arm mislabelled as baseline when no baseline existed;
 `arm_of` twice; act columns differenced as if cumulative when they are snapshots;
 a rule-7 identity check that verified nothing because both runs stopped before
 animals existed; queueing arithmetic wrong twice, once producing a 110-run
-backlog that starved a week of work; a collector path bug that silently
-collected nothing for a cycle. Each cost a cycle. The instrumentation is not
+backlog that starved a week of work; a collector path bug that collected nothing for a cycle. Each cost a cycle. The instrumentation is not
 converging on reliable any faster than the simulator is converging on the
 mission.
 

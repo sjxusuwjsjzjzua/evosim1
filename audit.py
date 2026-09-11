@@ -51,9 +51,9 @@ BUILD_DEFAULTS = {"k_photoCost": 0.004, "maxPlants": 90000, "maxAnimals": 40000,
                   # v0.52. Both inert at 0, so an unshocked v0.52 run still
                   # classifies as SHIPPED DEFAULTS. They are listed here so a
                   # PERTURBATION run is named as its own arm instead of being
-                  # counted as a control -- which is exactly the failure the
+                  # counted as a control -- which is the failure the
                   # corpus section exists to catch, and it would have happened
-                  # silently the first time a shock run landed.
+                  # the first time a shock run landed.
                   "shockDay": 0, "shockFraction": 0,
                   # the ATTACK attraction floor. A floor-off run is the
                   # emergence test and must never pool with subsidised runs.
@@ -350,7 +350,7 @@ COMMIT_RE = re.compile(
 def section_commitments(text):
     L = ["## 4. OPEN COMMITMENTS", "",
          "Statements in LEDGER.md that promise a future action or forbid one. The "
-         "auditor should check whether each was honoured — a commitment quietly "
+         "auditor should check whether each was honoured — a commitment "
          "dropped is indistinguishable, from the outside, from one that was kept.", ""]
     hits = [(text[:m.start()].count("\n") + 1, m.group(1).strip())
             for m in COMMIT_RE.finditer(text)]

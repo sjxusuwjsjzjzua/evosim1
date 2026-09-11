@@ -384,7 +384,7 @@ def sec_ne(d, P):
 
 def sec_demography(c, n, tpd, d, P):
     """Does the average individual live long enough to breed. If not, every
-    lifespan / senescence / care gene is unselected and reads as drift."""
+    lifespan / senescence / care gene is unselected and is indistinguishable from drift."""
     P('')
     P('-- DEMOGRAPHY ' + '-'*63)
     G = d.get('genes', [])
@@ -608,7 +608,7 @@ def cross(rows):
 # CORRECTED 2026-09-11: ambushTendency was in this list and the sim READS it
 # (build line ~1769, it sets `hide` in the detection roll). An inflated null
 # biased every selection-response verdict toward "not demonstrable". Re-grep
-# before trusting this list; a gene that gains a reader silently invalidates
+# before trusting this list; a gene that gains a reader invalidates
 # every past comparison made against it.
 INERT_CONTROL = ['territoriality', 'mateChoosiness',
                  'parentalCare', 'pathogenResistance']
