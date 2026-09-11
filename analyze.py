@@ -605,7 +605,12 @@ def cross(rows):
 # in the build: zero hits each. They mutate and drift exactly like every other
 # gene and are acted on by nothing, which makes them a built-in negative
 # control for "is selection detectable at all?".
-INERT_CONTROL = ['territoriality', 'ambushTendency', 'mateChoosiness',
+# CORRECTED 2026-09-11: ambushTendency was in this list and the sim READS it
+# (build line ~1769, it sets `hide` in the detection roll). An inflated null
+# biased every selection-response verdict toward "not demonstrable". Re-grep
+# before trusting this list; a gene that gains a reader silently invalidates
+# every past comparison made against it.
+INERT_CONTROL = ['territoriality', 'mateChoosiness',
                  'parentalCare', 'pathogenResistance']
 
 

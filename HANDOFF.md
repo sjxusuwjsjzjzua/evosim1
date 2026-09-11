@@ -17,7 +17,76 @@ count.
 
 ---
 
-## 0.3. CURRENT STATE — v0.55.0, 2026-09-08. Read this first.
+## 0.2. CURRENT STATE — v0.56.0, 2026-09-11. PIVOT. Read this first.
+
+A program-level adversarial audit returned **PIVOT**. Everything below §0.2 is
+older and parts of it are now known to have been aimed at the wrong target.
+
+### The one fact that reframes the project
+
+**`ACT_ATTACK` transfers zero energy** (`evosim-v0_56_0.html:1985–2009`). Every
+calorie of meat flows through `ACT_SCAVENGE` (`:2025`), gated by
+**`carrionAttraction`** (`:1794`) — a gene with zero runs, zero hypotheses, two
+occurrences in the whole file, and no CFG reachability.
+
+`meatAttraction` and `k_meatAttrFloor` — the gate on an act that feeds nobody —
+absorbed **four structural attempts and 155 runs** (v0.50, v0.52, v0.53-H3,
+v0.54-H7).
+
+### The mission metric — use this, it did not exist before today
+
+**Heterotrophy fraction** = `eCarrion/(ePlant + eCarrion)`, matched window.
+Across **1,502 survivors**: median **0.302%**, max 3.95%, **0 above 5%**.
+Five structural versions moved it 0.285% → 0.211%. The only mover is `meatValue`
+40 (0.86–0.99%) — a constant, not selection. Companion fact: **67.5% of corpse
+mass rots uneaten**. "Predation share of deaths 62%" is compatible with nobody
+eating anything, and for weeks it was.
+
+### Why the previous five versions could not have worked
+
+| binding constraint | measured | touched by v0.50–v0.55? |
+|---|---|---|
+| founder prior against meat | `plantAttraction` 0.80 vs `carrionAttraction` 0.10; under `k_choiceBeta` 4 that is **4096:1** | no |
+| scale of the niche | carnivore carrying capacity **8–21 individuals**, 3–6% of N | no |
+| duration | a run is **13.9 generations**; the needed gene displacement is **27 mutational SDs** | no |
+| genome reachability | 150 CFG constants, **11 ever varied**, 12 distinct configs in 2,341 runs | no |
+
+### v0.56 — two structural changes, factorially separated
+
+- **[L0.56-1]** `carrionAttraction` founder **0.10 → 0.80**, equal to
+  `plantAttraction`. This *removes* a thumb on the scale; it does not add one.
+- **[L0.56-2]** `founderGenesA` / `founderGenesP` make the founder genome
+  CFG-reachable at all. RNG-neutral when null.
+
+Rotation is a **2×2**: `{carrionAttraction 0.80 | 0.10} × {k_meatAttrFloor 0.5 | 0}`,
+n ≥ 60 per cell, primary endpoint the mission metric. H11 (was the founder prior
+the barrier) and H12 (is the floor still load-bearing once meat is edible) are
+frozen in `LEDGER.md`.
+
+### Method changes that outlive this version
+
+- **Rule 10**: a frozen threshold must exceed the SE of its own statistic at the
+  planned n. H4's line was 0.15 SD against an SE of 0.222; H10 had 14% power.
+  Much of the seven-MISS streak was power, not biology.
+- **Rule 11**: report the tail, not the median. "GRAZE never below 93%" was
+  false — 126 of 1,075 runs are below, min 78.3%, and
+  `runs/rot-collect/59400.json` holds a herd, an arms race and 66% corpse
+  consumption *inside an arm scored MISS on its median*. Emergence is a minority
+  state; an arm-median pipeline is built to miss it.
+- **Rule 12**: a large effect that missed its pre-registered variable is logged
+  as a notable unpredicted effect, not discarded.
+- **Neutral yardstick corrected**: `ambushTendency` is READ (`:1769`) and was in
+  the null. Every past selection verdict was biased toward "not demonstrable".
+
+### Next build, already justified
+
+Founder-pool chaining exists in the build ([L37-3], `:1542`, `:3762`) and is
+**entirely unwired in `headless.js`**. Wiring it is the only way past 13.9
+generations, which is the duration constraint above.
+
+---
+
+## 0.3. Previous state — v0.55.0 (HISTORICAL), 2026-09-08. Read this first.
 
 **v0.54's four pre-registered hypotheses all MISSED.** Scored on 240 seeds,
 matched window days 400–800, survival at day 800 with censoring:

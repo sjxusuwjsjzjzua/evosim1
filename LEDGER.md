@@ -8113,3 +8113,166 @@ keep running untouched.
 
 The `k_choiceBeta` revert decision also waits: it was made conditional on "the
 v0.55 block", and the v0.55 block is not in yet.
+
+---
+
+# 2026-09-11 — PROGRAM AUDIT: PIVOT. Five versions aimed at the wrong gene.
+
+The owner said the project looked like "a loop of tiny adjustments not getting
+anywhere." That was correct, and the reason is worse than a loop.
+
+A program-level adversarial audit was built for this (`.claude/skills/program-audit/`,
+adapted from three open-source Claude Code adversarial-review skills — the
+guilty-until-proven-exceptional premise and mandatory 1–10 confidence with 1–3
+*discarded* from lemon03390, the break-confidence framing plus cross-validation
+tagging and the simplicity counterfactual from robertoecf, the red/blue/adjudication
+shape from ecfm, whose lack of evidence standards was deliberately not copied).
+`HOST-FINDINGS.md` was written and committed **before** the auditor ran, and the
+auditor was told not to read it. Full report: `AUDIT-PROGRAM-2026-09-11.md`.
+
+## The finding that reframes everything — verified by hand, not taken on trust
+
+**`ACT_ATTACK` transfers zero energy.** `evosim-v0_55_0.html:1985–2009`. My own
+v0.52 comment says it outright: *"Nothing is eaten here... The killer is not fed
+automatically — that would be a hardcode."* Every calorie of meat in this
+simulator flows through `ACT_SCAVENGE` (`:2025`), which is gated by
+**`carrionAttraction`** (`:1794`).
+
+`carrionAttraction` had **zero runs, zero hypotheses, appears twice in the entire
+file, and was not a CFG constant** — rule 6 could not reach it even in principle.
+
+Meanwhile `meatAttraction` and `k_meatAttrFloor` — the gate on an act that feeds
+nobody — got **v0.50, v0.52, v0.53's H3, v0.54's H7**, four structural attempts
+and 155 runs.
+
+I wrote the comment that says ATTACK feeds no one, and then designed four
+experiments around the wrong gene.
+
+## The mission metric, which did not exist until today
+
+`eCarrion / (ePlant + eCarrion)` — the share of animal energy intake that came
+from animals. Computed independently over **1,502 survivors** reaching day 800,
+matched window 400–800:
+
+| build | n | median heterotrophy |
+|---|---|---|
+| pre-v0.53 | 1113 | 0.285% |
+| v0.53 (all arms) | 197 | 0.323% |
+| v0.54 CONTROL | 35 | 0.267% |
+| v0.55 CONTROL | 10 | 0.211% |
+| **v0.54 meat-rich** | 47 | **0.863%** |
+| **v0.55 meat-rich** | 13 | **0.992%** |
+
+**ALL: median 0.302%, max 3.95%, runs above 5%: 0 of 1,502.**
+
+Five structural versions moved it from 0.285% to 0.211%. The only thing that has
+ever moved it is doubling `meatValue` — a constant, not selection. That is the
+mission test failing in its purest form, and it went unnoticed for 34 days
+because nothing aggregated to the mission.
+
+The auditor's companion number: **67.5% of corpse mass rots uneaten.** Animals
+kill each other and walk away from the bodies. "Predation share of deaths 62%",
+the headline I reported for weeks, is compatible with nobody eating anything.
+
+## Findings accepted, with what was done
+
+**F1 no mission metric — ACCEPTED.** Now `CLAUDE.md`'s first section, wired into
+`tools/score55.py`, reported every pass.
+
+**F2 wrong gene for three of five versions — ACCEPTED.** The `meatAttraction` /
+ATTACK line is **abandoned**. `carrionAttraction` is now CFG-reachable and is the
+subject of the whole next rotation.
+
+**F3 the monoculture is in the founder genome — ACCEPTED, and this is v0.56.**
+`plantAttraction` founds at 0.80, `carrionAttraction` at 0.10 (`:722–724`). Under
+`k_choiceBeta` 4 that is an **8⁴ = 4096:1** prior against meat before a single
+tick of biology. Never varied across 2,341 runs. **A 4096:1 prior against the
+outcome the project exists to produce is a result written into the code.** Fixed
+in [L0.56-1] by making the two founder values equal — which is the *removal* of a
+thumb on the scale, not a new one: selection now decides, from symmetry.
+
+**F4 H8 dosed 8–20× the niche — ACCEPTED.** `invadeFrac` 0.25 × 650 ≈ 162
+invaders against a computed carnivore carrying capacity of 8–21. H8 is void as
+designed; it is not rescored, it is withdrawn.
+
+**F5 thresholds smaller than their own SEs — ACCEPTED.** H4's MISS line was 0.15
+SD against a bootstrap SE of **0.222 SD**; H10 had **14% power** at its planned n.
+A meaningful share of the seven-MISS streak was power, not biology. Now hard
+rule 10: compute the SE before freezing the threshold.
+
+**F6 contaminated null — ACCEPTED and fixed.** `ambushTendency` is read at
+`:1769` (it sets `hide` in the detection roll) and was in the neutral-drift
+yardstick. Removed from `analyze.py` and `tools/score55.py`. Every past
+selection-response verdict was biased toward "not demonstrable".
+
+**F7 the analysis unit is wrong — ACCEPTED, and it is the most uncomfortable one.**
+"GRAZE has never fallen below 93%" was false: 126 of 1,075 runs are below,
+minimum 78.3%. `runs/rot-collect/59400.json` contains a herd (APPROACH 3.95%),
+an arms race (`maxSpeed` 3.2× control) and 66% corpse consumption — **inside an
+arm I scored MISS on its median.** Emergence is a minority state and an
+arm-median pipeline is built to miss precisely what this project exists to find.
+Now hard rule 11.
+
+**Q1 reachability — the carnivore corner is NOT dominated.** My own 1.63×-upkeep
+argument from 2026-09-11 was true but not decisive: realized net plant energy is
+11.6/mass against 18.26 for meat, and `k_attack/k_intake` = 8.1×. The binding
+constraints are **scale** (the niche is 3–6% of N, about 12 animals),
+**duration** (a run is 13.9 generations; the 0.80 displacement is 27 mutational
+SDs) and **meat encounter**. None of the five versions touched any of the three.
+
+**Q4 the genome was unreachable — ACCEPTED.** 150 CFG constants, **11 ever
+varied, 12 distinct configurations across 2,341 runs**. Founder-pool chaining
+exists in the build ([L37-3], `:1542`, `:3762`) and is **entirely unwired in
+`headless.js`** — zero references — so no run has ever exceeded ~30 generations.
+Fixed in part by [L0.56-2]; the chaining itself is the next build.
+
+**Q5 rule 1 forbade breadth — ACCEPTED.** Amended: the prediction unit is the
+question, not the run. A screening sweep is one prediction.
+
+## v0.56 — two structural changes, shipped together, deliberately
+
+Rule 3 is amended in the same commit rather than quietly broken. Both changes are
+independently motivated and the rotation is a **2×2 factorial** that separates
+them, which buys the attribution serialisation was buying at a cost of a week per
+bit.
+
+**[L0.56-1] Founder symmetry.** `carrionAttraction` founder 0.10 → **0.80**,
+equal to `plantAttraction`.
+
+**[L0.56-2] The genome becomes CFG-reachable.** `founderGenesA` / `founderGenesP`
+apply a `{gene: value}` map to every founder of each kingdom. Rule 6 said
+constants ship as patches; it silently excluded the one array that turned out to
+hold the answer. RNG-neutral when null.
+
+`node check.js evosim-v0_56_0.html`: all six stages pass.
+
+## The 2×2, pre-registered — and this time the threshold is checked against its SE
+
+`{carrionAttraction founder 0.80 | 0.10} × {k_meatAttrFloor 0.5 | 0}`, matched
+window days 400–800, survival at day 800, censoring applied, **n ≥ 60 per cell**
+(set by rule 10: at n=25 the Fisher power against a 15-point survival difference
+is 14%).
+
+**Primary endpoint is the mission metric, not survival.**
+
+- **H11 — the founder prior was the barrier.** HIT if median heterotrophy
+  fraction in the symmetric cells exceeds **1.5%** against the 0.10 cells, with
+  the 0.10 cells reproducing the historical ~0.3%. MISS if the symmetric cells
+  stay below **0.6%**, i.e. inside the range `meatValue` 40 already reaches by
+  brute constant.
+- **H12 — the floor stops being load-bearing once meat is on the menu.** Every
+  previous floor-removal collapsed predation to ~25% of deaths, but all of them
+  ran with nobody eating the corpses. HIT if the floor-off symmetric cell holds
+  heterotrophy within **30% relative** of the floor-on symmetric cell. MISS if it
+  falls below half.
+- **Interaction is the point.** If founder symmetry only works with the floor on,
+  carnivory is still constant-subsidised and the mission test still fails.
+- **Tail reported alongside the median, per rule 11**: the fraction of runs above
+  5% heterotrophy, and the maximum. A median that moves is good; a tail that
+  opens is the result.
+
+## Abandoned, explicitly
+
+The `meatAttraction`/ATTACK line. Seasonality (finished by H1 FORCED; it consumed
+**48.1% of all compute** against 10.2% on the mission). Arm-median-only analysis.
+H8 as designed. One-structural-change-per-version as an absolute.

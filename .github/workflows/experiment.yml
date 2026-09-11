@@ -225,7 +225,22 @@ jobs:
             # question and keeps a slot rather than being dropped.
             # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
             # instead of ~10.
-            # v0.55 ROTATION, 2026-09-08. H4/H5/H6/H7 all MISSED and are
+            # v0.56 ROTATION, 2026-09-11 -- a 2x2 FACTORIAL, after a program
+            # audit returned a PIVOT verdict. The rotation is no longer four
+            # unrelated arms; it is {carrionAttraction founder 0.80 vs 0.10} x
+            # {k_meatAttrFloor 0.5 vs 0}, so both main effects and the
+            # interaction are estimable from the same seeds.
+            # WHY: ACT_ATTACK transfers ZERO energy (build :1985-2009). Every
+            # calorie of meat flows through ACT_SCAVENGE, gated by
+            # carrionAttraction -- which had ZERO runs, zero hypotheses, and was
+            # not CFG-reachable. Three of five structural versions targeted
+            # meatAttraction, the gate on an act that feeds nobody. Meanwhile
+            # carrionAttraction founded at 0.10 against plantAttraction 0.80,
+            # which under k_choiceBeta=4 is 4096:1 against ever tasting meat
+            # before any biology runs, and 67.5% of corpse mass rots uneaten.
+            # The mission metric (eCarrion/(ePlant+eCarrion)) sat at 0.302%
+            # median across 1,502 survivors, flat through five versions.
+            # PREVIOUS (v0.55) ROTATION, 2026-09-08. H4/H5/H6/H7 all MISSED and are
             # retired. H4: the Luce arbiter did not make the attraction genes
             # selectable (plantAttraction +0.07 SD vs a 0.059 SD drift
             # yardstick) -- the gradient exists now but ATTACK is 0.8% of the
@@ -254,13 +269,13 @@ jobs:
             # Replaced by the three v0.53 pre-registrations, each against the
             # matched v0.53 default control which takes 1 of 4 slots.
             case $(( ${{ github.run_number }} % 4 )) in
-              0) CFG_IN="" ;;                                        # control
-              1) CFG_IN="cfg-patches/invade-carn.json" ;;            # H8 existence
-              2) CFG_IN="cfg-patches/mixed-flat.json" ;;             # H9 valley
-              3) CFG_IN="cfg-patches/meat-rich-55.json" ;;           # H10 replication
+              0) CFG_IN="" ;;                                        # carrion 0.80, floor ON
+              1) CFG_IN="cfg-patches/carrion-lo.json" ;;             # carrion 0.10, floor ON
+              2) CFG_IN="cfg-patches/floor-off-56.json" ;;           # carrion 0.80, floor OFF
+              3) CFG_IN="cfg-patches/carrion-lo-floor-off.json" ;;   # carrion 0.10, floor OFF
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_55_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_56_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi

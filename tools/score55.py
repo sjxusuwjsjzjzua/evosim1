@@ -7,7 +7,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = sys.argv[1] if len(sys.argv) > 1 else '/tmp/score55.pkl'
 D, W0 = 800.0, 400.0
 ACTS = ['actGraze','actScav','actAttack','actFlee','actAppr','actRest','actWander']
-NEUT = ['territoriality','ambushTendency','mateChoosiness','parentalCare','pathogenResistance']
+# CORRECTED 2026-09-11: ambushTendency was in this list and the sim READS it
+# (evosim-v0_56_0.html:1769, it sets `hide` in the detection roll). An inflated
+# null biased every selection-response test toward MISS. Verified-inert only.
+NEUT = ['territoriality','mateChoosiness','parentalCare','pathogenResistance']
 WATCH = ['meatAttraction','plantAttraction','carrionAttraction','socialAttraction','carnivory',
          'herbivory','aggression','biteForce','maxSpeed','preySizeRatio','fearThreshold','armour']
 def arm(c):
@@ -36,6 +39,13 @@ for f in sorted(glob.glob(os.path.join(ROOT,'runs','rot-collect','*.json'))):
         r['meanN']=m; r['cv']=100*st.pstdev(A)/m
         mu={k:st.mean([c[k][j] for j in idx]) for k in ACTS}; tot=sum(mu.values())
         for k in ACTS: r[k]=100*mu[k]/tot if tot>0 else float('nan')
+        # THE MISSION METRIC: share of animal energy intake that came from
+        # animals. Flat at ~0.3% across five structural versions; 0 of 1502
+        # survivors have ever exceeded 5%.
+        ec=c['eCarrion'][b0]-c['eCarrion'][a0]; ep=c['ePlant'][b0]-c['ePlant'][a0]
+        r['hetero']=100*ec/(ec+ep) if ec+ep>0 else float('nan')
+        # how much of what dies actually gets eaten
+        r['corpseStanding']=st.mean([c['corpseMass'][j] for j in idx])
         dk=c['aDeadKilled'][b0]-c['aDeadKilled'][a0]
         t2=dk+sum(c[k][b0]-c[k][a0] for k in ('aDeadAge','aDeadSen','aDeadStarve'))
         r['predShare']=100*dk/t2 if t2>0 else float('nan')

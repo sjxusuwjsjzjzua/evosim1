@@ -300,7 +300,7 @@
 // 1. CONFIG — everything tunable lives here. EVERY k_ IS A GUESS.
 //==========================================================================
 // FORMAT_VERSION tracks the SAVE SCHEMA, not the build.  [L01]
-const VERSION = '0.53.0', FORMAT_VERSION = 36;
+const VERSION = '0.56.0', FORMAT_VERSION = 36;
 
 const CFG = {
   // ---- world (rebuild required) ----
@@ -520,6 +520,16 @@ const CFG = {
                          // on that day, to measure whether the population has a
                          // restoring force.  [L0.52-3]
   shockFraction: 0,      // fraction of live animals culled on shockDay
+  founderGenesA: null,   // {gene: value} applied to EVERY animal founder.
+  founderGenesP: null,   // same for plants. Makes the genome reachable from
+                         // a CFG patch at all -- 139 of 150 dimensions had
+                         // never been varied because nothing could.  [L0.56-2]
+  invadeFrac: 0,         // fraction of animal founders handed invadeGenes.
+                         // 0 = off and RNG-neutral. Probe, not a result.  [L0.55-1]
+  invadeGenes: null,     // {geneName: value} applied to those founders
+  k_choiceBeta: 4.0,     // act choice is now P(act) ~ score^this instead of a
+                         // hard argmax. Large values approach v0.53's argmax
+                         // but never reproduce it exactly.  [L0.54-1]
   k_meatAttrFloor: 0.5,  // additive floor on ATTACK's attraction term. PARAMETER-
                          // ISED, not changed: 0.5 reproduces v0.51 exactly. Set 0
                          // to test whether carnivory survives unsubsidised, which
@@ -715,7 +725,7 @@ const AG_DEF = [
   ['preySizeTolerance', .05,      2,    .08,   .60 ],  // inert until phase 4
   ['plantAttraction',    0,       1,    .04,   .80 ],
   ['meatAttraction',     0,       1,    .04,   .10 ],  // inert until phase 4
-  ['carrionAttraction',  0,       1,    .04,   .10 ],  // inert until phase 4
+  ['carrionAttraction',  0,       1,    .04,   .80 ],  // = plantAttraction  [L0.56-1]
   ['socialAttraction',   0,       1,    .04,   .30 ],
   ['socialRadius',       1,      30,   1.2,  10    ],
   ['kinRecognition',     0,       1,    .04,   .40 ],
@@ -1111,6 +1121,13 @@ function seedFounders(count){
     else
     for (let j = 0; j < P_ACTIVE; j++)
       G[g+j] = clamp(mo[j] + gauss()*PSIG[j]*CFG.founderNoise, PMIN[j], PMAX[j]);
+    if (CFG.founderGenesP){                                        // [L0.56-2]
+      for (const nm in CFG.founderGenesP){
+        const gi = PG[nm];
+        if (gi === undefined) continue;
+        G[g+gi] = clamp(CFG.founderGenesP[nm], PMIN[gi], PMAX[gi]);
+      }
+    }
     P.x[i] = rng()*W.size; P.y[i] = rng()*W.size;
     const t = P.tile[i] = tileOf(P.x[i], P.y[i]);
     if (W.fert[t] < CFG.germFertMin){ releaseSlot(i); continue; }  // [L0.49-1]
@@ -1544,6 +1561,29 @@ function seedAnimalFounders(count){
     else
     for (let j = 0; j < A_ACTIVE; j++)
       G[g+j] = clamp(mo[j] + gauss()*ASIG[j]*CFG.founderNoise, AMIN[j], AMAX[j]);
+    if (CFG.founderGenesA){                                        // [L0.56-2]
+      for (const nm in CFG.founderGenesA){
+        const gi = AG[nm];
+        if (gi === undefined) continue;
+        G[g+gi] = clamp(CFG.founderGenesA[nm], AMIN[gi], AMAX[gi]);
+      }
+    }
+    // INVASION PROBE. Hands a fraction of founders a named genotype so a
+    // region of the landscape can be tested for EXISTENCE directly, instead of
+    // waiting on selection to find a path to it. Three structural attempts at
+    // making carnivory emerge (v0.52 payoff, v0.53 consistency, v0.54 choice
+    // rule) all missed with meatAttraction never leaving its founder value; a
+    // peak that is merely unreachable and a peak that is not there look
+    // identical from the herbivore corner, and this tells them apart. The
+    // rng() draw is taken ONLY when invadeFrac > 0, so a default run is
+    // bit-identical to v0.54.  [L0.55-1]
+    if (CFG.invadeFrac > 0 && CFG.invadeGenes && rng() < CFG.invadeFrac){
+      for (const nm in CFG.invadeGenes){
+        const gi = AG[nm];
+        if (gi === undefined) continue;
+        G[g+gi] = clamp(CFG.invadeGenes[nm], AMIN[gi], AMAX[gi]);
+      }
+    }
     AN.x[i] = rng()*W.size; AN.y[i] = rng()*W.size;
     if (!passable(tileOf(AN.x[i], AN.y[i]))){ freeAnimal(i); continue; }  // [L0.49-1]
     AN.tile[i] = tileOf(AN.x[i], AN.y[i]);
@@ -1697,6 +1737,14 @@ function senseDecide(i){
   }
   const tx0 = (ax/W.tileSize)|0, ty0 = (ay/W.tileSize)|0;
   let bestS = 0, bestT = -1, bestAct = ACT_WANDER, found = 0, foundA = 0;
+  // LUCE CHOICE. The arbiter was a hard argmax, so a gene that only
+  // RESCALES one option's score had a fitness gradient just where the
+  // argmax flipped -- and all four attraction genes duly sat at drift
+  // while the payoff genes moved 10-25x further. Candidates are now drawn
+  // with P ~ score^k_choiceBeta by weighted reservoir sampling: one rng
+  // draw per offered candidate, O(1) state, exact.  [L0.54-1]
+  let bestW = 0;                    // running sum of score^beta
+  const CHOB = C.k_choiceBeta;
   // Plants and animals get SEPARATE detection budgets.  [L37]
 
   const nW = W.n;
@@ -1723,7 +1771,8 @@ function senseDecide(i){
       if (j === BANNED) continue;   // a banned plant no longer spends budget
       found++;
       const sc = plantScore(j, d, herb, fibreTol, toxRes, G[g+AG.plantAttraction], hunger);
-      if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_GRAZE; }
+      { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+        if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_GRAZE; } }
     }
     // Animals are always scanned now, not only when social.  [L39]
     const nNear = aE - aS;          // tile crowding, for the confusion effect
@@ -1761,7 +1810,8 @@ function senseDecide(i){
         if (rateC > 1e-12){
           const patchC = (omass < AGUT ? omass : AGUT)*cv;
           const sc = patchC/(d/ASPD + patchC/rateC)*G[g+AG.carrionAttraction]*hunger;
-          if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_SCAVENGE; }
+          { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+            if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_SCAVENGE; } }
         }
         continue;
       }
@@ -1810,7 +1860,8 @@ function senseDecide(i){
         const sc = patchA/(d/(close > 0.05 ? close : 0.05) + patchA/rateA)
                    *sizeMatch*(C.k_meatAttrFloor + G[g+AG.meatAttraction])
                    *(1 - G[g+AG.kinRecognition]*kin)*hunger;
-        if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_ATTACK; }
+        { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+          if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_ATTACK; } }
       }
 
       // threat, as an AVOIDED LOSS RATE: the flesh they take per tick, valued
@@ -1824,7 +1875,8 @@ function senseDecide(i){
         const ex = threatR/(1 + d/(closeT > 0.05 ? closeT : 0.05));
         if (ex > riskMax) riskMax = ex;
         const fs = ex*G[g+AG.fearThreshold];
-        if (fs > bestS){ bestS = fs; bestT = j; bestAct = ACT_FLEE; }
+        { const w = Math.pow(fs, CHOB) || 5e-324; bestW += w;
+          if (rng()*bestW < w){ bestS = fs; bestT = j; bestAct = ACT_FLEE; } }
       }
 
       // APPROACH is worth the share of your own predation loss that joining a
@@ -1836,7 +1888,8 @@ function senseDecide(i){
       if (crowd > 0 && AN.risk[i] > 0){
         const sc = AN.risk[i]*(crowd/(1+crowd))
                    *G[g+AG.socialAttraction]*(1 - G[g+AG.kinRecognition]*(1-kin));
-        if (sc > bestS){ bestS = sc; bestT = j; bestAct = ACT_APPROACH; }
+        { const w = Math.pow(sc, CHOB) || 5e-324; bestW += w;
+          if (rng()*bestW < w){ bestS = sc; bestT = j; bestAct = ACT_APPROACH; } }
       }
     }
   }

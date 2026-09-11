@@ -15,78 +15,114 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 | file | what it is |
 |---|---|
-| `evosim-v0_55_0.html` | the build. Single file, no build step, runs on a phone. Bump the filename every version — delete the superseded one once its results are captured in `LEDGER.md`. `evosim-v0_54_0.html` is kept alongside it because v0.55 is **verified bit-identical to it at defaults** (the invasion probe [L0.55-1] takes no RNG draw unless `invadeFrac > 0`), so v0.54 is the reference the identity check is against and the revert target if the arbiter debt is called in. **Explicit deletion criterion:** delete `evosim-v0_54_0.html` once (a) H8/H9/H10 have been scored against the matched v0.55 control on the days 400–800 window and written into `LEDGER.md`, win or lose, and (b) the standing decision on `k_choiceBeta` has been resolved — either it earns its keep or the arbiter reverts to argmax in v0.56, in which case v0.54 is the file that change is derived from. |
+| `evosim-v0_56_0.html` | the build. Single file, no build step, runs on a phone. **v0.56 ships two structural changes together** — founder symmetry [L0.56-1] and a CFG-reachable genome [L0.56-2] — under amended rule 3, because the rotation is a 2x2 factorial that separates them. `evosim-v0_55_0.html` is kept as the revert target and as the reference for the founder-value comparison. **Deletion criterion:** delete `evosim-v0_55_0.html` once H11/H12 are scored at n>=60 per cell on the days 400-800 window and written into `LEDGER.md`, win or lose. v0.52/v0.53/v0.54 are deletable now — their results are captured and they are recoverable from git history. |
 | `LEDGER.md` | rationale + the version log with predictions and outcomes. |
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
+| `tools/collect.sh`, `tools/arms.py`, `tools/score55.py` | collection, arm classification by cfg diff, and the weekly matched-window scorer. Committed rather than kept in scratch because `runs/` and the scratchpad do NOT survive a container restart — every log is recoverable from its `runs/<label>/seed-<N>` branch, and `tools/collect.sh` re-fetches the lot in minutes. |
+| `.claude/skills/program-audit/` | harsh audit of the PROGRAM, not of claims. Run it when the project may be looping. `AUDIT-PROTOCOL.md` audits whether numbers are right and has only ever produced local corrections; this one asks whether the work is going anywhere, and returned PIVOT on 2026-09-11. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
 | `check.js` | correctness harness. `node check.js <build.html>` |
 | `headless.js` | runs a build outside the browser. `node headless.js --build <html> --seed <n> --days <n> --out <path> [--cfg patch.json] [--progress-days 20] [--max-wall-min <n>]` — see the Automated iteration section below. Writes `<out>.progress.json` while it runs; touch `<out>.stop` to end it early with a still-valid, still-complete log; `--max-wall-min` does the same automatically at a wall-clock budget, so a run that hits it still returns partial results instead of nothing. |
 | `experiment.js` | runs N seeds through `headless.js` and feeds them to `analyze.py` in one shot. `node experiment.js --build <html> --days <n> --label <name> [--cfg patch.json] [--n 3]` |
 | `.github/workflows/experiment.yml` | same thing on GitHub-hosted runners instead of the session sandbox — one seed per runner (real parallelism), free, doesn't need a session open. Trigger via the Actions tab or `actions_run_trigger`. Results land two ways: as a downloadable artifact, and pushed to a per-seed scratch branch `runs/<label>/seed-<seed>` (fetchable with plain `git` — artifacts sit on blob storage this sandbox's egress policy blocks, so the branch is the reliable path for Claude). |
 
+## The mission metric
+
+**Heterotrophy fraction** = `eCarrion / (ePlant + eCarrion)` over a matched
+window — the share of animal energy intake that came from animals. One number
+for "do the trophic levels feed each other."
+
+Measured 2026-09-11 across **1,502 survivors**: median **0.302%**, max 3.95%,
+**0 runs above 5%**. Across five structural versions: pre-v0.53 0.285% → v0.53
+0.323% → v0.54 CONTROL 0.267% → v0.55 CONTROL 0.211%. Flat. The only arm that
+ever moved it is `meatValue` 40 (0.86–0.99%) — a constant, not selection.
+
+**Report it every pass.** The project ran 34 days without a mission-level number
+and could not tell it was looping; the owner noticed before any instrument did.
+
 ## Hard rules
 
-1. **Compute is not the constraint; unattributed conclusions are.** CPU time
-   (this sandbox, or GitHub Actions) costs no tokens and no attention, so run
-   things freely — but every run that tests a biology hypothesis still needs a
-   written, falsifiable prediction on record before it starts, same as when a
-   run meant carrying a build to a phone. Free compute makes "run it, look,
-   tweak, run it again" *easier* to fall into, not a reason to allow it.
-   Exception: a pure profiling pass (clocking CPU time to find an
-   inefficiency, no ecological claim) needs neither a prediction nor per-run
-   approval — it's a stopwatch, not an experiment. The Automated iteration
-   section below governs who approves a run firing; it never waives the
-   prediction itself.
+1. **Compute is not the constraint; unattributed conclusions are.** Free CPU
+   makes "run it, look, tweak, run it again" easier to fall into, not allowed.
+   Every biology hypothesis needs a written falsifiable prediction on record
+   before its runs start.
+   **AMENDED 2026-09-11: the prediction unit is the QUESTION, not the run.** A
+   screening batch that sweeps twenty untouched constants is **one** prediction
+   ("none of these moves the mission metric by more than X"), not twenty. The
+   old per-run reading is why 139 of 150 CFG constants had never been varied and
+   2,341 runs covered 12 distinct configurations. Breadth was forbidden by a
+   rule meant to forbid fishing.
 
-2. **Run `node check.js <build>` after every edit.** A syntax check is not a
-   correctness check and a call check is not an identifier check.
+2. **Run `node check.js <build>` after every edit.**
 
-3. **One structural change per version, with a written prediction** — falsifiable,
-   named genes, named thresholds, across 3 seeds. Then add a row to `LEDGER.md`.
-   A missed prediction means the diagnosis was wrong, not that the constant
-   needs to be bigger.
+3. **One structural change per version — AMENDED 2026-09-11.** Multiple
+   structural changes may ship in one version **when they are independently
+   motivated and the arms are a factorial that separates them.** Attribution is
+   what the rule protects, and a 2×2 with matched arms buys attribution that
+   serialisation buys with a week of latency. One change per version plus weekly
+   scoring capped learning at roughly one bit per week against unlimited compute;
+   that cap, not the compute, was the bottleneck.
+   A missed prediction still means the diagnosis was wrong, not that the
+   constant needs to be bigger.
 
-4. **Rationale lives in `LEDGER.md`, not in the source.** The source carries a
-   one-line summary and a `[Lnn]` tag. At v0.36 comments were 24% of the file,
-   paid on every read and every write, and parts had gone stale and were
-   contradicting each other.
+4. **Rationale lives in `LEDGER.md`, not in the source.**
 
 5. **Never calibrate a constant against a statistic from a broken or superseded
    run.**
 
-6. **Constant changes ship as a CFG patch, not a new HTML.** ~700 tokens:
-   `{"kind":"evosim-cfg","formatVersion":36,"version":"<build>","base":"<build>",
-   "note":"<diagnosis>","cfg":{...}}`. Loading a file with `cfg` and no terrain
-   arrays assigns the constants and rebuilds from seed. Always put the diagnosis
-   in `note` so the patch is self-documenting when it comes back inside a log.
-   A new HTML is only for a change of *shape*: a formula, a cost curve, a
-   mechanism.
+6. **Constant changes ship as a CFG patch, not a new HTML.** A new HTML is only
+   for a change of *shape*.
+   **Note 2026-09-11:** this rule silently excluded the genome. Founder gene
+   values were not CFG-reachable, so the starting genome — which turned out to
+   contain the monoculture — could not be tested by patch. `founderGenesA` /
+   `founderGenesP` [L0.56-2] fix that.
 
-7. **Verify a measurement-only change did not alter the RNG draw sequence.**
+7. **Verify a measurement-only change did not alter the RNG draw sequence** —
+   and verify it on a run where the changed code path actually executes. A
+   300-day identity check that stops at day 200 with `animalStartDay` 260 tests
+   nothing and prints a pass.
 
 7b. **Never compare a trailing-window statistic across runs of different
-   length.** `analyze.py` computes R0 over the *last 200 samples*, so a
-   1200-day run is measured over days 200-1200 and an 800-day run over
-   days 0-800. Since **15/15 runs fail the stationarity gate** (measured
-   2026-08-10 on 30 cold seeds), those windows sample different parts of a
-   moving trajectory. Match the cutoff explicitly and state it in any
-   comparison. Endpoint *totals* (kills, births, attacks) are worse — they
-   scale with duration directly and must be normalised to per-day rates
-   first. Added after this cost a full day of paired conclusions: seed
-   1337, identical code and cfg, reads R0 **1.21 at 1200 days and 0.73 at
-   800 days** — an artifact larger than any treatment effect measured that
-   day. See LEDGER.md "MAJOR CORRECTION, 2026-08-10".
+   length.** Match the window explicitly; normalise endpoint totals to rates.
 
-8. **DO NOT widen a gene bound to fix a pin.** Tried in v0.43, reverted in
-   v0.44. A rail moves; it does not go away.
+8. **DO NOT widen a gene bound to fix a pin.**
 
 9. **The shipped build stays single-file, no build step, no dependencies,
-   touch-first** — the owner can still run it by hand on a phone any time, and
-   nothing about `headless.js` changes that file. Headless execution reads the
-   HTML as data (extracts the `<script>`, runs it in a Node `vm` context) and
-   never forks or rewrites it. If a change ever makes the build unable to run
-   standalone in a browser again, that change is wrong regardless of what the
-   headless tool reports.
+   touch-first.**
+
+10. **NEW — a frozen threshold must be larger than the standard error of the
+    statistic that gates it, at the planned n.** Compute the SE before freezing.
+    H4's MISS line was 0.15 SD against a bootstrap SE of 0.222 SD at n=61; H10
+    had 14% exact Fisher power against its own criterion at n=25. A meaningful
+    share of the seven-MISS streak was power, not biology, and an underpowered
+    pre-registration is worse than none — it launders noise as a finding.
+
+11. **NEW — report the tail, not only the median.** "GRAZE has never fallen
+    below 93%" was false: 126 of 1,075 qualifying runs are below it, minimum
+    78.3%, and `runs/rot-collect/59400.json` contains a herd (APPROACH 3.95%),
+    an arms race (`maxSpeed` 3.2× control) and 66% corpse consumption — inside
+    an arm scored MISS on its median. Emergence is a minority state. An
+    arm-median pipeline is built to miss exactly the thing this project exists
+    to find.
+
+12. **NEW — a large effect that missed its pre-registered variable is recorded
+    as a NOTABLE UNPREDICTED EFFECT, not discarded.** `meat-rich` produced the
+    largest effect the project has measured (survival 92.2% vs 66.7%,
+    p=0.0022) and was filed as MISS because `carnivory` did not move. Freezing
+    criteria stops self-deception and stays; it must not also throw away signal.
+    A notable effect gets logged and earns a replication arm — it does **not**
+    earn a post-hoc story.
+
+## Neutral-gene drift yardstick — corrected 2026-09-11
+
+Selection response is measured against genes the simulator never reads. The list
+was **contaminated**: `ambushTendency` IS read (`evosim-v0_56_0.html:1769`, it
+sets `hide` in the detection roll), which inflated the null and biased every
+selection test toward MISS.
+
+Verified-inert set: `territoriality`, `mateChoosiness`, `parentalCare`,
+`pathogenResistance`. Re-verify by grep before each use; a gene that gains a
+reader silently invalidates every past comparison.
 
 ## Before touching a constant
 
