@@ -8276,3 +8276,28 @@ is 14%).
 The `meatAttraction`/ATTACK line. Seasonality (finished by H1 FORCED; it consumed
 **48.1% of all compute** against 10.2% on the mission). Arm-median-only analysis.
 H8 as designed. One-structural-change-per-version as an absolute.
+
+## v0.56 smoke, seed 909, matched harness (n=1 — verification, not a result)
+
+Same seed, same `animalStartDay` 120 harness, v0.56 against v0.55:
+
+| | v0.55 | v0.56 |
+|---|---|---|
+| heterotrophy fraction | 0.262% | **0.447%** |
+| SCAVENGE share of acts | 0.30% | **0.76%** |
+| ATTACK share of acts | 0.41% | 1.06% |
+| GRAZE share of acts | 94.58% | 96.75% |
+| animals at end | 87 | 94 |
+| matter drift | — | **0.000000%** |
+
+Heterotrophy 1.7×, scavenging 2.5×, matter conserved exactly, population not
+harmed. The build works and the change moves the intended quantity.
+
+**And it is nowhere near enough.** H11's HIT line is 1.5% and its MISS line is
+0.6%; this single seed lands at 0.447%, i.e. **tracking toward MISS on v0.56's
+own pre-registered criterion**. Recorded now, before the arms land, because the
+temptation next week will be to read 1.7× as success. A 1.7× multiple on a
+number that needs to move by 5× is not success, and the founder prior was only
+one of three binding constraints the audit named — scale and duration are
+untouched, and duration (13.9 generations against a 27-mutational-SD
+displacement) is the next build.
