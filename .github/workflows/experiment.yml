@@ -57,7 +57,7 @@ on:
   #   unbounded backlog for no extra throughput.
   # An earlier version of this block fired 6 jobs every 6 h, which works out
   # to 1.1 of 20 slots -- about 5% utilisation. That was badly
-  # under-provisioned and is exactly what left Actions near-idle.
+ # under-provisioned and is what left Actions near-idle.
   # THREE ticks per hour, 6 seeds each, rather than one tick of 18.
   # GitHub's scheduler is best-effort and sheds load: observed 2026-08-10
   # that the :37 cron fired at 1:09, 2:20, 3:08, 4:07 and 5:02 PM PDT and
@@ -169,7 +169,7 @@ jobs:
       # A `schedule:` trigger ONLY ever fires from the default branch, but
       # main deliberately holds just the shipped v0.49 build and no
       # cfg-patches/ -- so a scheduled run checking out main would fail
-      # instantly on a missing build, exactly the way the 2026-08-10 16:44
+ # instantly on a missing build, the way the 2026-08-10 16:44
       # batch did. Pin scheduled runs to the working branch, which carries
       # the current build and the patches. Manual dispatches keep using
       # whatever ref they were fired against.
@@ -215,7 +215,7 @@ jobs:
             # of its four arms at maxPlants 25000, which adversarial audit F2
             # showed BINDS in 54% of 3x runs -- so those arms were a maxPlants
             # comparison wearing a k_photoCost label, and every seed they
-            # produced was confounded by construction. All arms now run at the
+            # produced was confounded by design. All arms now run at the
             # shipped 90k/40k arena, where the slot cap does not bind.
             # FIVE-WAY, 2026-08-11. Arms 3 and 4 are the selection-response
             # diagnostic [L66]. They were being run locally, but six container
@@ -234,7 +234,17 @@ jobs:
             # question and keeps a slot rather than being dropped.
             # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
             # instead of ~10.
-            # v0.56 ROTATION, 2026-09-11 -- a 2x2 FACTORIAL, after a program
+            # H14 ROTATION, 2026-09-12 -- mvtLeave dose series. The 2x2 it
+            # replaces was testing founder values of carrionAttraction while
+            # build line 1916 discards the scan that reads them: an animal
+            # already grazing an adequate plant returns before bestAct is
+            # assigned, dropping SCAVENGE, ATTACK, APPROACH and FLEE. A founder
+            # value cannot matter when the decision it feeds is thrown away, so
+            # that 2x2 was close to void.
+            # One seed at mvtLeave 5.0 moved heterotrophy 0.447 to 3.280 percent,
+            # the first movement in the mission metric not bought by raising a
+            # food-value constant, at a cost of 94 animals down to 31.
+            # PREVIOUS 2x2 FACTORIAL, 2026-09-11, after a program
             # audit returned a PIVOT verdict. The rotation is no longer four
             # unrelated arms; it is {carrionAttraction founder 0.80 vs 0.10} x
             # {k_meatAttrFloor 0.5 vs 0}, so both main effects and the
@@ -278,10 +288,10 @@ jobs:
             # Replaced by the three v0.53 pre-registrations, each against the
             # matched v0.53 default control which takes 1 of 4 slots.
             case ${{ matrix.cell }} in
-              0) CFG_IN="" ;;                                        # carrion 0.80, floor ON
-              1) CFG_IN="cfg-patches/carrion-lo.json" ;;             # carrion 0.10, floor ON
-              2) CFG_IN="cfg-patches/floor-off-56.json" ;;           # carrion 0.80, floor OFF
-              3) CFG_IN="cfg-patches/carrion-lo-floor-off.json" ;;   # carrion 0.10, floor OFF
+              0) CFG_IN="cfg-patches/mvt-0.json" ;;                  # guard always fires
+              1) CFG_IN="" ;;                                        # mvtLeave 1.0, shipped
+              2) CFG_IN="cfg-patches/mvt-2.5.json" ;;                # guard fires less
+              3) CFG_IN="cfg-patches/mvt-5.0.json" ;;                # guard rarely fires
             esac
           fi
           [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_56_0.html"
