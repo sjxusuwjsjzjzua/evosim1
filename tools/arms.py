@@ -14,7 +14,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'runs', 'arms.tsv')
 
 def arm(c):
-    # v0.55+ first: invadeFrac exists only from v0.55 on.
+    # v0.56 2x2 factorial: founderGenesA exists only from v0.56 on. The cell is
+    # named by BOTH factors so no cell can be silently merged with another.
+    if 'founderGenesA' in c:
+        fg = c.get('founderGenesA') or {}
+        ca = fg.get('carrionAttraction', 0.80)      # v0.56 build default
+        fl = c.get('k_meatAttrFloor', 0.5)
+        return 'v56 carrion%.2f/floor%s' % (ca, 'ON' if fl else 'OFF')
+    # v0.55: invadeFrac exists only from v0.55 on.
     if 'invadeFrac' in c:
         if c.get('invadeFrac', 0) > 0: return 'invade-carn'
         if c.get('k_mixed', 0.018) == 0: return 'mixed-flat'
@@ -74,7 +81,9 @@ for r in open(CACHE):
     if len(p) < 6 or p[1] in ('-', ''): continue
     acc.setdefault(p[1], []).append(p)
 print('%-24s %4s %6s %8s %10s' % ('arm', 'n', 'surv', 'cv%', 'meatAttr'))
-for k in ['CONTROL','invade-carn','mixed-flat','meat-rich-55',
+for k in ['v56 carrion0.80/floorON','v56 carrion0.10/floorON',
+          'v56 carrion0.80/floorOFF','v56 carrion0.10/floorOFF',
+          'CONTROL','invade-carn','mixed-flat','meat-rich-55',
           'v54-CONTROL','beta-hi','meat-rich','beta-flooroff','v54-other',
           'v53-CONTROL','v53-seasonless','v53-halfseason','v53-seasonless-flooroff','v53-other']:
     v = acc.get(k)
