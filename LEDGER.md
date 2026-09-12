@@ -8518,3 +8518,13 @@ default where the gene drives it. One seed through both, matched window days
 The point of the version is the mission test, not the metric. A behavioural rule
 that overrides evolved preference cannot stay a constant in a project whose
 stated test is that a result written into the code does not count.
+
+### v0.57 verification
+
+`k_mvtScale` 0 against v0.56, seed 909, `animalStartDay` 120, 230 days: every one
+of the 90 columns identical, gene snapshots identical. The constant path is
+preserved exactly, so cell 1 of the H15 rotation is a true matched control and
+the old world stays reachable.
+
+Gene path: matter drift 0.000000%, `check.js` passes all six stages. Not
+identical to v0.56, which is the intended effect.
