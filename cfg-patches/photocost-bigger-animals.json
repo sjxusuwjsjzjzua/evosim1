@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Tests animal population headroom independent of food supply: k_photoCost 0.012 (base dose, unchanged), maxAnimals 11000->20000 (maxPlants unchanged at 25000, isolating this as purely a slot-room variable, not a food-base variable). Prediction: if the ~40% extinction rate at the base dose (3/5 seeds) is driven by small-N stochastic wipeout (as seed 6363's healthy-but-extinct profile suggested), more room to buffer a larger standing population should raise survival odds. If extinction rate is unchanged, the constraint is food/behavior, not population-cap headroom.",
+ "cfg":{"maxPlants":25000,"maxAnimals":20000,"k_photoCost":0.012}}

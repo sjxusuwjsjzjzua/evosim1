@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"SCREEN. Combines k_photoCost 0.012 with the k_gut/k_digest halving that showed actAppr 1.1% and heavy scavenging but overshot into extinction alone. Same additive-on-a-fixed-base test as the abase combo.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"k_gut":0.010,"k_digest":0.002}}

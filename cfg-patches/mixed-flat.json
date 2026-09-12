@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.55.0","base":"0.55.0",
+ "note":"H9, the valley test. k_mixed 0.018 -> 0, removing the term whose own source comment says it 'makes the frontier CONCAVE'. Diet is priced as k_gut*(carn^2+herb^2) + k_digest*max(0,carn+herb-1)^2 + k_mixed*max(0, carn*herb - mixedFree). The k_mixed term penalises the intermediate genotypes an evolving lineage must pass through to get from the herbivore corner (herbivory ~0.70, carnivory ~0.06 in every arm measured) to a carnivore corner, which makes the two corners separated by a fitness valley rather than a slope. Selection does not cross valleys. If concavity is the barrier, flattening it should let carnivory rise WITHOUT any seeding.",
+ "cfg":{"k_mixed":0}}

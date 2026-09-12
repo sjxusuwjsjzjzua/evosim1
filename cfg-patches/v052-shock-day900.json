@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.52.0","base":"0.52.0",
+ "note":"PERTURBATION ARM. Culls 50% of live animals once on day 900, through killAnimal so the matter ledger stays closed. Its control is the identical command with no shock keys -- runs are bit-identical up to day 900, so the divergence is attributable. Measures REGULATION as a restoring force, which unlike R0 (mean N in its denominator), persistence (not-yet-dead-at-a-cutoff) and predation share (satisfiable by a constant) cannot be faked by anything static.",
+ "cfg":{"shockDay":900,"shockFraction":0.5}}

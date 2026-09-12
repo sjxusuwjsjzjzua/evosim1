@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"SCREEN. Combines the confirmed k_photoCost 0.012 base with the a_base 0.008 lever that showed real behavioural diversity (actAppr 1.9%, actAttack 2.4%) but overshot the inflated food base into extinction on its own. Tests whether it's additive now that the base isn't inflated.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"a_base":0.008}}

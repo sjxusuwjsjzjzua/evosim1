@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Untested combination of the two strongest individual boosters found: gutcost (R0 1.07-1.37 at n=2) + carrionFloor 0.10 (R0 0.96 at n=1, mildest of the original overshoot arms). Prediction: not obviously additive -- either compounds toward even better demographic health, or the two levers interact and plateau/interfere. No directional prediction beyond testing whether stacking beats either alone.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.012,"k_gut":0.010,"k_digest":0.002,"carrionFloor":0.10}}

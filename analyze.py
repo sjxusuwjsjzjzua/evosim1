@@ -283,6 +283,7 @@ def digest(path):
     sec_trophic(c, P)
     sec_ceilings(d, P)
     sec_sel_health(d, P)
+    out['selectable'] = sec_selectable(d, P)
     out['stationary'] = stationary
 
     out['days'] = days
@@ -305,20 +306,40 @@ def sec_stationary(c, n, tpd, P):
     that is a large part of why consecutive versions disagreed."""
     P('')
     P('-- STATIONARITY GATE ' + '-'*56)
+    # CORRECTED 2026-08-22. This gate fitted a straight LINE to the last third
+    # and flagged |slope| > 2%. Across 724 v0.52 survivors the median |slope| is
+    # 78% -- far too large to be drift. The system OSCILLATES: median coefficient
+    # of variation 65%, and slope signs are essentially random (77 positive / 59
+    # negative). A linear trend test on a cyclic signal reports the phase you
+    # happened to sample, not a trend, so "15/15 fail the stationarity gate" --
+    # the headline that motivated the whole effective-population-size
+    # investigation -- was largely an artifact of this function.
+    #
+    # A consumer-resource system is not supposed to be flat. What matters is
+    # whether it is cycling around a stable level or walking away from one, so
+    # the drift test is now on HALF-MEANS (phase-robust) and the oscillation is
+    # reported separately rather than counted as failure.
     w = max(20, n//3)
     bad = []
     for k in ('plants', 'bio', 'animals', 'soil'):
         if k not in c: continue
-        m = st.mean(c[k][-w:]) or 1
-        sl = 100*slope100(c[k][-w:])/m
-        flag = '  <<DRIFTING' if abs(sl) > 2.0 else ''
+        seg = [x for x in c[k][-w:]]
+        m = st.mean(seg) or 1
+        sl = 100*slope100(seg)/m
+        h = len(seg)//2
+        m1, m2 = st.mean(seg[:h]) or 1, st.mean(seg[h:])
+        drift = 100*(m2-m1)/m1                       # phase-robust
+        cv = 100*st.pstdev(seg)/m if m else 0        # oscillation amplitude
+        flag = '  <<DRIFTING' if abs(drift) > 25.0 else ''
         if flag: bad.append(k)
-        P('  %-10s %+8.2f %%/100 samples over last third%s' % (k, sl, flag))
+        P('  %-8s drift %+7.1f%%  cv %5.1f%%  (raw slope %+7.1f%%)%s'
+          % (k, drift, cv, sl, flag))
     if bad:
-        P('  >> NOT STATIONARY (%s). Gene means below are a SNAPSHOT OF A' % ', '.join(bad))
-        P('  >> TRANSIENT. Do not compare them against another version.')
+        P('  >> DRIFTING (%s): half-mean shift exceeds 25%%. Gene means are a' % ', '.join(bad))
+        P('  >> snapshot of a transient. High cv alone is NOT failure -- an')
+        P('  >> oscillating consumer-resource system is expected to cycle.')
     else:
-        P('  >> stationary. Gene means are comparable across versions.')
+        P('  >> not drifting. Cycling is fine; gene means are comparable.')
     return not bad
 
 
@@ -363,7 +384,7 @@ def sec_ne(d, P):
 
 def sec_demography(c, n, tpd, d, P):
     """Does the average individual live long enough to breed. If not, every
-    lifespan / senescence / care gene is unselected and reads as drift."""
+    lifespan / senescence / care gene is unselected and is indistinguishable from drift."""
     P('')
     P('-- DEMOGRAPHY ' + '-'*63)
     G = d.get('genes', [])
@@ -406,6 +427,33 @@ def sec_demography(c, n, tpd, d, P):
                 P('  births/animal-lifetime (R0) %.2f   [%d births, mean N %.0f, %.0f d, life %.1f d]%s'
                   % (r0, dB, meanN, dD, life,
                      '   <<R0 < 1: NOT VIABLE, food is not the diagnosis' if r0 < 1.0 else ''))
+        # POST-ESTABLISHMENT R0. The line above averages over the LAST 200
+        # samples (up to 1000 d), so a short run cannot exclude the founding
+        # transient: an 800-day run's window is days 5-800, i.e. its whole
+        # history, most of which is the population still establishing. That
+        # made R0 rise with run length in 17/18 corpus runs (mean +0.39) and
+        # produced a full day of wrong paired conclusions. This second figure
+        # starts the window at animalStartDay + a settling margin instead, so
+        # it measures the established population regardless of run length.
+        # Printed ALONGSIDE the original, never replacing it — every number
+        # already in LEDGER.md refers to the line above.  [L61b]
+        start = d.get('cfg', {}).get('animalStartDay', 260)
+        settle = 340                     # measured: establishment done by ~day 600
+        t0 = (start + settle)
+        est = [i for i, t in enumerate(c['tick']) if t / tpd >= t0]
+        if len(est) >= 40:
+            j0 = est[0]
+            dB2 = c['aBorn'][-1] - c['aBorn'][j0]
+            dD2 = (c['tick'][-1] - c['tick'][j0]) / tpd
+            pops2 = [x for x in c['animals'][j0:] if x > 0]
+            ages2 = [x for x in c['aDeathAge'][j0:] if x > 0]
+            if dD2 > 0 and pops2 and ages2:
+                r0b = dB2 / (st.mean(pops2) * dD2) * st.mean(ages2)
+                P('  R0 post-establishment  %.2f   [from day %d, %.0f d, mean N %.0f]%s'
+                  % (r0b, t0, dD2, st.mean(pops2),
+                     '   <<still below replacement' if r0b < 1.0 else ''))
+        else:
+            P('  R0 post-establishment  n/a   [run too short: needs >%d d]' % t0)
 
 
 def sec_refuge(c, n, tpd, P):
@@ -551,6 +599,123 @@ def cross(rows):
         vals += [r['eg'], r['harm']] + [r['drift'].get(k, float('nan')) for k in ('plants', 'bio', 'animals')]
         print('  %-14s ' % ('%s v%s' % (r['seed'], r['ver'])) +
               ' '.join('%12.3f' % v for v in vals))
+
+
+# Genes the simulation loop NEVER reads. Verified by grepping for AG.<name>
+# in the build: zero hits each. They mutate and drift exactly like every other
+# gene and are acted on by nothing, which makes them a built-in negative
+# control for "is selection detectable at all?".
+# CORRECTED 2026-09-11: ambushTendency was in this list and the sim READS it
+# (build line ~1769, it sets `hide` in the detection roll). An inflated null
+# biased every selection-response verdict toward "not demonstrable". Re-grep
+# before trusting this list; a gene that gains a reader invalidates
+# every past comparison made against it.
+# territoriality was repurposed as patchLeaving in v0.57 and IS now read.
+# Three genes left in the null; re-grep before trusting it.
+INERT_CONTROL = ['mateChoosiness',
+                 'parentalCare', 'pathogenResistance']
+
+
+def sec_selectable(d, P):
+    """THE SELECTION-RESPONSE GATE.
+
+    Added 2026-08-11 after a strategic audit found that evolved
+    meatAttraction was statistically indistinguishable from `territoriality`
+    -- a gene with identical bounds, identical sigma, identical founder start
+    and ZERO references anywhere in the simulation. Every mechanism claim in
+    this project rests on reading an evolved gene value, and nobody had ever
+    checked whether the population could move a gene at all.
+
+    Two numbers, both cheap:
+      1. neutral variance retention -- inert-gene SD now vs at the first
+         populated snapshot. Collapse means drift is swamping selection.
+      2. whether ANY functional gene has moved further than the furthest
+         inert gene. If not, "the gene did not move" is a statement about the
+         population, not about the mechanism under test.
+
+    This gate outranks the ecological sections below it. A run that fails it
+    cannot score a mechanism prediction, in either direction.
+    """
+    P('')
+    P('-- SELECTION RESPONSE (can this population move a gene at all?) ' + '-' * 14)
+    snaps = [x for x in d.get('genes', []) if x.get('animal', {}).get('n', 0) > 20]
+    names = d.get('geneNames', {}).get('animal', [])
+    if len(snaps) < 2 or not names:
+        P('  n/a  [needs >=2 gene snapshots with a populated animal census]')
+        return None
+    f, l = snaps[0]['animal'], snaps[-1]['animal']
+
+    ratios = []
+    for g in INERT_CONTROL:
+        if g not in names:
+            continue
+        i = names.index(g)
+        if i < len(f['sd']) and f['sd'][i] > 1e-9:
+            ratios.append(l['sd'][i] / f['sd'][i])
+    if not ratios:
+        P('  n/a  [no inert control genes found in this build]')
+        return None
+    keep = st.median(ratios)
+
+    # How far each gene moved, IN UNITS OF ITS OWN STANDING VARIATION
+    # (|dmean| / sd_at_first_census). Raw movement is unusable as a yardstick
+    # because gene ranges differ by five orders of magnitude -- parentalCare
+    # spans [0, 20000] and armour spans [0, 1], so an absolute comparison is
+    # just a ranking of gene ranges. The same mistake is live in sec_ne above,
+    # which averages parentalCare raw; flagged by the 2026-08-11 strategic
+    # audit and not fixed here to keep this one change reviewable.
+    def moved(i):
+        sd0 = f['sd'][i] if i < len(f['sd']) else 0.0
+        if sd0 <= 1e-12 or i >= len(f['mean']):
+            return None
+        return abs(l['mean'][i] - f['mean'][i]) / sd0
+
+    inert_move = [m for m in (moved(names.index(g)) for g in INERT_CONTROL
+                              if g in names) if m is not None]
+    ceiling = max(inert_move) if inert_move else 0.0
+
+    P('  neutral variance retained   %.1f%%   [inert-gene SD now / at first census]%s'
+      % (100 * keep, '   <<DRIFT DOMINATES' if keep < 0.40 else ''))
+    P('  drift yardstick             %.2f sd  [largest move by a gene nothing reads]' % ceiling)
+
+    beat = []
+    for g in names:
+        if g in INERT_CONTROL:
+            continue
+        mv = moved(names.index(g))
+        if mv is not None and mv > ceiling:
+            beat.append((mv, g))
+    beat.sort(reverse=True)
+    if beat:
+        P('  functional genes that beat drift: %d' % len(beat))
+        for mv, g in beat[:6]:
+            P('      %-22s moved %.2f sd' % (g, mv))
+    else:
+        P('  functional genes that beat drift: NONE')
+
+    # VERDICT RULE, corrected 2026-08-11 on its first informative use.
+    # It was `keep >= 0.40 AND beats > 0`, which called seed 70007 NOT
+    # DEMONSTRABLE despite 21 functional genes outrunning a 1.01 sd drift
+    # yardstick -- purely because its neutral retention was 28.7%. That AND is
+    # wrong: heavy drift and detectable selection are not mutually exclusive.
+    # A population can lose most of its neutral variance and still show clear
+    # directional movement in the genes under selection, which is what
+    # 70007 does.
+    # The two numbers answer different questions and are now reported as such:
+    #   `keep`  = how much drift there was  -> how NOISY any estimate is
+    #   `beat`  = did anything outrun it    -> whether selection is DETECTABLE
+    # "Not demonstrable" now means only what it says: nothing beat drift.
+    # The statistics themselves are unchanged, so [L66]'s frozen thresholds --
+    # which are stated on the raw numbers, not on this label -- are unaffected.
+    ok = len(beat) > 0
+    if not ok:
+        P('  >> SELECTION NOT DEMONSTRABLE. No mechanism prediction is scoreable on')
+        P('  >> this run in EITHER direction -- a gene that did not move here is')
+        P('  >> evidence about the population, not about the mechanism.')
+    elif keep < 0.40:
+        P('  >> selection IS detectable, but on a heavily drifted population')
+        P('  >> (%.1f%% neutral variance left). Treat effect sizes as noisy.' % (100 * keep))
+    return ok
 
 
 if __name__ == '__main__':

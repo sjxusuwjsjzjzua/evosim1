@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.54.0","base":"0.54.0",
+ "note":"ISOLATION ARM for v0.54's Luce-choice arbiter [L0.54-1]. k_choiceBeta 4 -> 12, which makes P(act) ~ score^12 -- sharp enough to sit very close to v0.53's hard argmax without being it. Purpose: any difference v0.54 CONTROL shows against the v0.53 corpus could come from the choice rule OR from the extra rng draw per candidate shifting the RNG path. This arm keeps the identical code path and the identical draw count, changing only the sharpness, so a CONTROL-vs-beta-hi difference is attributable to the choice rule alone. Pre-registered as H4's comparator, 2026-08-29.",
+ "cfg":{"k_choiceBeta":12.0}}

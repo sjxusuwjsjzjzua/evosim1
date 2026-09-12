@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Arena-speed baseline for fast-iteration batch: maxPlants 90000->25000, maxAnimals 40000->11000 (same 2.25:1 ratio). Not a biology claim -- shrinks compute cost per tick so iteration is fast enough to actually iterate. Applied identically under every arm this round so it never confounds a comparison.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000}}

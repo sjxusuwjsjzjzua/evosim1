@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"SCREEN, not confirmation. k_gut 0.020->0.010, k_digest 0.004->0.002 (half digestion cost) -- makes grazing cheaper per unit eaten, testing whether that's what's suppressing herbivory's actual cropping rate rather than the arbiter currency (already fixed in L47-2).",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_gut":0.010,"k_digest":0.002}}

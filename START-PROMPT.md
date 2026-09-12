@@ -51,7 +51,7 @@ next step is Tier A and HANDOFF.md already shows it as approved and queued.
 ## Useful commands
 
 ```bash
-node check.js <current-build.html>                     # after EVERY edit
+node check.js <current-build.html> # after EVERY edit
 python3 analyze.py log1.json log2.json log3.json
 node headless.js --build <html> --seed <n> --days <n> --out <path> \
     [--cfg patch.json] [--progress-days 20] [--max-wall-min <n>]

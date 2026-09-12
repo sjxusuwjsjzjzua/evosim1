@@ -14,10 +14,10 @@
  *
  * The splice point is one exact, literal anchor string taken from the tail
  * of the file. If a future build changes that block, this throws instead of
- * silently running the wrong thing — update ANCHOR to match.
+ * running the wrong thing — update ANCHOR to match.
  *
  * A long run is a black box until it finishes, which is dangerous for
- * exactly the reason rule 1 exists — so this writes real state out while it
+ * the reason rule 1 exists — so this writes real state out while it
  * runs, through two plain files (not a debugger port, not a signal into a
  * busy synchronous loop, both of which are unreliable mid-tick-loop):
  *
@@ -46,7 +46,7 @@
  * the output say which limit actually applied.
  *
  * Usage:
- *   node headless.js --build evosim-v0_49_0.html --seed 1337 --days 1200 \
+ *   node headless.js --build evosim-v0_50_0.html --seed 1337 --days 1200 \
  *        [--cfg patch.json] --out runs/foo/seed-1337.json \
  *        [--progress-days 20] [--max-ticks N] [--no-autohalt] [--max-wall-min 165]
  *
@@ -81,7 +81,7 @@ requestAnimationFrame(frame);`;
 // A generic, infinitely-deep stub: readable, writable, callable, chainable.
 // Standing in for every DOM element / window / navigator / etc. the script's
 // top-level (non-function-body) statements touch on load. Nothing rendered
-// is ever read back, so "wrong" values here are harmless by construction —
+// is ever read back, so "wrong" values here are harmless by design —
 // the only failure mode this needs to avoid is throwing.
 function makeStub() {
   const target = function stub() {};
@@ -100,7 +100,7 @@ function makeStub() {
   return new Proxy(target, handler);
 }
 
-function buildSandbox({ onProgress, shouldStop }) {
+function buildSandbox({ onProgress, shouldStop, onCheckpoint }) {
   const sandbox = {
     console,
     document: makeStub(),
@@ -121,6 +121,7 @@ function buildSandbox({ onProgress, shouldStop }) {
     // world without ever needing to interrupt the tick loop mid-flight.
     __reportProgress: onProgress,
     __shouldStop: shouldStop,
+    __writeCheckpoint: onCheckpoint || (() => {}),
   };
   return sandbox;
 }
@@ -131,7 +132,7 @@ function extractScript(html) {
   return m[1];
 }
 
-function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin }) {
+function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin, checkpointDays }) {
   if (!script.includes(ANCHOR)) {
     throw new Error(
       'headless.js ANCHOR text not found in the build. The trailing init ' +
@@ -145,12 +146,44 @@ function spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, pr
 Object.assign(CFG, ${JSON.stringify(overrides)});
 buildWorld();
 let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
+// declared out here so the final JSON.stringify below can see it; ASSIGNED
+// inside the block before the tick loop so the checkpoint hook can too.
+let __buildLog;
 {
   const __tpd = TPD();
   const __t0 = performance.now();
   const __maxTicks = ${maxTicks != null ? Number(maxTicks) : `Math.round(${JSON.stringify(days)} * __tpd)`};
   const __autohalt = ${autohalt ? 'true' : 'false'};
   const __progressEvery = Math.max(1, Math.round(${JSON.stringify(progressDays)} * __tpd));
+  const __ckptEvery = ${checkpointDays ? `Math.max(1, Math.round(${Number(checkpointDays)} * __tpd))` : 0};
+  __buildLog = () => {
+const __cols = {};
+for (let __c = 0; __c < LOGCOLS.length; __c++) {
+  const __src = LOG.col[__c], __a = new Array(LOG.n);
+  for (let __j = 0; __j < LOG.n; __j++) {
+    const __v = __src[__j];
+    __a[__j] = Math.abs(__v) >= 1000 ? Math.round(__v) : +__v.toFixed(4);
+  }
+  __cols[LOGCOLS[__c]] = __a;
+}
+return {
+  kind: 'evosim-log', version: VERSION, formatVersion: FORMAT_VERSION,
+  seed: W.seed, tick: W.tick, sampleEvery: LOG.every,
+  ticksPerDay: TPD(), daysPerYear: CFG.daysPerYear,
+  slots: { plants: CFG.maxPlants, animals: CFG.maxAnimals,
+           seeds: Math.round(CFG.maxPlants * CFG.seedSlotFraction) },
+  cfg: Object.assign({}, CFG),
+  geneNames: { plant: geneNames(PG), animal: geneNames(AG) },
+  cols: __cols, genes: LOG.gene, lineages: LOG.lin, events: LOG.events,
+  clusterGenes: { plant: PLIN ? PLIN.spec.genes : [], animal: ALIN ? ALIN.spec.genes : [] },
+  trees: { plant: PLIN ? PLIN.tree : [], animal: ALIN ? ALIN.tree : [] },
+  upkeep: LOG.upk,
+  carnivoryHistogram: { bins: CARNBINS, series: LOG.carn },
+  heightHistogram: { bins: HGTBINS, series: LOG.hgt },
+  deathAgeHistogram: { bins: DAGEBINS, note: 'age at death in quarters of maturityAge', series: LOG.dage },
+  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested, wallClockExceeded: __wallExceeded }
+};
+};
   const __maxWallMs = ${maxWallMin != null ? Number(maxWallMin) * 60000 : 'null'};
   for (let __i = 0; __i < __maxTicks; __i++) {
     tick();
@@ -175,39 +208,72 @@ let __haltedEarly = false, __stopRequested = false, __wallExceeded = false;
         plantsHi: P.hi, animalsHi: AN.hi,
       });
     }
+    // CHECKPOINT. headless.js used to write the log exactly once, at the
+    // end, so a run killed mid-flight produced NOTHING -- the session
+    // container restarted twice on 2026-08-10 and threw away four
+    // multi-hour runs, one at day 2040 of 2400. Now every
+    // --checkpoint-days the full log is serialised to <out>.partial.json,
+    // which analyze.py reads exactly like a finished log (it is the same
+    // shape, just shorter). Costs one serialisation per interval; set
+    // --checkpoint-days 0 to disable.  [L62]
+    //
+    // MUST NOT be nested inside the progress block above. It was until
+    // 2026-08-11, which meant a checkpoint only fired on ticks that were a
+    // multiple of BOTH intervals -- so --progress-days 40 --checkpoint-days
+    // 100 (19200 and 48000 ticks, ratio 2.5) wrote NO checkpoint ,
+    // without error, and four running jobs were unprotected while the comment
+    // above claimed they were covered. The defaults happened to divide,
+    // which is why it survived review.  [L63]
+    if (__ckptEvery > 0 && __buildLog && (W.tick % __ckptEvery === 0)) {
+      try {
+        // FRESH GENES IN THE CHECKPOINT.  [L64]
+        // __buildLog() does not call logGenes(), so until now a .partial.json
+        // carried a gene snapshot stale by up to LOG.geneEvery -- and on a run
+        // killed before its first post-fauna snapshot, every gene read exactly
+        // 0.0000. That made checkpoints useless for the one thing the current
+        // predictions are scored on (meatAttraction), and four container
+        // restarts in four hours destroyed every local gene reading.
+        //
+        // logGenes() draws no rng (verified: zero rng() calls in its body and
+        // in geneRow), so calling it here is RNG-safe. But it is NOT free of
+        // side effects -- it pushes onto five LOG arrays, can halve LOG.gene
+        // and double LOG.geneEvery at the cap, and ZEROES the DAGE and UPK
+        // accumulators. Left uncorrected it would steal those accumulators
+        // from the next real snapshot and change the final log.
+        // So: snapshot the mutable state, take the reading, restore exactly.
+        const __sg = {
+          gene: LOG.gene.slice(), carn: LOG.carn.slice(), hgt: LOG.hgt.slice(),
+          dage: LOG.dage.slice(), upk: LOG.upk.slice(), every: LOG.geneEvery,
+          dageA: Array.from(DAGE), upkA: Array.from(UPK), upkn: UPKN,
+          // geneRow() ends by zeroing the accumulator (build :3528) --
+          // 'sel' is a WINDOW, not a cumulative total, so reading it drains it.
+          // Missing these two was a real defect: the first rule-7 check FAILED
+          // with every difference confined to sel/selN, e.g. plant selN 864
+          // where the unpatched run had 191776, because each checkpoint stole
+          // the selection window from the next real snapshot. The gene means
+          // and every logged column were already identical -- only the
+          // selection readout was corrupted, which is the kind of
+          // quiet, plausible-looking damage rule 7 exists to catch.
+          selP: SELP.acc ? Array.from(SELP.acc) : null, selPn: SELP.n,
+          selA: SELA.acc ? Array.from(SELA.acc) : null, selAn: SELA.n,
+        };
+        logGenes();
+        const __json = JSON.stringify(__buildLog());
+        LOG.gene = __sg.gene; LOG.carn = __sg.carn; LOG.hgt = __sg.hgt;
+        LOG.dage = __sg.dage; LOG.upk = __sg.upk; LOG.geneEvery = __sg.every;
+        DAGE.set(__sg.dageA); UPK.set(__sg.upkA); UPKN = __sg.upkn;
+        if (__sg.selP) { SELP.acc.set(__sg.selP); SELP.n = __sg.selPn; }
+        if (__sg.selA) { SELA.acc.set(__sg.selA); SELA.n = __sg.selAn; }
+        __writeCheckpoint(__json);
+      } catch (__e) {}
+    }
     if (__autohalt && LOG.aGone && !ST.apop &&
         (W.tick - LOG.aGoneTick) > CFG.haltAfterDays * __tpd) { __haltedEarly = true; break; }
   }
 }
 logGenes();
-const __cols = {};
-for (let __c = 0; __c < LOGCOLS.length; __c++) {
-  const __src = LOG.col[__c], __a = new Array(LOG.n);
-  for (let __j = 0; __j < LOG.n; __j++) {
-    const __v = __src[__j];
-    __a[__j] = Math.abs(__v) >= 1000 ? Math.round(__v) : +__v.toFixed(4);
-  }
-  __cols[LOGCOLS[__c]] = __a;
-}
-const __data = {
-  kind: 'evosim-log', version: VERSION, formatVersion: FORMAT_VERSION,
-  seed: W.seed, tick: W.tick, sampleEvery: LOG.every,
-  ticksPerDay: TPD(), daysPerYear: CFG.daysPerYear,
-  slots: { plants: CFG.maxPlants, animals: CFG.maxAnimals,
-           seeds: Math.round(CFG.maxPlants * CFG.seedSlotFraction) },
-  cfg: Object.assign({}, CFG),
-  geneNames: { plant: geneNames(PG), animal: geneNames(AG) },
-  cols: __cols, genes: LOG.gene, lineages: LOG.lin, events: LOG.events,
-  clusterGenes: { plant: PLIN ? PLIN.spec.genes : [], animal: ALIN ? ALIN.spec.genes : [] },
-  trees: { plant: PLIN ? PLIN.tree : [], animal: ALIN ? ALIN.tree : [] },
-  upkeep: LOG.upk,
-  carnivoryHistogram: { bins: CARNBINS, series: LOG.carn },
-  heightHistogram: { bins: HGTBINS, series: LOG.hgt },
-  deathAgeHistogram: { bins: DAGEBINS, note: 'age at death in quarters of maturityAge', series: LOG.dage },
-  headless: { tool: 'headless.js', haltedEarly: __haltedEarly, stopRequested: __stopRequested, wallClockExceeded: __wallExceeded }
-};
 __reportProgress({ tick: W.tick, days: +(W.tick / TPD()).toFixed(2), plants: ST.pop, animals: ST.apop, done: true });
-JSON.stringify(__data);
+JSON.stringify(__buildLog());
 `;
   return script.replace(ANCHOR, driver);
 }
@@ -233,6 +299,9 @@ function main() {
   const autohalt = !args['no-autohalt'];
   const progressDays = args['progress-days'] !== undefined ? Number(args['progress-days']) : 20;
   const maxWallMin = args['max-wall-min'] !== undefined ? Number(args['max-wall-min']) : undefined;
+  // default 200: ~8 checkpoints on a 1600-day run, negligible cost, and caps
+  // the worst-case loss from a container restart at 200 sim-days.  [L62]
+  const checkpointDays = args['checkpoint-days'] !== undefined ? Number(args['checkpoint-days']) : 200;
 
   // outPath has to be known BEFORE the run starts now — progress/stop files
   // live next to it. Final tick count is no longer part of the default name.
@@ -245,13 +314,22 @@ function main() {
 
   const html = fs.readFileSync(buildPath, 'utf8');
   const script = extractScript(html);
-  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin });
+  const finalScript = spliceDriver(script, { seed, days, maxTicks, cfgOverrides, autohalt, progressDays, maxWallMin, checkpointDays });
 
   const onProgress = (info) => {
     try { fs.writeFileSync(progressPath, JSON.stringify(info)); } catch (e) { /* best-effort */ }
   };
+  // Written atomically (tmp + rename) so a checkpoint can never be observed
+  // half-written if the process dies mid-write.  [L62]
+  const partialPath = outPath + '.partial.json';
+  const onCheckpoint = (jsonStr) => {
+    try {
+      fs.writeFileSync(partialPath + '.tmp', jsonStr);
+      fs.renameSync(partialPath + '.tmp', partialPath);
+    } catch (e) { /* best-effort */ }
+  };
   const shouldStop = () => { try { return fs.existsSync(stopPath); } catch (e) { return false; } };
-  const sandbox = buildSandbox({ onProgress, shouldStop });
+  const sandbox = buildSandbox({ onProgress, shouldStop, onCheckpoint });
   const context = vm.createContext(sandbox);
   const t0 = Date.now();
   let jsonText;
@@ -265,6 +343,7 @@ function main() {
 
   const data = JSON.parse(jsonText);
   fs.writeFileSync(outPath, jsonText);
+  try { if (fs.existsSync(partialPath)) fs.unlinkSync(partialPath); } catch (e) {}
   if (fs.existsSync(stopPath)) fs.unlinkSync(stopPath);
 
   const days_ = data.tick / data.ticksPerDay;

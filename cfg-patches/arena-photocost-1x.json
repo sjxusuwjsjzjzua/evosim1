@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.51.0","base":"0.51.0",
+ "note":"CONTROL ARM for the photocost dose series. Identical to arena-speed-photocost.json except k_photoCost stays at the shipped build default 0.004 instead of 0.012. Same arena caps (maxPlants 25000 / maxAnimals 11000) as both existing standing arms, so the ONLY thing varying across 0.004 / 0.012 / 0.02 is respiration cost. Added 2026-08-10 after discovering that all 82 cold seeds in the standing batch to date sit at 0.012 or 0.02 and NO run at the default dose exists at all -- the 3x-vs-5x survival gap (67% vs 37% alive at day 800, n=54 complete blocks, Fisher p=0.054) had no control to be measured against.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.004}}

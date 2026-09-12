@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.49.0","base":"0.49.0",
+ "note":"Untested stack: strongest single dose (k_photoCost 0.020, 5x) + gutcost combo (k_gut 0.010, k_digest 0.002). Prediction: not obviously additive -- either compounds toward even better demographic health than either alone, or over-shrinks the food base and reintroduces extinction risk from the other direction.",
+ "cfg":{"maxPlants":25000,"maxAnimals":11000,"k_photoCost":0.020,"k_gut":0.010,"k_digest":0.002}}
