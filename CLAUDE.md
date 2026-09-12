@@ -15,10 +15,10 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 | file | what it is |
 |---|---|
-| `evosim-v0_56_0.html` | the build. Single file, no build step, runs on a phone. **v0.56 ships two structural changes together** — founder symmetry [L0.56-1] and a CFG-reachable genome [L0.56-2] — under amended rule 3, because the rotation is a 2x2 factorial that separates them. `evosim-v0_55_0.html` is kept as the revert target and as the reference for the founder-value comparison. **Deletion criterion:** delete `evosim-v0_55_0.html` once H11/H12 are scored at n>=60 per cell on the days 400-800 window and written into `LEDGER.md`, win or lose. v0.52/v0.53/v0.54 are deletable now — their results are captured and they are recoverable from git history. |
+| `evosim-v0_57_0.html` | the build. Single file, no build step, runs on a phone. v0.57 makes the MVT leave threshold a gene, `patchLeaving` [L0.57-1], renamed from the inert `territoriality`. `k_mvtScale` 0 restores the v0.56 constant and is verified bit-identical to it, so the pre-v0.57 world stays reachable as a matched control. `evosim-v0_56_0.html` is kept as that reference and as the revert target. **Deletion criterion:** delete `evosim-v0_56_0.html` once H15 is scored at n>=40 per cell on the days 400-800 window and written into `LEDGER.md`, win or lose. `evosim-v0_55_0.html` is deletable now: H11/H12 were superseded before they could be scored, since the MVT guard made that 2x2 close to void. |
 | `LEDGER.md` | rationale + the version log with predictions and outcomes. |
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
-| `tools/collect.sh`, `tools/arms.py`, `tools/score55.py` | collection, arm classification by cfg diff, and the weekly matched-window scorer. Committed rather than kept in scratch because `runs/` and the scratchpad do NOT survive a container restart — every log is recoverable from its `runs/<label>/seed-<N>` branch, and `tools/collect.sh` re-fetches the lot in minutes. |
+| `tools/collect.sh`, `tools/arms.py`, `tools/score55.py`, `tools/style-check.sh` | collection, arm classification by cfg diff, and the weekly matched-window scorer. Committed rather than kept in scratch because `runs/` and the scratchpad do NOT survive a container restart — every log is recoverable from its `runs/<label>/seed-<N>` branch, and `tools/collect.sh` re-fetches the lot in minutes. |
 | `.claude/skills/program-audit/` | harsh audit of the PROGRAM, not of claims. Run it when the project may be looping. `AUDIT-PROTOCOL.md` audits whether numbers are right and has only ever produced local corrections; this one asks whether the work is going anywhere, and returned PIVOT on 2026-09-11. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
 | `check.js` | correctness harness. `node check.js <build.html>` |
@@ -124,7 +124,7 @@ and could not tell it was looping; the owner noticed before any instrument did.
 ## Neutral-gene drift yardstick — corrected 2026-09-11
 
 Selection response is measured against genes the simulator never reads. The list
-was **contaminated**: `ambushTendency` IS read (`evosim-v0_56_0.html:1769`, it
+was **contaminated**: `ambushTendency` IS read (`evosim-v0_57_0.html:1769`, it
 sets `hide` in the detection roll), which inflated the null and biased every
 selection test toward MISS.
 
