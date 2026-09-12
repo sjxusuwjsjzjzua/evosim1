@@ -104,7 +104,7 @@ on:
     inputs:
       build:
         description: 'Build file to run'
-        default: 'evosim-v0_49_0.html'
+        default: 'evosim-v0_58_0.html'
         required: true
       seeds:
         description: 'Comma-separated seeds, e.g. 4001,4002,4003 (blank on a schedule => derived from run_number)'
