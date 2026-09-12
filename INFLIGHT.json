@@ -368,6 +368,76 @@
    "fired_at": "2026-09-12",
    "status": "withdrawn",
    "notes": "WITHDRAWN UNSCORED, 2026-09-12, n=0 collected. It asked how a rule that discards the scan is parameterised while the deeper problem was that winning the scan paid nothing. Superseded by H17."
+  },
+  "h18-corpse-persist": {
+   "build": "evosim-v0_58_0.html",
+   "seeds": [
+    92001,
+    92002,
+    92003,
+    92004
+   ],
+   "fired_at": "2026-09-12T06:38Z",
+   "status": "fired",
+   "cfg": "cfg-patches/screen-corpse-persist.json",
+   "prediction_ref": "LEDGER.md 'H18 \u2014 corpse persistence is not the constraint'",
+   "notes": "Actions run 34678626554, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h18-corpse-persist/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+  },
+  "h19-toxin-tax": {
+   "build": "evosim-v0_58_0.html",
+   "seeds": [
+    92001,
+    92002,
+    92003,
+    92004
+   ],
+   "fired_at": "2026-09-12T06:38Z",
+   "status": "fired",
+   "cfg": "cfg-patches/screen-toxin-tax.json",
+   "prediction_ref": "LEDGER.md 'H19 \u2014 the herbivore corner is subsidised'",
+   "notes": "Actions run 34678627763, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h19-toxin-tax/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+  },
+  "h20-cheap-upkeep": {
+   "build": "evosim-v0_58_0.html",
+   "seeds": [
+    92001,
+    92002,
+    92003,
+    92004
+   ],
+   "fired_at": "2026-09-12T06:38Z",
+   "status": "fired",
+   "cfg": "cfg-patches/screen-cheap-upkeep.json",
+   "prediction_ref": "LEDGER.md 'H20 \u2014 the guild is too small for selection to hold it'",
+   "notes": "Actions run 34678631027, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h20-cheap-upkeep/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+  },
+  "h21-gut-tax": {
+   "build": "evosim-v0_58_0.html",
+   "seeds": [
+    92001,
+    92002,
+    92003,
+    92004
+   ],
+   "fired_at": "2026-09-12T06:38Z",
+   "status": "fired",
+   "cfg": "cfg-patches/screen-gut-tax.json",
+   "prediction_ref": "LEDGER.md 'H21 \u2014 the gut tax is what makes an omnivore impossible'",
+   "notes": "Actions run 34678632581, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h21-gut-tax/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+  },
+  "h18-21-control": {
+   "build": "evosim-v0_58_0.html",
+   "seeds": [
+    92001,
+    92002,
+    92003,
+    92004
+   ],
+   "fired_at": "2026-09-12T06:38Z",
+   "status": "fired",
+   "cfg": "cfg-patches/v058-control.json",
+   "prediction_ref": "shared paired control for H18-H21",
+   "notes": "Actions run 34678636030, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h18-21-control/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
   }
  }
 }
