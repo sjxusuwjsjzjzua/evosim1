@@ -92,7 +92,7 @@ Standing jobs run to 1,600 days; every score uses days 400-800. Paired within
 run over the 213 runs that reach day 1600: heterotrophy 0.284% -> 0.352%
 (+24%), mean carnivory 0.078 -> 0.110 (+41%), and the tail widens far more —
 p99 heterotrophy 1.79% and max 2.99% late against p90 0.95% early. Only 52% of
-runs rise, so this is a fatter tail rather than a trend, which is precisely the
+runs rise, so this is a fatter tail rather than a trend, which is the
 regime rule 11 says to report. Half of the compute already spent is unscored,
 and scoring it costs nothing.
 

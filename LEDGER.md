@@ -8528,3 +8528,123 @@ the old world stays reachable.
 
 Gene path: matter drift 0.000000%, `check.js` passes all six stages. Not
 identical to v0.56, which is the intended effect.
+
+---
+
+# GENERAL PROGRAM AUDIT, 2026-09-12 — adjudication
+
+Fourth program audit, run on the owner's request for a general sanity check.
+Host list written and committed first (`93bb623`,
+`HOST-FINDINGS-2026-09-12-GENERAL.md`), auditor run against the skill without
+reading it, output in `AUDIT-GENERAL-2026-09-12.md`. Auditor verdict: **PIVOT —
+smaller than the last three proposed and opposite in direction to the one
+taken.** Every surfaced finding is answered below, accept or reject, per the
+skill's step 5.
+
+## Accepted, and acted on in this commit
+
+**F7 / GF-nil — no committed tool could score the shipped build.
+`[cross-validated: AUDIT-PIVOT P4]`** `tools/score55.py:19` gated on
+`invadeFrac` and parsed **79 of 2,329** collected logs, none of v0.56 or v0.57.
+It has been the only code that computes the mission metric, and `CLAUDE.md`
+requires that metric every pass. Replaced by `tools/score.py`, which takes arm
+identity from `tools/arms.py`, parses 2,361 logs, censors properly, prints the
+tail per rule 11, and takes `--window` so a second window costs nothing. This
+was the binding defect: two audits in a row recommended arms that nothing could
+have scored.
+
+**F6 — the metric omitted `eFlesh`. `[auditor-only]`** `eFlesh` is nonzero in
+126 logs, all v0.51, and reads those runs at a quarter of their real meat
+intake. Harmless since v0.52 stopped moving mass on ATTACK, and NOT harmless the
+moment any direct-transfer build ships. `score.py` now reports `hetero` and
+`heteroAll` side by side: whole corpus median 0.297% against 0.311%.
+
+**F1 — the metric is a product and the project scored the product.
+`[cross-validated with GF-2 by a different route]`** `score.py` now prints
+`supply`, `consumed` and `digest` per arm with an `observed/predicted` check
+column. The identity holds on the recollected corpus: median **1.061**, p10
+1.008, p90 1.138 across 1,535 windowed survivors. The auditor's reading is
+better than mine — I said the metric cannot see a carnivore guild, which is
+true and less useful than saying which of its three factors selection can move.
+
+**F8 / GF-7 — compute has not followed the mission.** Accepted. 53.4% of the
+corpus sits on seasonality arms for a question closed as H1 FORCED, and 14 of
+154 keys have ever taken more than one value. My own count of 26 was of patch
+files, not of values realized in logs; the auditor's is the right number.
+
+## Accepted, not yet acted on — these are the next moves
+
+**F5 — `carrionFloor` 0.30 is the largest untouched multiplier on carnivory's
+selection gradient. `[auditor-only]`** Marginal cost 1.70e-3 against benefit
+8.2e-4 at corpus medians, break-even at 0.60% heterotrophy against a median of
+0.287%; at `carrionFloor` 0 break-even moves to ~0.09%, below the median. The
+corpus agrees on direction — signed Δcarnivory over the drift yardstick rises
+monotonically with heterotrophy band, +0.01 to +0.61, never crossing 1.0. One
+CFG key, no HTML.
+
+**F3 — the pre-registered n has outrun collection by 15x for three versions.
+`[auditor-only, and it supersedes GF-6]`** Logs per build 343, 244, 63, 16, 0
+against planned n of 25, 60, 40 per cell. **H15 has zero data**, confirmed
+independently here: the corpus holds 16 v0.56 logs and no v0.57 log at all. I
+filed audit sprawl as the process defect; the auditor found the real one, which
+is that versions rotate faster than the standing batch can fill a cell. Four
+consecutive hypotheses were replaced at 2-8% of their own planned n. Rule 10
+polices threshold size and nothing polices whether the n ever arrives.
+
+**F4 — the analysis that cancelled the pool-chaining build was circular.
+`[auditor-only]`** The duration test ran entirely at founder
+`carrionAttraction` 0.10, the regime the same entry calls unselectable, so it
+could not have shown a duration effect. Duration is open again, not closed.
+Independently supported by GF-5: paired within-run over the 213 runs reaching
+day 1600, heterotrophy goes 0.284% to 0.352% and mean carnivory 0.078 to 0.110,
+with the tail widening far more than the median.
+
+**Q3.2 — the 5% bar is above the median run's arithmetic maximum** (supply
+3.92%). It appears in `CLAUDE.md`'s mission section and `score55.py`. Accepted;
+the bar goes when the mission section is rewritten, which is a change to the
+rules and waits for the owner.
+
+## Rejected, with reason
+
+**Q3.3 — "stop shipping builds."** Rejected as stated, accepted in effect. The
+next two moves are CFG arms and I am not shipping v0.58 behind them. But the
+reason six builds shipped in 35 days is F3 — cells were abandoned before their
+n arrived — so the fix is to hold a rotation until it fills, not to forbid
+builds. Forbidding builds while the standing batch still cannot fill a cell
+changes nothing.
+
+**Q3.4 / GF-1 — "the ATTACK line stays abandoned."** Rejected, and this is the
+one place the auditor and I disagree outright. Measured this pass over 1,360
+windowed runs: predation is **56.4% of all animal deaths** (p90 78.7%) while
+**87% of the mass of what dies is never eaten**, with 150 corpses standing
+against ~280 live animals. The interaction the mission asks for already happens
+at scale; only the energy return is missing. `evosim-v0_57_0.html:2020-2040`
+moves no mass and its comment calls feeding the killer a hardcode — that reads
+the mission test wrong, since photosynthesis, digestion and toxin loss are all
+energy transfers in the source and none of them is a hardcode. What the auditor
+is right about is ORDER: F6 means the metric would have scored such a build as a
+regression, and F5 offers a one-key test of the same gradient for no build at
+all. So `carrionFloor` first, kill possession after it, not instead of it.
+
+**GF-3 — "carnivory has never moved" is false.** Held against the auditor's
+"carnivory is flat to three decimals in every build". Both are true and they are
+different statements: arm means are flat, and 75 of 2,329 runs end with a
+majority of the population above carnivory 0.33, nine of them at 100%, spanning
+v0.51 to v0.55 and including arms scored MISS on their medians
+(`runs/rot-collect/58681.json`, 339 animals at mean carnivory 0.979, scoring
+1.66% on the metric). Rule 11 exists for this and was not applied to the
+headline claim.
+
+**GF-4 — corpse supply is not the constraint.** Withdrawn as phrased. The
+auditor's `supply` term is energetic, not mass availability, and at 3.92% it is
+a real ceiling. My measurement stands as a statement about `consumedFraction`,
+which is the term that actually moved: v0.56 nearly doubled it, 0.258 to 0.435,
+and the ledger recorded that version as tracking toward MISS.
+
+## What is now on record as the state of the program
+
+Divide the metric by its supply term and `capture = consumed x digest` goes
+3.35% to 14.71% across v0.51 to v0.56. That is real movement the ledger could
+not see, because it was scoring a product whose other factor is a constant.
+The program is not a random walk; its instrument was reading the wrong number
+and its cells were being abandoned before their n arrived.
