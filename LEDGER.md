@@ -8475,8 +8475,18 @@ if (grazeYield(...) >= AN.rate[i]*mvtL) return;
 ```
 
 `k_mvtScale` defaults to 10.0 and founder `patchLeaving` is 0.10, so the founder
-genome gives 1.0, the old shipped value. Behaviour at the founding genome is
-unchanged and only the slope evolves. Gene range [0,1] x 10 spans [0,10], which
+value gives 1.0, the old shipped constant.
+
+**My pivot claim that "behaviour at the founding genome is unchanged" was wrong,
+and the rule-7 check caught it.** The founding genome is a distribution, not a
+point: founders draw 0.10 plus morph spread and founderNoise, so each animal
+gets its own leave threshold rather than everyone sharing 1.0. The mean matches;
+the individuals do not. All 90 logged columns differ from v0.56 at seed 909.
+
+That failure is correct and expected. Rule 7 governs measurement-only changes
+and this is a change of mechanism, so rule 7 does not apply to the default path.
+I ran it against the wrong arm. The check that does apply is whether
+`k_mvtScale` 0 reproduces v0.56 exactly, since that restores the constant. Gene range [0,1] x 10 spans [0,10], which
 covers the 0 to 5 range the direction test explored. Setting `k_mvtScale` to 0
 restores the constant, so the old behaviour stays reachable as a control arm.
 
