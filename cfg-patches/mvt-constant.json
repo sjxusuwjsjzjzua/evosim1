@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.57.0","base":"0.57.0",
+ "note":"H15 control. k_mvtScale 0 restores the v0.56 behaviour where the MVT leave threshold is the constant mvtLeave rather than the patchLeaving gene. Keeps the pre-v0.57 world reachable so the gene arm has something matched to be compared against.",
+ "cfg":{"k_mvtScale":0}}

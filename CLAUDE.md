@@ -128,8 +128,9 @@ was **contaminated**: `ambushTendency` IS read (`evosim-v0_56_0.html:1769`, it
 sets `hide` in the detection roll), which inflated the null and biased every
 selection test toward MISS.
 
-Verified-inert set: `territoriality`, `mateChoosiness`, `parentalCare`,
-`pathogenResistance`. Re-verify by grep before each use; a gene that gains a
+Verified-inert set: `mateChoosiness`, `parentalCare`, `pathogenResistance`.
+`territoriality` left the set in v0.57, where it was repurposed as
+`patchLeaving` and wired into the MVT guard. Re-verify by grep before each use; a gene that gains a
 reader invalidates every past comparison.
 
 ## Before touching a constant

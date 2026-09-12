@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.57.0","base":"0.57.0",
+ "note":"H15 cell. k_mvtScale 0 AND mvtLeave 5.0: the constant path with the value that moved heterotrophy 0.447 to 3.280 percent on one seed. Both keys are needed on v0.57, since k_mvtScale defaults to 10 and the gene would otherwise ignore mvtLeave entirely.",
+ "cfg":{"k_mvtScale":0,"mvtLeave":5.0}}

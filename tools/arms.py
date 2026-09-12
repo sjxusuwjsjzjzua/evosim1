@@ -14,6 +14,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'runs', 'arms.tsv')
 
 def arm(c):
+    # H15. k_mvtScale exists only from v0.57 on: absence means the MVT threshold
+    # is still the mvtLeave constant, which is a pre-v0.57 build.
+    if 'k_mvtScale' in c:
+        ks = c['k_mvtScale']; mv = c.get('mvtLeave', 1.0)
+        if ks == 0:    return 'mvt-constant %g' % mv
+        if ks == 10.0: return 'patchLeaving x10'
+        return 'patchLeaving x%g' % ks
     # H14 dose series. mvtLeave has always existed, so absence means the
     # shipped 1.0 rather than a separate arm.
     if 'founderGenesA' in c and c.get('mvtLeave', 1.0) != 1.0:
@@ -88,7 +95,8 @@ for r in open(CACHE):
     if len(p) < 6 or p[1] in ('-', ''): continue
     acc.setdefault(p[1], []).append(p)
 print('%-24s %4s %6s %8s %10s' % ('arm', 'n', 'surv', 'cv%', 'meatAttr'))
-for k in ['mvt-0','mvt-1 (shipped)','mvt-2.5','mvt-5',
+for k in ['patchLeaving x10','patchLeaving x30','mvt-constant 1','mvt-constant 5',
+          'mvt-0','mvt-1 (shipped)','mvt-2.5','mvt-5',
           'v56 carrion0.80/floorON','v56 carrion0.10/floorON',
           'v56 carrion0.80/floorOFF','v56 carrion0.10/floorOFF',
           'CONTROL','invade-carn','mixed-flat','meat-rich-55',

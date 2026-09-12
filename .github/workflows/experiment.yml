@@ -234,7 +234,12 @@ jobs:
             # question and keeps a slot rather than being dropped.
             # Diagnostic arms take 4 of 6 slots so n=6 per arm arrives in ~4h
             # instead of ~10.
-            # H14 ROTATION, 2026-09-12 -- mvtLeave dose series. The 2x2 it
+            # H15 ROTATION, 2026-09-12. H14 measured how much damage the MVT
+            # constant does; v0.57 removes the constant instead. patchLeaving
+            # (renamed from the inert territoriality) now drives the leave
+            # threshold. Cell 1 restores the constant as a matched control,
+            # cell 3 keeps the 5.0 constant probe for continuity with the n=1
+            # sweep. PREVIOUS H14 ROTATION -- mvtLeave dose series. The 2x2 it
             # replaces was testing founder values of carrionAttraction while
             # build line 1916 discards the scan that reads them: an animal
             # already grazing an adequate plant returns before bestAct is
@@ -288,13 +293,13 @@ jobs:
             # Replaced by the three v0.53 pre-registrations, each against the
             # matched v0.53 default control which takes 1 of 4 slots.
             case ${{ matrix.cell }} in
-              0) CFG_IN="cfg-patches/mvt-0.json" ;;                  # guard always fires
-              1) CFG_IN="" ;;                                        # mvtLeave 1.0, shipped
-              2) CFG_IN="cfg-patches/mvt-2.5.json" ;;                # guard fires less
-              3) CFG_IN="cfg-patches/mvt-5.0.json" ;;                # guard rarely fires
+              0) CFG_IN="" ;;                                        # gene drives it, scale 10
+              1) CFG_IN="cfg-patches/mvt-constant.json" ;;           # k_mvtScale 0, v0.56 control
+              2) CFG_IN="cfg-patches/mvt-gene-wide.json" ;;          # gene, scale 30
+              3) CFG_IN="cfg-patches/mvt-constant-5.json" ;;         # constant 5.0, the n=1 probe
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_56_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_57_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi

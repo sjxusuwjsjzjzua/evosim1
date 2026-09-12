@@ -8456,3 +8456,55 @@ cell. One prediction under amended rule 1.
 The guard is a hardcoded behavioural rule that overrides evolved preference. By
 the mission test the current build's herbivore monoculture does not count as
 emergent. Whatever H14 returns, the rule has to become a gene or go.
+
+---
+
+# v0.57 — the MVT guard becomes a gene [L0.57-1]
+
+The guard at build line 1916 discards the whole scan when an animal already
+grazing an adequate plant re-decides. As a constant it overrode every evolved
+preference and no genome could reach it. A dose series on the constant (H14)
+would measure how much damage the rule does; it would not fix that the rule
+exists.
+
+Change: `territoriality` is renamed `patchLeaving` and wired in.
+
+```js
+const mvtL = C.k_mvtScale > 0 ? G[g+AG.patchLeaving]*C.k_mvtScale : C.mvtLeave;
+if (grazeYield(...) >= AN.rate[i]*mvtL) return;
+```
+
+`k_mvtScale` defaults to 10.0 and founder `patchLeaving` is 0.10, so the founder
+genome gives 1.0, the old shipped value. Behaviour at the founding genome is
+unchanged and only the slope evolves. Gene range [0,1] x 10 spans [0,10], which
+covers the 0 to 5 range the direction test explored. Setting `k_mvtScale` to 0
+restores the constant, so the old behaviour stays reachable as a control arm.
+
+`territoriality` was chosen because it was inert and semantically near "stay
+where you are". It leaves the neutral-drift yardstick, which drops to three
+genes: `mateChoosiness`, `parentalCare`, `pathogenResistance`. Updated in
+`analyze.py`, `tools/score55.py` and `CLAUDE.md`. Comparisons against the old
+four-gene null are not comparable to new ones.
+
+Gene count and array layout are unchanged, so checkpoints and log columns are
+unaffected. Only the name string in `geneNames` changes.
+
+## H15, frozen before the runs
+
+Arms: `k_mvtScale` 0 (constant restored, the v0.56 control) against the v0.57
+default where the gene drives it. One seed through both, matched window days
+400-800, survival at day 800, censoring, n >= 40 per cell.
+
+- **HIT** if median evolved `patchLeaving` moves above **0.20**, more than 2x
+  its founder value and past the drift yardstick, AND median heterotrophy in the
+  gene-driven arm exceeds **0.6%**.
+- **MISS** if `patchLeaving` stays inside the drift band or heterotrophy stays
+  below 0.4%.
+- The n=1 constant sweep showed population falling from 94 to 31 as the guard
+  was disabled. If the gene is under selection it should find its own balance
+  between intake and population rather than sitting at either extreme, so
+  survival is reported and is not a gate.
+
+The point of the version is the mission test, not the metric. A behavioural rule
+that overrides evolved preference cannot stay a constant in a project whose
+stated test is that a result written into the code does not count.

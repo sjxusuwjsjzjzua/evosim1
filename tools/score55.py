@@ -10,7 +10,7 @@ ACTS = ['actGraze','actScav','actAttack','actFlee','actAppr','actRest','actWande
 # CORRECTED 2026-09-11: ambushTendency was in this list and the sim READS it
 # (evosim-v0_56_0.html:1769, it sets `hide` in the detection roll). An inflated
 # null biased every selection-response test toward MISS. Verified-inert only.
-NEUT = ['territoriality','mateChoosiness','parentalCare','pathogenResistance']
+NEUT = ['mateChoosiness','parentalCare','pathogenResistance']  # territoriality -> patchLeaving in v0.57
 WATCH = ['meatAttraction','plantAttraction','carrionAttraction','socialAttraction','carnivory',
          'herbivory','aggression','biteForce','maxSpeed','preySizeRatio','fearThreshold','armour']
 def arm(c):

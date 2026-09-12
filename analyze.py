@@ -610,7 +610,9 @@ def cross(rows):
 # biased every selection-response verdict toward "not demonstrable". Re-grep
 # before trusting this list; a gene that gains a reader invalidates
 # every past comparison made against it.
-INERT_CONTROL = ['territoriality', 'mateChoosiness',
+# territoriality was repurposed as patchLeaving in v0.57 and IS now read.
+# Three genes left in the null; re-grep before trusting it.
+INERT_CONTROL = ['mateChoosiness',
                  'parentalCare', 'pathogenResistance']
 
 
