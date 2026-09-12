@@ -8771,3 +8771,110 @@ kills 1,476 to 1,695, scavenge events 12,770 to 14,309, `eFlesh` 0 to 1,756,
 heterotrophy 0.471% to 0.595% with flesh counted, animals 61 to 68. One seed
 says nothing about the 2x2 and is recorded only to show the channel is live and
 pointing the way the mechanism says it should.
+
+---
+
+# Screening fleet H18-H21, frozen 2026-09-12 before any seed runs
+
+Four hypotheses fired in parallel with the H16/H17 rotation, on separate labels,
+so rule 13's hold on the rotation is not touched — these add work, they do not
+replace the cells that have to fill.
+
+Each attacks a **different term of the identity**, which is the point of firing
+them together rather than in series. Three of the four move constants that have
+never been varied at the shipped arena. Design: `{treatment | v058-control}`,
+the same 4 cold seeds through both arms so every comparison is paired, 800 days,
+window days 400-800, build v0.58.
+
+## What a screen at this n can and cannot see — rule 10, stated up front
+
+Bootstrap SE of the median over the 1,066 qualifying corpus runs, 3,000
+resamples:
+
+| statistic | median | SE at n=3 | SE at n=40 |
+|---|---|---|---|
+| `consumedFraction` | 0.1347 | 0.0721 (53.5% rel) | 0.0203 (15.1%) |
+| `capture` | 0.0472 | 0.0263 (55.7% rel) | 0.0075 (15.9%) |
+| heterotrophy | 0.263% | 0.248 pp (94.5% rel) | 0.057 pp (21.6%) |
+| `carnivory` | 0.0706 | 0.0404 (57.2% rel) | 0.0111 (15.7%) |
+| animals | 272 | 104 (38.2% rel) | 29.5 (10.8%) |
+
+**A four-seed screen can see a doubling and nothing finer.** Pairing removes
+between-seed variance and helps, but not by an order of magnitude. So every
+threshold below is set at **2x**, and the only reading a screen that does not
+fire supports is "not a doubling", never "no effect". Anything that fires earns a
+full n>=40 arm and a real pre-registration; nothing here promotes a constant on
+its own.
+
+## H18 — corpse persistence is not the constraint
+
+`k_corpseDecay` 0.0008 to 0.0002, four times slower rot. Named by
+`AUDIT-DEADEND-2026-09-12.md` as a supply fix and never varied in 2,348 logs.
+
+**The prediction is that it does nothing**, and it is worth firing precisely for
+that. 150 corpses already stand uneaten against ~280 live animals and 87% of
+death mass is never eaten. If supply were binding, corpses would be scarce.
+
+- **HIT (my reading holds)** if median `consumedFraction` in the slow-decay arm
+  is **below 2x** control.
+- **MISS (supply was binding after all)** if it reaches **2x or more**, in which
+  case `AUDIT-DEADEND` P5 was right, my GF-4 was wrong, and the corpse-supply
+  line gets the next full arm.
+
+## H19 — the herbivore corner is subsidised, rather than the carnivore corner starved
+
+`k_toxinHarm` 110 to 220 and `toxMaxLoss` 1.15 to 1.60: poison bites about twice
+as hard, so foliage costs more per unit energy while meat is untouched.
+
+Every structural attempt from v0.50 to v0.58 raised the value of meat. **Nobody
+has ever lowered the value of salad.** The carnivore corner is marginal rather
+than dominated — 1.70e-3 cost against 8.2e-4 benefit — so a tax on the other
+corner moves the same margin from the other side, and does it without touching
+anything a carnivore uses.
+
+- **HIT** if median `carnivory` **or** median `capture` reaches **2x** control.
+- **MISS** if both stay below 1.5x.
+- Reported secondary: survival, and `herbivory` and `toxinResistance`. If the
+  herbivores simply evolve resistance and nothing else changes, the tax was paid
+  by the gene rather than by the diet, which is the more interesting failure.
+
+## H20 — the guild is too small for selection to hold it
+
+`a_base` 0.012 to 0.006, `a_mass` 0.020 to 0.012. `a_base` was screened once at
+the shrunken 25,000-plant arena that audit F2 showed binds in 54% of runs;
+`a_mass` has never been varied at all.
+
+Audit F2's arithmetic: the carnivore guild is `supply x N`, about **7.7 animals**
+at the corpus median, p90 21.4. A subpopulation that size loses any selection
+response to drift before it can fix. Cheaper existence is the cheapest lever on
+N that does not touch the arena.
+
+- **HIT** if median animals reaches **2x** control.
+- **MISS** if below 1.5x.
+- **The secondary is the actual question**: does `carnivory` follow N? A
+  population lever that doubles N and leaves carnivory flat falsifies the guild
+  -size diagnosis and is worth more than a hit.
+
+## H21 — the gut tax is what makes an omnivore impossible
+
+`k_gut` 0.0200 to 0.0100 halves the marginal cost of carnivory directly — the
+audit's cost term is `2*k_gut*c*(m75/3)*met`, so break-even heterotrophy moves
+from 0.60% to about 0.30%, against a corpus median of 0.287%. `k_mixed` 0.018 to
+0 flattens the concave frontier at the same time.
+
+These two ship together deliberately: they are the two halves of one claim, that
+the frontier's shape and not the payoff is what pins the genome in the herbivore
+corner. If the screen fires, the follow-up arm separates them.
+`mixed-flat` already scored heterotrophy **0.524%** against a matched CONTROL
+**0.222%** at n=10 — a 2.4x effect sitting unscored in the corpus since v0.55,
+which under rule 12 should have earned a replication arm and did not.
+
+- **HIT** if median `carnivory` reaches **2x** control.
+- **MISS** if below 1.5x.
+
+## Workflow fix shipped with the fleet
+
+A dispatch that names a `cfg` ran all four rotation cells with the identical
+config, so every screening batch in this project's history burned **4x** the
+runners it needed on duplicate jobs. The cell fan-out is now gated in `setup`:
+one cell when a cfg is named, four when the schedule fires with none.

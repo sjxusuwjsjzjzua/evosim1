@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.58.0","base":"0.58.0",
+ "note":"Explicit no-op control for the 2026-09-12 screening fleet. Every key here is already the v0.58 default, so this is the shipped world under a label, matched to its treatment arm on build, seed set and run length. Named rather than left blank so the control cannot be confused with the standing rotation, which runs a different design.",
+ "cfg":{"k_possession":1.0,"carrionFloor":0.30}}

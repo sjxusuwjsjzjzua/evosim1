@@ -1,0 +1,11 @@
+{
+ "kind": "evosim-cfg",
+ "formatVersion": 36,
+ "version": "0.58.0",
+ "base": "0.58.0",
+ "note": "H20. a_base 0.012 -> 0.006 and a_mass 0.020 -> 0.012. a_base was screened once as screen-abase.json, but at maxPlants 25000 / maxAnimals 11000 -- the shrunken arena that adversarial audit F2 later showed binds in 54 percent of runs, so that screen is not evidence about the shipped world. a_mass has never been varied at all. Cheaper existence should carry a larger standing population, and the audit's guild arithmetic puts the carnivore guild at supply x N, about 8 animals at the corpus median, small enough for drift to erase a selection response before it fixes.",
+ "cfg": {
+  "a_base": 0.006,
+  "a_mass": 0.012
+ }
+}

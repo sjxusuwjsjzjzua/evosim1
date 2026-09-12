@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.58.0","base":"0.58.0",
+ "note":"H18. k_corpseDecay 0.0008 -> 0.0002, corpses rot four times slower. Never varied in 2,348 logs and named by AUDIT-DEADEND as a supply fix. Prediction is that it does NOTHING, because 150 corpses already stand uneaten against ~280 live animals and 87 percent of death mass is never eaten: supply is not the binding term, demand is.",
+ "cfg":{"k_corpseDecay":0.0002}}

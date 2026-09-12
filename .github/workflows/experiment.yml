@@ -152,7 +152,16 @@ jobs:
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
-          echo "cells=[0,1,2,3]" >> "$GITHUB_OUTPUT"
+          # A dispatch that names a cfg runs that ONE config, so four cells
+          # would be four identical jobs per seed. The cells exist for the
+          # scheduled rotation, which passes no cfg. Without this every
+          # screening batch burned 4x the runners it needed on duplicate work.
+          if [ -n '${{ inputs.cfg }}' ]; then
+            echo "single-cfg dispatch: one cell per seed"
+            echo "cells=[0]" >> "$GITHUB_OUTPUT"
+          else
+            echo "cells=[0,1,2,3]" >> "$GITHUB_OUTPUT"
+          fi
 
   run:
     needs: setup

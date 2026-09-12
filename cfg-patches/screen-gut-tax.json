@@ -1,0 +1,11 @@
+{
+ "kind": "evosim-cfg",
+ "formatVersion": 36,
+ "version": "0.58.0",
+ "base": "0.58.0",
+ "note": "H21. k_gut 0.0200 -> 0.0100 halves the marginal cost of carnivory, which the audit computed as 2*k_gut*c*(m75/3)*met = 1.70e-3 against a benefit of 8.2e-4, moving break-even heterotrophy from 0.60 to about 0.30 percent. k_mixed 0.018 -> 0 flattens the concave frontier at the same time; the mixed-flat arm scored heterotrophy 0.524 percent against a matched CONTROL 0.222 percent at n=10 and was never followed up. k_gut was screened once as screen-gutcost.json at the shrunken 25000-plant arena, which is not evidence about the shipped world.",
+ "cfg": {
+  "k_gut": 0.01,
+  "k_mixed": 0
+ }
+}
