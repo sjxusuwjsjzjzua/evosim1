@@ -8648,3 +8648,126 @@ Divide the metric by its supply term and `capture = consumed x digest` goes
 not see, because it was scoring a product whose other factor is a constant.
 The program is not a random walk; its instrument was reading the wrong number
 and its cells were being abandoned before their n arrived.
+
+---
+
+# v0.58 — the killer eats what it kills [L0.58-1]
+
+Shipped on the general audit's evidence, against that audit's own ranking, with
+its ordering point accepted.
+
+## What was wrong
+
+`evosim-v0_57_0.html:2044` deposited damage and moved no mass, and its comment
+said feeding the killer "would be a hardcode". Measured over 1,360 windowed
+runs: predation is **56.4% of all animal deaths** (p10 27.5%, p90 78.7%) and
+**87% of the mass of what dies is never eaten**, with 150 corpses standing
+against ~280 live animals. The interaction the mission asks for was already
+happening at scale. Only the energy return was missing.
+
+The cost of an attack is private — `k_retal` retaliation, double stamina drain,
+halved speed, 10.5 attacks per kill — and its only payoff was a corpse on a
+shared tile, reachable through a second, independent arbiter decision gated by
+`carrionAttraction`, a gene sitting below the drift yardstick in every version
+measured. A strategy whose cost is private and whose benefit is common cannot be
+selected for. That is the structural reason five versions of work on attack
+propensity moved nothing, and it is upstream of all of them.
+
+The hardcode objection reads the mission test wrong. The test forbids writing a
+**behaviour** into the code. Photosynthesis, digestion, toxin loss and corpse
+decay are all energy transfers already written in the source and none of them is
+a hardcode.
+
+## The change
+
+On a kill, the killer takes one bite of the fresh corpse before anyone else can
+reach it. Same `satiateBite` cap and the same corpse-to-gut mass path SCAVENGE
+uses, at `freshValue` 1.0 rather than the `carrionValue` 0.85 discount a
+scavenger pays for arriving later.
+
+**Nothing here tells an animal to want meat.** The bite is digested at the raw
+`carnivory` gene with **no floor**, so a pure herbivore that kills something
+still gets nothing out of it. Killing pays exactly to the extent the genome can
+use flesh, and how much more killing an animal then does is left entirely to
+`meatAttraction` and the arbiter. New constants: `freshValue` 1.0 and
+`k_possession` 1.0, the killer's bite as a multiple of a normal bite.
+`k_possession` 0 restores v0.57 exactly and is the matched control.
+
+`eFlesh` becomes nonzero again, which it has not been since v0.51. `tools/score.py`
+already reports it — the audit's F6 landed one commit before the build that
+needed it, which is the whole reason to fix an instrument before using it.
+
+## H16 x H17, frozen before the runs
+
+A 2x2, one seed through all four cells so the comparison is paired, matched
+window days 400-800, survival at day 800, censoring applied, **n >= 40 per cell
+and the rotation does not change until that n arrives** (see the cadence rule
+below). Two independently motivated factors with a factorial that separates
+them, per rule 3 as amended.
+
+Cells: `{k_possession 1.0 | 0}` x `{carrionFloor 0.30 | 0}`.
+
+**Rule 10 compliance.** Bootstrap SE of each endpoint at n=40, 2,000 resamples
+over the 1,066 qualifying runs in the recollected corpus:
+`consumedFraction` median 0.1347, SE 0.0196, so 2 SE is 0.0413 — a 30% relative
+move is the smallest threshold rule 10 permits. `carnivory` median 0.0731, SE 0.0133, 2
+SE is 0.0269. Both thresholds below are set above their own 2 SE.
+
+**H17 — kill possession makes predation pay its own killer.**
+- **HIT** if median `consumedFraction` in the `k_possession` 1.0 cells exceeds
+  the 0 cells by **>= 60% relative** (twice the 2 SE floor), AND median
+  `capture` = `consumed x digest` clears **14.71%**, the v0.56 high-water mark.
+- **MISS** if `consumedFraction` differs by **< 30% relative**, the 2 SE floor.
+- Between the two is CAN'T TELL at this n and the answer is more seeds, not a
+  bigger constant.
+- Reported secondary, not a gate: survival, and whether `meatAttraction` finally
+  responds. If possession works, the attraction gene should move at last,
+  after six versions of not moving — but the prediction is about the energy channel, and a
+  gene response without it is a NOTABLE UNPREDICTED EFFECT under rule 12, not a
+  HIT.
+
+**H16 — `carrionFloor` 0 makes `carnivory` selectable.**
+- **HIT** if median evolved `carnivory` in the `carrionFloor` 0 cells exceeds
+  the 0.30 cells by **>= +0.040** absolute (3 SE).
+- **MISS** if the difference is **< +0.013** (1 SE).
+- The endpoint is the gene, deliberately, not heterotrophy: removing the floor
+  also cuts the energy a low-carnivory animal gets per scavenge, so the metric
+  can fall while selection strengthens. Scoring the product here would score the
+  wrong thing, which is audit finding F1 applied before the fact rather than
+  after.
+
+## The cadence rule, which is the real fix
+
+Audit F3: logs per build 343, 244, 63, 16, **0**. H15 has zero data; the corpus
+holds 16 v0.56 logs and no v0.57 log at all. Four consecutive hypotheses were
+replaced at 2-8% of their own planned n. Rule 10 polices how big a threshold
+must be and nothing policed whether the n ever arrived, so every pre-registration
+since v0.54 has been decoration.
+
+**Standing rule from here: a rotation is not changed until every cell in it has
+reached the n its own pre-registration named, or the hypothesis is explicitly
+withdrawn in writing with the reason.** Shipping a version does not entitle you
+to the runners. At 4 jobs/h through a 4-cell paired design, n=40 per cell is
+about 7 days. That is the cost of an answer and it is cheaper than five
+unanswered questions.
+
+## v0.58 verification
+
+`node check.js evosim-v0_58_0.html` PASS, all six stages, ATTACK and SCAVENGE
+branches entered.
+
+**Control identity, and this time on a run where the changed path executes** —
+rule 7's own lesson, which a 300-day check that stopped at day 200 once failed.
+Seed 909, `animalStartDay` 120, 320 days, **1,476 kills over the run**, so the
+possession branch is reached and skipped 1,476 times at `k_possession` 0:
+v0.58 at `k_possession` 0 against v0.57 at defaults is identical in **all 100
+logged columns**, and in the gene snapshots, lineages and events. The v0.57
+world stays exactly reachable.
+
+**Matter conservation at defaults:** 7341 to 7341, drift 0.000000%.
+
+**Smoke, n=1, not a result.** Same seed and length, possession on against off:
+kills 1,476 to 1,695, scavenge events 12,770 to 14,309, `eFlesh` 0 to 1,756,
+heterotrophy 0.471% to 0.595% with flesh counted, animals 61 to 68. One seed
+says nothing about the 2x2 and is recorded only to show the channel is live and
+pointing the way the mechanism says it should.

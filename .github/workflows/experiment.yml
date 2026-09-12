@@ -175,7 +175,13 @@ jobs:
       # whatever ref they were fired against.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'schedule' && 'claude/evolution-sim-v047-audit-jft25c' || github.ref }}
+          # Pinned to main, 2026-09-12. This used to name a feature branch, so
+          # every scheduled firing depended on someone remembering to update a
+          # string in the default branch's workflow after each merge -- a silent
+          # way to run the previous version's experiment forever. main now
+          # carries the build and cfg-patches, so the schedule follows the
+          # shipped state without anyone having to remember.
+          ref: ${{ github.event_name == 'schedule' && 'main' || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -292,14 +298,32 @@ jobs:
             # arm showed no effect on survival or selection response at n=339.
             # Replaced by the three v0.53 pre-registrations, each against the
             # matched v0.53 default control which takes 1 of 4 slots.
+            # H16 x H17, 2026-09-12. A 2x2 on {k_possession} x {carrionFloor},
+            # one seed through all four cells so every comparison is paired.
+            # Both factors attack the same thing from opposite ends: whether a
+            # carnivore is paid enough to be selected for. k_possession feeds
+            # the killer its own kill; carrionFloor 0 removes the 30% of carrion
+            # digestion handed out free at carnivory 0, which is the largest
+            # untouched multiplier on that gene's gradient.
+            #
+            # CADENCE RULE, and the reason the previous rotation is not simply
+            # replaced again. Logs per build ran 343, 244, 63, 16, 0: H15 was
+            # pre-registered at n>=40 per cell and collected ZERO. Four
+            # consecutive hypotheses were replaced at 2-8% of their own planned
+            # n, which made every pre-registration since v0.54 decoration.
+            # THIS ROTATION DOES NOT CHANGE until all four cells reach n=40, or
+            # H16/H17 is withdrawn in writing with the reason. H15 is withdrawn
+            # here, in LEDGER.md, on the ground that it tested how a rule that
+            # discards the scan is parameterised while the deeper problem was
+            # that winning the scan paid nothing.
             case ${{ matrix.cell }} in
-              0) CFG_IN="" ;;                                        # gene drives it, scale 10
-              1) CFG_IN="cfg-patches/mvt-constant.json" ;;           # k_mvtScale 0, v0.56 control
-              2) CFG_IN="cfg-patches/mvt-gene-wide.json" ;;          # gene, scale 30
-              3) CFG_IN="cfg-patches/mvt-constant-5.json" ;;         # constant 5.0, the n=1 probe
+              0) CFG_IN="" ;;                                             # v0.58 default: possession on, floor 0.30
+              1) CFG_IN="cfg-patches/poss-0.json" ;;                      # k_possession 0 -- the v0.57 world
+              2) CFG_IN="cfg-patches/carrionfloor-0.json" ;;              # floor 0, possession on
+              3) CFG_IN="cfg-patches/poss-0-carrionfloor-0.json" ;;       # neither
             esac
           fi
-          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_57_0.html"
+          [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_58_0.html"
           [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi

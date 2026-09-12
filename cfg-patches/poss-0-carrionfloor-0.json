@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.58.0","base":"0.58.0",
+ "note":"H16 x H17 cell 4: neither the killer's first bite nor the free digestion floor. The corner that isolates both factors in the 2x2.",
+ "cfg":{"k_possession":0,"carrionFloor":0}}

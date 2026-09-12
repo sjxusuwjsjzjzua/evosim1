@@ -17,70 +17,74 @@ count.
 
 ---
 
-## 0.2. Current state — v0.56.0, 2026-09-11
+## 0.2. Current state — v0.58.0, 2026-09-12
 
-A program audit returned a pivot verdict. Sections below 0.2 are older and parts
-of them targeted the wrong gene.
+Fourth program audit (`AUDIT-GENERAL-2026-09-12.md`, host list
+`HOST-FINDINGS-2026-09-12-GENERAL.md`, adjudication at the end of `LEDGER.md`).
+Verdict PIVOT, smaller than the three before it and in the opposite direction.
+Three things changed and they are independent.
 
-`ACT_ATTACK` transfers no energy (`evosim-v0_56_0.html:1985-2009`). Meat energy
-reaches an animal only through `ACT_SCAVENGE` (`:2025`), which is gated by
-`carrionAttraction` (`:1794`). That gene had no runs, no hypotheses, and no CFG
-patch could reach it. `meatAttraction` and `k_meatAttrFloor` gate ATTACK and took
-four structural attempts and 155 runs.
+### 1. The instrument was wrong, and that is most of the apparent flatness
 
-Mission metric: heterotrophy fraction = `eCarrion/(ePlant + eCarrion)` over a
-matched window. Across 1,502 survivors the median is 0.302%, max 3.95%, none
-above 5%. Five structural versions moved it 0.285% to 0.211%. Only `meatValue` 40
-moved it (0.86-0.99%), and that is a constant rather than selection. 53% of
-corpse mass is never eaten.
+`tools/score55.py` gated on `invadeFrac` and parsed **79 of 2,329** collected
+logs, none of v0.56 or v0.57, while being the only committed code that computes
+the metric `CLAUDE.md` demands every pass. Replaced by `tools/score.py`.
 
-Constraints measured against the corpus:
+The metric is an identity: `heterotrophy = supply x consumedFraction x
+carrionDigest`, holding at observed-over-predicted 1.061 across 1,535 windowed
+survivors. `supply` is ecology and constants. Divide it out and `capture =
+consumed x digest` went **3.35% to 14.71%** across v0.51 to v0.56. The program
+was moving; the number being reported could not show it. Hard rule 14 now
+forbids reporting the metric without its factors.
 
-| constraint | measurement | addressed by v0.50-v0.55 |
-|---|---|---|
-| founder prior | `plantAttraction` 0.80 vs `carrionAttraction` 0.10 | no |
-| niche size | carnivore carrying capacity 8-21 individuals | no |
-| duration | median 19.5 generations at day 800 | no |
-| genome reachability | 150 CFG constants, 11 ever varied | no |
+Mission metric, days 400-800, 1,535 survivors: median **0.297%**, p90 1.158%,
+max 3.952%; with `eFlesh`, 0.311%. The "0 runs above 5%" line is retired — the
+median run's arithmetic maximum is its own supply term, 3.92%.
 
-Duration was tested and rejected as the barrier. Normalised against the inert
-genes, `biteForce` rises 5.98x to 13.60x and `herbivory` 1.24x to 2.79x across
-generation quartiles, while `carrionAttraction` stays at 0.65-0.72x, below drift,
-flat across a 35x range of evolutionary time. The planned founder-pool chaining
-build was cancelled on that result.
+### 2. Predation was never the problem. Payment was
 
-`carrionAttraction` decides whether an animal approaches a corpse and `carnivory`
-decides what it extracts. Each is unselectable while the other is near zero, and
-`carnivory` also sits below drift at 0.49-0.84x. v0.56 raises the founder value
-to break that.
+Over 1,360 windowed runs: predation is **56.4% of all animal deaths** (p10
+27.5%, p90 78.7%), and **87% of the mass of what dies is never eaten**, with 150
+corpses standing against ~280 live animals. Animals have been killing each other
+the whole time. `evosim-v0_57_0.html:2044` moved no mass on a kill, so the cost
+of an attack was private and its only payoff was a corpse on a shared tile
+behind a second arbiter decision gated by `carrionAttraction`. Private cost,
+common benefit. That is upstream of every version from v0.50 to v0.57.
 
-### v0.56 changes
+**v0.58 [L0.58-1]: the killer takes the first bite of what it kills**, digested
+at the raw `carnivory` gene with no floor, so a pure herbivore that kills gets
+nothing and killing pays exactly to the extent the genome can use flesh.
+`k_possession` 0 restores v0.57, verified.
 
-- [L0.56-1] `carrionAttraction` founder 0.10 to 0.80, equal to `plantAttraction`.
-- [L0.56-2] `founderGenesA` / `founderGenesP` shift founder gene values from a
-  CFG patch. Shift rather than set: setting overwrote the morph spread and
-  founded the population as a point mass on the gene under test.
+### 3. The pre-registrations were decoration
 
-Rotation is a 2x2 of `{carrionAttraction 0.80 | 0.10}` x `{k_meatAttrFloor 0.5 |
-0}`, one seed through all four cells so the comparison is paired.
+Logs per build: 343, 244, 63, 16, **0**. H15 was frozen at n>=40 per cell and
+collected **zero** logs. H11-H14 were replaced at 2-8% of planned n. Hard rule
+13 now holds a rotation until its n arrives. H15 is withdrawn in writing.
 
-### Method changes
+### Running now
 
-- Rule 10: a frozen threshold must exceed the SE of its own statistic at the
-  planned n. H4 used 0.15 SD against an SE of 0.222; H10 had 14% power.
-- Rule 11: report the tail. "GRAZE never below 93%" was false; 126 of 1,075 runs
-  are below, minimum 78.3%.
-- Rule 12: a large effect that missed its pre-registered variable is logged, not
-  discarded.
-- `ambushTendency` was in the inert-gene yardstick and the sim reads it
-  (`:1769`). Removed. Past selection verdicts were biased toward MISS.
+A 2x2, `{k_possession 1.0 | 0}` x `{carrionFloor 0.30 | 0}`, one seed through
+all four cells. H17 asks whether paying the killer moves `consumedFraction`;
+H16 asks whether removing the free 30% of carrion digestion makes `carnivory`
+selectable. Both frozen in `LEDGER.md` with bootstrap SEs computed first per
+rule 10. **This rotation does not change until n=40 per cell.**
 
-### Open
+### Still open
 
-An audit of the pivot itself (`AUDIT-PIVOT-2026-09-12.md`) found further
-problems, four confirmed, two fixed so far. Unresolved: the "4096:1" founder
-ratio quoted in several files is wrong (realized ratio ~240); H11 is
-indeterminate at the planned n; `score55.py` and `arms.py` cannot score the 2x2.
+Duration. The analysis that cancelled the founder-pool chaining build ran
+entirely at `carrionAttraction` 0.10 — the regime it was meant to test out of —
+so it was circular and duration is open again. Paired within-run over the 213
+runs reaching day 1600, heterotrophy goes 0.284% to 0.352% and mean carnivory
+0.078 to 0.110, with the tail widening much more than the median. Standing jobs
+run to 1600 days and every score uses days 400-800; `tools/score.py --window
+1200 1600` costs nothing.
+
+Also open: 75 of 2,329 runs end with a majority of the population above
+carnivory 0.33, nine at 100%, spanning v0.51 to v0.55 and including arms scored
+MISS on their medians (`runs/rot-collect/58681.json`: 339 animals, mean
+carnivory 0.979, metric 1.66%). Arm medians cannot see this and rule 11 exists
+because of it.
 
 ---
 

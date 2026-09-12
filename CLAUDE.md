@@ -15,10 +15,10 @@ Read `HANDOFF.md` before doing anything. Rationale for every decision is in
 
 | file | what it is |
 |---|---|
-| `evosim-v0_57_0.html` | the build. Single file, no build step, runs on a phone. v0.57 makes the MVT leave threshold a gene, `patchLeaving` [L0.57-1], renamed from the inert `territoriality`. `k_mvtScale` 0 restores the v0.56 constant and is verified bit-identical to it, so the pre-v0.57 world stays reachable as a matched control. `evosim-v0_56_0.html` is kept as that reference and as the revert target. **Deletion criterion:** delete `evosim-v0_56_0.html` once H15 is scored at n>=40 per cell on the days 400-800 window and written into `LEDGER.md`, win or lose. `evosim-v0_55_0.html` is deletable now: H11/H12 were superseded before they could be scored, since the MVT guard made that 2x2 close to void. |
+| `evosim-v0_58_0.html` | the build. Single file, no build step, runs on a phone. v0.58 gives the killer the first bite of what it kills [L0.58-1], digested at the raw `carnivory` gene with no floor, so killing pays exactly to the extent the genome can use flesh and nothing tells an animal to want meat. `k_possession` 0 restores v0.57 and is verified bit-identical to it, so the pre-v0.58 world stays reachable as a matched control. `evosim-v0_57_0.html` is kept as that reference and as the revert target. **Deletion criterion:** delete `evosim-v0_57_0.html` once H16/H17 are scored at n>=40 per cell on the days 400-800 window and written into `LEDGER.md`, win or lose. H15 is withdrawn unscored, in writing, in `LEDGER.md`. |
 | `LEDGER.md` | rationale + the version log with predictions and outcomes. |
 | `HANDOFF.md` | current state, diagnostic frameworks, prioritized work. |
-| `tools/collect.sh`, `tools/arms.py`, `tools/score55.py`, `tools/style-check.sh` | collection, arm classification by cfg diff, and the weekly matched-window scorer. Committed rather than kept in scratch because `runs/` and the scratchpad do NOT survive a container restart — every log is recoverable from its `runs/<label>/seed-<N>` branch, and `tools/collect.sh` re-fetches the lot in minutes. |
+| `tools/collect.sh`, `tools/arms.py`, `tools/score.py`, `tools/style-check.sh` | collection, arm classification by cfg diff, and the matched-window scorer. `score.py` replaced `score55.py`, which gated on `invadeFrac` and parsed 79 of 2,329 logs, none of v0.56 or v0.57, while being the only code computing the metric this file demands every pass. Committed rather than kept in scratch because `runs/` and the scratchpad do NOT survive a container restart — every log is recoverable from its `runs/<label>/seed-<N>` branch, and `tools/collect.sh` re-fetches the lot in minutes. |
 | `.claude/skills/program-audit/` | harsh audit of the PROGRAM, not of claims. Run it when the project may be looping. `AUDIT-PROTOCOL.md` audits whether numbers are right and has only ever produced local corrections; this one asks whether the work is going anywhere, and returned PIVOT on 2026-09-11. |
 | `analyze.py` | log digest. `python3 analyze.py log1.json [log2.json log3.json]` |
 | `check.js` | correctness harness. `node check.js <build.html>` |
@@ -36,12 +36,29 @@ in the same commit.
 
 ## The mission metric
 
-**Heterotrophy fraction** = `eCarrion / (ePlant + eCarrion)` over a matched
-window — the share of animal energy intake that came from animals. One number
-for "do the trophic levels feed each other."
+**Heterotrophy fraction** = `(eCarrion + eFlesh) / (ePlant + eCarrion + eFlesh)`
+over a matched window — the share of animal energy intake that came from
+animals. `eFlesh` was omitted until 2026-09-12; it is the killer's own channel,
+zero from v0.52 to v0.57 and nonzero again under v0.58, and dropping it reads
+the v0.51 logs at a quarter of their real meat intake.
 
-Measured 2026-09-11 across **1,502 survivors**: median **0.302%**, max 3.95%,
-**0 runs above 5%**. Across five structural versions: pre-v0.53 0.285% → v0.53
+**Never report it alone.** It is an identity, not a mystery:
+
+    heterotrophy = supply x consumedFraction x carrionDigest
+
+`supply` is what meat COULD carry if every gram that died were eaten at perfect
+digestion — ecology and constants, no selection in it, median 5.56%.
+`consumedFraction` and `carrionDigest` are the two terms selection can move,
+and their product `capture` went 3.35% to 14.71% across v0.51 to v0.56 while
+the metric itself read flat. Scoring the product is why five structural
+versions looked like a random walk. `tools/score.py` prints all four with an
+observed-over-predicted check column, which sits at 1.061 across 1,535
+windowed survivors.
+
+Measured 2026-09-12 across **1,535 windowed survivors**: median **0.297%**, p90
+1.158%, max 3.952%. The old "0 runs above 5%" line is retired — the median run's
+arithmetic maximum is its own supply term, 3.92%, so the 5% bar sat above what
+the model can reach and was never evidence about selection. Across five structural versions: pre-v0.53 0.285% → v0.53
 0.323% → v0.54 CONTROL 0.267% → v0.55 CONTROL 0.211%. Flat. The only arm that
 ever moved it is `meatValue` 40 (0.86–0.99%) — a constant, not selection.
 
@@ -120,6 +137,23 @@ and could not tell it was looping; the owner noticed before any instrument did.
     criteria stops self-deception and stays; it must not also throw away signal.
     A notable effect gets logged and earns a replication arm — it does **not**
     earn a post-hoc story.
+
+13. **NEW 2026-09-12 — a rotation is not changed until every cell reaches the n
+    its own pre-registration named, or the hypothesis is withdrawn in writing
+    with the reason.** Logs per build ran 343, 244, 63, 16, **0**. H15 was
+    pre-registered at n>=40 per cell and collected zero logs before this rule
+    existed; H11, H12, H13 and H14 were replaced at 2-8% of their planned n.
+    Rule 10 polices how big a threshold must be and nothing policed whether the
+    n ever arrived, which made every pre-registration since v0.54 decoration.
+    Shipping a version does not entitle it to the runners. At 4 jobs/h through a
+    4-cell paired design, n=40 per cell is about a week; that is the price of an
+    answer and it is cheaper than five unanswered questions.
+
+14. **NEW 2026-09-12 — never report the mission metric without its three
+    factors.** See "The mission metric" above. A number that is a product of one
+    selection term and two constants says nothing about selection on its own,
+    and reporting it alone is what made five structural versions read as flat
+    while `capture` more than quadrupled.
 
 ## Neutral-gene drift yardstick — corrected 2026-09-11
 
