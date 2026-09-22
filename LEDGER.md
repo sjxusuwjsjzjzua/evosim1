@@ -8991,3 +8991,63 @@ single draw. Recorded as unscored, not as a signal.
 withdrawn hypothesis for ten days.** Rule 13 stopped a rotation being replaced
 before its n arrived; nothing stopped the rotation being unreachable. Two fixes
 below.
+
+---
+
+# H22, frozen 2026-09-22 before any scored seed runs
+
+**The question HANDOFF says made the last three versions guesses**: from the
+herbivore corner, an unreachable peak and an absent peak look identical. H15
+just showed that the one hardcoded rule suspected of blocking the path votes
+with the genome when it is freed, so "something is blocking the path" is now the
+weaker of the two readings. This tests the other one directly.
+
+Walk the founding population onto the carnivore corner and ask whether it stays
+there. Four cells, one seed through all four so every comparison is paired,
+build v0.58, 800 days, window days 400-800.
+
+| cell | founder `carnivory` | founder `herbivory` | c*h vs `mixedFree` 0.06 | c+h-1 |
+|---|---|---|---|---|
+| `h22-control` | 0.05 (START) | 0.60 (START) | 0.030 | -0.35 |
+| `h22-carn40` | 0.40 | 0.45 | 0.180 | -0.15 |
+| `h22-carn70` | 0.70 | 0.25 | 0.175 | -0.05 |
+| `h22-carn85` | 0.85 | 0.12 | 0.102 | -0.03 |
+
+Both genes move in every cell. Shifting `carnivory` alone against an evolved
+`herbivory` of 0.82 gives a `k_mixed` product of 0.45 against a `mixedFree` of
+0.06 — that builds a heavily taxed omnivore, not a carnivore, and would confound
+the stability of the corner with the price of the middle. `c+h` is held near 1
+so the cells differ in **where** they sit on the frontier rather than how far
+off it they are.
+
+`founderGenesA` shifts from START rather than setting, so morph spread and
+`founderNoise` survive and selection has heritable variation to act on
+[L0.56-2]. The control names the START values explicitly, so it shifts by zero
+and is the shipped world under a label.
+
+## Prediction
+
+Endpoint is median evolved `carnivory` at day 800, and survival. Bootstrap SE of
+median `carnivory` is 0.0111 at n=40 and about 0.020 at n=12, so both thresholds
+below sit at least 7 SE clear.
+
+- **UNREACHABLE PEAK** if the `carn70` and `carn85` cells hold median evolved
+  `carnivory` above **0.30** with survival within 20 points of control. The
+  corner is then a real fitness peak the genome cannot walk to from the
+  herbivore side, and every future version is about **reachability** — founder
+  values, invasion, the shape of the frontier between the corners.
+- **ABSENT PEAK** if every shifted cell falls below **0.15**, sliding back
+  toward the corpus value of 0.07. The carnivore corner is then not a peak at
+  all, five versions of mechanism work were aimed at a place that does not
+  exist, and the correct move is to change the **energetics** — `meatValue`,
+  `carrionValue`, `energyPerMassA` — or to stop.
+- Between 0.15 and 0.30, or a split between cells, locates the boundary and the
+  next arm brackets it.
+- **Extinction is a result, not a failure.** If `carn85` dies out while `carn40`
+  holds, the corner exists but cannot be occupied from a standing start, which
+  is a third answer and a useful one. Survival is reported per cell and is not
+  a gate on the carnivory reading.
+
+A 420-day single-seed shakedown ran first against `h22-control` and `h22-carn85`
+to check the extreme cell founds a living population at all. It is a smoke test,
+not evidence, and is not scored.

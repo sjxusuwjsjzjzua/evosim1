@@ -357,8 +357,8 @@
    "build": "evosim-v0_58_0.html",
    "prediction_ref": "LEDGER.md 'H16 x H17, frozen before the runs'",
    "fired_at": "2026-09-12T06:25Z",
-   "status": "fired",
-   "notes": "Actions run 1003, dispatched against claude/project-adversarial-audit-l82pmh, 4 seeds x 4 cells = 16 jobs, 1600 days. Branches runs/h1617/seed-<seed>c<cell>. Rule 13 holds this rotation until n=40 per cell. The scheduled cron still runs the withdrawn H15 cells until the branch is merged to main -- a main push was refused in the session that fired this."
+   "status": "collected",
+   "notes": "Actions run 1003, dispatched against claude/project-adversarial-audit-l82pmh, 4 seeds x 4 cells = 16 jobs, 1600 days. Branches runs/h1617/seed-<seed>c<cell>. Rule 13 holds this rotation until n=40 per cell. The scheduled cron still runs the withdrawn H15 cells until the branch is merged to main -- a main push was refused in the session that fired this. | COLLECTED 2026-09-22: 4 seeds landed per arm, 1-3 alive at day 800. CAN'T TELL against a pre-registration written for n=40. Cause: the standing batch was pointed at the withdrawn H15 cells for ten days because the rotation change needed a push to main that was refused."
   },
   "h15-mvt-gene": {
    "cfg": "rotation 2x2 on k_mvtScale",
@@ -366,8 +366,8 @@
    "build": "evosim-v0_57_0.html",
    "prediction_ref": "LEDGER.md 'H15, frozen before the runs'",
    "fired_at": "2026-09-12",
-   "status": "withdrawn",
-   "notes": "WITHDRAWN UNSCORED, 2026-09-12, n=0 collected. It asked how a rule that discards the scan is parameterised while the deeper problem was that winning the scan paid nothing. Superseded by H17."
+   "status": "scored",
+   "notes": "SCORED MISS 2026-09-22 at n=54 and n=32, ABOVE its planned 40 -- the withdrawn hypothesis collected its n by accident, because main kept firing the old rotation. Evolved patchLeaving went 0.10 -> 0.0747 (x10) and -> 0.0209 (x30), a response of -0.25 and -0.39 SD against a drift null of 0.84 and 0.96. Selection drives the leave threshold DOWN: the MVT guard was not imposing the herbivore monoculture, the genome picks it."
   },
   "h18-corpse-persist": {
    "build": "evosim-v0_58_0.html",
@@ -378,10 +378,10 @@
     92004
    ],
    "fired_at": "2026-09-12T06:38Z",
-   "status": "fired",
+   "status": "collected",
    "cfg": "cfg-patches/screen-corpse-persist.json",
    "prediction_ref": "LEDGER.md 'H18 \u2014 corpse persistence is not the constraint'",
-   "notes": "Actions run 34678626554, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h18-corpse-persist/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+   "notes": "Actions run 34678626554, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h18-corpse-persist/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired. | COLLECTED 2026-09-22: 4 seeds landed per arm, 1-3 alive at day 800. CAN'T TELL against a pre-registration written for n=40. Cause: the standing batch was pointed at the withdrawn H15 cells for ten days because the rotation change needed a push to main that was refused."
   },
   "h19-toxin-tax": {
    "build": "evosim-v0_58_0.html",
@@ -392,10 +392,10 @@
     92004
    ],
    "fired_at": "2026-09-12T06:38Z",
-   "status": "fired",
+   "status": "collected",
    "cfg": "cfg-patches/screen-toxin-tax.json",
    "prediction_ref": "LEDGER.md 'H19 \u2014 the herbivore corner is subsidised'",
-   "notes": "Actions run 34678627763, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h19-toxin-tax/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+   "notes": "Actions run 34678627763, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h19-toxin-tax/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired. | COLLECTED 2026-09-22: 4 seeds landed per arm, 1-3 alive at day 800. CAN'T TELL against a pre-registration written for n=40. Cause: the standing batch was pointed at the withdrawn H15 cells for ten days because the rotation change needed a push to main that was refused."
   },
   "h20-cheap-upkeep": {
    "build": "evosim-v0_58_0.html",
@@ -406,10 +406,10 @@
     92004
    ],
    "fired_at": "2026-09-12T06:38Z",
-   "status": "fired",
+   "status": "collected",
    "cfg": "cfg-patches/screen-cheap-upkeep.json",
    "prediction_ref": "LEDGER.md 'H20 \u2014 the guild is too small for selection to hold it'",
-   "notes": "Actions run 34678631027, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h20-cheap-upkeep/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+   "notes": "Actions run 34678631027, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h20-cheap-upkeep/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired. | COLLECTED 2026-09-22: 4 seeds landed per arm, 1-3 alive at day 800. CAN'T TELL against a pre-registration written for n=40. Cause: the standing batch was pointed at the withdrawn H15 cells for ten days because the rotation change needed a push to main that was refused."
   },
   "h21-gut-tax": {
    "build": "evosim-v0_58_0.html",
@@ -420,10 +420,10 @@
     92004
    ],
    "fired_at": "2026-09-12T06:38Z",
-   "status": "fired",
+   "status": "collected",
    "cfg": "cfg-patches/screen-gut-tax.json",
    "prediction_ref": "LEDGER.md 'H21 \u2014 the gut tax is what makes an omnivore impossible'",
-   "notes": "Actions run 34678632581, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h21-gut-tax/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+   "notes": "Actions run 34678632581, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h21-gut-tax/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired. | COLLECTED 2026-09-22: 4 seeds landed per arm, 1-3 alive at day 800. CAN'T TELL against a pre-registration written for n=40. Cause: the standing batch was pointed at the withdrawn H15 cells for ten days because the rotation change needed a push to main that was refused."
   },
   "h18-21-control": {
    "build": "evosim-v0_58_0.html",
@@ -434,10 +434,118 @@
     92004
    ],
    "fired_at": "2026-09-12T06:38Z",
-   "status": "fired",
+   "status": "collected",
    "cfg": "cfg-patches/v058-control.json",
    "prediction_ref": "shared paired control for H18-H21",
-   "notes": "Actions run 34678636030, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h18-21-control/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired."
+   "notes": "Actions run 34678636030, 800 days, one cell per seed (cfg dispatches no longer fan out to four). Branches runs/h18-21-control/seed-<seed>c0. Screening n: at n=3 the bootstrap SE on capture is 55.7% relative, so this sees a doubling and nothing finer; anything that fires earns a full n>=40 arm. The same four seeds run every arm, so all comparisons are paired. | COLLECTED 2026-09-22: 4 seeds landed per arm, 1-3 alive at day 800. CAN'T TELL against a pre-registration written for n=40. Cause: the standing batch was pointed at the withdrawn H15 cells for ten days because the rotation change needed a push to main that was refused."
+  },
+  "h22-control": {
+   "cfg": "cfg-patches/h22-control.json",
+   "seeds": [
+    94001,
+    94002,
+    94003,
+    94004,
+    94005,
+    94006,
+    94007,
+    94008,
+    94009,
+    94010,
+    94011,
+    94012
+   ],
+   "build": "evosim-v0_58_0.html",
+   "prediction_ref": "LEDGER.md 'H22, frozen 2026-09-22'",
+   "fired_at": "2026-09-22T00:00Z",
+   "status": "fired",
+   "notes": "Founder dose series onto the carnivore corner: unreachable peak or absent peak. 12 paired seeds, 800 days, one cell per seed."
+  },
+  "h22-carn40": {
+   "cfg": "cfg-patches/h22-carn40.json",
+   "seeds": [
+    94001,
+    94002,
+    94003,
+    94004,
+    94005,
+    94006,
+    94007,
+    94008,
+    94009,
+    94010,
+    94011,
+    94012
+   ],
+   "build": "evosim-v0_58_0.html",
+   "prediction_ref": "LEDGER.md 'H22, frozen 2026-09-22'",
+   "fired_at": "2026-09-22T00:00Z",
+   "status": "fired",
+   "notes": "Founder dose series onto the carnivore corner: unreachable peak or absent peak. 12 paired seeds, 800 days, one cell per seed."
+  },
+  "h22-carn70": {
+   "cfg": "cfg-patches/h22-carn70.json",
+   "seeds": [
+    94001,
+    94002,
+    94003,
+    94004,
+    94005,
+    94006,
+    94007,
+    94008,
+    94009,
+    94010,
+    94011,
+    94012
+   ],
+   "build": "evosim-v0_58_0.html",
+   "prediction_ref": "LEDGER.md 'H22, frozen 2026-09-22'",
+   "fired_at": "2026-09-22T00:00Z",
+   "status": "fired",
+   "notes": "Founder dose series onto the carnivore corner: unreachable peak or absent peak. 12 paired seeds, 800 days, one cell per seed."
+  },
+  "h22-carn85": {
+   "cfg": "cfg-patches/h22-carn85.json",
+   "seeds": [
+    94001,
+    94002,
+    94003,
+    94004,
+    94005,
+    94006,
+    94007,
+    94008,
+    94009,
+    94010,
+    94011,
+    94012
+   ],
+   "build": "evosim-v0_58_0.html",
+   "prediction_ref": "LEDGER.md 'H22, frozen 2026-09-22'",
+   "fired_at": "2026-09-22T00:00Z",
+   "status": "fired",
+   "notes": "Founder dose series onto the carnivore corner: unreachable peak or absent peak. 12 paired seeds, 800 days, one cell per seed."
+  },
+  "h1617-wave2": {
+   "cfg": "rotation 2x2, no cfg",
+   "seeds": [
+    93001,
+    93002,
+    93003,
+    93004,
+    93005,
+    93006,
+    93007,
+    93008,
+    93009,
+    93010
+   ],
+   "build": "evosim-v0_58_0.html",
+   "prediction_ref": "LEDGER.md 'H16 x H17, frozen before the runs'",
+   "fired_at": "2026-09-22T00:00Z",
+   "status": "fired",
+   "notes": "Front-load of the 2x2 at 800 days now that main carries the rotation. The hourly cron adds 4 paired seeds x 4 cells on top."
   }
  }
 }
