@@ -8878,3 +8878,116 @@ A dispatch that names a `cfg` ran all four rotation cells with the identical
 config, so every screening batch in this project's history burned **4x** the
 runners it needed on duplicate jobs. The cell fan-out is now gated in `setup`:
 one cell when a cfg is named, four when the schedule fires with none.
+
+---
+
+# Scoring pass, 2026-09-22
+
+Corpus recollected: 2,623 logs parsed, 1,687 windowed survivors. Mission metric
+median **0.330%** (p90 1.231%, max 3.952%), with `eFlesh` 0.341%, identity check
+1.061. The median rose from 0.297% because 226 new v0.57 logs landed and v0.57
+carries v0.56's founder change, which is the result below.
+
+## The neutral-gene drift yardstick was wrong by three orders of magnitude
+
+`parentalCare` is bounded **[0, 20000] with sigma 600**
+(`evosim-v0_58_0.html:752`); `mateChoosiness` and `pathogenResistance` are
+[0, 1] with sigma 0.03. `score55.py` averaged **raw** |delta| across the three,
+so the yardstick was about 99.9% `parentalCare` measured in its own units: a
+null of **~180** against gene responses of ~0.03. Every selection test that used
+it was comparing a gene against a number ten thousand times larger than anything
+a gene could move.
+
+This is the same class of error as the `ambushTendency` contamination and was
+found the same way, by printing the number instead of trusting it. `score.py`
+now expresses every response in **founding SD**, `(mean_end - mean_first)/sd_first`,
+and the yardstick becomes the mean |z| of the three inert genes, which lands at
+**0.70 to 0.96 SD** across arms. Verified by grep this pass: all three genes
+still have zero readers in the build.
+
+**The correction does not rescue carnivory, and that matters.** On the valid
+null, at n=31-55 per arm:
+
+| arm | drift | herbivory | biteForce | carnivory | meatAttraction | carrionAttraction |
+|---|---|---|---|---|---|---|
+| `patchLeaving x10` | 0.840 | +1.78 (2.1x) | +1.58 (1.9x) | +0.62 (0.7x) | -0.14 (0.2x) | -0.07 (0.1x) |
+| `mvt-constant 1` | 0.801 | +1.60 (2.0x) | +2.41 (3.0x) | +0.21 (0.3x) | +0.20 (0.2x) | -0.01 (0.0x) |
+| `v53-CONTROL` | 0.851 | +1.63 (1.9x) | +1.25 (1.5x) | +0.29 (0.3x) | +0.18 (0.2x) | +0.08 (0.1x) |
+
+`herbivory` and `biteForce` clear the null in every arm; `carnivory` and both
+attraction genes never do. The project's central finding survives its own
+instrument being broken, which is the best thing that can be said about it.
+
+## H15 — MISS, at n above its planned 40, and the miss is the interesting part
+
+The rotation never switched to the H16/H17 2x2 because the push to `main` was
+refused and `schedule:` only reads the default branch. So the standing batch
+spent ten days firing the withdrawn H15 cells — and handed H15 the n its own
+pre-registration asked for.
+
+| arm | n | surv | het med | consumed | animals | evolved `patchLeaving` |
+|---|---|---|---|---|---|---|
+| `patchLeaving x10` (gene) | 54 | 71.1% | 0.631 | 0.283 | 290 | **0.0747** |
+| `patchLeaving x30` (gene, wide) | 32 | 71.1% | 0.562 | 0.257 | 263 | **0.0209** |
+| `mvt-constant 1` (the constant) | 31 | 81.6% | 0.880 | 0.336 | 239 | n/a |
+| `mvt-constant 5` | 31 | 75.6% | 0.876 | 0.423 | 161 | n/a |
+
+H15 needed median evolved `patchLeaving` above **0.20**. It went the other way,
+founder 0.10 down to **0.0747**, and to **0.0209** when the lever was widened to
+x30 — a response of -0.25 and -0.39 SD against a drift null of 0.84 and 0.96, so
+inside the band in both arms. **MISS.**
+
+**What the miss says is worth more than a hit would have been.** Selection drives
+the leave threshold DOWN: given the choice, animals evolve to stay on their
+patch, because leaving costs intake. The MVT guard was not imposing the
+herbivore monoculture. The genome picks it. Three versions were spent on the
+premise that a hardcoded rule was suppressing an emergent carnivore, and the
+gene that replaced the rule votes for the rule. v0.57 was still the right move
+by the mission test — it is what let the world answer — and the answer is that
+the monoculture is emergent.
+
+Cost of the gene: survival 71.1% against the constant's 81.6%, heterotrophy
+0.631% against 0.880%. The constant was a better world; it just was not an
+evolved one.
+
+## v0.56's founder change is the largest confirmed effect in the project
+
+Filed at the time as "tracking toward MISS" and flagged by the general audit as
+a near-doubling of `consumedFraction`. Now at n=12 against n=31, same MVT
+constant on both sides, the only difference being founder `carrionAttraction`
+0.10 to 0.80:
+
+| | n | het | consumed | digest | supply |
+|---|---|---|---|---|---|
+| `CONTROL` (v0.55, founder 0.10) | 12 | 0.265% | 0.146 | 0.396 | 4.46 |
+| `mvt-constant 1` (= v0.56, founder 0.80) | 31 | **0.880%** | **0.336** | 0.344 | 6.69 |
+
+Heterotrophy **3.3x**, `consumedFraction` **2.3x**. Caveat, stated rather than
+buried: the build also moved v0.55 to v0.56, and `k_mvtScale` 0 makes v0.57
+identical to v0.56, so the comparison is founder-plus-build rather than founder
+alone. It is still the biggest move any intervention has produced, and it is a
+founder value rather than a mechanism — the genome's starting point, not the
+physics.
+
+## H16, H17, H18-H21 — CAN'T TELL, all of them, for one reason
+
+Every manually dispatched arm landed exactly 4 seeds, and survival to day 800 on
+those seeds ran 25-75%, so each cell has one to three usable runs. The
+pre-registered thresholds were set for n=40.
+
+H17 paired across the 2x2 (`k_possession` 1 vs 0, same seeds): survival 4/8
+against 2/8, `consumedFraction` 0.349 against 0.244 — **+43%**, above the 30%
+2-SE floor and below the 60% HIT line, which is the CAN'T TELL band the
+pre-registration named. H16's `carrionFloor` 0 cells show `digest` collapsing
+0.365 to 0.086-0.196 exactly as predicted, which is why the gene and not the
+metric was the registered endpoint; the gene comparison has n=1 per cell.
+
+The screens tell the same story. Every one of the four treatments beat the
+control on `capture` (14.3-18.8% against 4.64%) and on heterotrophy — but the
+control has **one** surviving run, of 98 animals, so every ratio rests on a
+single draw. Recorded as unscored, not as a signal.
+
+**The cause is not the design, it is that the standing batch was pointed at a
+withdrawn hypothesis for ten days.** Rule 13 stopped a rotation being replaced
+before its n arrived; nothing stopped the rotation being unreachable. Two fixes
+below.

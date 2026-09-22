@@ -105,10 +105,24 @@ for f in sorted(glob.glob(os.path.join(ROOT, 'runs', '*', '*.json'))):
         snaps = [s for s in d['genes'] if W0 <= s['t']/tpd <= D and ok(s)]
         first = [s for s in d['genes'] if ok(s)]
         if snaps and first:
-            f0 = first[0]['animal']['mean']; fN = snaps[-1]['animal']['mean']
+            A0, AN_ = first[0]['animal'], snaps[-1]['animal']
+            f0, fN, s0 = A0['mean'], AN_['mean'], A0.get('sd') or []
+            # RESPONSE IN FOUNDING SD, NOT IN RAW GENE UNITS.  [2026-09-22]
+            # score55.py averaged raw |delta| across the inert genes, and
+            # `parentalCare` is bounded [0, 20000] with sigma 600 while the
+            # other two are [0, 1] with sigma 0.03. The drift yardstick was
+            # therefore about 99.9% parentalCare measured in its own units --
+            # a null of ~180 against gene responses of ~0.03, which is why
+            # every gene in this project has looked like it sits at drift.
+            # Same class of error as the ambushTendency contamination, found
+            # the same way: by printing the number instead of trusting it.
             for g in WATCH + NEUT:
                 if g not in gn: continue
                 i = gn.index(g); r['g_'+g] = fN[i]; r['d_'+g] = fN[i]-f0[i]
+                sd = s0[i] if i < len(s0) else 0
+                if sd and sd > 1e-12: r['z_'+g] = (fN[i]-f0[i])/sd
+            zs = [abs(r['z_'+g]) for g in NEUT if 'z_'+g in r]
+            if zs: r['drift'] = st.mean(zs)
     rows.append(r); del d
 
 if PICKLE: pickle.dump(rows, open(PICKLE, 'wb'))
