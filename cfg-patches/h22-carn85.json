@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.58.0","base":"0.58.0",
+ "note":"H22 cell. Founder animals shifted toward the carnivore corner: carnivory 0.85, herbivory 0.12, against START values of 0.05 and 0.60. founderGenesA SHIFTS from START rather than setting, so the morph spread and founderNoise survive and selection has heritable variation to act on [L0.56-2]. Both genes move together: shifting carnivory alone builds a heavily taxed omnivore rather than a carnivore, which would confound the stability of the corner with the price of the middle. c+h is held near 1 so k_digest's c+h-1 term stays small and the cells differ in WHERE they sit on the frontier, not how far off it they are.",
+ "cfg":{"founderGenesA":{"carnivory":0.85,"herbivory":0.12}}}

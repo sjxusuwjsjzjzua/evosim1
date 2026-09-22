@@ -1,0 +1,3 @@
+{"kind":"evosim-cfg","formatVersion":36,"version":"0.58.0","base":"0.58.0",
+ "note":"H22 control. carnivory 0.05 and herbivory 0.60 are exactly the START values, so founderGenesA shifts both by zero and this is the shipped world, RNG-neutral, under a label. Written out rather than left blank so the arm cannot be confused with the standing rotation. The first draft of this file used herbivory 0.80, which is the EVOLVED value, not START -- that would have shifted every control founder by +0.20 and quietly broken the whole comparison.",
+ "cfg":{"founderGenesA":{"carnivory":0.05,"herbivory":0.60}}}

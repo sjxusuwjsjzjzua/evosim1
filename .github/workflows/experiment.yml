@@ -146,9 +146,14 @@ jobs:
           # the founder RNG draws and takes no draw itself, so at a given seed
           # every cell founds the identical world apart from the shifted gene.
           # That removes between-seed variance from the comparison entirely.
+          # FOUR PAIRED SEEDS PER FIRING, 2026-09-22, up from one. The run
+          # length went 1600 -> 800 days below, which roughly halves service
+          # time, so one seed an hour left most of the 20 running slots idle
+          # while the cells that decide the shipped build sat at n=4.
           if [ -z "$seeds" ]; then
-            seeds=$(( 40000 + ${{ github.run_number }} * 20 ))
-            echo "scheduled firing: paired seed $seeds across all four cells"
+            b=$(( 40000 + ${{ github.run_number }} * 20 ))
+            seeds="$b,$((b+1)),$((b+2)),$((b+3))"
+            echo "scheduled firing: paired seeds $seeds across all four cells"
           fi
           json=$(python3 -c "import json,sys; print(json.dumps([s.strip() for s in '$seeds'.split(',') if s.strip()]))")
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
@@ -333,7 +338,17 @@ jobs:
             esac
           fi
           [ -z "$BUILD_IN" ] && BUILD_IN="evosim-v0_58_0.html"
-          [ -z "$DAYS_IN" ]  && DAYS_IN="1600"
+          # 800, NOT 1600, 2026-09-22. Every pre-registered window in this
+          # project closes at day 800 and every score is computed on days
+          # 400-800, so the second half of a 1600-day run was never read by
+          # anything that scored a hypothesis. Halving the run doubles the rate
+          # at which cells fill. The founding-transient argument behind 1600
+          # ([L61b]) was about R0, which no current endpoint uses; the window
+          # already excludes days 0-400.
+          # If a late-window question is asked again -- the tail at days
+          # 1200-1600 is fatter than the median, see the 2026-09-12 audit --
+          # it gets its own long-run arm rather than a tax on every run.
+          [ -z "$DAYS_IN" ]  && DAYS_IN="800"
           [ -z "$PROG_IN" ]  && PROG_IN="40"
           if [ -n "$CFG_IN" ]; then CFG_ARGS="--cfg $CFG_IN"; fi
           # --max-wall-min sits under the job's own 350-min timeout (line above:
