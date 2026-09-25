@@ -720,6 +720,57 @@ function step(){
 }
 
 // ---------------------------------------------------------------- statistics
+// Species, measured, not declared: leader clustering in (colour tag, diet)
+// space. Returns the clusters holding at least 2% of animals, largest first,
+// with their mean diet, size and lifetime meat share. No rng is drawn.
+function species(){
+  var G = S.genome, L = [], th = 0.15, th2 = th*th;
+  for (var i = 0; i < S.hi; i++){
+    if (!S.alive[i]) continue;
+    var g = i*NG, v0 = G[g+G_TAG], v1 = G[g+G_TAG+1], v2 = G[g+G_TAG+2], v3 = G[g+G_DIET];
+    var hit = null;
+    for (var k = 0; k < L.length; k++){
+      var c = L[k], d0 = v0-c.c[0], d1 = v1-c.c[1], d2 = v2-c.c[2], d3 = v3-c.c[3];
+      if (d0*d0 + d1*d1 + d2*d2 + d3*d3 < th2){ hit = c; break; }
+    }
+    if (!hit){ hit = {c: [v0, v1, v2, v3], n: 0, diet: 0, size: 0, meat: 0, meatN: 0}; L.push(hit); }
+    hit.n++; hit.diet += v3; hit.size += G[g+G_SIZE];
+    var tot = S.lP[i] + S.lM[i];
+    if (tot > 1){ hit.meat += S.lM[i]/tot; hit.meatN++; }
+  }
+  var n = S.n || 1, out = [];
+  L.sort(function(a, b){ return b.n - a.n; });
+  for (var k2 = 0; k2 < L.length && out.length < 8; k2++){
+    var c2 = L[k2];
+    if (c2.n < 0.02*n) break;
+    out.push({n: c2.n, diet: +(c2.diet/c2.n).toFixed(3), size: +(c2.size/c2.n).toFixed(2),
+              meat: c2.meatN ? +(c2.meat/c2.meatN).toFixed(3) : 0});
+  }
+  return out;
+}
+// Grouping: mean number of other animals within 6 units, over what random
+// placement at the same density would give. 1 = random, above 1 = herds.
+function clumping(){
+  var r = 6, r2 = r*r, tot = 0, n = 0, inv = 1/S.bSize, bN = S.bN, span = Math.ceil(r*inv);
+  for (var i = 0; i < S.hi; i += 3){
+    if (!S.alive[i]) continue;
+    var x = S.x[i], y = S.y[i], bx0 = (x*inv)|0, by0 = (y*inv)|0; n++;
+    for (var dy = -span; dy <= span; dy++){
+      var by = ((by0+dy) % bN + bN) % bN;
+      for (var dx = -span; dx <= span; dx++){
+        var b = by*bN + ((bx0+dx) % bN + bN) % bN;
+        for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
+          if (j === i || !S.alive[j]) continue;
+          var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y);
+          if (ex*ex + ey*ey < r2) tot++;
+        }
+      }
+    }
+  }
+  if (!n || S.n < 2) return 0;
+  var expect = (S.n - 1)*Math.PI*r2/(S.world*S.world);
+  return +((tot/n)/expect).toFixed(2);
+}
 function sample(){
   var G = S.genome, n = 0, sums = new Float64Array(NB), dh = new Array(10).fill(0);
   var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0;
@@ -745,6 +796,7 @@ function sample(){
   }
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
+  var sp = species(), clump = clumping();
   var C = S.c, eAll = C.eP + C.eC + C.eK;
   var dead = S.hist; S.hist = [];
   var dhist = new Array(10).fill(0);
@@ -762,7 +814,8 @@ function sample(){
     acts: act, meanGen: n ? +(gens/n).toFixed(1) : 0,
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
-    eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1)
+    eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
+    species: sp, clump: clump
   };
   S.log.push(row);
   S.c = newCounters();

@@ -36,7 +36,8 @@ const fmt = r => {
     `def=${r.plantDef.toFixed(2)} stat=${r.plantStat.toFixed(2)} | size=${g.size.toFixed(2)} spd=${g.speed.toFixed(2)} ` +
     `sense=${g.sense.toFixed(1)} diet=${g.diet.toFixed(2)} wpn=${g.weapon.toFixed(2)} arm=${g.armour.toFixed(2)} ` +
     `| meat=${(100*r.meatShare).toFixed(1)}% kill=${(100*r.killShare).toFixed(1)}% pred=${r.predators}/${r.adults} ` +
-    `kills=${r.kills} gen=${r.meanGen} deaths s/a/k=${r.dStarve}/${r.dAge}/${r.dKill} dh=[${r.dietHist.join(',')}]`;
+    `kills=${r.kills} gen=${r.meanGen} deaths s/a/k=${r.dStarve}/${r.dAge}/${r.dKill} clump=${r.clump} dh=[${r.dietHist.join(',')}]` +
+    ` sp=${(r.species||[]).map(c => c.n + ':' + c.diet.toFixed(2) + '/' + (100*c.meat).toFixed(0) + '%').join(' ')}`;
 };
 let last = null;
 for (let t = 1; t <= ticks; t++) {
