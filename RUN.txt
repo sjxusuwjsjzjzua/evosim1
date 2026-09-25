@@ -1,0 +1,6 @@
+label=v1-T-dmg1
+seeds=201,202,203,204,205,206
+ticks=300000
+set=dmg=1
+cfg=
+sha=eaac85500004f3d58d72095c63c2a61e2937a552
