@@ -478,6 +478,14 @@ function think(i){
     S.out[o+q] = t;
   }
   S.hurt[i] *= 0.5;
+  // MOUTH: one act at a time, drawn in proportion to exp(output), with
+  // "nothing" at output 0. A hard argmax gave a gene a fitness gradient only
+  // where it flipped the winner, so meat-eating could not start from a
+  // grazing brain: every small step toward it did nothing at all.
+  var eg = Math.exp(clamp(S.out[o+2], -20, 20)), em = Math.exp(clamp(S.out[o+3], -20, 20)),
+      ea = Math.exp(clamp(S.out[o+4], -20, 20));
+  var r = rng()*(1 + eg + em + ea);
+  S.act[i] = r < 1 ? 0 : r < 1 + eg ? 1 : r < 1 + eg + em ? 2 : 3;
 }
 
 // one animal, one tick
@@ -499,13 +507,8 @@ function updateAnimal(i){
   S.x[i] = (S.x[i] + Math.cos(S.hd[i])*sp + S.world) % S.world;
   S.y[i] = (S.y[i] + Math.sin(S.hd[i])*sp + S.world) % S.world;
 
-  // ---- mouth: one thing at a time, the strongest urge above zero
-  var og = S.out[o+2], om = S.out[o+3], oa = S.out[o+4];
-  var act = 0;
-  if (og > 0 && og >= om && og >= oa) act = 1;
-  else if (om > 0 && om >= oa) act = 2;
-  else if (oa > 0) act = 3;
-  S.act[i] = act;
+  // ---- mouth: the act drawn at the last think
+  var act = S.act[i];
   var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 1){
     var c = cellAt(S.x[i], S.y[i]), B = S.pB[c];
