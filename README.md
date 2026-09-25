@@ -22,6 +22,9 @@ What evolves, without being written in:
   up when a big armed animal comes into view;
 - **arms races**: armour against weapons, speed against speed, herbivore detox
   against plant defence;
+- **safety in numbers**: an animal eating has its eyes on the food, so where
+  there are predators prey end up in groups, bolt when their neighbours bolt,
+  and in some worlds steer toward each other;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 
 Predators usually need one to three hundred generations to appear. On a phone

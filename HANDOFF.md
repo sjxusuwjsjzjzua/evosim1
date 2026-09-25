@@ -38,9 +38,10 @@ Browser check (Chromium and Playwright are preinstalled):
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
 | animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | sense, weapon, detox and speed have quadratic upkeep; armour costs linearly and slows; tags, attention and life-history genes are free |
 | fixed cost | `upFixed` 0.003 per animal per tick regardless of size | 0.010 gave an interior body size but 0 predator worlds in 20 at 600k ticks; at 0.003 small fast breeders evolve predation, and predation holds size off the floor |
-| brain | 25 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
-| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction | facts about the world, not advice |
+| brain | 27 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
+| vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`, default off), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; with incompatibility (`mateDist` 0.1) sexual worlds match clonal ones, without it they fall behind (below) |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
@@ -227,7 +228,33 @@ combinations unless mating is already assortative.
   `sex=1, mateDist=0.1` on top (`v1-Y-small-curve2-sexmd`) gave 7 and 1 of 10,
   so reproduction stays clonal by default.
 
-## Herding does not pay in this physics (tested 2026-09-25)
+## Prey group where predators are, once eating costs vigilance (2026-09-25)
+
+`headDown` (now 0.7, default): an animal that ate last tick senses animals over
+30% of its range. A new sense, `crowdSpeed`, reports how fast the animals in
+view are moving. Local batch, small world, 400k ticks, seeds 401–412, the same
+engine with and without it:
+
+| | `headDown` 0 | `headDown` 0.7 |
+|---|---|---|
+| predator-dominated (regime > 50%) | 9 of 12 | 8 of 12 |
+| prey clump in those worlds | 0.76–1.05, mean 0.90 | 0.93–1.55, mean 1.17 |
+| predator worlds with prey clump ≥ 1.02 | 2 of 9 | 7 of 8 |
+| strongest "bolt when the others run" (throttle, crowdSpeed 0.8 vs 0.1) | 0.36 | 0.85 (s404) |
+| strongest "turn toward the crowd" | 0.39 (a world without predation) | 1.80 (s406, prey clump 1.30) |
+
+- Grouping appears only where there are predators; in the peaceful worlds of
+  the same batch prey clump is 0.69–0.86.
+- Within a world it builds with predation: s404 went 0.97 → 2.40 over 400k
+  ticks at 25–34% meat.
+- Mostly it is not steering. In s404 (clump 2.4) prey turn away from the crowd
+  and bolt when neighbours bolt: social information, and loners, who get no
+  warning, die first. In s406 prey steer hard toward the crowd: herding.
+- Brain probes: `probe-crowd.js` in the session scratchpad.
+- Founded into 4 new worlds under it, the seed-42 evolved start held predation
+  in all 4 (meat 33–50% at 40k ticks).
+
+## Herding without vigilance (tested 2026-09-25)
 
 Hand-built test in worlds founded from the seed-21 population (the evolved start at the time): after
 10k ticks, half the herbivores got a weight turning them toward the centre of
@@ -296,7 +323,10 @@ generations). In the older engine that took 85–200 generations.
    gap between a predator's kills did not lengthen (median 21–31 ticks either
    way). A kill digests in a few ticks at `gutDig` 0.15, faster than the next
    kill comes. Satiety would need digestion slower than grazing, which throttles
-   every grazer too. `results/v1-AB-gut1slow` (`gutDig` 0.08) tests that end.
+   every grazer too. Batches from random (`results/v1-AB-base` against
+   `v1-AB-gut2`, 10 seeds each): 5 of 10 predator-dominated either way, prey
+   clump 0.67–1.17 against 0.81–1.00. `v1-AB-gut1slow` (`gutDig` 0.08) is the
+   slow end. Vigilance, not a stomach, is what made groups pay (above).
 2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
    each). A cluster living mostly on meat was present in the last 10 samples of
    4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility

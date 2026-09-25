@@ -113,6 +113,9 @@ var CFG_DEFAULT = {
                         // straight into reserves). With one, food fills the stomach and is
                         // digested into reserves at gutDig x mass^0.75 a tick, so a second
                         // kill is worth nothing until the first is digested.
+  headDown: 0.7,        // an animal that ate last tick senses animals over (1 - headDown) of its
+                        // range: eyes on the food are not on the horizon. Over 12 worlds a side
+                        // it made prey group where predators were (prey clump 1.17 against 0.90)
   gutDig: 0.15,         // digestion per tick x mass^0.75 (grazing brings in at most ~0.12)
   cBuild: 10,           // energy to build one unit of body mass
   growAbove: 0.5,       // a juvenile grows only with reserves above this share of capacity
@@ -208,11 +211,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 26, NH = 8, NO = 5;
+var NI = 27, NH = 8, NO = 5;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
 
 var CFG, S;   // config and state
@@ -565,7 +568,8 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
-  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0;
+  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp;
+  var ate = S.act[i] === 1 || S.act[i] === 2, RA2 = ate && CFG.headDown > 0 ? R2*(1 - CFG.headDown)*(1 - CFG.headDown) : R2;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -581,8 +585,8 @@ function sense(i){
         var ex = AX[j]-x, ey = AY[j]-y;
         ex = ex > Wh ? ex - W : ex < -Wh ? ex + W : ex; ey = ey > Wh ? ey - W : ey < -Wh ? ey + W : ey;
         var d2 = ex*ex + ey*ey;
-        if (d2 >= R2) continue;
-        crowd++; cxs += ex; cys += ey;
+        if (d2 >= RA2) continue;
+        crowd++; cxs += ex; cys += ey; spd += SPD[j];
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(MA[j]/mi), -3, 3)/3
@@ -638,6 +642,7 @@ function sense(i){
   IN[23] = Math.min(1, alarm);
   IN[24] = alarm > 0 && (alx || aly) ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
   IN[25] = CFG.gutCap > 0 ? S.gut[i]/(CFG.gutCap*S.mass[i]) : 0;   // how full the stomach is
+  IN[26] = crowd > 0 ? spd/crowd/1.6 : 0;   // how fast the animals in view are moving
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
