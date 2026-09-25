@@ -1,0 +1,6 @@
+label=v1-S-meat10
+seeds=101,102,103,104,105,106
+ticks=400000
+set=eMeat=10
+cfg=
+sha=95e39bb0136ac7b06da2a77e47dc8badce06ee91
