@@ -21,9 +21,11 @@
 """
 import json, sys, statistics as st
 
-args = [a for a in sys.argv[1:] if not a.startswith('--')]
-frac = 0.5
-if '--from' in sys.argv: frac = 1 - float(sys.argv[sys.argv.index('--from') + 1])
+frac, args, av = 0.5, [], sys.argv[1:]
+while av:
+    a = av.pop(0)
+    if a == '--from': frac = 1 - float(av.pop(0))
+    elif not a.startswith('--'): args.append(a)
 hdr = ('%-26s %7s %6s %7s %6s %6s %7s %6s %8s %5s %5s %6s %6s %6s %7s %7s %5s %6s %6s'
        % ('run', 'ticks', 'anim', 'meat%', 'kill%', 'pred%', 'kills/kt', 'diet', 'hi-diet%', 'size', 'spd', 'weapon', 'armour', 'pDef',
           'regime%', 'maxMeat', 'clump', 'preyCl', 'carnSp'))

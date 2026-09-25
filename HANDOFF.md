@@ -255,10 +255,14 @@ generations). In the older engine that took 85–200 generations.
 ## Next
 
 1. Herding: predators do not fill up, so a group gives no dilution (above).
-   Next physics: a gut. Eating fills a stomach of limited capacity that
-   digests into reserves over time, and a sense reports how full it is. Then a
-   predator can use about one kill per encounter, and striking while full buys
-   nothing but the strike's cost.
+   A stomach (`gutCap`, off by default) was added to test that. Probed from the
+   seed-42 evolved start (30k ticks, `satiety.js` in the session scratchpad):
+   only 10–17% of kills were made with the stomach over half full at `gutCap`
+   0.25–2, against 23–30% with reserves over half full without one, and the
+   gap between a predator's kills did not lengthen (median 21–31 ticks either
+   way). A kill digests in a few ticks at `gutDig` 0.15, faster than the next
+   kill comes. Satiety would need digestion slower than grazing, which throttles
+   every grazer too. `results/v1-AB-gut1slow` (`gutDig` 0.08) tests that end.
 2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
    each). A cluster living mostly on meat was present in the last 10 samples of
    4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility
