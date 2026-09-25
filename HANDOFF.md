@@ -242,8 +242,10 @@ generations). In the older engine that took 85–200 generations.
    tick, intake stops at the energy cap, a strike costs `atkCost`), so a group
    already dilutes a sated predator. What is missing is a reason for prey to
    be near each other that outweighs sharing forage.
-2. Speciation under sex: clonal worlds have lineages, not species. With
-   `sex=1, mateDist=0.1` clusters are reproductively isolated; check whether
-   they split by niche (diet) in the predator worlds.
+2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
+   each). A cluster living mostly on meat was present in the last 10 samples of
+   4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility
+   does not split niches more readily. Most predator-dominated worlds of either
+   kind do their killing inside plant-gutted clusters.
 3. Time to predators: 100–300 generations. Anything that shortens it without
    writing in a diet helps the phone.
