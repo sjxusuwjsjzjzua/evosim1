@@ -1,0 +1,6 @@
+label=v1-Y-small-curve2
+seeds=601,602,603,604,605,606,607,608,609,610
+ticks=400000
+set=gridN=64,dietCurve=2
+cfg=
+sha=c5c09e7d1be99b99958681ee7786a4e7da55f8bb
