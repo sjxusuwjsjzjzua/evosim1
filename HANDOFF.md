@@ -254,6 +254,12 @@ engine with and without it:
 - Founded into 4 new worlds under it, the seed-42 evolved start held predation
   in all 4 (meat 33–50% at 40k ticks).
 
+## Reflecting mutation bounds: no clear effect (`mutReflect`, 2026-09-25)
+
+A mutation past a gene's bound reflects back instead of sticking to the bound.
+Seeds 501–508, 400k ticks: 4 of 8 predator-dominated against 3 of 8 clamped,
+2 worlds with a carnivore cluster either way. Off by default.
+
 ## Herding without vigilance (tested 2026-09-25)
 
 Hand-built test in worlds founded from the seed-21 population (the evolved start at the time): after
