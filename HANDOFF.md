@@ -35,12 +35,12 @@ Browser check (Chromium and Playwright are preinstalled):
 | plants | 96x96 cells; biomass grows logistically; genes: stature (capacity vs growth), defence (shrinks a grazer's bite, costs growth), dispersal | cheap enough that thousands of animals fit; still evolves |
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
 | animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | every capability has an upkeep cost that curves up faster than its benefit |
-| fixed cost | `upFixed` 0.010 per animal per tick regardless of size | at 0.003 body size pinned at its floor (optimum mass ~ (4 upFixed / net intake)^(4/3)) |
+| fixed cost | `upFixed` 0.003 per animal per tick regardless of size | 0.010 gave an interior body size but 0 predator worlds in 20 at 600k ticks; at 0.003 small fast breeders evolve predation, and predation holds size off the floor |
 | brain | 22 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
 | senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
-| sex | a breeder recombines with the nearest acceptable adult in sense range (colour distance within both partners' `choosy`), else clones; crossover keeps each neuron's wiring whole | recombination can assemble separately evolved pieces; mate tolerance makes speciation possible |
+| sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance within both partners' `choosy`), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; a 2x2 is separating its effect from the fixed cost |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only with an animal in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
 | diet | one axis: plant yield x (1 − diet), meat yield x (0.4 + 0.6 diet) | flesh is easy to digest, cellulose needs a specialised gut |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
@@ -86,7 +86,28 @@ Browser check (Chromium and Playwright are preinstalled):
   concave diet trade-off, weapon-linked teeth (kills fell to zero), a 0.015 fixed
   cost (bootstrap failures, giant animals).
 
-## Sweep, 2026-09-25, current engine at 300k ticks (6 seeds each, `results/v1-T-*`)
+## A carnivore species evolved (2026-09-25, seed 21, `upFixed` 0.003, `sex` 0)
+
+Reproducible: `node run.js --seed 21 --ticks 240000 --set upFixed=0.003,sex=0`
+(these are now the defaults, so `--seed 21` alone does it at commit eafc1c4).
+
+| tick | carnivore cluster | diet gene | lifetime meat | world |
+|---|---|---|---|---|
+| 100,000 | 108 animals | 0.58 | 82% | meat 17% of intake, 621 kills / 500 ticks |
+| 120,000 | 196 | 0.56 | 81% | meat 28%, 1,606 kills; 23% of adults are lifetime carnivores |
+| 160,000 | 66 + 39 | 0.81, 0.59 | 95%, 86% | plants recovered 11.6k → 29.7k |
+| 200,000 | 101 | 0.95 | 99% | meat 23% |
+| 240,000 | 85 | 1.00 | 100% | meat 35% |
+
+Herbivore species in the same world sit at diet 0.00–0.01 and 2–4% meat. Speed
+and sense range rose on both sides through the run. Nothing about diet, prey or
+hunting is written anywhere: the brains started random and the gut followed the
+behaviour once a lineage got most of its energy from flesh.
+
+The current default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
+(`results/v1-U-base`), so the defaults were switched.
+
+## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
 
 Share of energy from meat, per world, last two thirds of the run:
 
