@@ -46,6 +46,8 @@ picks up where it was next time you open it. **world → new world** starts over
   world), new world, same seed, evolved start, save the log.
 - **predators** in the top bar counts adults that got most of their lifetime
   energy from meat.
+- **groups** in the top bar is how many neighbours a plant-eater has compared
+  with a random scatter: 1.0× is random, above it they are in groups.
 
 ## For developers
 

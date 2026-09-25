@@ -1347,6 +1347,7 @@ function hud(){
     '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
     '<span><span class="k">predators</span><b class="ember">' + (L.predators||0) + '</b></span>' +
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
+    '<span><span class="k">groups</span><b class="sky">' + (L.clumpPrey != null ? L.clumpPrey.toFixed(1) + '×' : '-') + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
     (S.n === 0 && S.tick > 0 && (S.established || S.tick > Sim.CFG.reseedUntil) ? '<span class="k" style="color:#e0704a">extinct · world → new world or evolved start</span>' : '') +
