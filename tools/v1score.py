@@ -19,8 +19,9 @@ import json, sys, statistics as st
 args = [a for a in sys.argv[1:] if not a.startswith('--')]
 frac = 0.5
 if '--from' in sys.argv: frac = 1 - float(sys.argv[sys.argv.index('--from') + 1])
-hdr = ('%-26s %7s %6s %7s %6s %6s %7s %6s %8s %5s %5s %6s %6s %6s'
-       % ('run', 'ticks', 'anim', 'meat%', 'kill%', 'pred%', 'kills/kt', 'diet', 'hi-diet%', 'size', 'spd', 'weapon', 'armour', 'pDef'))
+hdr = ('%-26s %7s %6s %7s %6s %6s %7s %6s %8s %5s %5s %6s %6s %6s %7s %7s'
+       % ('run', 'ticks', 'anim', 'meat%', 'kill%', 'pred%', 'kills/kt', 'diet', 'hi-diet%', 'size', 'spd', 'weapon', 'armour', 'pDef',
+          'regime%', 'maxMeat'))
 print(hdr)
 for f in args:
     d = json.load(open(f))
@@ -36,7 +37,12 @@ for f in args:
     ad = sum(r['adults'] for r in w) or 1
     span = (w[-1]['t'] - w[0]['t']) or 1
     last = L[-1]; dh = last['dietHist']; n = sum(dh) or 1
-    print('%-26s %7d %6.0f %7.2f %6.2f %6.1f %7.2f %6.3f %8.1f %5.2f %5.2f %6.2f %6.2f %6.2f' % (
+    # regime: share of post-bootstrap samples where meat is over 15% of intake
+    est = next((r['t'] for r in L if r.get('establishedAt')), 0) or (L[0]['establishedAt'] if L and 'establishedAt' in L[0] else 0)
+    post = [r for r in L if r['t'] > max(est, 60000) and r['animals'] > 0]
+    regime = 100 * sum(1 for r in post if r['meatShare'] > 0.15) / len(post) if post else float('nan')
+    maxMeat = 100 * max((r['meatShare'] for r in post), default=0)
+    print('%-26s %7d %6.0f %7.2f %6.2f %6.1f %7.2f %6.3f %8.1f %5.2f %5.2f %6.2f %6.2f %6.2f %7.1f %7.1f' % (
         f.split('/')[-1][:26], d['ticks'], m('animals'), 100 * (eC + eK) / eA, 100 * eK / eA,
         100 * sum(r['predators'] for r in w) / ad, 1000 * sum(r['kills'] for r in w) / span,
-        mg('diet'), 100 * sum(dh[5:]) / n, mg('size'), mg('speed'), mg('weapon'), mg('armour'), m('plantDef')))
+        mg('diet'), 100 * sum(dh[5:]) / n, mg('size'), mg('speed'), mg('weapon'), mg('armour'), m('plantDef'), regime, maxMeat))
