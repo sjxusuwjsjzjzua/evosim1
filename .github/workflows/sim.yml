@@ -1,0 +1,86 @@
+name: evosim run
+# Runs evosim.html headless (run.js), one seed per job, and commits every log
+# of the dispatch to ONE branch, results/<label>. Fetch it with
+#   git fetch origin results/<label> && git show origin/results/<label>:<file>
+
+on:
+  workflow_dispatch:
+    inputs:
+      seeds:
+        description: 'Comma-separated seeds'
+        default: '1,2,3,4,5,6,7,8'
+        required: true
+      ticks:
+        description: 'Ticks per run'
+        default: '300000'
+        required: true
+      set:
+        description: 'CFG overrides, k=v,k=v (optional)'
+        required: false
+      cfg:
+        description: 'Path to a CFG patch JSON in the repo (optional)'
+        required: false
+      label:
+        description: 'Label; results land on branch results/<label>'
+        default: 'run'
+        required: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      seeds: ${{ steps.p.outputs.seeds }}
+    steps:
+      - id: p
+        run: echo "seeds=$(python3 -c "import json;print(json.dumps([s.strip() for s in '${{ inputs.seeds }}'.split(',') if s.strip()]))")" >> "$GITHUB_OUTPUT"
+
+  run:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: ${{ fromJson(needs.setup.outputs.seeds) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          mkdir -p out
+          ARGS=""
+          [ -n "${{ inputs.set }}" ] && ARGS="$ARGS --set ${{ inputs.set }}"
+          [ -n "${{ inputs.cfg }}" ] && ARGS="$ARGS --cfg ${{ inputs.cfg }}"
+          timeout 330m node run.js --seed ${{ matrix.seed }} --ticks ${{ inputs.ticks }} --every 20000 \
+            --out out/s${{ matrix.seed }}.json $ARGS | tee out/s${{ matrix.seed }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s${{ matrix.seed }}
+          path: out/
+          retention-days: 7
+
+  collect:
+    needs: run
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: art
+      - run: |
+          BR="results/${{ inputs.label }}"
+          mkdir -p keep && find art -type f -exec cp {} keep/ \;
+          git config user.name "evosim-actions-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan "$BR"
+          git rm -rf --quiet . || true
+          cp keep/* . 2>/dev/null || true
+          printf '%s\n' "label=${{ inputs.label }}" "seeds=${{ inputs.seeds }}" "ticks=${{ inputs.ticks }}" \
+            "set=${{ inputs.set }}" "cfg=${{ inputs.cfg }}" "sha=${{ github.sha }}" > RUN.txt
+          git add -A
+          git commit -m "evosim run ${{ inputs.label }}"
+          git push --force origin "$BR"

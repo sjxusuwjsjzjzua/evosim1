@@ -1,0 +1,951 @@
+<!doctype html>
+<!--
+  evosim 1.x — single file, no build step, no dependencies, runs on a phone.
+
+  Plants are an evolving cellular layer: every occupied cell carries a small
+  genome (stature, defence, dispersal) and spreads by seed into cells that are
+  empty or nearly so. Animals are agents whose behaviour is a small neural
+  network in their genome. Nothing tells an animal what to eat, whom to
+  attack, when to run or where to go. The only things written into the code
+  are physics: what food is worth, what a body costs, what a bite does.
+
+  The engine is the script block with id "engine" and never touches the DOM, so
+  run.js can execute it headless. Notes and results: NOTES.md.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>evosim</title>
+<style>
+  :root{--ink:#0b1014;--panel:rgba(13,19,24,.93);--hair:#1e2b32;--paper:#dce6e2;--dim:#6a7e86;
+        --leaf:#7fc24a;--ember:#e0704a;--sky:#6fa3c4}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--paper);
+    font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+  #cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #top{position:fixed;top:0;left:0;right:0;z-index:3;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;
+    background:rgba(10,15,19,.88);border-bottom:1px solid var(--hair);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+  #top b{font-weight:600} .k{color:var(--dim);font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-right:3px}
+  .leaf{color:var(--leaf)} .ember{color:var(--ember)} .sky{color:var(--sky)}
+  #graph{position:fixed;left:8px;right:8px;z-index:2;height:92px;border:1px solid var(--hair);border-radius:8px;
+    background:rgba(10,15,19,.82)}
+  #bar{position:fixed;left:0;right:0;bottom:0;z-index:3;display:flex;gap:6px;align-items:center;
+    padding:8px 10px calc(env(safe-area-inset-bottom) + 8px);background:rgba(10,15,19,.94);border-top:1px solid var(--hair)}
+  button{flex:1;min-height:40px;border-radius:9px;font:inherit;color:#a5b6bd;background:#121c21;border:1px solid var(--hair)}
+  button.on{color:var(--leaf);border-color:#3a5730}
+  #spd{flex:1.4;accent-color:var(--leaf)}
+  #card{position:fixed;left:8px;right:8px;z-index:4;display:none;padding:10px 12px;border-radius:10px;
+    background:var(--panel);border:1px solid var(--hair);white-space:pre-wrap;font-size:11px;line-height:1.5}
+  #card.on{display:block}
+  #drawer{position:fixed;left:0;right:0;bottom:0;z-index:5;max-height:75vh;overflow-y:auto;transform:translateY(101%);
+    transition:transform .2s;padding:10px 12px calc(env(safe-area-inset-bottom) + 14px);border-radius:14px 14px 0 0;
+    background:var(--panel);border:1px solid var(--hair)}
+  #drawer.open{transform:none}
+  .row{display:flex;align-items:center;gap:8px;margin:6px 0}
+  .row label{flex:0 0 42%;color:#8a99a1;font-size:11px}
+  .row input{flex:1;accent-color:var(--leaf)} .row span{flex:0 0 52px;text-align:right}
+  .note{color:var(--dim);font-size:10.5px;margin:10px 0 4px;line-height:1.5}
+  h4{font:600 9px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf);margin:14px 0 6px}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="top"></div>
+<canvas id="graph"></canvas>
+<div id="card"></div>
+<div id="drawer"></div>
+<div id="bar">
+  <button id="bPlay">pause</button>
+  <input id="spd" type="range" min="0" max="7" step="1" value="3">
+  <button id="bCol">diet</button>
+  <button id="bMore">world</button>
+</div>
+
+<script id="engine">
+var Sim = (function(){
+'use strict';
+// =========================================================================
+// ENGINE. Pure simulation, no DOM. Everything in CFG is physics or scale;
+// none of it is a behaviour.
+// =========================================================================
+var VERSION = '1.0.0';
+
+var CFG_DEFAULT = {
+  seed: 1,
+  // ---- world ----
+  gridN: 96,            // plant cells per side
+  cellSize: 4,          // world units per plant cell; world side = gridN*cellSize
+  fertNoise: 0.6,       // spatial variation in fertility
+  seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
+                        // they are off unless you want them.
+  yearTicks: 6000,
+
+  // ---- plants ----
+  pR: 0.012,            // logistic growth rate per tick at fertility 1, no costs paid
+  pKmin: 2, pKmax: 14,  // standing-crop capacity, set by the stature gene
+  pStatCost: 0.55,      // share of growth rate given up at stature 1
+  pDefCost: 0.45,       // share of growth rate given up at defence 1
+  kDef: 4,              // a tough plant: bite size / (1 + kDef*defence*(1-detox))
+  pSeedB: 0.25,         // biomass a seed starts a cell with (paid by the parent)
+  pSeedP: 0.03,         // per-tick seeding chance of a cell at full capacity
+  pDispMax: 8,          // longest seed throw, in cells, at dispersal 1
+  pDispCost: 0.15,      // share of growth rate given up at dispersal 1
+  pMutSd: 0.05,
+  plantEvery: 2,        // plants update every N ticks (dt = N)
+
+  // ---- animals: bodies ----
+  maxA: 12000,
+  founders: 300,
+  reseedUntil: 60000,   // random genomes keep arriving until this tick while
+  reseedFloor: 200,     // the population is below the floor. Bootstrap only.
+  think: 2,             // ticks between brain evaluations
+  eCap: 40,             // energy an animal can store per unit body mass
+  cBuild: 10,           // energy to build one unit of body mass
+  ePlant: 1.0,          // energy per unit plant mass at a perfect plant gut
+  eMeat: 5.0,           // energy per unit flesh at a perfect meat gut
+  meatFloor: 0.4,       // share of that any gut gets. Flesh is easy to digest;
+                        // cellulose is what needs a specialised gut. So the
+                        // trade is asymmetric: plant yield x (1 - diet),
+                        // meat yield x (meatFloor + (1 - meatFloor) x diet).
+  graze: 0.12,          // plant mass bitten per tick, x mass^0.75
+  chew: 0.20,           // flesh eaten per tick, x mass^0.75
+  upFixed: 0.003,       // per animal per tick, whatever its size: why there are no
+                        // mammals smaller than a shrew
+  upBase: 0.008,        // upkeep per tick x mass^0.75
+  upSense: 0.004,       // x (sense/10)^2 x mass^0.75
+  upWeapon: 0.012,      // x weapon^2 x mass^0.75
+  upArmour: 0.008,      // x armour x mass^0.75
+  upDetox: 0.006,       // x detox^2 x mass^0.75
+  upSpeed: 0.010,       // x (top speed)^2 x mass^0.75: owning the muscle
+  upMove: 0.012,        // x mass x speed^2: using it
+  dmg: 0.25,            // damage per tick x weapon x mass^0.75
+  atkCost: 0.004,       // energy per attack tick x mass^0.75
+  hpPerMass: 4,
+  heal: 0.003,          // fraction of max hp regained per tick
+  armourEff: 0.75,      // damage taken x (1 - armourEff*armour)
+  armourSlow: 0.35,     // top speed x (1 - armourSlow*armour)
+  turnMax: 0.35,
+  radiusK: 0.7,         // body radius = radiusK * mass^(1/3)
+  reach: 0.6,
+  corpseDecay: 0.0015,  // fraction of corpse mass lost per tick
+  birthFrac: 0.25,      // newborn mass as a share of adult size
+  growRate: 0.008,      // max growth per tick as a share of current mass
+  ageK: 6000,           // lifespan in ticks x mass^0.25
+
+  // ---- inheritance ----
+  mutP: 0.06,           // per-gene mutation probability, body genes
+  mutPW: 0.02,          // per-weight mutation probability, brain
+  mutSd: 0.08,          // body genes: sd as a share of range
+  wSd: 0.35,            // brain weights: sd
+  wMax: 4,
+
+  // ---- logging ----
+  sampleEvery: 500
+};
+
+// Body genes: name, min, max, log-scaled
+var BODY = [
+  ['size',     0.3, 12,   true ],
+  ['speed',    0.1, 1.6,  false],
+  ['sense',    3,   32,   false],
+  ['diet',     0,   1,    false],   // 0 = plant gut, 1 = meat gut, linear trade
+  ['weapon',   0,   1.5,  false],
+  ['armour',   0,   1,    false],
+  ['detox',    0,   1,    false],   // counters plant defence
+  ['reproT',   0.3, 0.95, false],   // breed when energy is above this share of capacity
+  ['childE',   0.05,0.7,  false],   // share of own energy handed to each child
+  ['tagR',     0,   1,    false],   // heritable colour: visible to others, costs nothing
+  ['tagG',     0,   1,    false],
+  ['tagB',     0,   1,    false]
+];
+var NB = BODY.length;
+var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
+    G_REPROT=7, G_CHILDE=8, G_TAG=9;
+var NI = 22, NH = 8, NO = 5;
+var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
+var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
+  'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach'];
+var OUTPUT_NAMES = ['turn','throttle','graze','eatMeat','attack'];
+
+var CFG, S;   // config and state
+
+function mulberry(seed){
+  var a = seed >>> 0;
+  return function(){
+    a = (a + 0x6D2B79F5) >>> 0;
+    var t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+var rng = Math.random, gCache = null;
+function gauss(){
+  if (gCache !== null){ var g = gCache; gCache = null; return g; }
+  var u = 0, v = 0;
+  while (u === 0) u = rng();
+  v = rng();
+  var r = Math.sqrt(-2*Math.log(u)), th = 2*Math.PI*v;
+  gCache = r*Math.sin(th);
+  return r*Math.cos(th);
+}
+function clamp(x, a, b){ return x < a ? a : x > b ? b : x; }
+
+// smooth value noise on the torus, for fertility
+function noiseField(n, octaves){
+  var f = new Float32Array(n*n);
+  var amp = 1, tot = 0;
+  for (var o = 0; o < octaves; o++){
+    var m = 3 << o, lat = new Float32Array(m*m);
+    for (var i = 0; i < m*m; i++) lat[i] = rng();
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++){
+      var fx = x/n*m, fy = y/n*m, x0 = fx|0, y0 = fy|0, tx = fx-x0, ty = fy-y0;
+      var x1 = (x0+1)%m, y1 = (y0+1)%m;
+      tx = tx*tx*(3-2*tx); ty = ty*ty*(3-2*ty);
+      var a = lat[y0*m+x0], b = lat[y0*m+x1], c = lat[y1*m+x0], d = lat[y1*m+x1];
+      f[y*n+x] += amp*((a*(1-tx)+b*tx)*(1-ty) + (c*(1-tx)+d*tx)*ty);
+    }
+    tot += amp; amp *= 0.5;
+  }
+  for (var k = 0; k < n*n; k++) f[k] /= tot;
+  return f;
+}
+
+function init(patch){
+  CFG = {};
+  for (var k in CFG_DEFAULT) CFG[k] = CFG_DEFAULT[k];
+  if (patch) for (var k2 in patch) CFG[k2] = patch[k2];
+  rng = mulberry(CFG.seed*2654435761 + 12345); gCache = null;
+  var n = CFG.gridN, nc = n*n, M = CFG.maxA;
+  S = {
+    tick: 0, world: n*CFG.cellSize,
+    // plants
+    pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
+    pDisp: new Float32Array(nc), fert: new Float32Array(nc),
+    // animals, structure of arrays
+    n: 0, alive: new Uint8Array(M), free: new Int32Array(M), nFree: 0, hi: 0,
+    x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
+    E: new Float32Array(M), mass: new Float32Array(M), hp: new Float32Array(M), age: new Float32Array(M),
+    hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M),
+    gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
+    act: new Uint8Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    // corpses
+    cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
+    cKiller: new Int32Array(M),
+    // spatial hashes
+    bSize: 16, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
+    // counters since last sample
+    c: newCounters(), log: [], hist: []
+  };
+  S.bN = Math.max(1, Math.floor(S.world/S.bSize)); S.bSize = S.world/S.bN;
+  S.aHead = new Int32Array(S.bN*S.bN); S.cHead = new Int32Array(S.bN*S.bN);
+  var fn = noiseField(n, 4);
+  var lo = 1, hi = 0;
+  for (var i = 0; i < nc; i++){ if (fn[i] < lo) lo = fn[i]; if (fn[i] > hi) hi = fn[i]; }
+  for (var j = 0; j < nc; j++){
+    var z = (fn[j]-lo)/Math.max(1e-6, hi-lo);
+    S.fert[j] = clamp(1 - CFG.fertNoise + CFG.fertNoise*2*z, 0.05, 1.6);
+  }
+  // founding flora: random genomes scattered over a third of the cells
+  for (var p = 0; p < nc; p++){
+    if (rng() < 0.33){
+      S.pStat[p] = rng(); S.pDef[p] = rng()*0.5; S.pDisp[p] = rng();
+      S.pB[p] = CFG.pKmin*rng();
+    }
+  }
+  for (var a = 0; a < CFG.founders; a++) spawnRandom();
+  return S;
+}
+
+function newCounters(){
+  return {eP: 0, eC: 0, eK: 0, kills: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
+          plantEaten: 0, meatEaten: 0, reseeds: 0};
+}
+
+// ---------------------------------------------------------------- plants
+function plantK(c){ return CFG.pKmin + (CFG.pKmax - CFG.pKmin)*S.pStat[c]; }
+function plantR(c){
+  return CFG.pR*S.fert[c]*(1 - CFG.pStatCost*S.pStat[c])*(1 - CFG.pDefCost*S.pDef[c])
+         *(1 - CFG.pDispCost*S.pDisp[c]*S.pDisp[c]);
+}
+function updatePlants(){
+  var n = CFG.gridN, nc = n*n, dt = CFG.plantEvery;
+  var season = CFG.seasonAmp > 0 ? 1 + CFG.seasonAmp*Math.sin(2*Math.PI*S.tick/CFG.yearTicks) : 1;
+  var sd = CFG.pMutSd;
+  for (var c = 0; c < nc; c++){
+    var B = S.pB[c];
+    if (B <= 0) continue;
+    var K = plantK(c);
+    B += plantR(c)*season*B*(1 - B/K)*dt;
+    if (B < 0.01){ S.pB[c] = 0; continue; }
+    // seeding: a full cell throws seed; it lands only where there is room
+    var full = B/K;
+    if (full > 0.5 && rng() < CFG.pSeedP*full*dt){
+      var dist = 1 + S.pDisp[c]*CFG.pDispMax*rng();
+      var th = rng()*2*Math.PI;
+      var cx = c % n, cy = (c/n)|0;
+      var tx = ((cx + Math.round(Math.cos(th)*dist)) % n + n) % n;
+      var ty = ((cy + Math.round(Math.sin(th)*dist)) % n + n) % n;
+      var t = ty*n + tx;
+      if (t !== c && S.pB[t] < 0.2*CFG.pSeedB + 0.05*plantK(t)*(S.pB[t] > 0 ? 1 : 0) + 0.05){
+        B -= CFG.pSeedB;
+        S.pB[t] = CFG.pSeedB;
+        S.pStat[t] = mutP(S.pStat[c], sd);
+        S.pDef[t]  = mutP(S.pDef[c], sd);
+        S.pDisp[t] = mutP(S.pDisp[c], sd);
+      }
+    }
+    S.pB[c] = B;
+  }
+}
+function mutP(v, sd){ return rng() < 0.3 ? clamp(v + gauss()*sd, 0, 1) : v; }
+
+// ---------------------------------------------------------------- animals
+function alloc(){
+  var i;
+  if (S.nFree > 0) i = S.free[--S.nFree];
+  else if (S.hi < CFG.maxA) i = S.hi++;
+  else return -1;
+  S.alive[i] = 1; S.n++;
+  return i;
+}
+function geneRange(k){ return BODY[k][2] - BODY[k][1]; }
+function spawnRandom(){
+  var i = alloc(); if (i < 0) return -1;
+  var g = i*NG, G = S.genome;
+  for (var k = 0; k < NB; k++){
+    var b = BODY[k];
+    G[g+k] = b[3] ? Math.exp(Math.log(b[1]) + rng()*(Math.log(b[2]) - Math.log(b[1])))
+                  : b[1] + rng()*(b[2]-b[1]);
+  }
+  for (var w = NB; w < NG; w++) G[g+w] = gauss()*1.0;
+  var m = G[g+G_SIZE]*CFG.birthFrac*2;
+  setupBody(i, rng()*S.world, rng()*S.world, Math.min(m, G[g+G_SIZE]), 0);
+  S.E[i] = CFG.eCap*S.mass[i]*0.6;
+  return i;
+}
+function setupBody(i, x, y, mass, gen){
+  S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI; S.sp[i] = 0;
+  S.mass[i] = mass; S.hp[i] = CFG.hpPerMass*mass; S.age[i] = 0; S.hurt[i] = 0;
+  S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0;
+  S.id[i] = S.nextId++;
+  for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
+}
+function mutateInto(dst, src){
+  var G = S.genome, d = dst*NG, s = src*NG, pm = CFG.mutP;
+  for (var k = 0; k < NG; k++) G[d+k] = G[s+k];
+  for (var b = 0; b < NB; b++){
+    if (rng() >= pm) continue;
+    var B = BODY[b];
+    if (B[3]) G[d+b] = clamp(G[d+b]*Math.exp(gauss()*CFG.mutSd*3), B[1], B[2]);
+    else G[d+b] = clamp(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
+  }
+  for (var w = NB; w < NG; w++){
+    if (rng() >= CFG.mutPW) continue;
+    G[d+w] = clamp(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
+  }
+}
+function die(i, cause){
+  if (cause === 0) S.c.dStarve++; else if (cause === 1) S.c.dAge++; else S.c.dKill++;
+  // lifetime diet of the dead, adults only, for the record
+  var tot = S.lP[i] + S.lM[i];
+  if (tot > 1) S.hist.push(S.lM[i]/tot);
+  if (S.cN < S.cMax && S.mass[i] > 0.02){
+    var c = S.cN++;
+    S.cx[c] = S.x[i]; S.cy[c] = S.y[i]; S.cm[c] = S.mass[i];
+    S.cKiller[c] = 0;   // a kill sets this to the killer's id right after
+  }
+  S.alive[i] = 0; S.n--; S.free[S.nFree++] = i;
+}
+function removeCorpse(c){
+  var l = --S.cN;
+  if (c !== l){ S.cx[c] = S.cx[l]; S.cy[c] = S.cy[l]; S.cm[c] = S.cm[l]; S.cKiller[c] = S.cKiller[l]; }
+}
+
+function buildHashes(){
+  var bN = S.bN, inv = 1/S.bSize, aH = S.aHead, cH = S.cHead;
+  aH.fill(-1); cH.fill(-1);
+  for (var i = 0; i < S.hi; i++){
+    if (!S.alive[i]) continue;
+    var bx = (S.x[i]*inv)|0, by = (S.y[i]*inv)|0;
+    if (bx >= bN) bx = bN-1; if (by >= bN) by = bN-1;
+    var b = by*bN + bx;
+    S.aNext[i] = aH[b]; aH[b] = i;
+  }
+  for (var c = 0; c < S.cN; c++){
+    var cx = (S.cx[c]*inv)|0, cy = (S.cy[c]*inv)|0;
+    if (cx >= bN) cx = bN-1; if (cy >= bN) cy = bN-1;
+    var cb = cy*bN + cx;
+    S.cNext[c] = cH[cb]; cH[cb] = c;
+  }
+}
+function wrap(d){ var w = S.world; return d > w*0.5 ? d - w : d < -w*0.5 ? d + w : d; }
+function cellAt(x, y){
+  var n = CFG.gridN, cs = CFG.cellSize;
+  var cx = Math.floor(x/cs) % n, cy = Math.floor(y/cs) % n;
+  if (cx < 0) cx += n; if (cy < 0) cy += n;
+  return cy*n + cx;
+}
+function radius(m){ return CFG.radiusK*Math.cbrt(m); }
+
+var IN = new Float32Array(NI), HID = new Float32Array(NH);
+// nearest-neighbour results of the last sense() call
+var nearA = -1, nearAd = 0, nearC = -1, nearCd = 0, crowd = 0;
+
+function sense(i){
+  var G = S.genome, g = i*NG;
+  var R = G[g+G_SENSE], R2 = R*R, x = S.x[i], y = S.y[i];
+  var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
+  var bx0 = (x*inv)|0, by0 = (y*inv)|0;
+  nearA = -1; nearAd = R2; nearC = -1; nearCd = R2; crowd = 0;
+  for (var dy = -span; dy <= span; dy++){
+    var by = ((by0+dy) % bN + bN) % bN;
+    for (var dx = -span; dx <= span; dx++){
+      var b = by*bN + ((bx0+dx) % bN + bN) % bN;
+      for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
+        if (j === i || !S.alive[j]) continue;
+        var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d2 = ex*ex + ey*ey;
+        if (d2 >= R2) continue;
+        crowd++;
+        if (d2 < nearAd){ nearAd = d2; nearA = j; }
+      }
+      for (var c = S.cHead[b]; c >= 0; c = S.cNext[c]){
+        var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), e2 = fx*fx + fy*fy;
+        if (e2 < nearCd){ nearCd = e2; nearC = c; }
+      }
+    }
+  }
+  var Emax = CFG.eCap*S.mass[i], h = S.hd[i], look = Math.min(R*0.5, 10);
+  IN[0] = 1;
+  IN[1] = S.E[i]/Emax;
+  IN[2] = S.hp[i]/(CFG.hpPerMass*S.mass[i]);
+  IN[3] = Math.min(1, S.hurt[i]);
+  var kmax = 1/CFG.pKmax;
+  IN[4] = S.pB[cellAt(x + Math.cos(h-0.7)*look, y + Math.sin(h-0.7)*look)]*kmax;
+  IN[5] = S.pB[cellAt(x + Math.cos(h)*look, y + Math.sin(h)*look)]*kmax;
+  IN[6] = S.pB[cellAt(x + Math.cos(h+0.7)*look, y + Math.sin(h+0.7)*look)]*kmax;
+  var here = cellAt(x, y);
+  IN[7] = S.pB[here]*kmax;
+  IN[8] = S.pB[here] > 0 ? S.pDef[here] : 0;
+  if (nearA >= 0){
+    var ax = wrap(S.x[nearA]-x), ay = wrap(S.y[nearA]-y), og = nearA*NG;
+    IN[9] = 1;
+    IN[10] = angDiff(Math.atan2(ay, ax), h)/Math.PI;
+    IN[11] = 1 - Math.sqrt(nearAd)/R;
+    IN[12] = clamp(Math.log2(S.mass[nearA]/S.mass[i]), -3, 3)/3;
+    var td = 0;
+    for (var q = 0; q < 3; q++){ var dd = G[g+G_TAG+q] - G[og+G_TAG+q]; td += dd*dd; }
+    IN[13] = 1 - Math.sqrt(td/3);
+    IN[14] = G[og+G_WEAPON]/1.5;
+  } else { IN[9] = 0; IN[10] = 0; IN[11] = 0; IN[12] = 0; IN[13] = 0; IN[14] = 0; }
+  if (nearC >= 0){
+    var qx = wrap(S.cx[nearC]-x), qy = wrap(S.cy[nearC]-y);
+    IN[15] = 1;
+    IN[16] = angDiff(Math.atan2(qy, qx), h)/Math.PI;
+    IN[17] = 1 - Math.sqrt(nearCd)/R;
+  } else { IN[15] = 0; IN[16] = 0; IN[17] = 0; }
+  IN[18] = Math.min(1, crowd/10);
+  IN[19] = rng()*2 - 1;
+  // touch: what the mouth could act on right now
+  IN[20] = nearCorpse(i) >= 0 ? 1 : 0;
+  IN[21] = nearAnimal(i) >= 0 ? 1 : 0;
+}
+function angDiff(a, b){ var d = a - b; while (d > Math.PI) d -= 2*Math.PI; while (d < -Math.PI) d += 2*Math.PI; return d; }
+
+function think(i){
+  sense(i);
+  var G = S.genome, g = i*NG, o = i*NO;
+  for (var h = 0; h < NH; h++){
+    var s = 0, w = g + W1 + h*NI;
+    for (var k = 0; k < NI; k++) s += G[w+k]*IN[k];
+    HID[h] = Math.tanh(s);
+  }
+  for (var q = 0; q < NO; q++){
+    var t = 0, w2 = g + W2 + q*NH, wd = g + WD + q*NI;
+    for (var h2 = 0; h2 < NH; h2++) t += G[w2+h2]*HID[h2];
+    for (var k2 = 0; k2 < NI; k2++) t += G[wd+k2]*IN[k2];
+    S.out[o+q] = t;
+  }
+  S.hurt[i] *= 0.5;
+}
+
+// one animal, one tick
+function updateAnimal(i){
+  var G = S.genome, g = i*NG, o = i*NO;
+  var mass = S.mass[i], m75 = Math.pow(mass, 0.75);
+  var size = G[g+G_SIZE], diet = G[g+G_DIET], armour = G[g+G_ARMOUR];
+  var vmax = G[g+G_SPEED]*(1 - CFG.armourSlow*armour);
+  var Emax = CFG.eCap*mass;
+
+  // ---- motor
+  var turn = Math.tanh(S.out[o])*CFG.turnMax;
+  var want = vmax/(1 + Math.exp(-S.out[o+1]));
+  S.hd[i] += turn;
+  S.sp[i] += clamp(want - S.sp[i], -0.1*vmax, 0.1*vmax);
+  var sp = S.sp[i];
+  S.x[i] = (S.x[i] + Math.cos(S.hd[i])*sp + S.world) % S.world;
+  S.y[i] = (S.y[i] + Math.sin(S.hd[i])*sp + S.world) % S.world;
+
+  // ---- mouth: one thing at a time, the strongest urge above zero
+  var og = S.out[o+2], om = S.out[o+3], oa = S.out[o+4];
+  var act = 0;
+  if (og > 0 && og >= om && og >= oa) act = 1;
+  else if (om > 0 && om >= oa) act = 2;
+  else if (oa > 0) act = 3;
+  S.act[i] = act;
+  var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
+  if (act === 1){
+    var c = cellAt(S.x[i], S.y[i]), B = S.pB[c];
+    if (B > 0){
+      var val = CFG.ePlant*(1 - diet);
+      var bite = Math.min(B, CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX])));
+      if (val > 1e-6) bite = Math.min(bite, Math.max(0, Emax - S.E[i])/val);
+      S.pB[c] = B - bite;
+      var e = bite*val;
+      S.E[i] += e; S.lP[i] += e; S.c.eP += e; S.c.plantEaten += bite;
+    }
+  } else if (act === 2 && nearCorpse(i) >= 0){
+    var cc = lastC, mv = CFG.eMeat*(CFG.meatFloor + (1 - CFG.meatFloor)*diet);
+    var chew = Math.min(S.cm[cc], CFG.chew*m75*slow);
+    if (mv > 1e-6) chew = Math.min(chew, Math.max(0, Emax - S.E[i])/mv);
+    S.cm[cc] -= chew;
+    var em = chew*mv;
+    S.E[i] += em; S.lM[i] += em; S.c.meatEaten += chew;
+    if (S.cKiller[cc] === S.id[i]) S.c.eK += em; else S.c.eC += em;
+  } else if (act === 3){
+    var tj = nearAnimal(i);
+    S.E[i] -= CFG.atkCost*m75;
+    if (tj >= 0){
+      S.c.attacks++;
+      var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng());
+      S.hp[tj] -= dmg;
+      S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
+      if (S.hp[tj] <= 0){
+        S.c.kills++; S.kills[i]++;
+        var before = S.cN;
+        die(tj, 2);
+        if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
+      }
+    }
+  }
+
+  // ---- metabolism
+  var R = G[g+G_SENSE]/10, w = G[g+G_WEAPON], dt = G[g+G_DETOX];
+  var V = G[g+G_SPEED];
+  var up = CFG.upFixed
+         + m75*(CFG.upBase + CFG.upSense*R*R + CFG.upWeapon*w*w + CFG.upArmour*armour + CFG.upDetox*dt*dt
+                + CFG.upSpeed*V*V)
+         + CFG.upMove*mass*sp*sp;
+  S.E[i] -= up;
+  S.age[i]++;
+  var hpMax = CFG.hpPerMass*mass;
+  if (S.hp[i] < hpMax) S.hp[i] = Math.min(hpMax, S.hp[i] + CFG.heal*hpMax);
+  if (S.E[i] <= 0){ die(i, 0); return; }
+  if (S.age[i] > CFG.ageK*Math.pow(mass, 0.25)){ die(i, 1); return; }
+
+  // ---- grow, then breed
+  if (mass < size*0.98){
+    if (S.E[i] > 0.5*Emax){
+      var dM = Math.min(CFG.growRate*mass, (S.E[i] - 0.5*Emax)/CFG.cBuild, size - mass);
+      S.mass[i] = mass + dM; S.E[i] -= dM*CFG.cBuild;
+      S.hp[i] += CFG.hpPerMass*dM;
+    }
+  } else if (S.E[i] > G[g+G_REPROT]*Emax){
+    var m0 = size*CFG.birthFrac;
+    var give = Math.min(G[g+G_CHILDE]*S.E[i], CFG.eCap*m0);
+    var cost = m0*CFG.cBuild + give;
+    if (S.E[i] - cost > 0.05*Emax){
+      var k = alloc();
+      if (k >= 0){
+        mutateInto(k, i);
+        setupBody(k, S.x[i], S.y[i], m0, S.gen[i]+1);
+        S.E[k] = give; S.E[i] -= cost;
+        S.c.births++;
+      }
+    }
+  }
+}
+var lastC = -1;
+function nearCorpse(i){
+  // uses the sense() result when it is still in contact; otherwise rescan the home bucket
+  var x = S.x[i], y = S.y[i], r = radius(S.mass[i]) + CFG.reach;
+  var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
+  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+    var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
+    for (var c = S.cHead[b]; c >= 0; c = S.cNext[c]){
+      if (S.cm[c] <= 0) continue;
+      var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), d = Math.sqrt(fx*fx + fy*fy) - radius(S.cm[c]);
+      if (d < r && d < bd){ bd = d; best = c; }
+    }
+  }
+  lastC = best;
+  return best;
+}
+function nearAnimal(i){
+  var x = S.x[i], y = S.y[i], ri = radius(S.mass[i]) + CFG.reach;
+  var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
+  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+    var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
+    for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
+      if (j === i || !S.alive[j]) continue;
+      var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d = Math.sqrt(ex*ex + ey*ey) - radius(S.mass[j]);
+      if (d < ri && d < bd){ bd = d; best = j; }
+    }
+  }
+  return best;
+}
+
+function step(){
+  S.tick++;
+  if (S.tick % CFG.plantEvery === 0) updatePlants();
+  buildHashes();
+  var ph = S.tick % CFG.think;
+  var hi = S.hi;
+  for (var i = 0; i < hi; i++){
+    if (!S.alive[i]) continue;
+    if (i % CFG.think === ph) think(i);
+    updateAnimal(i);
+  }
+  // corpses rot; the mass goes back to the soil as nothing in particular
+  for (var c = S.cN - 1; c >= 0; c--){
+    S.cm[c] -= S.cm[c]*CFG.corpseDecay;
+    if (S.cm[c] < 0.02) removeCorpse(c);
+  }
+  if (S.tick < CFG.reseedUntil && S.n < CFG.reseedFloor && S.tick % 4 === 0){
+    spawnRandom(); S.c.reseeds++;
+  }
+  if (S.tick % CFG.sampleEvery === 0) sample();
+}
+
+// ---------------------------------------------------------------- statistics
+function sample(){
+  var G = S.genome, n = 0, sums = new Float64Array(NB), dh = new Array(10).fill(0);
+  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0;
+  for (var i = 0; i < S.hi; i++){
+    if (!S.alive[i]) continue;
+    n++;
+    var g = i*NG;
+    for (var k = 0; k < NB; k++) sums[k] += G[g+k];
+    dh[Math.min(9, (G[g+G_DIET]*10)|0)]++;
+    act[S.act[i]]++;
+    gens += S.gen[i];
+    var tot = S.lP[i] + S.lM[i];
+    if (S.mass[i] >= 0.9*G[g+G_SIZE] && tot > 1){
+      adults++;
+      var ms = S.lM[i]/tot;
+      meatShareSum += ms; meatShareN++;
+      if (ms > 0.5) pred++;
+    }
+  }
+  var pb = 0, pcells = 0, sd = 0, ss = 0, sp = 0, nc = CFG.gridN*CFG.gridN;
+  for (var c = 0; c < nc; c++){
+    if (S.pB[c] > 0){ pb += S.pB[c]; pcells++; sd += S.pDef[c]; ss += S.pStat[c]; sp += S.pDisp[c]; }
+  }
+  var mean = {};
+  for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
+  var C = S.c, eAll = C.eP + C.eC + C.eK;
+  var dead = S.hist; S.hist = [];
+  var dhist = new Array(10).fill(0);
+  for (var q = 0; q < dead.length; q++) dhist[Math.min(9, (dead[q]*10)|0)]++;
+  var row = {
+    t: S.tick, animals: n, corpses: S.cN, plantMass: +pb.toFixed(1), plantCells: pcells,
+    plantDef: pcells ? +(sd/pcells).toFixed(4) : 0, plantStat: pcells ? +(ss/pcells).toFixed(4) : 0,
+    plantDisp: pcells ? +(sp/pcells).toFixed(4) : 0,
+    genes: mean, dietHist: dh,
+    meatShare: eAll > 0 ? +((C.eC + C.eK)/eAll).toFixed(4) : 0,
+    killShare: eAll > 0 ? +(C.eK/eAll).toFixed(4) : 0,
+    adults: adults, predators: pred,
+    adultMeatShare: meatShareN ? +(meatShareSum/meatShareN).toFixed(4) : 0,
+    deadMeatHist: dhist,
+    acts: act, meanGen: n ? +(gens/n).toFixed(1) : 0,
+    kills: C.kills, attacks: C.attacks, births: C.births,
+    dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
+    eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1)
+  };
+  S.log.push(row);
+  S.c = newCounters();
+  return row;
+}
+
+return { init: init, step: step, sample: sample, get S(){ return S; }, get CFG(){ return CFG; },
+            CFG_DEFAULT: CFG_DEFAULT, BODY: BODY, NB: NB, NG: NG, NI: NI, NH: NH, NO: NO,
+            W1: W1, W2: W2, WD: WD, INPUT_NAMES: INPUT_NAMES, OUTPUT_NAMES: OUTPUT_NAMES,
+            VERSION: VERSION, radius: radius, cellAt: cellAt };
+})();
+if (typeof module !== 'undefined') module.exports = Sim;
+</script>
+
+<script>
+// =========================================================================
+// UI. Reads the engine's state; never writes to it except through Sim.init.
+// =========================================================================
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var cv = $('cv'), ctx = cv.getContext('2d'), gcv = $('graph'), gctx = gcv.getContext('2d');
+var DPR = Math.min(2, window.devicePixelRatio || 1);
+var running = true, speedIdx = 3, colourMode = 0, selId = -1, follow = false;
+var SPEEDS = [1, 2, 5, 10, 25, 60, 150, 1e9];
+var COLOUR_NAMES = ['diet', 'kin', 'action'];
+var cam = {x: 0, y: 0, z: 1}, view = {x: 0, y: 0, w: 0, h: 0};
+var patch = {};
+var plantImg = null, plantCv = document.createElement('canvas'), pctx = plantCv.getContext('2d');
+
+function newWorld(seed){
+  patch.seed = seed != null ? seed : (Math.random()*1e9)|0;
+  Sim.init(patch);
+  var n = Sim.CFG.gridN;
+  plantCv.width = n; plantCv.height = n;
+  plantImg = pctx.createImageData(n, n);
+  selId = -1; follow = false; $('card').classList.remove('on');
+  resetCam();
+}
+function resize(){
+  cv.width = innerWidth*DPR; cv.height = innerHeight*DPR;
+  var top = $('top').getBoundingClientRect().bottom, bot = $('bar').getBoundingClientRect().top;
+  view.x = 0; view.y = top; view.w = innerWidth; view.h = Math.max(100, bot - top);
+  gcv.style.top = ''; gcv.style.bottom = (innerHeight - bot + 8) + 'px';
+  gcv.width = gcv.clientWidth*DPR; gcv.height = gcv.clientHeight*DPR;
+  $('card').style.top = (top + 8) + 'px';
+  resetCam();
+}
+function resetCam(){
+  if (!Sim.S) return;
+  var W = Sim.S.world;
+  cam.z = Math.min(view.w, view.h)/W; cam.x = W/2; cam.y = W/2;
+}
+function toScreen(wx, wy){ return [view.x + view.w/2 + (wx - cam.x)*cam.z, view.y + view.h/2 + (wy - cam.y)*cam.z]; }
+function toWorld(sx, sy){ return [cam.x + (sx - view.x - view.w/2)/cam.z, cam.y + (sy - view.y - view.h/2)/cam.z]; }
+
+function drawPlants(){
+  var S = Sim.S, C = Sim.CFG, n = C.gridN, d = plantImg.data, kmax = C.pKmax;
+  for (var c = 0; c < n*n; c++){
+    var B = S.pB[c], o = c*4, f = S.fert[c];
+    if (B > 0){
+      var v = Math.min(1, B/kmax), df = S.pDef[c];
+      d[o]   = 18 + 40*v*df + 20*v;
+      d[o+1] = 30 + 150*v*(1 - 0.5*df);
+      d[o+2] = 20 + 90*v*df;
+    } else { d[o] = 26 + 14*f; d[o+1] = 22 + 10*f; d[o+2] = 18; }
+    d[o+3] = 255;
+  }
+  pctx.putImageData(plantImg, 0, 0);
+  var W = S.world;
+  ctx.imageSmoothingEnabled = true;
+  // the world is a torus: draw the tiles that intersect the view
+  var nx = Math.ceil(view.w/(W*cam.z)/2) + 1, ny = Math.ceil(view.h/(W*cam.z)/2) + 1;
+  var bx = Math.floor(cam.x/W), by = Math.floor(cam.y/W);
+  for (var ox = bx-nx; ox <= bx+nx; ox++) for (var oy = by-ny; oy <= by+ny; oy++){
+    var a = toScreen(ox*W, oy*W);
+    var sz = W*cam.z;
+    if (a[0] > view.w || a[1] > view.y + view.h || a[0] + sz < 0 || a[1] + sz < view.y) continue;
+    ctx.imageSmoothingEnabled = cam.z*Sim.CFG.cellSize < 6;
+    ctx.drawImage(plantCv, a[0], a[1], sz, sz);
+  }
+}
+function dietColour(d){
+  // green (plant gut) -> amber -> red (meat gut)
+  var r = d < 0.5 ? 120 + 270*d : 255, g = d < 0.5 ? 220 - 60*d : 190 - 330*(d - 0.5);
+  return 'rgb(' + (r|0) + ',' + (Math.max(30, g)|0) + ',' + (60|0) + ')';
+}
+var ACT_COL = ['#8a9aa2', '#7fc24a', '#f0a040', '#ff3b30'];
+function drawAnimals(){
+  var S = Sim.S, W = S.world, span = W*cam.z;
+  var nx = Math.ceil(view.w/span/2) + 1, ny = Math.ceil(view.h/span/2) + 1;
+  if (span >= Math.max(view.w, view.h)){ drawAnimalsAt(0, 0, true); return; }
+  for (var ox = -nx; ox <= nx; ox++) for (var oy = -ny; oy <= ny; oy++) drawAnimalsAt(ox*W, oy*W, false);
+}
+function place(wx, wy, offX, offY, near){
+  if (near) return wrapScreen(wx, wy);
+  var sx = view.x + view.w/2 + (wx + offX - cam.x)*cam.z, sy = view.y + view.h/2 + (wy + offY - cam.y)*cam.z;
+  if (sx < -20 || sx > view.w + 20 || sy < view.y - 20 || sy > view.y + view.h + 20) return null;
+  return [sx, sy];
+}
+function drawAnimalsAt(offX, offY, near){
+  var S = Sim.S, NG = Sim.NG, G = S.genome;
+  for (var c = 0; c < S.cN; c++){
+    var p = place(S.cx[c], S.cy[c], offX, offY, near); if (!p) continue;
+    var r = Math.max(1.2, Sim.radius(S.cm[c])*cam.z);
+    ctx.fillStyle = '#5a2020'; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
+  }
+  for (var i = 0; i < S.hi; i++){
+    if (!S.alive[i]) continue;
+    var q = place(S.x[i], S.y[i], offX, offY, near); if (!q) continue;
+    var g = i*NG, rad = Math.max(1.6, Sim.radius(S.mass[i])*cam.z);
+    if (colourMode === 0) ctx.fillStyle = dietColour(G[g+3]);
+    else if (colourMode === 1) ctx.fillStyle = 'rgb(' + (60 + 195*G[g+9]|0) + ',' + (60 + 195*G[g+10]|0) + ',' + (60 + 195*G[g+11]|0) + ')';
+    else ctx.fillStyle = ACT_COL[S.act[i]];
+    ctx.beginPath(); ctx.arc(q[0], q[1], rad, 0, 6.2832); ctx.fill();
+    if (rad > 3){
+      ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(q[0], q[1]); ctx.lineTo(q[0] + Math.cos(S.hd[i])*rad*1.6, q[1] + Math.sin(S.hd[i])*rad*1.6); ctx.stroke();
+    }
+    if (S.id[i] === selId){
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(q[0], q[1], rad + 4, 0, 6.2832); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(q[0], q[1], G[g+2]*cam.z, 0, 6.2832); ctx.stroke();
+    }
+  }
+}
+function wrapScreen(wx, wy){
+  // nearest copy of a point on the torus, or null when it is off screen
+  var W = Sim.S.world;
+  var dx = wx - cam.x, dy = wy - cam.y;
+  dx -= W*Math.round(dx/W); dy -= W*Math.round(dy/W);
+  var sx = view.x + view.w/2 + dx*cam.z, sy = view.y + view.h/2 + dy*cam.z;
+  if (sx < -20 || sx > view.w + 20 || sy < view.y - 20 || sy > view.y + view.h + 20) return null;
+  return [sx, sy];
+}
+function drawGraph(){
+  var L = Sim.S.log, w = gcv.width, h = gcv.height;
+  gctx.clearRect(0, 0, w, h);
+  if (L.length < 2) return;
+  var n = Math.min(L.length, 400), s = L.length - n;
+  var maxA = 1, maxP = 1;
+  for (var i = s; i < L.length; i++){ maxA = Math.max(maxA, L[i].animals); maxP = Math.max(maxP, L[i].plantMass); }
+  function line(col, f){
+    gctx.strokeStyle = col; gctx.lineWidth = 1.5*DPR; gctx.beginPath();
+    for (var i = 0; i < n; i++){
+      var x = i/(n-1)*w, y = h - 4*DPR - f(L[s+i])*(h - 8*DPR);
+      if (i) gctx.lineTo(x, y); else gctx.moveTo(x, y);
+    }
+    gctx.stroke();
+  }
+  line('#7fc24a', function(r){ return r.plantMass/maxP; });
+  line('#6fa3c4', function(r){ return r.animals/maxA; });
+  line('#e0704a', function(r){ return r.meatShare; });
+  line('#e0c04a', function(r){ return r.genes.diet; });
+  gctx.fillStyle = '#6a7e86'; gctx.font = (9*DPR) + 'px ui-monospace,monospace';
+  gctx.fillText('plants  animals(max ' + maxA + ')  meat share  mean diet', 6*DPR, 11*DPR);
+}
+function hud(){
+  var S = Sim.S, L = S.log[S.log.length-1] || {};
+  var g = L.genes || {};
+  $('top').innerHTML =
+    '<span><span class="k">t</span><b>' + S.tick + '</b></span>' +
+    '<span><span class="k">animals</span><b class="sky">' + S.n + '</b></span>' +
+    '<span><span class="k">plants</span><b class="leaf">' + (L.plantMass|0) + '</b></span>' +
+    '<span><span class="k">meat</span><b class="ember">' + ((L.meatShare||0)*100).toFixed(1) + '%</b></span>' +
+    '<span><span class="k">predators</span><b class="ember">' + (L.predators||0) + '</b></span>' +
+    '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
+    '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>';
+}
+function findSel(){
+  if (selId < 0) return -1;
+  var S = Sim.S;
+  for (var i = 0; i < S.hi; i++) if (S.alive[i] && S.id[i] === selId) return i;
+  return -1;
+}
+function card(){
+  var i = findSel(), el = $('card');
+  if (i < 0){ if (selId >= 0){ el.textContent = 'it died'; selId = -2; setTimeout(function(){ if (selId === -2){ el.classList.remove('on'); selId = -1; } }, 2500); } return; }
+  var S = Sim.S, G = S.genome, g = i*Sim.NG, B = Sim.BODY, t = '';
+  var tot = S.lP[i] + S.lM[i];
+  t += 'animal #' + S.id[i] + '  gen ' + S.gen[i] + '  age ' + (S.age[i]|0) + '\n';
+  t += 'mass ' + S.mass[i].toFixed(2) + '  energy ' + (S.E[i]/(Sim.CFG.eCap*S.mass[i])*100).toFixed(0) + '%  kills ' + S.kills[i] + '\n';
+  t += 'lifetime diet: ' + (tot > 0 ? (100*S.lM[i]/tot).toFixed(0) + '% meat' : 'nothing yet') + '\n';
+  t += 'doing: ' + ['nothing', 'grazing', 'eating meat', 'attacking'][S.act[i]] + '\n';
+  for (var k = 0; k < 9; k++) t += B[k][0] + ' ' + G[g+k].toFixed(2) + (k % 3 === 2 ? '\n' : '   ');
+  el.textContent = t;
+  if (follow){ cam.x = S.x[i]; cam.y = S.y[i]; }
+}
+
+// ---- input: drag pans, pinch/wheel zooms, tap selects
+var ptrs = {}, down = null, pinch0 = 0, z0 = 1;
+cv.addEventListener('pointerdown', function(e){
+  cv.setPointerCapture(e.pointerId);
+  ptrs[e.pointerId] = [e.clientX, e.clientY];
+  var ks = Object.keys(ptrs);
+  if (ks.length === 1) down = {x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false};
+  if (ks.length === 2){ var a = ptrs[ks[0]], b = ptrs[ks[1]]; pinch0 = Math.hypot(a[0]-b[0], a[1]-b[1]); z0 = cam.z; }
+});
+cv.addEventListener('pointermove', function(e){
+  if (!ptrs[e.pointerId]) return;
+  ptrs[e.pointerId] = [e.clientX, e.clientY];
+  var ks = Object.keys(ptrs);
+  if (ks.length === 2){
+    var a = ptrs[ks[0]], b = ptrs[ks[1]];
+    cam.z = clampZ(z0*Math.hypot(a[0]-b[0], a[1]-b[1])/Math.max(1, pinch0)); if (down) down.moved = true;
+  } else if (down){
+    var dx = e.clientX - down.x, dy = e.clientY - down.y;
+    if (Math.abs(dx) + Math.abs(dy) > 6){ down.moved = true; follow = false; }
+    if (down.moved){ cam.x = down.cx - dx/cam.z; cam.y = down.cy - dy/cam.z; }
+  }
+});
+function up(e){
+  if (down && !down.moved && Object.keys(ptrs).length === 1) tap(e.clientX, e.clientY);
+  delete ptrs[e.pointerId];
+  if (!Object.keys(ptrs).length) down = null;
+}
+cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+cv.addEventListener('wheel', function(e){ e.preventDefault(); cam.z = clampZ(cam.z*Math.exp(-e.deltaY*0.0015)); }, {passive: false});
+function clampZ(z){ var m = Math.min(view.w, view.h)/Sim.S.world; return Math.max(m*0.5, Math.min(m*40, z)); }
+function tap(sx, sy){
+  var w = toWorld(sx, sy), S = Sim.S, best = -1, bd = 1e9, W = S.world;
+  for (var i = 0; i < S.hi; i++){
+    if (!S.alive[i]) continue;
+    var dx = S.x[i] - w[0], dy = S.y[i] - w[1];
+    dx -= W*Math.round(dx/W); dy -= W*Math.round(dy/W);
+    var d = dx*dx + dy*dy;
+    if (d < bd){ bd = d; best = i; }
+  }
+  if (best >= 0 && Math.sqrt(bd)*cam.z < 30){ selId = S.id[best]; follow = true; $('card').classList.add('on'); card(); }
+  else { selId = -1; follow = false; $('card').classList.remove('on'); }
+}
+
+// ---- controls
+$('bPlay').onclick = function(){ running = !running; this.textContent = running ? 'pause' : 'play'; this.classList.toggle('on', !running); };
+$('spd').oninput = function(){ speedIdx = +this.value; };
+$('bCol').onclick = function(){ colourMode = (colourMode + 1) % 3; this.textContent = COLOUR_NAMES[colourMode]; };
+$('bMore').onclick = function(){ $('drawer').classList.toggle('open'); };
+var SLIDERS = [
+  ['eMeat', 'meat energy', 1, 12, 0.5], ['ePlant', 'plant energy', 0.3, 3, 0.1], ['graze', 'graze rate', 0.03, 0.3, 0.01],
+  ['kDef', 'plant defence power', 0, 10, 0.5], ['corpseDecay', 'corpse rot', 0.0002, 0.01, 0.0002],
+  ['dmg', 'bite damage', 0.05, 1, 0.05], ['seasonAmp', 'seasons', 0, 0.8, 0.05], ['mutP', 'mutation rate', 0.01, 0.2, 0.01]
+];
+function buildDrawer(){
+  var d = $('drawer'), h = '<h4>physics — live</h4>';
+  SLIDERS.forEach(function(s){
+    h += '<div class="row"><label>' + s[1] + '</label><input type="range" id="s_' + s[0] + '" min="' + s[2] + '" max="' + s[3] +
+         '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
+  });
+  h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
+  h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
+  d.innerHTML = h;
+  SLIDERS.forEach(function(s){
+    var el = $('s_' + s[0]);
+    el.value = Sim.CFG[s[0]]; $('v_' + s[0]).textContent = (+el.value).toFixed(4).replace(/\.?0+$/, '');
+    el.oninput = function(){ Sim.CFG[s[0]] = +this.value; patch[s[0]] = +this.value; $('v_' + s[0]).textContent = (+this.value).toFixed(4).replace(/\.?0+$/, ''); };
+  });
+  $('bNew').onclick = function(){ newWorld(); buildDrawer(); };
+  $('bSeed').onclick = function(){ newWorld(Sim.CFG.seed); buildDrawer(); };
+  $('bLog').onclick = function(){
+    var blob = new Blob([JSON.stringify({kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG, log: Sim.S.log})], {type: 'application/json'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'evosim-s' + Sim.CFG.seed + '-t' + Sim.S.tick + '.json'; a.click();
+  };
+}
+
+var lastHud = 0;
+function frame(ts){
+  if (running){
+    var budget = performance.now() + 30, n = SPEEDS[speedIdx];
+    for (var k = 0; k < n && performance.now() < budget; k++){
+      Sim.step();
+      if (Sim.S.n === 0 && Sim.S.tick > Sim.CFG.reseedUntil){ running = false; $('bPlay').textContent = 'play'; break; }
+    }
+  }
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#0b1014'; ctx.fillRect(0, 0, innerWidth, innerHeight);
+  drawPlants(); drawAnimals();
+  if (ts - lastHud > 250){ hud(); drawGraph(); card(); lastHud = ts; }
+  requestAnimationFrame(frame);
+}
+addEventListener('resize', resize);
+newWorld(1); buildDrawer(); resize();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
