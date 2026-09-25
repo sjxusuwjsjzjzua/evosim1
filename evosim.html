@@ -174,7 +174,7 @@ var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
   'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach'];
-var OUTPUT_NAMES = ['turn','throttle','graze','eatMeat','attack'];
+var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
 
 var CFG, S;   // config and state
 
@@ -244,7 +244,7 @@ function init(patch){
     E: new Float32Array(M), mass: new Float32Array(M), hp: new Float32Array(M), age: new Float32Array(M),
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    act: new Uint8Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    act: new Uint8Array(M), want: new Uint8Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
@@ -475,6 +475,7 @@ function sense(i){
   IN[20] = nearC >= 0 && Math.sqrt(nearCd) - S.crad[nearC] < reachI ? 1 : 0;
   IN[21] = nearA >= 0 && Math.sqrt(nearAd) - S.rad[nearA] < reachI ? 1 : 0;
 }
+function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
 function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if (d < -Math.PI) d += 2*Math.PI; return d; }
 
 function think(i){
@@ -492,14 +493,15 @@ function think(i){
     S.out[o+q] = t;
   }
   S.hurt[i] *= 0.5;
-  // MOUTH: one act at a time, drawn in proportion to exp(output), with
-  // "nothing" at output 0. A hard argmax gave a gene a fitness gradient only
-  // where it flipped the winner, so meat-eating could not start from a
-  // grazing brain: every small step toward it did nothing at all.
-  var eg = Math.exp(clamp(S.out[o+2], -20, 20)), em = Math.exp(clamp(S.out[o+3], -20, 20)),
-      ea = Math.exp(clamp(S.out[o+4], -20, 20));
-  var r = rng()*(1 + eg + em + ea);
-  S.act[i] = r < 1 ? 0 : r < 1 + eg ? 1 : r < 1 + eg + em ? 2 : 3;
+  // MOUTH. Three independent urges, each a probability: eat, prefer meat,
+  // strike. Eating takes whatever food is in reach, and the preference only
+  // matters when there is a choice; a strike only happens when there is an
+  // animal in reach. So no urge wastes a tick on nothing, and every weight has
+  // a fitness gradient from the first mutation. Two earlier arbiters (a hard
+  // argmax, then a softmax over exclusive acts) both let selection bury the
+  // meat-eating output because firing it with no corpse in reach cost a meal.
+  S.want[i] = (rng() < sig(S.out[o+2]) ? 1 : 0) | (rng() < sig(S.out[o+3]) ? 2 : 0)
+            | (rng() < sig(S.out[o+4]) ? 4 : 0);
 }
 
 // one animal, one tick
@@ -521,8 +523,16 @@ function updateAnimal(i){
   S.x[i] = (S.x[i] + Math.cos(S.hd[i])*sp + S.world) % S.world;
   S.y[i] = (S.y[i] + Math.sin(S.hd[i])*sp + S.world) % S.world;
 
-  // ---- mouth: the act drawn at the last think
-  var act = S.act[i];
+  // ---- mouth: strike if an animal is in reach and the urge is on, else eat
+  var want = S.want[i], act = 0, tj = -1, cc = -1;
+  if (want & 4){ tj = nearAnimal(i); if (tj >= 0) act = 3; }
+  if (act === 0 && (want & 1)){
+    var hc = cellAt(S.x[i], S.y[i]), plantOK = S.pB[hc] > CFG.pRoot;
+    cc = nearCorpse(i);
+    if (cc >= 0 && ((want & 2) || !plantOK)) act = 2;
+    else if (plantOK) act = 1;
+  }
+  S.act[i] = act;
   var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 1){
     var c = cellAt(S.x[i], S.y[i]), B = S.pB[c];
@@ -534,8 +544,8 @@ function updateAnimal(i){
       var e = bite*val;
       S.E[i] += e; S.lP[i] += e; S.c.eP += e; S.c.plantEaten += bite;
     }
-  } else if (act === 2 && nearCorpse(i) >= 0){
-    var cc = lastC, dens = S.cE[cc]/S.cm[cc];
+  } else if (act === 2){
+    var dens = S.cE[cc]/S.cm[cc];
     var mv = dens*(CFG.meatFloor + (1 - CFG.meatFloor)*diet);
     var chew = Math.min(S.cm[cc], CFG.chew*m75*slow);
     if (mv > 1e-6) chew = Math.min(chew, Math.max(0, Emax - S.E[i])/mv);
@@ -544,9 +554,8 @@ function updateAnimal(i){
     S.E[i] += em; S.lM[i] += em; S.c.meatEaten += chew;
     if (S.cKiller[cc] === S.id[i]) S.c.eK += em; else S.c.eC += em;
   } else if (act === 3){
-    var tj = nearAnimal(i);
     S.E[i] -= CFG.atkCost*m75;
-    if (tj >= 0){
+    {
       S.c.attacks++;
       var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng());
       S.hp[tj] -= dmg;

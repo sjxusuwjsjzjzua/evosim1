@@ -1,64 +1,64 @@
 # evosim — working rules
 
-Single-file HTML evolution simulator. Two kingdoms, plants and animals, both
-with a genome of continuous traits inherited with mutation. Nothing about
-behaviour is hardcoded: herbivory, carnivory, herding, speciation and arms races
-have to come out of the genes and the physics.
+An evolution simulator in one HTML file. Plants and animals both carry genomes
+that are inherited with mutation. **Nothing about behaviour is hardcoded**:
+grazing, scavenging, predation, fleeing, herding and speciation have to come out
+of the genes and the physics.
 
 **The mission test: if a result had to be written into the code, it doesn't
-count.** Changing the physics (what meat is worth, how fast plants grow, what a
-gut costs) is allowed. Writing in a behaviour or a target population is not.
+count.** Changing physics (what food is worth, what a body costs, what a bite
+does, what an animal can sense) is allowed. Writing in a behaviour, a diet, a
+target or a population cap is not.
 
-Read `HANDOFF.md` first: it is short and holds the current state. `LEDGER.md` is
-the archive: rationale and history, indexed by the `[Lnn]` tags in the source.
-Look things up in it; don't read it end to end.
+Read `HANDOFF.md` first: current state, what is known, what is next.
 
 ## Files
 
 | file | what it is |
 |---|---|
-| `evosim-v0_58_0.html` | the build. Single file, no build step, runs on a phone. |
-| `HANDOFF.md` | current state, what is known, what to do next. |
-| `LEDGER.md` | archive of rationale and every version's predictions and outcomes. |
+| `evosim.html` | **the build** (engine 1.x). Single file, no build step, runs on a phone. The `<script id="engine">` block is the whole simulation and never touches the DOM; the second script is the UI. |
+| `run.js` | headless runner: `node run.js --seed 1 --ticks 300000 --every 10000 [--set k=v,k=v] [--cfg patch.json] [--out log.json]`. Runs the engine block of `evosim.html` in a vm, so the file on the phone is the file measured. |
+| `tools/v1score.py` | one row per log: population, meat share, kill share, predators, diet genes. `python3 tools/v1score.py runs/*.json` |
+| `.github/workflows/sim.yml` | the same on GitHub Actions, one seed per job; every log of a dispatch lands on one branch, `results/<label>`. Dispatch with ref = the working branch. |
+| `HANDOFF.md` | current state and next steps. |
+| `LEDGER.md` | archive of the v0.44–v0.58 program (the previous engine). Read for history only. |
+| `evosim-v0_58_0.html`, `headless.js`, `check.js`, `analyze.py`, `tools/score.py`, `tools/arms.py`, `tools/collect.sh`, `cfg-patches/`, `experiment.yml` | the previous engine and its tooling, kept as a reference. |
 | `STYLE.md` | how to write replies, commits and docs. `bash tools/style-check.sh` greps for its banned phrases. |
-| `check.js` | smoke harness: `node check.js <build.html>`. Proves it parses and runs, nothing more. |
-| `headless.js` | one run outside the browser: `node headless.js --build <html> --seed <n> --days <n> --out <path> [--cfg patch.json] [--max-wall-min <n>]`. Touch `<out>.stop` to end early with a valid log. |
-| `experiment.js` | N seeds through `headless.js`, then `analyze.py`. |
-| `analyze.py` | digest of one to three logs. |
-| `tools/score.py` | scores every log under `runs/*/` on a matched window (default days 400-800). `--pickle` dumps per-run rows. |
-| `tools/collect.sh`, `tools/arms.py` | pull result branches into `runs/`; classify a run's arm from its cfg. |
-| `cfg-patches/` | CFG patches. A constant change ships as one of these, not as a new HTML. |
-| `.github/workflows/experiment.yml` | runs seeds on GitHub Actions, one per job. Each log is pushed to branch `runs/<label>/seed-<N>` as `seed-<N>.json` at the branch root. `schedule:` and `workflow_dispatch` inputs are only read from `main`. |
 
-`runs/` is gitignored and does not survive a container restart. The result
-branches do.
+## How the engine works, in one paragraph
+
+Plants are a 96x96 grid of cells; an occupied cell has biomass and three genes
+(stature, defence, dispersal), grows logistically, keeps an ungrazeable root
+reserve, and throws seed into cells grazed below a threshold. Animals are agents
+with 12 body genes (size, speed, sense, diet, weapon, armour, detox, two
+life-history genes, three colour tags) and a neural network (22 senses, 8 hidden,
+5 outputs: turn, throttle, eat, meat preference, attack). Each mouth output is a
+probability. Eating takes whatever food is in reach and the preference only
+matters when both plant and corpse are; a strike only happens when an animal is
+in reach. Diet is one axis: plant yield x (1 - diet), meat yield
+x (0.4 + 0.6 diet). A corpse carries its flesh plus the reserves the animal died
+with. Random genomes seed the world until a population sustains itself.
 
 ## Rules
 
-1. `node check.js <build>` after every edit to the build.
-2. Write down what you expect before a batch runs, in `LEDGER.md`, with the
-   number that would prove you wrong. One line is enough. Score it when the data
-   lands, the same day. Unscored data is the most expensive thing this project
-   produces.
-3. **Score behaviour, not just genes.** A gene value is not a diet. Check what
-   animals actually do (`actGraze`, `actAttack`, `actScav`) and where their energy
-   comes from (`ePlant`, `eCarrion`, `eFlesh`). H22 showed a population can carry
-   carnivory 0.84 and still graze 99.5% of the time.
-4. Constants change by CFG patch. A new HTML is for a change of shape (a
-   formula, a mechanism) and bumps the version. Keep the previous build in the
-   repo only until the new one is scored, then delete it.
-5. Measurement-only changes must not alter the RNG draw sequence. Check on a
-   run where the changed code actually executes (animals arrive at day 260).
-6. Compare runs on a matched window, never on endpoints of runs of different
-   length. Report the tail as well as the median: the interesting worlds are a
-   minority.
-7. Don't widen a gene bound to fix a pin. See `HANDOFF.md` on pin shapes.
-8. The build stays single-file, no build step, no dependencies, touch-first.
+1. Run a smoke test after every engine edit: `node run.js --ticks 3000 --every 1000`
+   must run clean, and the page must load without console errors (Chromium +
+   Playwright are installed; see `HANDOFF.md`).
+2. Say what you expect before a batch, and score it when it lands. Score
+   **behaviour and intake** (meat share, kills, predators by lifetime intake), not
+   gene means alone.
+3. Report the tail, not just the median. The interesting worlds are a minority.
+4. When selection does nothing, check for a threshold first. Twice now a hard
+   choice rule (an argmax) hid every small step from selection.
+5. Hand-built brains are allowed as **diagnostics** (does the physics reward this
+   behaviour at all?) and never ship.
+6. The build stays one file, no build step, no dependencies, touch-first.
+7. Don't `pkill -f` a pattern that appears in your own command line; it kills
+   the shell. Kill by PID.
 
 ## Autonomy
 
-The owner has handed the project over. Make CFG or mechanism changes, run them,
-commit, push, and merge finished work to `main` without asking. Stop and ask only
-for something with no rollback (deleting result branches, rewriting `main`'s
-history). Keep reports short: what happened in the world, the numbers, what's
-next.
+The owner has handed the project over and asked for continuous iteration without
+check-ins. Change physics or mechanism, run it, commit, push, and merge finished
+work to `main`. Stop and ask only for something with no rollback (deleting
+result branches, rewriting `main`'s history).
