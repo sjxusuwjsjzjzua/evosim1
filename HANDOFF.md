@@ -34,14 +34,18 @@ Browser check (Chromium and Playwright are preinstalled):
 |---|---|---|
 | plants | 96x96 cells; biomass grows logistically; genes: stature (capacity vs growth), defence (shrinks a grazer's bite, costs growth), dispersal | cheap enough that thousands of animals fit; still evolves |
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
-| animal body | 13 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize | every capability has an upkeep cost that curves up faster than its benefit |
+| animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | every capability has an upkeep cost that curves up faster than its benefit |
+| fixed cost | `upFixed` 0.010 per animal per tick regardless of size | at 0.003 body size pinned at its floor (optimum mass ~ (4 upFixed / net intake)^(4/3)) |
 | brain | 22 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
-| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, nearest animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, animal in reach | facts about the world, not advice |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach | facts about the world, not advice |
+| attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
+| juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
+| sex | a breeder recombines with the nearest acceptable adult in sense range (colour distance within both partners' `choosy`), else clones; crossover keeps each neuron's wiring whole | recombination can assemble separately evolved pieces; mate tolerance makes speciation possible |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only with an animal in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
 | diet | one axis: plant yield x (1 − diet), meat yield x (0.4 + 0.6 diet) | flesh is easy to digest, cellulose needs a specialised gut |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
 | combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
-| bootstrap | random genomes arrive while the population is under 200, until tick 60,000 | nothing else seeds behaviour |
+| bootstrap | founders get a cheap ancestral body with spread, a random diet and a completely random brain; they keep arriving while the population is under 200 until one has once reached 400 | fully random bodies rarely survived and bootstrap took 40–65k ticks; now 12–33k |
 
 ## What is known (2026-09-25)
 
@@ -70,15 +74,48 @@ Browser check (Chromium and Playwright are preinstalled):
   0.04–0.10: predators are omnivore-gutted killers. A gut shift only pays once a
   lineage gets over ~40% of its energy from meat (linear trade-off, floor 0.4).
 
+- **Evolved brains avoid contact.** Measured by probing brains with synthetic
+  senses: they strike 44% of the time when touching another animal, prefer meat
+  82% of the time when a corpse is in reach, and turn away from other animals.
+  That is why most worlds settle into peaceful, evasive omnivores: contact means
+  being bitten.
+- **Omnivore hunters can invade.** Hand-built hunters with diet 0.3 persisted in
+  a mature world and their diet gene climbed to 0.47, so a gradual path from
+  omnivore to carnivore exists in this physics.
+- **What did not help:** meatFloor 0 (removes scavenging entirely, meat → 0%), a
+  concave diet trade-off, weapon-linked teeth (kills fell to zero), a 0.015 fixed
+  cost (bootstrap failures, giant animals).
+
+## Sweep, 2026-09-25, current engine at 300k ticks (6 seeds each, `results/v1-T-*`)
+
+Share of energy from meat, per world, last two thirds of the run:
+
+| variant | worlds | meat % | worlds with steady killing (>100 kills / 1000 ticks) |
+|---|---|---|---|
+| base | 6 | 2.0–5.0 | 2 |
+| eMeat 10 | 6 | 3.0–10.4 | 3 |
+| dmg 1 | 6 | 2.4–6.1 | 3 |
+| seasons 0.4 | 6 | 2.3–5.1 | 2 |
+| juvenile slowness off | 6 | 2.1–3.0 | 0 |
+| fast life (ageK 3000, growRate 0.016) | 6 | 3.3–6.8 | 0 (one never finished bootstrapping) |
+
+None reached the predator-dominated state within 300k ticks (~80–160
+generations). In the older engine that took 85–200 generations.
+
+## Running now
+
+- `results/v1-U-base`, `results/v1-U-meat10`: 20 seeds each, 600k ticks. The
+  question is how often a predator-dominated world appears.
+- Locally: the current engine at `upFixed` 0.003 and `sex` 0, the setting of the
+  two predator worlds found so far.
+
 ## Next
 
-1. Find out whether a specialist predator lineage evolves at `eMeat` 8 given
-   enough generations (`results/v1-L8`, 12 seeds x 500k ticks).
-2. If not, test the gradual path: can an omnivore hunter (diet ~0.3) invade? If
-   omnivore hunters fail where specialists succeed, the diet trade-off shape is
-   the barrier.
-3. Measure more of what should emerge: grouping (crowding when predators are
-   present), speciation (clusters in tag and gene space), and a better predator
-   metric (lifetime intake per individual is logged; plot its distribution).
-4. Sexual reproduction with mate choice, so speciation can be real rather than
-   clonal divergence.
+1. Score the U batch by its tail: count worlds that reach >20% meat and hold it.
+2. Pick defaults that maximise that rate, then make it faster per tick (fewer
+   ticks per generation) so it shows up on a phone within an hour.
+3. Grouping: the `clump` index sits near 1 (random) so far. Herding should pay
+   under predation through the attended-target mechanics; check it in the
+   predator worlds.
+4. Speciation: `species` clusters exist (several per world). Check whether they
+   are reproductively isolated (choosy) and ecologically distinct.
