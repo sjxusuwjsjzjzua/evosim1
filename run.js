@@ -2,8 +2,10 @@
 // Headless runner for evosim.html. Runs the <script id="engine"> block in a
 // vm context, so the file you open on a phone is the file that is measured.
 //
-//   node run.js [--seed 1] [--ticks 200000] [--cfg patch.json | --set k=v,k=v]
-//               [--out log.json] [--every 10000] [--build evosim.html]
+//   node run.js [--seed 1] [--ticks 200000] [--cfg patch.json] [--set k=v,k=v]
+//               [--out log.json] [--every 10000] [--dump genomes.json] [--build evosim.html]
+//
+// --set is applied on top of --cfg; --cfg also accepts a log (its cfg is used).
 //
 // Prints one summary line every --every ticks and writes the full log.
 const fs = require('fs'), vm = require('vm'), path = require('path');
@@ -56,8 +58,9 @@ if (args.dump) dump(args.dump);
 // --dump <path>: the living population's genomes (body + brain), for seeding
 function dump(p) {
   const S = Sim.S, NG = Sim.NG, out = [];
-  // at most ~300: every animal with a meat gut (diet > 0.3, up to 100), so a rare
-  // carnivore species survives the sampling, then the rest evenly through the slots
+  // every animal with a meat gut (diet > 0.3, up to 100), so a rare carnivore
+  // species survives the sampling, then every step-th of the rest to fill ~300
+  // slots (the floor on step means the total can run over 300)
   const G = S.genome, take = i => out.push(Array.from(G.subarray(i*NG, (i+1)*NG)).map(v => +v.toFixed(3)));
   const meat = [], rest = [];
   for (let i = 0; i < S.hi; i++) if (S.alive[i]) (G[i*NG + 3] > 0.3 ? meat : rest).push(i);

@@ -10,7 +10,7 @@
   are physics: what food is worth, what a body costs, what a bite does.
 
   The engine is the script block with id "engine" and never touches the DOM, so
-  run.js can execute it headless. Notes and results: NOTES.md.
+  run.js can execute it headless. Notes and results: HANDOFF.md.
 -->
 <html lang="en">
 <head>
@@ -93,8 +93,8 @@ var CFG_DEFAULT = {
                         // never kills a plant; a seed can take the cell over
                         // once it is grazed below pTakeover.
   pTakeover: 0.4,
-  pSeedP: 0.03,         // per-tick seeding chance of a cell at full capacity
-  pDispMax: 8,          // longest seed throw, in cells, at dispersal 1
+  pSeedP: 0.03,         // seed pressure a full cell adds per tick (cells over half full only); a seed flies at 1
+  pDispMax: 8,          // longest seed throw beyond the first cell, at dispersal 1
   pDispCost: 0.15,      // share of growth rate given up at dispersal 1
   pMutSd: 0.05,
   plantEvery: 2,        // plants update every N ticks (dt = N)
@@ -118,12 +118,11 @@ var CFG_DEFAULT = {
                         // 2 = concave: a first step toward either gut is cheap. Over 20 small
                         // worlds it gave 16 predator-dominated and 6 with meat guts, against
                         // 11 and 3 at 1 (the linear trade).
-  meatFloor: 0.4,       // share of that any gut gets. Flesh is easy to digest;
-                        // cellulose is what needs a specialised gut. So the
-                        // trade is asymmetric: plant yield x (1 - diet),
-                        // meat yield x (meatFloor + (1 - meatFloor) x diet).
+  meatFloor: 0.4,       // share of meat yield any gut gets. Flesh is easy to digest;
+                        // cellulose is what needs a specialised gut, so the
+                        // trade is asymmetric. Full formula: see dietCurve.
   graze: 0.12,          // plant mass bitten per tick, x mass^0.75
-  chew: 0.20,           // flesh eaten per tick, x mass^0.75 x (teethBase + weapon)
+  chew: 0.20,           // flesh eaten per tick, x mass^0.75 (x (teethBase + weapon) when teethBase < 1)
   teethBase: 1,         // meat eating rate x (teethBase + weapon) when < 1; 1 = weapon-independent.
                         // 0.25 was tried: it cut early scavenging and kills fell to zero in 3 of 4 worlds.
   upFixed: 0.003,       // per animal per tick, whatever its size. Reproductive rate peaks
@@ -137,7 +136,7 @@ var CFG_DEFAULT = {
   upWeapon: 0.012,      // x weapon^2 x mass^0.75
   upArmour: 0.008,      // x armour x mass^0.75
   upDetox: 0.006,       // x detox^2 x mass^0.75
-  upSpeed: 0.010,       // x (top speed)^2 x mass^0.75: owning the muscle
+  upSpeed: 0.010,       // x speed gene^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
   kConfusion: 0,        // predator confusion: strike damage / (1 + k x others within 3 of the target). 0 = off
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
@@ -162,7 +161,7 @@ var CFG_DEFAULT = {
                         // default: every predator world so far evolved without it.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
-  mutSd: 0.08,          // body genes: sd as a share of range
+  mutSd: 0.08,          // body genes: sd as a share of range (x3, multiplicative, for log-scaled genes)
   wSd: 0.35,            // brain weights: sd
   wMax: 4,
 
@@ -177,7 +176,7 @@ var BODY = [
   ['size',     0.3, 12,   true ],
   ['speed',    0.1, 1.6,  false],
   ['sense',    3,   32,   false],
-  ['diet',     0,   1,    false],   // 0 = plant gut, 1 = meat gut, linear trade
+  ['diet',     0,   1,    false],   // 0 = plant gut, 1 = meat gut; trade-off set by dietCurve and meatFloor
   ['weapon',   0,   1.5,  false],
   ['armour',   0,   1,    false],
   ['detox',    0,   1,    false],   // counters plant defence
@@ -537,7 +536,7 @@ function bodyCache(i){
 }
 
 var IN = new Float32Array(NI), HID = new Float32Array(NH);
-// nearest-neighbour results of the last sense() call
+// results of the last sense() call: attended animal (highest salience), nearest corpse
 var nearA = -1, nearAd = 0, nearC = -1, nearCd = 0, crowd = 0;
 
 function sense(i){
@@ -752,7 +751,7 @@ function updateAnimal(i){
 }
 var lastC = -1;
 function nearCorpse(i){
-  // uses the sense() result when it is still in contact; otherwise rescan the home bucket
+  // nearest corpse within reach, from the 3x3 buckets around the animal
   var x = S.x[i], y = S.y[i], r = S.rad[i] + CFG.reach;
   var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
   for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
@@ -900,7 +899,7 @@ function sample(){
   }
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
-  var sp = species(), clump = clumping();
+  var spc = species(), clump = clumping();
   var C = S.c, eAll = C.eP + C.eC + C.eK;
   var dead = S.hist; S.hist = [];
   var dhist = new Array(10).fill(0);
@@ -919,7 +918,7 @@ function sample(){
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
-    species: sp, clump: clump, establishedAt: S.establishedAt || 0
+    species: spc, clump: clump, establishedAt: S.establishedAt || 0
   };
   S.log.push(row);
   S.c = newCounters();
@@ -1025,7 +1024,8 @@ if (typeof module !== 'undefined') module.exports = Sim;
 
 <script>
 // =========================================================================
-// UI. Reads the engine's state; never writes to it except through Sim.init.
+// UI. Reads the engine's state; writes to it only through Sim.init, Sim.restore
+// and the physics sliders (Sim.CFG).
 // =========================================================================
 (function(){
 'use strict';
@@ -1199,7 +1199,7 @@ function hud(){
     '<span><span class="k">plants</span><b class="leaf">' + (L.plantMass|0) + '</b></span>' +
     '<span><span class="k">meat</span><b class="ember">' + ((L.meatShare||0)*100).toFixed(1) + '%</b></span>' +
     '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
-    '<span><span class="k">carnivores</span><b class="ember">' + (L.dietHist ? L.dietHist.slice(5).reduce(function(a, b){ return a + b; }, 0) : 0) + '</b></span>' +
+    '<span><span class="k">predators</span><b class="ember">' + (L.predators||0) + '</b></span>' +
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
@@ -1302,7 +1302,7 @@ function buildDrawer(){
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
-  h += '<p class="note">Small is the default: it runs about twice as fast and predators evolved in as many test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
   SLIDERS.forEach(function(s){

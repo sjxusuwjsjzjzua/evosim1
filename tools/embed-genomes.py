@@ -6,7 +6,8 @@
 genomes.json is written by `node run.js ... --dump genomes.json`. Each gene is
 quantised to one byte over its range (body genes over their bounds, brain
 weights over [-wMax, wMax]) and the lot is base64'd between the EVOLVED markers
-in the UI script. The engine is not touched.
+in the UI script. The engine is not touched. Run it from the repo root. Dumps
+without an NI field predate it and have 22 senses.
 """
 import json, sys, re, base64
 src = json.load(open(sys.argv[1])); note = sys.argv[2] if len(sys.argv) > 2 else ''

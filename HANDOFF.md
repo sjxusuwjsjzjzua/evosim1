@@ -20,7 +20,9 @@ python3 tools/v1score.py runs/*.json                                    # one ro
 ```
 
 On Actions: dispatch `sim.yml` (ref = the working branch) with seeds, ticks,
-optional `set`, and a label; all logs land on branch `results/<label>`.
+optional `set` or `cfg`, and a label; each job also saves `sN-genomes.json`
+(`--dump`) and `sN.txt`. All land on branch `results/<label>`;
+`bash tools/fetch-results.sh <prefix>` copies them to `runs/`.
 Roughly 10 ms per tick at 3,000 animals on one core, so 500,000 ticks is about
 1.5 hours.
 
@@ -32,20 +34,20 @@ Browser check (Chromium and Playwright are preinstalled):
 
 | piece | how | why |
 |---|---|---|
-| plants | 96x96 cells; biomass grows logistically; genes: stature (capacity vs growth), defence (shrinks a grazer's bite, costs growth), dispersal | cheap enough that thousands of animals fit; still evolves |
+| plants | 96x96 cells headless, 64x64 in the page (`gridN`); biomass grows logistically; genes: stature (capacity vs growth), defence (shrinks a grazer's bite, costs growth), dispersal | cheap enough that thousands of animals fit; still evolves |
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
-| animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | every capability has an upkeep cost that curves up faster than its benefit |
+| animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | sense, weapon, detox and speed have quadratic upkeep; armour costs linearly and slows; tags, attention and life-history genes are free |
 | fixed cost | `upFixed` 0.003 per animal per tick regardless of size | 0.010 gave an interior body size but 0 predator worlds in 20 at 600k ticks; at 0.003 small fast breeders evolve predation, and predation holds size off the floor |
-| brain | 22 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
-| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach | facts about the world, not advice |
+| brain | 25 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
-| sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance within both partners' `choosy`), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; a 2x2 is separating its effect from the fixed cost |
-| mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only with an animal in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
+| sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`, default off), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; with incompatibility (`mateDist` 0.1) sexual worlds match clonal ones, without it they fall behind (below) |
+| mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
 | diet | one axis, concave (`dietCurve` 2): plant yield x (1 − diet²), meat yield x (0.4 + 0.6 (1 − (1 − diet)²)) | flesh is easy to digest, cellulose needs a specialised gut; the concave form made a first step toward either gut cheap and raised the predator rate (16 of 20 worlds against 11 of 20) |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
-| combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
-| persistence | `Sim.snapshot()` / `Sim.restore()`; the page autosaves to localStorage every minute and when hidden, and resumes on load | reaching predators takes hours on a phone; genomes are stored at one byte per gene |
+| combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour) x U(0.8, 1.2); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
+| persistence | `Sim.snapshot()` / `Sim.restore()`; once past bootstrap the page autosaves to localStorage every minute and when hidden, and resumes on load | reaching predators takes hours on a phone; genomes are stored at one byte per gene |
 | bootstrap | founders get a cheap ancestral body with spread, a random diet and a completely random brain; they keep arriving while the population is under 200 until one has once reached 400 | fully random bodies rarely survived and bootstrap took 40–65k ticks; now 12–33k |
 
 ## What is known (2026-09-25)
@@ -71,9 +73,10 @@ Browser check (Chromium and Playwright are preinstalled):
   250k ticks while top speed doubled (0.64 → 1.38) and sense range doubled:
   a pursuit arms race. Four more worlds held steady killing at 5–8% meat.
   Logs: branches `results/v1-L8`, `results/v1-L9-sex`.
-- **The diet gene lags behaviour.** Even in predator worlds mean diet is
-  0.04–0.10: predators are omnivore-gutted killers. A gut shift only pays once a
-  lineage gets over ~40% of its energy from meat (linear trade-off, floor 0.4).
+- **The diet gene lags behaviour.** Under the old linear trade-off (`dietCurve`
+  1), mean diet in predator worlds was 0.04–0.10: predators were omnivore-gutted
+  killers, and a gut shift paid only above ~40% meat. Under `dietCurve` 2 it is
+  0.04–0.22.
 
 - **Evolved brains avoid contact.** Measured by probing brains with synthetic
   senses: they strike 44% of the time when touching another animal, prefer meat
@@ -84,13 +87,14 @@ Browser check (Chromium and Playwright are preinstalled):
   a mature world and their diet gene climbed to 0.47, so a gradual path from
   omnivore to carnivore exists in this physics.
 - **What did not help:** meatFloor 0 (removes scavenging entirely, meat → 0%), a
-  concave diet trade-off, weapon-linked teeth (kills fell to zero), a 0.015 fixed
+  concave diet trade-off under the old defaults (`upFixed` 0.010, sex on; it is
+  the strongest lever under the current ones, below), weapon-linked teeth (kills fell to zero), a 0.015 fixed
   cost (bootstrap failures, giant animals).
 
 ## A carnivore species evolved (2026-09-25, seed 21, `upFixed` 0.003, `sex` 0)
 
 Reproducible at commit eafc1c4: `node run.js --seed 21 --ticks 240000 --set upFixed=0.003,sex=0`
-(later speed changes alter rounding, so the exact trajectory differs at HEAD; the population itself is embedded in the page).
+(later speed changes alter rounding, so the exact trajectory differs at HEAD).
 
 | tick | carnivore cluster | diet gene | lifetime meat | world |
 |---|---|---|---|---|
@@ -125,6 +129,9 @@ Carnivores are big armed cruisers that strike whatever they meet; herbivores are
 small vigilant grazers that watch large strangers and run from them, with
 maximal detox against defended plants.
 
+The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
+(`results/v1-U-base`), so the defaults were switched.
+
 This population was the page's "evolved start" until 2026-09-25. Under the
 current defaults (`dietCurve` 2, small world) it established predation in only 2
 of 4 test worlds, so it was replaced (next section).
@@ -149,8 +156,8 @@ cruise (throttle 0.79 alone) and strike 95% of what they touch; its 263
 herbivores (size 0.39, speed 1.41, detox 0.99) sit still grazing (throttle 0.06)
 and speed up to 0.50 when a big armed animal is in view.
 
-The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
-(`results/v1-U-base`), so the defaults were switched.
+Found a world from a dump headless with `node run.js --cfg seed.json`, where
+seed.json is `{"seedGenomes": <dump>.genomes, "seedNI": <dump>.NI, "founders": 600}`.
 
 ## The defaults, tested: fixed cost x sex, 10 seeds a cell, 400k ticks (`results/v1-V-*`, `results/v1-U-base`)
 
@@ -159,7 +166,7 @@ The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
 | `upFixed` 0.003 | **6 of 10** worlds predator-dominated (regime 17–81%); **2 of 10** with meat guts (up to 10% of animals at diet ≥ 0.5, peak meat share 50–57%) | 1 of 10 predator-dominated; no gut shift |
 | `upFixed` 0.010 | 0 of 10 | 0 of 20 (600k ticks) |
 
-regime = share of post-bootstrap samples with meat above 15% of intake. The
+regime = share of samples after bootstrap (and after tick 60k) with meat above 15% of intake. The
 small fixed cost is necessary; clonal reproduction multiplies it. A likely reason
 sex hurts: recombination with the herbivore majority breaks up carnivore gene
 combinations unless mating is already assortative.
@@ -187,7 +194,7 @@ combinations unless mating is already assortative.
 
 ## Herding does not pay in this physics (tested 2026-09-25)
 
-Hand-built test in worlds founded from the evolved predator population: after
+Hand-built test in worlds founded from the seed-21 population (the evolved start at the time): after
 10k ticks, half the herbivores got a weight turning them toward the centre of
 the animals they can see (the `crowdDir` sense).
 
