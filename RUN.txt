@@ -1,0 +1,6 @@
+label=v1-W-sex-md10
+seeds=501,502,503,504,505,506,507,508,509,510
+ticks=400000
+set=sex=1,mateDist=0.1
+cfg=
+sha=f79a9e152fc67792a6327cccb09df4d71e56e63a
