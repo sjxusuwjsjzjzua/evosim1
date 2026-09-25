@@ -23,7 +23,9 @@ hdr = ('%-26s %7s %6s %7s %6s %6s %7s %6s %8s %5s %5s %6s %6s %6s'
        % ('run', 'ticks', 'anim', 'meat%', 'kill%', 'pred%', 'kills/kt', 'diet', 'hi-diet%', 'size', 'spd', 'weapon', 'armour', 'pDef'))
 print(hdr)
 for f in args:
-    d = json.load(open(f)); L = d['log']
+    d = json.load(open(f))
+    if d.get('kind') != 'evosim1-log': continue
+    L = d['log']
     if not L: continue
     w = L[int(len(L) * (1 - frac)):] if frac < 1 else L
     w = [r for r in w if r['animals'] > 0] or w
