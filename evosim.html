@@ -945,7 +945,7 @@ function evolvedGenomes(){
 }
 var COLOUR_NAMES = ['diet', 'kin', 'action'];
 var cam = {x: 0, y: 0, z: 1}, view = {x: 0, y: 0, w: 0, h: 0};
-var patch = {};
+var patch = {gridN: 64};   // the small world by default: about twice as fast, and predators evolve as often
 var plantImg = null, plantCv = document.createElement('canvas'), pctx = plantCv.getContext('2d');
 
 function newWorld(seed){
@@ -1094,7 +1094,8 @@ function hud(){
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
-    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving</span>');
+    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving' +
+      (EVOLVED && !patch.seedGenomes ? ' · world → evolved start skips ahead to predators and prey' : '') + '</span>');
   var tb = $('top').getBoundingClientRect().bottom;
   if (tb !== lastTop){ lastTop = tb; layout(); }
   var sp = $('species');
@@ -1191,7 +1192,7 @@ function buildDrawer(){
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
-  h += '<p class="note">A smaller world runs faster, so evolution gets further per minute; predators usually need a few hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">Small is the default: it runs about twice as fast and predators evolved in as many test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
   SLIDERS.forEach(function(s){
