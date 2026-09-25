@@ -79,6 +79,7 @@ jobs:
           git checkout --orphan "$BR"
           git rm -rf --quiet . || true
           cp keep/* . 2>/dev/null || true
+          rm -rf art keep
           printf '%s\n' "label=${{ inputs.label }}" "seeds=${{ inputs.seeds }}" "ticks=${{ inputs.ticks }}" \
             "set=${{ inputs.set }}" "cfg=${{ inputs.cfg }}" "sha=${{ github.sha }}" > RUN.txt
           git add -A

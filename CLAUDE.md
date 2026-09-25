@@ -17,12 +17,16 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | file | what it is |
 |---|---|
 | `evosim.html` | **the build** (engine 1.x). Single file, no build step, runs on a phone. The `<script id="engine">` block is the whole simulation and never touches the DOM; the second script is the UI. |
-| `run.js` | headless runner: `node run.js --seed 1 --ticks 300000 --every 10000 [--set k=v,k=v] [--cfg patch.json] [--out log.json]`. Runs the engine block of `evosim.html` in a vm, so the file on the phone is the file measured. |
-| `tools/v1score.py` | one row per log: population, meat share, kill share, predators, diet genes. `python3 tools/v1score.py runs/*.json` |
+| `run.js` | headless runner: `node run.js --seed 1 --ticks 300000 --every 10000 [--cfg patch.json] [--set k=v,k=v] [--out log.json] [--dump genomes.json] [--build file.html]`. `--set` overrides `--cfg`; `--dump` writes the living genomes (for `seedGenomes`). Runs the engine block of `evosim.html` in a vm, so the file on the phone is the file measured. |
+| `tools/v1score.py` | one row per log, last half of the run: population, meat share, kill share, predators, diet, regime%, clump, carnivore species. `python3 tools/v1score.py runs/*.json` |
+| `tools/fetch-results.sh [prefix]` | pulls `results/*` branches into `runs/<label>/` (gitignored). |
+| `tools/genomes.js` | brain probes of a `--dump`, split at diet 0.3. |
+| `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
+| `README.md` | for people opening the page. |
 | `.github/workflows/sim.yml` | the same on GitHub Actions, one seed per job; every log of a dispatch lands on one branch, `results/<label>`. Dispatch with ref = the working branch. |
 | `HANDOFF.md` | current state and next steps. |
 | `LEDGER.md` | archive of the v0.44–v0.58 program (the previous engine). Read for history only. |
-| `evosim-v0_58_0.html`, `headless.js`, `check.js`, `analyze.py`, `tools/score.py`, `tools/arms.py`, `tools/collect.sh`, `cfg-patches/`, `experiment.yml` | the previous engine and its tooling, kept as a reference. |
+| `evosim-v0_*.html`, `headless.js`, `check.js`, `analyze.py`, `audit.py`, `experiment.js`, `tools/score.py`, `tools/arms.py`, `tools/collect.sh`, `cfg-patches/`, `.github/workflows/experiment.yml`, `AUDIT-*.md`, `HOST-*.md`, `FINDINGS.md`, `PROGRAM-HISTORY.md` and the other upper-case notes | the previous engine, its tooling and audits. History only. |
 | `STYLE.md` | how to write replies, commits and docs. `bash tools/style-check.sh` greps for its banned phrases. |
 
 ## How the engine works, in one paragraph
@@ -36,11 +40,11 @@ and a neural network (25 senses, 8 hidden,
 5 outputs: turn, throttle, eat, meat preference, attack). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is
-in reach. Diet is one axis with a concave trade-off: plant yield x (1 - diet^2),
+in reach (the attended one). Diet is one axis with a concave trade-off (`dietCurve` 2, `meatFloor` 0.4): plant yield x (1 - diet^2),
 meat yield x (0.4 + 0.6 (1 - (1 - diet)^2)). A corpse carries its flesh plus the reserves the animal died
 with. Attention picks which neighbour the animal senses and strikes; its weights
 are genes. Juveniles are slow. Reproduction is clonal by default (`sex` 1 recombines with an acceptable
-mate in sense range; `mateDist` adds genetic incompatibility). Founders have a cheap ancestral body and a random brain and keep
+mate in sense range; `mateDist` below 1 adds genetic incompatibility). Founders have a cheap ancestral body and a random brain and keep
 arriving until a population establishes. See `HANDOFF.md` for why each piece is
 there.
 
