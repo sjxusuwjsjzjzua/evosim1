@@ -152,6 +152,8 @@ var CFG_DEFAULT = {
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
+  mateDist: 1,          // with sex on: partners whose body genomes differ by more than this
+                        // (mean normalised difference) cannot breed. 1 = no limit.
   sex: 0,               // 1: a breeder recombines with the nearest acceptable adult it
                         // can sense (clones if there is none). 0: always clone. Off by
                         // default: every predator world so far evolved without it.
@@ -420,6 +422,16 @@ function tagDist(a, b){
   for (var q = 0; q < 3; q++){ var dd = G[a*NG+G_TAG+q] - G[b*NG+G_TAG+q]; t += dd*dd; }
   return Math.sqrt(t/3);
 }
+// mean normalised difference over the body genes (colour tags excluded)
+function bodyDist(a, b){
+  var G = S.genome, A = a*NG, B = b*NG, t = 0, n = 0;
+  for (var k = 0; k < NB; k++){
+    if (k >= G_TAG && k < G_TAG + 3) continue;
+    var lo = BODY[k][1], hi = BODY[k][2], x = G[A+k], y = G[B+k];
+    t += BODY[k][3] ? Math.abs(Math.log(x/y))/Math.log(hi/lo) : Math.abs(x - y)/(hi - lo); n++;
+  }
+  return t/n;
+}
 // nearest adult within sense range that both partners accept
 function findMate(i){
   var G = S.genome, g = i*NG, R = G[g+G_SENSE], R2 = R*R, x = S.x[i], y = S.y[i];
@@ -435,6 +447,7 @@ function findMate(i){
         if (d2 >= bd) continue;
         var td = tagDist(i, j);
         if (td > 1 - G[g+G_CHOOSY] || td > 1 - G[j*NG+G_CHOOSY]) continue;
+        if (CFG.mateDist < 1 && bodyDist(i, j) > CFG.mateDist) continue;   // genomes too far apart to breed
         bd = d2; best = j;
       }
     }
