@@ -108,7 +108,8 @@ var CFG_DEFAULT = {
   eCap: 40,             // energy an animal can store per unit body mass
   cBuild: 10,           // energy to build one unit of body mass
   ePlant: 1.0,          // energy per unit plant mass at a perfect plant gut
-  eMeat: 5.0,           // energy in one unit of lean flesh. A corpse also carries
+  eMeat: 8.0,           // energy in one unit of lean flesh: 80% of what it cost
+                        // to build (cBuild), the rest lost as overhead. A corpse also carries
                         // whatever reserves the animal died with, so a healthy
                         // kill is worth far more than a starved carcass.
   meatFloor: 0.4,       // share of that any gut gets. Flesh is easy to digest;
@@ -136,7 +137,6 @@ var CFG_DEFAULT = {
   radiusK: 0.7,         // body radius = radiusK * mass^(1/3)
   reach: 0.6,
   corpseDecay: 0.0015,  // fraction of corpse mass lost per tick
-  birthFrac: 0.25,      // newborn mass as a share of adult size
   growRate: 0.008,      // max growth per tick as a share of current mass
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
@@ -164,11 +164,12 @@ var BODY = [
   ['childE',   0.05,0.7,  false],   // share of own energy handed to each child
   ['tagR',     0,   1,    false],   // heritable colour: visible to others, costs nothing
   ['tagG',     0,   1,    false],
-  ['tagB',     0,   1,    false]
+  ['tagB',     0,   1,    false],
+  ['birthSize',0.1, 0.6,  false]    // newborn mass as a share of adult size: few big young or many small
 ];
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
-    G_REPROT=7, G_CHILDE=8, G_TAG=9;
+    G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12;
 var NI = 22, NH = 8, NO = 5;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
@@ -343,7 +344,7 @@ function spawnRandom(){
                   : b[1] + rng()*(b[2]-b[1]);
   }
   for (var w = NB; w < NG; w++) G[g+w] = gauss()*1.0;
-  var m = G[g+G_SIZE]*CFG.birthFrac*2;
+  var m = G[g+G_SIZE]*G[g+G_BIRTH]*2;
   setupBody(i, rng()*S.world, rng()*S.world, Math.min(m, G[g+G_SIZE]), 0);
   S.E[i] = CFG.eCap*S.mass[i]*0.6;
   return i;
@@ -602,7 +603,7 @@ function updateAnimal(i){
       S.hp[i] += CFG.hpPerMass*dM;
     }
   } else if (S.E[i] > G[g+G_REPROT]*Emax){
-    var m0 = size*CFG.birthFrac;
+    var m0 = size*G[g+G_BIRTH];
     var give = Math.min(G[g+G_CHILDE]*S.E[i], CFG.eCap*m0);
     var cost = m0*CFG.cBuild + give;
     if (S.E[i] - cost > 0.05*Emax){
@@ -895,7 +896,7 @@ function card(){
   t += 'mass ' + S.mass[i].toFixed(2) + '  energy ' + (S.E[i]/(Sim.CFG.eCap*S.mass[i])*100).toFixed(0) + '%  kills ' + S.kills[i] + '\n';
   t += 'lifetime diet: ' + (tot > 0 ? (100*S.lM[i]/tot).toFixed(0) + '% meat' : 'nothing yet') + '\n';
   t += 'doing: ' + ['nothing', 'grazing', 'eating meat', 'attacking'][S.act[i]] + '\n';
-  for (var k = 0; k < 9; k++) t += B[k][0] + ' ' + G[g+k].toFixed(2) + (k % 3 === 2 ? '\n' : '   ');
+  [0,1,2,3,4,5,6,7,8,12].forEach(function(k, n){ t += B[k][0] + ' ' + G[g+k].toFixed(2) + (n % 3 === 2 ? '\n' : '   '); });
   el.textContent = t;
   if (follow){ cam.x = S.x[i]; cam.y = S.y[i]; }
 }
