@@ -124,10 +124,12 @@ var CFG_DEFAULT = {
   chew: 0.20,           // flesh eaten per tick, x mass^0.75 x (teethBase + weapon)
   teethBase: 1,         // meat eating rate x (teethBase + weapon) when < 1; 1 = weapon-independent.
                         // 0.25 was tried: it cut early scavenging and kills fell to zero in 3 of 4 worlds.
-  upFixed: 0.010,       // per animal per tick, whatever its size: why there are no
-                        // mammals smaller than a shrew. Reproductive rate peaks at
-                        // mass ~ (4 upFixed / net intake per mass^0.75)^(4/3); at
-                        // 0.003 that sat below the size floor and size pinned there.
+  upFixed: 0.003,       // per animal per tick, whatever its size. Reproductive rate peaks
+                        // at mass ~ (4 upFixed / net intake per mass^0.75)^(4/3). At 0.010
+                        // size had an interior optimum without predators but worlds stayed
+                        // peaceful: 0 of 20 predator worlds at 600k ticks. At 0.003 small,
+                        // fast-breeding animals evolve predation and carnivore species,
+                        // and predation itself holds size off the floor.
   upBase: 0.008,        // upkeep per tick x mass^0.75
   upSense: 0.004,       // x (sense/10)^2 x mass^0.75
   upWeapon: 0.012,      // x weapon^2 x mass^0.75
@@ -150,8 +152,9 @@ var CFG_DEFAULT = {
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
-  sex: 1,               // 1: a breeder recombines with the nearest acceptable adult it
-                        // can sense (clones if there is none). 0: always clone.
+  sex: 0,               // 1: a breeder recombines with the nearest acceptable adult it
+                        // can sense (clones if there is none). 0: always clone. Off by
+                        // default: every predator world so far evolved without it.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
   mutSd: 0.08,          // body genes: sd as a share of range
