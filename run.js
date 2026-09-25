@@ -43,12 +43,15 @@ for (let t = 1; t <= ticks; t++) {
   Sim.step();
   const S = Sim.S;
   if (S.tick % every === 0) {
-    last = S.log[S.log.length - 1];
+    last = S.log[S.log.length - 1]; if (!last) continue;
     console.log(fmt(last) + `  (${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+    // a partial log survives a killed job
+    if (args.out && S.tick % (every*5) === 0) save();
   }
   if (S.n === 0 && S.tick > Sim.CFG.reseedUntil) { console.log(`extinct at t=${S.tick}`); break; }
 }
-if (args.out) {
+if (args.out) save();
+function save() {
   fs.writeFileSync(args.out, JSON.stringify({ kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG,
     ticks: Sim.S.tick, wallSec: (Date.now() - t0) / 1000, log: Sim.S.log }));
 }
