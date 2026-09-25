@@ -178,17 +178,22 @@ var OUTPUT_NAMES = ['turn','throttle','graze','eatMeat','attack'];
 
 var CFG, S;   // config and state
 
-function mulberry(seed){
-  var a = seed >>> 0;
-  return function(){
-    a = (a + 0x6D2B79F5) >>> 0;
-    var t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+// xorshift128, state in plain closure variables: the hottest function in the engine
+var rs0 = 1, rs1 = 2, rs2 = 3, rs3 = 4;
+function seedRng(seed){
+  var a = (seed >>> 0) || 1;
+  function sm(){ a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), a | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return (t ^ (t >>> 14)) | 0; }
+  rs0 = sm(); rs1 = sm(); rs2 = sm(); rs3 = sm();
+  if (!(rs0 | rs1 | rs2 | rs3)) rs0 = 1;
 }
-var rng = Math.random, gCache = null;
+function rng(){
+  var t = rs0 ^ (rs0 << 11);
+  rs0 = rs1; rs1 = rs2; rs2 = rs3;
+  rs3 = (rs3 ^ (rs3 >>> 19)) ^ (t ^ (t >>> 8));
+  return (rs3 >>> 0)*2.3283064365386963e-10;
+}
+var gCache = null;
 function gauss(){
   if (gCache !== null){ var g = gCache; gCache = null; return g; }
   var u = 0, v = 0;
@@ -224,13 +229,15 @@ function init(patch){
   CFG = {};
   for (var k in CFG_DEFAULT) CFG[k] = CFG_DEFAULT[k];
   if (patch) for (var k2 in patch) CFG[k2] = patch[k2];
-  rng = mulberry(CFG.seed*2654435761 + 12345); gCache = null;
+  seedRng(CFG.seed*2654435761 + 12345); gCache = null;
   var n = CFG.gridN, nc = n*n, M = CFG.maxA;
   S = {
     tick: 0, world: n*CFG.cellSize,
     // plants
     pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
+    pK: new Float32Array(nc), pRate: new Float32Array(nc),   // cached from the genome
+    pSeed: new Float32Array(nc),   // accumulated seed pressure; a seed flies at 1
     // animals, structure of arrays
     n: 0, alive: new Uint8Array(M), free: new Int32Array(M), nFree: 0, hi: 0,
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
@@ -242,7 +249,7 @@ function init(patch){
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
     // spatial hashes
-    bSize: 16, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
+    bSize: 8, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
     // counters since last sample
     c: newCounters(), log: [], hist: []
   };
@@ -261,6 +268,7 @@ function init(patch){
       S.pStat[p] = rng(); S.pDef[p] = rng()*0.5; S.pDisp[p] = rng();
       S.pB[p] = CFG.pKmin*rng();
     }
+    cachePlant(p);
   }
   for (var a = 0; a < CFG.founders; a++) spawnRandom();
   return S;
@@ -277,6 +285,7 @@ function plantR(c){
   return CFG.pR*S.fert[c]*(1 - CFG.pStatCost*S.pStat[c])*(1 - CFG.pDefCost*S.pDef[c])
          *(1 - CFG.pDispCost*S.pDisp[c]*S.pDisp[c]);
 }
+function cachePlant(c){ S.pK[c] = plantK(c); S.pRate[c] = plantR(c); }
 function updatePlants(){
   var n = CFG.gridN, nc = n*n, dt = CFG.plantEvery;
   var season = CFG.seasonAmp > 0 ? 1 + CFG.seasonAmp*Math.sin(2*Math.PI*S.tick/CFG.yearTicks) : 1;
@@ -284,12 +293,16 @@ function updatePlants(){
   for (var c = 0; c < nc; c++){
     var B = S.pB[c];
     if (B <= 0) continue;
-    var K = plantK(c);
-    B += plantR(c)*season*B*(1 - B/K)*dt;
+    var K = S.pK[c];
+    B += S.pRate[c]*season*B*(1 - B/K)*dt;
     if (B < 0.01){ S.pB[c] = 0; continue; }
     // seeding: a full cell throws seed; it lands only where there is room
     var full = B/K;
-    if (full > 0.5 && rng() < CFG.pSeedP*full*dt){
+    if (full <= 0.5){ S.pB[c] = B; continue; }
+    var acc = S.pSeed[c] + CFG.pSeedP*full*dt;
+    if (acc < 1){ S.pSeed[c] = acc; S.pB[c] = B; continue; }
+    S.pSeed[c] = acc - 0.5 - rng();   // mean 1; jitter so neighbours do not seed in lockstep
+    {
       var dist = 1 + S.pDisp[c]*CFG.pDispMax*rng();
       var th = rng()*2*Math.PI;
       var cx = c % n, cy = (c/n)|0;
@@ -302,6 +315,7 @@ function updatePlants(){
         S.pStat[t] = mutP(S.pStat[c], sd);
         S.pDef[t]  = mutP(S.pDef[c], sd);
         S.pDisp[t] = mutP(S.pDisp[c], sd);
+        cachePlant(t);
       }
     }
     S.pB[c] = B;
