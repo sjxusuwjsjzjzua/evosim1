@@ -1,0 +1,6 @@
+label=v1-V-f003-asex
+seeds=401,402,403,404,405,406,407,408,409,410
+ticks=400000
+set=upFixed=0.003,sex=0
+cfg=
+sha=f70b6be51774009b65c19ad0df166724561dd1e9
