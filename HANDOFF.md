@@ -144,6 +144,24 @@ small fixed cost is necessary; clonal reproduction multiplies it. A likely reaso
 sex hurts: recombination with the herbivore majority breaks up carnivore gene
 combinations unless mating is already assortative.
 
+## Levers on the predator rate (10 seeds each, 400k ticks, 2026-09-25)
+
+| batch | world | worlds with steady killing | predator-dominated (regime > ~30%) | with meat guts |
+|---|---|---|---|---|
+| defaults (`v1-W-medium`) | medium | 7 | 3 | 1 |
+| defaults (`v1-W-small`) | small | 8 | 6 | 2 |
+| defaults + new senses (`v1-X-small-senses`) | small | 7 | 5 | 1 |
+| `sex=1, mateDist=0.1` (`v1-W-sex-md10`) | medium | 7 | 4 | **3** |
+| `dietCurve=2` (`v1-X-small-curve2`) | small | **10** | **10** | **4** |
+
+- Genetic incompatibility rescues sex: without it sexual worlds had 1 predator
+  world and no meat guts; with it they match or beat clonal ones.
+- The concave diet trade-off (`dietCurve` 2: a first step toward either gut is
+  cheap) is the strongest lever found. Every world became predator-dominated,
+  meat typically 16–29% of intake, mean diet 0.04–0.22, and 4 of 10 grew
+  specialists. Replication on fresh seeds and the sex x curve combination are
+  running (`v1-Y-*`).
+
 ## Herding does not pay in this physics (tested 2026-09-25)
 
 Hand-built test in worlds founded from the evolved predator population: after
