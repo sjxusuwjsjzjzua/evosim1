@@ -115,6 +115,10 @@ var CFG_DEFAULT = {
                         // kill is worth nothing until the first is digested.
   gutDig: 0.15,         // digestion per tick x mass^0.75 (grazing brings in at most ~0.12)
   cBuild: 10,           // energy to build one unit of body mass
+  growAbove: 0.5,       // a juvenile grows only with reserves above this share of capacity
+  breedMargin: 0.05,    // a parent keeps at least this share of capacity after giving birth
+  eatMoveSlow: 0.7,     // eating at top speed goes at (1 - this) of the standing rate
+  accel: 0.1,           // speed change per tick, as a share of top speed
   ePlant: 1.0,          // energy per unit plant mass at a perfect plant gut
   eMeat: 8.0,           // energy in one unit of lean flesh: 80% of what it cost
                         // to build (cBuild), the rest lost as overhead. A corpse also carries
@@ -764,7 +768,7 @@ function updateAnimal(i){
   var hd = S.hd[i] + turn;
   if (hd > Math.PI) hd -= 2*Math.PI; else if (hd < -Math.PI) hd += 2*Math.PI;
   S.hd[i] = hd;
-  S.sp[i] += clamp(want - S.sp[i], -0.1*vmax, 0.1*vmax);
+  S.sp[i] += clamp(want - S.sp[i], -CFG.accel*vmax, CFG.accel*vmax);
   var sp = S.sp[i];
   var W = S.world, nx = S.x[i] + Math.cos(hd)*sp, ny = S.y[i] + Math.sin(hd)*sp;
   if (nx < 0) nx += W; else if (nx >= W) nx -= W;
@@ -778,7 +782,7 @@ function updateAnimal(i){
   // tick, not all of it.
   var want = S.want[i], act = 0, tj = -1;
   if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
-  var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
+  var slow = 1 - CFG.eatMoveSlow*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 0 && (want & 1)){
     // food goes into the stomach if there is one, else straight into reserves
     var stomach = CFG.gutCap > 0;
@@ -833,8 +837,8 @@ function updateAnimal(i){
 
   // ---- grow, then breed
   if (mass < size*0.98){
-    if (S.E[i] > 0.5*Emax){
-      var dM = Math.min(CFG.growRate*mass, (S.E[i] - 0.5*Emax)/CFG.cBuild, size - mass);
+    if (S.E[i] > CFG.growAbove*Emax){
+      var dM = Math.min(CFG.growRate*mass, (S.E[i] - CFG.growAbove*Emax)/CFG.cBuild, size - mass);
       S.mass[i] = mass + dM; bodyCache(i); S.E[i] -= dM*CFG.cBuild;
       S.hp[i] += CFG.hpPerMass*dM;
     }
@@ -842,7 +846,7 @@ function updateAnimal(i){
     var m0 = size*G[g+G_BIRTH];
     var give = Math.min(G[g+G_CHILDE]*S.E[i], CFG.eCap*m0);
     var cost = m0*CFG.cBuild + give;
-    if (S.E[i] - cost > 0.05*Emax){
+    if (S.E[i] - cost > CFG.breedMargin*Emax){
       var k = alloc();
       if (k >= 0){
         var mate = CFG.sex ? findMate(i) : -1;
