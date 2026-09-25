@@ -137,6 +137,7 @@ var CFG_DEFAULT = {
   upDetox: 0.006,       // x detox^2 x mass^0.75
   upSpeed: 0.010,       // x (top speed)^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
+  kConfusion: 0,        // predator confusion: strike damage / (1 + k x others within 3 of the target). 0 = off
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
   atkCost: 0.004,       // energy per attack tick x mass^0.75
   hpPerMass: 2,
@@ -697,6 +698,7 @@ function updateAnimal(i){
     {
       S.c.attacks++;
       var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng());
+      if (CFG.kConfusion > 0) dmg /= 1 + CFG.kConfusion*neighboursOf(tj, 3, i);
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
@@ -761,6 +763,19 @@ function nearCorpse(i){
   }
   lastC = best;
   return best;
+}
+// other animals within r of animal j, not counting `skip`
+function neighboursOf(j, r, skip){
+  var x = S.x[j], y = S.y[j], r2 = r*r, inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, n = 0;
+  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+    var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
+    for (var k = S.aHead[b]; k >= 0; k = S.aNext[k]){
+      if (k === j || k === skip || !S.alive[k]) continue;
+      var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
+      if (ex*ex + ey*ey < r2) n++;
+    }
+  }
+  return n;
 }
 // the animal this one is attending to, if it is still alive and within reach
 function attendedInReach(i){

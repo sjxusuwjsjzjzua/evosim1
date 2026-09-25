@@ -159,9 +159,13 @@ the animals they can see (the `crowdDir` sense).
 Grouping costs more in shared, depleted plant cells than it returns in early
 warning, and a cruising predator that strikes whatever it touches finds a
 cluster of easy contacts. The senses stay (they are information, and a lone
-animal can use them too); no benefit to grouping has been written in. If herding
-is wanted, the physics to try next is predator confusion or satiation (a
-predator can only use one kill at a time), not a rule.
+animal can use them too); no benefit to grouping has been written in.
+
+Predator confusion (`kConfusion`: strike damage / (1 + k x others within 3 of the
+target), off by default) was tested too: at k 0.5 and 1.5 herders still fell to
+0–51 of ~550 in 20k ticks. Sharing depleted plant cells costs more than any of
+these benefits return. Herding would likely need a different plant ecology
+(abundant forage in patches, so groups do not starve each other), not a rule.
 
 ## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
 
