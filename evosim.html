@@ -1113,13 +1113,19 @@ function buildDrawer(){
     h += '<div class="row"><label>' + s[1] + '</label><input type="range" id="s_' + s[0] + '" min="' + s[2] + '" max="' + s[3] +
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
   });
+  h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
+  h += '<p class="note">A smaller world runs faster, so evolution gets further per minute; predators usually need a few hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
   SLIDERS.forEach(function(s){
     var el = $('s_' + s[0]);
     el.value = Sim.CFG[s[0]]; $('v_' + s[0]).textContent = (+el.value).toFixed(4).replace(/\.?0+$/, '');
     el.oninput = function(){ Sim.CFG[s[0]] = +this.value; patch[s[0]] = +this.value; $('v_' + s[0]).textContent = (+this.value).toFixed(4).replace(/\.?0+$/, ''); };
+  });
+  [64, 96, 128].forEach(function(z){
+    var el = $('z' + z); el.classList.toggle('on', (patch.gridN || Sim.CFG.gridN) === z);
+    el.onclick = function(){ patch.gridN = z; newWorld(); buildDrawer(); };
   });
   $('bNew').onclick = function(){ newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ newWorld(Sim.CFG.seed); buildDrawer(); };
