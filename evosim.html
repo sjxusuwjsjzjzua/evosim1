@@ -113,8 +113,15 @@ var CFG_DEFAULT = {
                         // straight into reserves). With one, food fills the stomach and is
                         // digested into reserves at gutDig x mass^0.75 a tick, so a second
                         // kill is worth nothing until the first is digested.
+  headDown: 0.7,        // an animal that ate last tick senses animals over (1 - headDown) of its
+                        // range: eyes on the food are not on the horizon. Over 12 worlds a side
+                        // it made prey group where predators were (prey clump 1.17 against 0.90)
   gutDig: 0.15,         // digestion per tick x mass^0.75 (grazing brings in at most ~0.12)
   cBuild: 10,           // energy to build one unit of body mass
+  growAbove: 0.5,       // a juvenile grows only with reserves above this share of capacity
+  breedMargin: 0.05,    // a parent keeps at least this share of capacity after giving birth
+  eatMoveSlow: 0.7,     // eating at top speed goes at (1 - this) of the standing rate
+  accel: 0.1,           // speed change per tick, as a share of top speed
   ePlant: 1.0,          // energy per unit plant mass at a perfect plant gut
   eMeat: 8.0,           // energy in one unit of lean flesh: 80% of what it cost
                         // to build (cBuild), the rest lost as overhead. A corpse also carries
@@ -167,6 +174,8 @@ var CFG_DEFAULT = {
                         // default: every predator world so far evolved without it.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
+  mutReflect: 0,        // 1: a mutation past a gene's bound reflects back inside instead of sticking
+                        // to the bound (with clamping, half the mutations of a gene at 0 stay at 0)
   mutSd: 0.08,          // body genes: sd as a share of range (x3, multiplicative, for log-scaled genes)
   wSd: 0.35,            // brain weights: sd
   wMax: 4,
@@ -202,11 +211,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 26, NH = 8, NO = 5;
+var NI = 27, NH = 8, NO = 5;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
 
 var CFG, S;   // config and state
@@ -358,7 +367,7 @@ function updatePlants(){
     S.pB[c] = B;
   }
 }
-function mutP(v, sd){ return rng() < 0.3 ? clamp(v + gauss()*sd, 0, 1) : v; }
+function mutP(v, sd){ return rng() < 0.3 ? bound(v + gauss()*sd, 0, 1) : v; }
 
 // ---------------------------------------------------------------- animals
 function alloc(){
@@ -475,17 +484,25 @@ function findMate(i){
   }
   return best;
 }
+function bound(v, lo, hi){
+  if (CFG.mutReflect){ if (v < lo) v = 2*lo - v; else if (v > hi) v = 2*hi - v; }
+  return clamp(v, lo, hi);
+}
 function mutate(dst){
   var G = S.genome, d = dst*NG, pm = CFG.mutP;
   for (var b = 0; b < NB; b++){
     if (rng() >= pm) continue;
     var B = BODY[b];
-    if (B[3]) G[d+b] = clamp(G[d+b]*Math.exp(gauss()*CFG.mutSd*3), B[1], B[2]);
-    else G[d+b] = clamp(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
+    if (B[3]){   // log-scaled: reflect in log space
+      var v = G[d+b]*Math.exp(gauss()*CFG.mutSd*3);
+      if (CFG.mutReflect){ if (v < B[1]) v = B[1]*B[1]/v; else if (v > B[2]) v = B[2]*B[2]/v; }
+      G[d+b] = clamp(v, B[1], B[2]);
+    }
+    else G[d+b] = bound(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
   }
   for (var w = NB; w < NG; w++){
     if (rng() >= CFG.mutPW) continue;
-    G[d+w] = clamp(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
+    G[d+w] = bound(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
   }
 }
 function die(i, cause){
@@ -551,7 +568,8 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
-  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0;
+  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp;
+  var ate = S.act[i] === 1 || S.act[i] === 2, RA2 = ate && CFG.headDown > 0 ? R2*(1 - CFG.headDown)*(1 - CFG.headDown) : R2;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -567,8 +585,8 @@ function sense(i){
         var ex = AX[j]-x, ey = AY[j]-y;
         ex = ex > Wh ? ex - W : ex < -Wh ? ex + W : ex; ey = ey > Wh ? ey - W : ey < -Wh ? ey + W : ey;
         var d2 = ex*ex + ey*ey;
-        if (d2 >= R2) continue;
-        crowd++; cxs += ex; cys += ey;
+        if (d2 >= RA2) continue;
+        crowd++; cxs += ex; cys += ey; spd += SPD[j];
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(MA[j]/mi), -3, 3)/3
@@ -624,6 +642,7 @@ function sense(i){
   IN[23] = Math.min(1, alarm);
   IN[24] = alarm > 0 && (alx || aly) ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
   IN[25] = CFG.gutCap > 0 ? S.gut[i]/(CFG.gutCap*S.mass[i]) : 0;   // how full the stomach is
+  IN[26] = crowd > 0 ? spd/crowd/1.6 : 0;   // how fast the animals in view are moving
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -764,7 +783,7 @@ function updateAnimal(i){
   var hd = S.hd[i] + turn;
   if (hd > Math.PI) hd -= 2*Math.PI; else if (hd < -Math.PI) hd += 2*Math.PI;
   S.hd[i] = hd;
-  S.sp[i] += clamp(want - S.sp[i], -0.1*vmax, 0.1*vmax);
+  S.sp[i] += clamp(want - S.sp[i], -CFG.accel*vmax, CFG.accel*vmax);
   var sp = S.sp[i];
   var W = S.world, nx = S.x[i] + Math.cos(hd)*sp, ny = S.y[i] + Math.sin(hd)*sp;
   if (nx < 0) nx += W; else if (nx >= W) nx -= W;
@@ -778,7 +797,7 @@ function updateAnimal(i){
   // tick, not all of it.
   var want = S.want[i], act = 0, tj = -1;
   if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
-  var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
+  var slow = 1 - CFG.eatMoveSlow*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 0 && (want & 1)){
     // food goes into the stomach if there is one, else straight into reserves
     var stomach = CFG.gutCap > 0;
@@ -833,8 +852,8 @@ function updateAnimal(i){
 
   // ---- grow, then breed
   if (mass < size*0.98){
-    if (S.E[i] > 0.5*Emax){
-      var dM = Math.min(CFG.growRate*mass, (S.E[i] - 0.5*Emax)/CFG.cBuild, size - mass);
+    if (S.E[i] > CFG.growAbove*Emax){
+      var dM = Math.min(CFG.growRate*mass, (S.E[i] - CFG.growAbove*Emax)/CFG.cBuild, size - mass);
       S.mass[i] = mass + dM; bodyCache(i); S.E[i] -= dM*CFG.cBuild;
       S.hp[i] += CFG.hpPerMass*dM;
     }
@@ -842,7 +861,7 @@ function updateAnimal(i){
     var m0 = size*G[g+G_BIRTH];
     var give = Math.min(G[g+G_CHILDE]*S.E[i], CFG.eCap*m0);
     var cost = m0*CFG.cBuild + give;
-    if (S.E[i] - cost > 0.05*Emax){
+    if (S.E[i] - cost > CFG.breedMargin*Emax){
       var k = alloc();
       if (k >= 0){
         var mate = CFG.sex ? findMate(i) : -1;
