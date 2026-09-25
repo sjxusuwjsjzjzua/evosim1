@@ -65,7 +65,7 @@
 </div>
 
 <script id="engine">
-var Sim = (function(){
+var Sim = (function(Math){
 'use strict';
 // =========================================================================
 // ENGINE. Pure simulation, no DOM. Everything in CFG is physics or scale;
@@ -211,20 +211,22 @@ var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
 
 var CFG, S;   // config and state
 
-// xorshift128, state in plain closure variables: the hottest function in the engine
-var rs0 = 1, rs1 = 2, rs2 = 3, rs3 = 4;
+// xorshift128, state in an Int32Array: in closure variables V8 with pointer compression
+// (Chrome, Android) boxes an int32 beyond +-2^30 on every write
+var RS = new Int32Array([1, 2, 3, 4]);
 function seedRng(seed){
   var a = (seed >>> 0) || 1;
   function sm(){ a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), a | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return (t ^ (t >>> 14)) | 0; }
-  rs0 = sm(); rs1 = sm(); rs2 = sm(); rs3 = sm();
-  if (!(rs0 | rs1 | rs2 | rs3)) rs0 = 1;
+  RS[0] = sm(); RS[1] = sm(); RS[2] = sm(); RS[3] = sm();
+  if (!(RS[0] | RS[1] | RS[2] | RS[3])) RS[0] = 1;
 }
 function rng(){
-  var t = rs0 ^ (rs0 << 11);
-  rs0 = rs1; rs1 = rs2; rs2 = rs3;
-  rs3 = (rs3 ^ (rs3 >>> 19)) ^ (t ^ (t >>> 8));
-  return (rs3 >>> 0)*2.3283064365386963e-10;
+  var s0 = RS[0], s3 = RS[3], t = s0 ^ (s0 << 11);
+  RS[0] = RS[1]; RS[1] = RS[2]; RS[2] = s3;
+  s3 = (s3 ^ (s3 >>> 19)) ^ (t ^ (t >>> 8));
+  RS[3] = s3;
+  return (s3 >>> 0)*2.3283064365386963e-10;
 }
 var gCache = null;
 function gauss(){
@@ -542,36 +544,42 @@ function bodyCache(i){
 }
 
 var IN = new Float32Array(NI), HID = new Float32Array(NH);
-// results of the last sense() call: attended animal (highest salience), nearest corpse
-var nearA = -1, nearAd = 0, nearC = -1, nearCd = 0, crowd = 0;
 
 function sense(i){
   var G = S.genome, g = i*NG;
   var R = G[g+G_SENSE], R2 = R*R, x = S.x[i], y = S.y[i];
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
-  nearA = -1; nearAd = R2; nearC = -1; nearCd = R2; crowd = 0;
+  var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
   var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
+  var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
+  var W = S.world, Wh = W*0.5;
   for (var dy = -span; dy <= span; dy++){
-    var by = ((by0+dy) % bN + bN) % bN;
+    var by = by0+dy; while (by < 0) by += bN; while (by >= bN) by -= bN;
+    by *= bN;
     for (var dx = -span; dx <= span; dx++){
-      var b = by*bN + ((bx0+dx) % bN + bN) % bN;
-      for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
-        if (j === i || !S.alive[j]) continue;
-        var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d2 = ex*ex + ey*ey;
+      var bx = bx0+dx; while (bx < 0) bx += bN; while (bx >= bN) bx -= bN;
+      var b = by + bx;
+      for (var j = AH[b]; j >= 0; j = AN[j]){
+        if (j === i || !AL[j]) continue;
+        var ex = AX[j]-x, ey = AY[j]-y;
+        ex = ex > Wh ? ex - W : ex < -Wh ? ex + W : ex; ey = ey > Wh ? ey - W : ey < -Wh ? ey + W : ey;
+        var d2 = ex*ex + ey*ey;
         if (d2 >= R2) continue;
         crowd++; cxs += ex; cys += ey;
-        if (S.hurt[j] > alarm){ alarm = S.hurt[j]; alx = ex; aly = ey; }   // a neighbour under attack
+        if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
-        var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(S.mass[j]/mi), -3, 3)/3
+        var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(MA[j]/mi), -3, 3)/3
                 + aK*(1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)) + aW*G[og2+G_WEAPON]/1.5;
         if (sal > bestSal){ bestSal = sal; nearAd = d2; nearA = j; }
       }
-      for (var c = S.cHead[b]; c >= 0; c = S.cNext[c]){
-        if (S.cm[c] <= 0) continue;
-        var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), e2 = fx*fx + fy*fy;
+      for (var c = CH[b]; c >= 0; c = CN[c]){
+        if (CM[c] <= 0) continue;
+        var fx = CX[c]-x, fy = CY[c]-y;
+        fx = fx > Wh ? fx - W : fx < -Wh ? fx + W : fx; fy = fy > Wh ? fy - W : fy < -Wh ? fy + W : fy;
+        var e2 = fx*fx + fy*fy;
         if (e2 < nearCd){ nearCd = e2; nearC = c; }
       }
     }
@@ -619,26 +627,84 @@ function sense(i){
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
+// Fast brain nonlinearities, identical in effect to Math.tanh and sig. Each finds
+// a value with relative error below 1e-14 (a table of the exact function at steps
+// of 1/8, then a short Taylor series), and uses the exact function whenever that
+// error could change what is stored or decided: a float32 rounding, or a
+// comparison with a random number. That happens for about 1 call in 5,000.
+var TANH_T = new Float64Array(321), EXP_T = new Float64Array(481), fround = Math.fround;
+for (var k_ = 0; k_ < 321; k_++) TANH_T[k_] = Math.tanh((k_ - 160)/8);
+for (var k_ = 0; k_ < 481; k_++) EXP_T[k_] = Math.exp((k_ - 240)/8);
+// a value that rounds to float32 exactly as Math.tanh(x)*m does
+function tanh32(x, m){
+  if (!(x > -20 && x < 20)) return x >= 20 ? m : x <= -20 ? -m : Math.tanh(x)*m;   // Math.tanh is exactly +-1 there
+  var k = (x*8 + 160.5)|0, u = x - (k - 160)*0.125, u2 = u*u;
+  var tu = u*(1 + u2*(-0.3333333333333333 + u2*(0.13333333333333333 + u2*(-0.05396825396825397 + u2*0.021869488536155203))));
+  var T = TANH_T[k], y = (T + tu)/(1 + T*tu)*m, d = y*1e-11;
+  return fround(y - d) === fround(y + d) ? y : Math.tanh(x)*m;
+}
+// sig(x) to a relative error below 1e-14
+function sigA(x){
+  var z = x < -30 ? 30 : x > 30 ? -30 : -x;
+  var k = (z*8 + 240.5)|0, u = z - (k - 240)*0.125;
+  var e = EXP_T[k]*(1 + u*(1 + u*(0.5 + u*(0.16666666666666666 + u*(0.041666666666666664 + u*(0.008333333333333333
+          + u*(0.001388888888888889 + u*(0.0001984126984126984 + u*2.48015873015873e-05))))))));
+  return 1/(1 + e);
+}
+// a value that rounds to float32 exactly as sig(x) does
+function sig32(x){ var p = sigA(x), d = p*1e-11; return fround(p - d) === fround(p + d) ? p : sig(x); }
+// rng() < sig(x), drawing exactly one random number
+function chance(x){
+  var r = rng(), p = sigA(x), d = p*1e-11;
+  return r < p - d ? true : r >= p + d ? false : r < sig(x);
+}
 function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if (d < -Math.PI) d += 2*Math.PI; return d; }
 
+// The brain for NH 8, NO 5: the same sums in the same order as the generic loops
+// in think(), computed side by side so the adds do not wait on each other.
+function brain85(G, g, OUT, o){
+  var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, k, v, w = g + W1;
+  for (k = 0; k < NI; k++, w++){
+    v = IN[k];
+    s0 += G[w]*v; s1 += G[w+NI]*v; s2 += G[w+2*NI]*v; s3 += G[w+3*NI]*v;
+    s4 += G[w+4*NI]*v; s5 += G[w+5*NI]*v; s6 += G[w+6*NI]*v; s7 += G[w+7*NI]*v;
+  }
+  HID[0] = tanh32(s0, 1); HID[1] = tanh32(s1, 1); HID[2] = tanh32(s2, 1); HID[3] = tanh32(s3, 1);
+  HID[4] = tanh32(s4, 1); HID[5] = tanh32(s5, 1); HID[6] = tanh32(s6, 1); HID[7] = tanh32(s7, 1);
+  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, h;
+  w = g + W2;
+  for (h = 0; h < 8; h++, w++){
+    v = HID[h];
+    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v;
+  }
+  w = g + WD;
+  for (k = 0; k < NI; k++, w++){
+    v = IN[k];
+    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v;
+  }
+  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4;
+}
 function think(i){
   sense(i);
   var G = S.genome, g = i*NG, o = i*NO;
-  for (var h = 0; h < NH; h++){
-    var s = 0, w = g + W1 + h*NI;
-    for (var k = 0; k < NI; k++) s += G[w+k]*IN[k];
-    HID[h] = Math.tanh(s);
-  }
-  for (var q = 0; q < NO; q++){
-    var t = 0, w2 = g + W2 + q*NH, wd = g + WD + q*NI;
-    for (var h2 = 0; h2 < NH; h2++) t += G[w2+h2]*HID[h2];
-    for (var k2 = 0; k2 < NI; k2++) t += G[wd+k2]*IN[k2];
-    S.out[o+q] = t;
+  if (NH === 8 && NO === 5) brain85(G, g, S.out, o);
+  else {
+    for (var h = 0; h < NH; h++){
+      var s = 0, w = g + W1 + h*NI;
+      for (var k = 0; k < NI; k++) s += G[w+k]*IN[k];
+      HID[h] = tanh32(s, 1);
+    }
+    for (var q = 0; q < NO; q++){
+      var t = 0, w2 = g + W2 + q*NH, wd = g + WD + q*NI;
+      for (var h2 = 0; h2 < NH; h2++) t += G[w2+h2]*HID[h2];
+      for (var k2 = 0; k2 < NI; k2++) t += G[wd+k2]*IN[k2];
+      S.out[o+q] = t;
+    }
   }
   S.hurt[i] *= 0.5;
   // motor commands, held until the next think
-  S.turn[i] = Math.tanh(S.out[o])*CFG.turnMax;
-  S.thr[i] = sig(S.out[o+1]);
+  S.turn[i] = tanh32(S.out[o], CFG.turnMax);
+  S.thr[i] = sig32(S.out[o+1]);
   // MOUTH. Three independent urges, each a probability: eat, prefer meat,
   // strike. Eating takes whatever food is in reach, and the preference only
   // matters when there is a choice; a strike only happens when there is an
@@ -646,41 +712,41 @@ function think(i){
   // a fitness gradient from the first mutation. Two earlier arbiters (a hard
   // argmax, then a softmax over exclusive acts) both let selection bury the
   // meat-eating output because firing it with no corpse in reach cost a meal.
-  S.want[i] = (rng() < sig(S.out[o+2]) ? 1 : 0) | (rng() < sig(S.out[o+3]) ? 2 : 0)
-            | (rng() < sig(S.out[o+4]) ? 4 : 0);
+  S.want[i] = (chance(S.out[o+2]) ? 1 : 0) | (chance(S.out[o+3]) ? 2 : 0)
+            | (chance(S.out[o+4]) ? 4 : 0);
 }
 
 // Eating, for a share t of one tick. Each returns the share of the tick it used
-// and leaves the energy gained in mouthGain; mouthRoom is what the stomach (or
+// and leaves the energy gained in MOUTH[0]; MOUTH[1] is what the stomach (or
 // the reserves) can still take.
-var mouthGain = 0, mouthRoom = 0;
+var MOUTH = new Float64Array(2);   // [0] gain, [1] room. In an array: a closure variable holding a double is boxed on every write
 function eatPlant(i, c, t, slow, m75, diet){
-  mouthGain = 0;
+  MOUTH[0] = 0;
   var B = S.pB[c], G = S.genome, g = i*NG;
   if (t <= 0 || B <= CFG.pRoot) return 0;
   var val = CFG.ePlant*(1 - Math.pow(diet, CFG.dietCurve));
   var rate = CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX]));
   if (rate <= 0) return 0;
   var bite = Math.min(B - CFG.pRoot, rate*t);
-  if (val > 1e-6) bite = Math.min(bite, mouthRoom/val);
+  if (val > 1e-6) bite = Math.min(bite, MOUTH[1]/val);
   S.pB[c] = B - bite;
-  mouthGain = bite*val; mouthRoom -= mouthGain;
-  S.lP[i] += mouthGain; S.c.eP += mouthGain; S.c.plantEaten += bite;
+  MOUTH[0] = bite*val; MOUTH[1] -= MOUTH[0];
+  S.lP[i] += MOUTH[0]; S.c.eP += MOUTH[0]; S.c.plantEaten += bite;
   return bite/rate;
 }
 function eatMeat(i, cc, t, slow, m75, diet){
-  mouthGain = 0;
+  MOUTH[0] = 0;
   if (t <= 0 || S.cm[cc] <= 0) return 0;
   var dens = S.cE[cc]/S.cm[cc];
   var mv = dens*(CFG.meatFloor + (1 - CFG.meatFloor)*(1 - Math.pow(1 - diet, CFG.dietCurve)));
   var rate = CFG.chew*m75*slow*(CFG.teethBase >= 1 ? 1 : CFG.teethBase + S.genome[i*NG+G_WEAPON]);
   if (rate <= 0) return 0;
   var chew = Math.min(S.cm[cc], rate*t);
-  if (mv > 1e-6) chew = Math.min(chew, mouthRoom/mv);
+  if (mv > 1e-6) chew = Math.min(chew, MOUTH[1]/mv);
   S.cm[cc] -= chew; S.cE[cc] -= chew*dens;
-  mouthGain = chew*mv; mouthRoom -= mouthGain;
-  S.lM[i] += mouthGain; S.c.meatEaten += chew;
-  if (S.cKiller[cc] === S.id[i]) S.c.eK += mouthGain; else S.c.eC += mouthGain;
+  MOUTH[0] = chew*mv; MOUTH[1] -= MOUTH[0];
+  S.lM[i] += MOUTH[0]; S.c.meatEaten += chew;
+  if (S.cKiller[cc] === S.id[i]) S.c.eK += MOUTH[0]; else S.c.eC += MOUTH[0];
   return chew/rate;
 }
 
@@ -716,14 +782,14 @@ function updateAnimal(i){
   if (act === 0 && (want & 1)){
     // food goes into the stomach if there is one, else straight into reserves
     var stomach = CFG.gutCap > 0;
-    mouthRoom = Math.max(0, stomach ? CFG.gutCap*mass - S.gut[i] : Emax - S.E[i]);
+    MOUTH[1] = Math.max(0, stomach ? CFG.gutCap*mass - S.gut[i] : Emax - S.E[i]);
     var cc = nearCorpse(i), hc = cellAt(S.x[i], S.y[i]), eP = 0, eM = 0, t = 1;
     if (cc >= 0 && (want & 2)){
-      t -= eatMeat(i, cc, 1, slow, m75, diet); eM = mouthGain;
-      t -= eatPlant(i, hc, t, slow, m75, diet); eP = mouthGain;
+      t -= eatMeat(i, cc, 1, slow, m75, diet); eM = MOUTH[0];
+      t -= eatPlant(i, hc, t, slow, m75, diet); eP = MOUTH[0];
     } else {
-      t -= eatPlant(i, hc, 1, slow, m75, diet); eP = mouthGain;
-      if (cc >= 0){ eatMeat(i, cc, t, slow, m75, diet); eM = mouthGain; }
+      t -= eatPlant(i, hc, 1, slow, m75, diet); eP = MOUTH[0];
+      if (cc >= 0){ eatMeat(i, cc, t, slow, m75, diet); eM = MOUTH[0]; }
     }
     var e = eP + eM;
     if (stomach) S.gut[i] += e; else S.E[i] += e;
@@ -794,14 +860,18 @@ function nearCorpse(i){
   // nearest corpse within reach, from the 3x3 buckets around the animal
   var x = S.x[i], y = S.y[i], r = S.rad[i] + CFG.reach;
   var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
-  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
-    var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
+  for (var dy = -1; dy <= 1; dy++){
+    var by = by0+dy; while (by < 0) by += bN; while (by >= bN) by -= bN;
+    by *= bN;
+    for (var dx = -1; dx <= 1; dx++){
+    var bx = bx0+dx; while (bx < 0) bx += bN; while (bx >= bN) bx -= bN;
+    var b = by + bx;
     for (var c = S.cHead[b]; c >= 0; c = S.cNext[c]){
       if (S.cm[c] <= 0) continue;
       var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), d = Math.sqrt(fx*fx + fy*fy) - S.crad[c];
       if (d < r && d < bd){ bd = d; best = c; }
     }
-  }
+  }}
   return best;
 }
 // other animals within r of animal j, not counting `skip`
@@ -1014,7 +1084,7 @@ function snapshot(){
   return {
     kind: 'evosim1-world', version: VERSION, gq: 'log', NG: NG, NI: NI, cfg: cfg, tick: S.tick, gCache: gCache,
     established: S.established, establishedAt: S.establishedAt || 0, nextId: S.nextId,
-    rng: [rs0, rs1, rs2, rs3], n: n, animals: A, genomes: b64enc(gb),
+    rng: [RS[0], RS[1], RS[2], RS[3]], n: n, animals: A, genomes: b64enc(gb),
     ints: b64enc(new Uint8Array(ints.buffer)),
     size: f32(Float32Array.from(idx, function(i3){ return S.genome[i3*NG+G_SIZE]; })),   // exact: adulthood is 0.98 x size
     plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed)},
@@ -1055,7 +1125,7 @@ function restore(w){
   for (var j = 0; j < C.n; j++){ S.cx[j] = cx[j]; S.cy[j] = cy[j]; S.cm[j] = cm[j]; S.cE[j] = cE[j]; S.crad[j] = cr[j]; S.cKiller[j] = ck[j]; }
   S.cN = C.n;
   S.tick = w.tick; S.established = w.established; S.establishedAt = w.establishedAt; S.nextId = w.nextId;
-  rs0 = w.rng[0]; rs1 = w.rng[1]; rs2 = w.rng[2]; rs3 = w.rng[3]; gCache = w.gCache != null ? w.gCache : null;
+  RS[0] = w.rng[0]; RS[1] = w.rng[1]; RS[2] = w.rng[2]; RS[3] = w.rng[3]; gCache = w.gCache != null ? w.gCache : null;
   S.log = w.log || []; S.c = newCounters();
   return true;
 }
@@ -1064,7 +1134,7 @@ return { init: init, step: step, sample: sample, snapshot: snapshot, restore: re
             CFG_DEFAULT: CFG_DEFAULT, BODY: BODY, NB: NB, NG: NG, NI: NI, NH: NH, NO: NO,
             W1: W1, W2: W2, WD: WD, INPUT_NAMES: INPUT_NAMES, OUTPUT_NAMES: OUTPUT_NAMES,
             VERSION: VERSION, radius: radius, cellAt: cellAt };
-})();
+})(Math);
 if (typeof module !== 'undefined') module.exports = Sim;
 </script>
 

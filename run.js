@@ -18,7 +18,7 @@ const build = args.build || path.join(__dirname, 'evosim.html');
 const html = fs.readFileSync(build, 'utf8');
 const m = html.match(/<script id="engine">([\s\S]*?)<\/script>/);
 if (!m) { console.error('no engine block in ' + build); process.exit(1); }
-const ctx = { module: { exports: {} }, console, Math };
+const ctx = { module: { exports: {} }, console };   // the context's own Math: a host Math is neither fast to look up nor inlined
 vm.createContext(ctx);
 vm.runInContext(m[1], ctx, { filename: 'engine' });
 const Sim = ctx.module.exports;

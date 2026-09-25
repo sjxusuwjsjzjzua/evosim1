@@ -23,8 +23,8 @@ On Actions: dispatch `sim.yml` (ref = the working branch) with seeds, ticks,
 optional `set` or `cfg`, and a label; each job also saves `sN-genomes.json`
 (`--dump`) and `sN.txt`. All land on branch `results/<label>`;
 `bash tools/fetch-results.sh <prefix>` copies them to `runs/`.
-Roughly 10 ms per tick at 3,000 animals on one core, so 500,000 ticks is about
-1.5 hours.
+About 1 ms per tick at 1,000 animals on one core headless (run.js),
+so 400,000 ticks is 10–20 minutes.
 
 Browser check (Chromium and Playwright are preinstalled):
 `require(execSync('npm root -g') + '/playwright').chromium`, load
@@ -184,8 +184,13 @@ Meat share of intake per 100k ticks (small world, defaults at commit 3ecd997):
   across 4,096 cells, and the body shrinks to the size gene's floor (0.30).
   The plants answer by dropping stature to ~0.01: short, fast grass. A lawn of
   dwarves, which predators did not re-invade in 600k ticks in seed 708.
-- It is all emergent. Whether a dwarf world should be re-invadable is open;
-  the size floor (0.30) is a bound selection presses against there.
+- It is all emergent, and the physics does not forbid a return: 40 seed-42
+  predators injected into a dwarf world (founded from seed 708's 1M-tick
+  population, 40k ticks to crop the lawn) took it over in 3 of 3 seeds, meat
+  5% → 33–36% and plants ~900 → 9–10k within 40k ticks (`reinvade.js` in the
+  session scratchpad; a diagnostic, rule 5). What is missing is a path: a
+  predator must evolve out of dwarves, and a big body, a weapon and a striking
+  brain have to arrive together.
 
 ## The defaults, tested: fixed cost x sex, 10 seeds a cell, 400k ticks (`results/v1-V-*`, `results/v1-U-base`)
 
