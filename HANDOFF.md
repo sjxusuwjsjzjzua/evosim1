@@ -159,6 +159,34 @@ and speed up to 0.50 when a big armed animal is in view.
 Found a world from a dump headless with `node run.js --cfg seed.json`, where
 seed.json is `{"seedGenomes": <dump>.genomes, "seedNI": <dump>.NI, "founders": 600}`.
 
+## Predator worlds are transient over 1M ticks (`results/v1-Z-small-1M`, 10 seeds)
+
+Meat share of intake per 100k ticks (small world, defaults at commit 3ecd997):
+
+| seed | 100k … 1M |
+|---|---|
+| 701 | 9 4 4 5 5 5 5 5 4 4 |
+| 702 | 38 40 32 27 29 29 28 22 19 5 |
+| 703 | 24 34 30 28 27 26 21 20 4 5 |
+| 704 | 41 34 24 33 31 26 6 4 4 4 |
+| 705 | 19 13 5 4 7 18 32 28 27 20 |
+| 706 | 32 29 33 27 27 26 27 25 23 18 |
+| 707 | 12 18 5 4 13 9 4 5 21 25 |
+| 708 | 39 32 16 5 4 4 4 5 5 5 |
+| 709 | 19 16 25 20 20 21 21 17 15 19 |
+| 710 | 20 19 18 17 19 20 18 20 15 20 |
+
+- Predation holds for 1M ticks in 3 worlds, ends in 4 (at 300k–1M), and
+  returns after a peaceful spell in 2 (705, 707).
+- The collapse follows one path. While predators hold grazers down, plants
+  stand at 8–23k. Where predation fails (in 704 right after an arms-race peak:
+  weapon 0.61, armour 0.47, speed 1.27), grazers crop plants to about 900
+  across 4,096 cells, and the body shrinks to the size gene's floor (0.30).
+  The plants answer by dropping stature to ~0.01: short, fast grass. A lawn of
+  dwarves, which predators did not re-invade in 600k ticks in seed 708.
+- It is all emergent. Whether a dwarf world should be re-invadable is open;
+  the size floor (0.30) is a bound selection presses against there.
+
 ## The defaults, tested: fixed cost x sex, 10 seeds a cell, 400k ticks (`results/v1-V-*`, `results/v1-U-base`)
 
 | | asexual | sexual |
