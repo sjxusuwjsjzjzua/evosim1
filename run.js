@@ -52,6 +52,15 @@ for (let t = 1; t <= ticks; t++) {
   if (S.n === 0 && (S.established || S.tick > Sim.CFG.reseedUntil)) { console.log(`extinct at t=${S.tick}`); break; }
 }
 if (args.out) save();
+if (args.dump) dump(args.dump);
+// --dump <path>: the living population's genomes (body + brain), for seeding
+function dump(p) {
+  const S = Sim.S, NG = Sim.NG, out = [];
+  const step = Math.max(1, Math.floor(S.n / 300));   // at most ~300, evenly through the slots
+  for (let i = 0, k = 0; i < S.hi; i++) if (S.alive[i] && (k++ % step) === 0)
+    out.push(Array.from(S.genome.subarray(i*NG, (i+1)*NG)).map(v => +v.toFixed(3)));
+  fs.writeFileSync(p, JSON.stringify({ kind: 'evosim1-genomes', version: Sim.VERSION, tick: S.tick, NG, genomes: out }));
+}
 function save() {
   fs.writeFileSync(args.out, JSON.stringify({ kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG,
     ticks: Sim.S.tick, wallSec: (Date.now() - t0) / 1000, log: Sim.S.log }));
