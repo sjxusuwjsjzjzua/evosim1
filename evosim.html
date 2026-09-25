@@ -121,7 +121,9 @@ var CFG_DEFAULT = {
                         // trade is asymmetric: plant yield x (1 - diet),
                         // meat yield x (meatFloor + (1 - meatFloor) x diet).
   graze: 0.12,          // plant mass bitten per tick, x mass^0.75
-  chew: 0.20,           // flesh eaten per tick, x mass^0.75
+  chew: 0.20,           // flesh eaten per tick, x mass^0.75 x (teethBase + weapon)
+  teethBase: 1,         // meat eating rate x (teethBase + weapon) when < 1; 1 = weapon-independent.
+                        // 0.25 was tried: it cut early scavenging and kills fell to zero in 3 of 4 worlds.
   upFixed: 0.010,       // per animal per tick, whatever its size: why there are no
                         // mammals smaller than a shrew. Reproductive rate peaks at
                         // mass ~ (4 upFixed / net intake per mass^0.75)^(4/3); at
@@ -626,7 +628,7 @@ function updateAnimal(i){
   } else if (act === 2){
     var dens = S.cE[cc]/S.cm[cc];
     var mv = dens*(CFG.meatFloor + (1 - CFG.meatFloor)*(1 - Math.pow(1 - diet, CFG.dietCurve)));
-    var chew = Math.min(S.cm[cc], CFG.chew*m75*slow);
+    var chew = Math.min(S.cm[cc], CFG.chew*m75*slow*(CFG.teethBase >= 1 ? 1 : CFG.teethBase + G[g+G_WEAPON]));
     if (mv > 1e-6) chew = Math.min(chew, Math.max(0, Emax - S.E[i])/mv);
     S.cm[cc] -= chew; S.cE[cc] -= chew*dens;
     var em = chew*mv;
