@@ -909,7 +909,96 @@ function sample(){
   return row;
 }
 
-return { init: init, step: step, sample: sample, get S(){ return S; }, get CFG(){ return CFG; },
+
+// ---------------------------------------------------------------- save / restore
+// A world as a plain object of strings and numbers, small enough for
+// localStorage: per-animal state as float32, genomes at one byte per gene
+// (mutation noise swamps the rounding), plants and corpses as float32.
+var B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function b64enc(u8){
+  var out = '', i, n = u8.length;
+  for (i = 0; i + 2 < n; i += 3){
+    var v = (u8[i] << 16) | (u8[i+1] << 8) | u8[i+2];
+    out += B64[v >> 18] + B64[(v >> 12) & 63] + B64[(v >> 6) & 63] + B64[v & 63];
+  }
+  if (i < n){
+    var w = u8[i] << 16 | (i + 1 < n ? u8[i+1] << 8 : 0);
+    out += B64[w >> 18] + B64[(w >> 12) & 63] + (i + 1 < n ? B64[(w >> 6) & 63] : '=') + '=';
+  }
+  return out;
+}
+function b64dec(str){
+  var L = str.length, pad = str[L-1] === '=' ? (str[L-2] === '=' ? 2 : 1) : 0;
+  var out = new Uint8Array(L/4*3 - pad), o = 0, look = {};
+  for (var k = 0; k < 64; k++) look[B64[k]] = k;
+  for (var i = 0; i < L; i += 4){
+    var v = (look[str[i]] << 18) | (look[str[i+1]] << 12) | ((look[str[i+2]] || 0) << 6) | (look[str[i+3]] || 0);
+    if (o < out.length) out[o++] = v >> 16;
+    if (o < out.length) out[o++] = (v >> 8) & 255;
+    if (o < out.length) out[o++] = v & 255;
+  }
+  return out;
+}
+function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
+function unf32(str){ return new Float32Array(b64dec(str).buffer); }
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr'];
+function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
+function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
+function snapshot(){
+  var idx = [];
+  for (var i = 0; i < S.hi; i++) if (S.alive[i]) idx.push(i);
+  var n = idx.length, A = {}, gb = new Uint8Array(n*NG), ints = new Int32Array(n*4);
+  AFIELDS.forEach(function(f){ var a = new Float32Array(n); for (var k = 0; k < n; k++) a[k] = S[f][idx[k]]; A[f] = f32(a); });
+  for (var k = 0; k < n; k++){
+    var i2 = idx[k], g = i2*NG;
+    for (var q = 0; q < NG; q++){
+      var lo = geneLo(q), hi = geneHi(q);
+      gb[k*NG+q] = Math.round(255*clamp((S.genome[g+q] - lo)/(hi - lo), 0, 1));
+    }
+    ints[k*4] = S.id[i2]; ints[k*4+1] = S.gen[i2]; ints[k*4+2] = S.kills[i2]; ints[k*4+3] = S.act[i2];
+  }
+  var cfg = {};
+  for (var key in CFG) if (key !== 'seedGenomes') cfg[key] = CFG[key];
+  var c = S.cN, sl = function(a){ return f32(Array.prototype.slice.call(a, 0, c)); };
+  return {
+    kind: 'evosim1-world', version: VERSION, NG: NG, NI: NI, cfg: cfg, tick: S.tick,
+    established: S.established, establishedAt: S.establishedAt || 0, nextId: S.nextId,
+    rng: [rs0, rs1, rs2, rs3], n: n, animals: A, genomes: b64enc(gb), ints: b64enc(new Uint8Array(ints.buffer)),
+    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed)},
+    corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad),
+              k: b64enc(new Uint8Array(new Int32Array(Array.prototype.slice.call(S.cKiller, 0, c)).buffer))},
+    log: S.log.slice(-200)
+  };
+}
+function restore(w){
+  if (!w || w.kind !== 'evosim1-world' || w.NG !== NG) return false;
+  init(w.cfg);
+  // init drew founders; clear them and put the saved world in their place
+  S.alive.fill(0); S.n = 0; S.nFree = 0; S.hi = 0; S.cN = 0;
+  var P = w.plants;
+  S.pB.set(unf32(P.B)); S.pStat.set(unf32(P.stat)); S.pDef.set(unf32(P.def)); S.pDisp.set(unf32(P.disp));
+  S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed));
+  for (var c = 0; c < S.pB.length; c++) cachePlant(c);
+  var n = w.n, F = {}, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
+  AFIELDS.forEach(function(f){ F[f] = unf32(w.animals[f]); });
+  for (var k = 0; k < n; k++){
+    var i = alloc(), g = i*NG;
+    for (var q = 0; q < NG; q++){ var lo = geneLo(q), hi = geneHi(q); S.genome[g+q] = lo + (hi - lo)*gb[k*NG+q]/255; }
+    AFIELDS.forEach(function(f){ S[f][i] = F[f][k]; });
+    S.id[i] = ints[k*4]; S.gen[i] = ints[k*4+1]; S.kills[i] = ints[k*4+2]; S.act[i] = ints[k*4+3];
+    S.tgt[i] = -1; bodyCache(i);
+  }
+  var C = w.corpses, cx = unf32(C.x), cy = unf32(C.y), cm = unf32(C.m), cE = unf32(C.E), cr = unf32(C.r),
+      ck = new Int32Array(b64dec(C.k).buffer);
+  for (var j = 0; j < C.n; j++){ S.cx[j] = cx[j]; S.cy[j] = cy[j]; S.cm[j] = cm[j]; S.cE[j] = cE[j]; S.crad[j] = cr[j]; S.cKiller[j] = ck[j]; }
+  S.cN = C.n;
+  S.tick = w.tick; S.established = w.established; S.establishedAt = w.establishedAt; S.nextId = w.nextId;
+  rs0 = w.rng[0]; rs1 = w.rng[1]; rs2 = w.rng[2]; rs3 = w.rng[3]; gCache = null;
+  S.log = w.log || []; S.c = newCounters();
+  return true;
+}
+
+return { init: init, step: step, sample: sample, snapshot: snapshot, restore: restore, get S(){ return S; }, get CFG(){ return CFG; },
             CFG_DEFAULT: CFG_DEFAULT, BODY: BODY, NB: NB, NG: NG, NI: NI, NH: NH, NO: NO,
             W1: W1, W2: W2, WD: WD, INPUT_NAMES: INPUT_NAMES, OUTPUT_NAMES: OUTPUT_NAMES,
             VERSION: VERSION, radius: radius, cellAt: cellAt };
@@ -951,6 +1040,9 @@ var plantImg = null, plantCv = document.createElement('canvas'), pctx = plantCv.
 function newWorld(seed){
   patch.seed = seed != null ? seed : (Math.random()*1e9)|0;
   Sim.init(patch);
+  afterLoad();
+}
+function afterLoad(){
   var n = Sim.CFG.gridN;
   plantCv.width = n; plantCv.height = n;
   plantImg = pctx.createImageData(n, n);
@@ -1094,6 +1186,7 @@ function hud(){
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
+    (resumedFrom && S.tick - resumedFrom < 3000 ? '<span class="k" style="color:#6fa3c4">resumed your saved world</span>' : '') +
     (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving' +
       (EVOLVED && !patch.seedGenomes ? ' · world → evolved start skips ahead to predators and prey' : '') + '</span>');
   var tb = $('top').getBoundingClientRect().bottom;
@@ -1229,7 +1322,27 @@ function frame(ts){
   requestAnimationFrame(frame);
 }
 addEventListener('resize', resize);
-newWorld(1); buildDrawer(); resize();
+// ---- keep the world across visits: autosave to localStorage, resume on load
+var SAVE_KEY = 'evosim-world', resumedFrom = 0;
+function saveWorld(){
+  if (!Sim.S || !Sim.S.established) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(Sim.snapshot())); } catch (e) { /* full or blocked: carry on */ }
+}
+function resumeWorld(){
+  try {
+    var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if (w && Sim.restore(w)){
+      ['gridN', 'seed'].forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      resumedFrom = Sim.S.tick; afterLoad(); return true;
+    }
+  } catch (e) {}
+  return false;
+}
+setInterval(saveWorld, 60000);
+window.evosim = { save: saveWorld, get resumedFrom(){ return resumedFrom; } };   // for tests and the console
+document.addEventListener('visibilitychange', function(){ if (document.hidden) saveWorld(); });
+if (!resumeWorld()) newWorld((Math.random()*1e9)|0);
+buildDrawer(); resize();
 requestAnimationFrame(frame);
 })();
 </script>
