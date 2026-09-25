@@ -1,0 +1,6 @@
+label=v1-AA-patchy
+seeds=101,102,103,104,105,106,107,108,109,110
+ticks=400000
+set=gridN=64,fertNoise=1
+cfg=
+sha=3ecd997c1a14404d7352c1bbac24cfe548f9b3d0
