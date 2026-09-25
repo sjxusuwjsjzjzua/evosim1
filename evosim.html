@@ -889,6 +889,21 @@ var cv = $('cv'), ctx = cv.getContext('2d'), gcv = $('graph'), gctx = gcv.getCon
 var DPR = Math.min(2, window.devicePixelRatio || 1);
 var running = true, speedIdx = 3, colourMode = 0, selId = -1, follow = false;
 var SPEEDS = [1, 2, 5, 10, 25, 60, 150, 1e9];
+/*EVOLVED-START*/var EVOLVED = null;/*EVOLVED-END*/
+// decode the embedded population: one byte per gene over the gene's range
+function evolvedGenomes(){
+  if (!EVOLVED) return null;
+  var raw = atob(EVOLVED.data), NG = EVOLVED.NG, NB = Sim.NB, B = Sim.BODY, W = Sim.CFG_DEFAULT.wMax, out = [];
+  for (var i = 0; i < EVOLVED.n; i++){
+    var g = new Array(NG);
+    for (var k = 0; k < NG; k++){
+      var lo = k < NB ? B[k][1] : -W, hi = k < NB ? B[k][2] : W;
+      g[k] = lo + (hi - lo)*raw.charCodeAt(i*NG + k)/255;
+    }
+    out.push(g);
+  }
+  return out;
+}
 var COLOUR_NAMES = ['diet', 'kin', 'action'];
 var cam = {x: 0, y: 0, z: 1}, view = {x: 0, y: 0, w: 0, h: 0};
 var patch = {};
@@ -1134,6 +1149,8 @@ function buildDrawer(){
   });
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
+  if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
+    ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
   h += '<p class="note">A smaller world runs faster, so evolution gets further per minute; predators usually need a few hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
@@ -1146,7 +1163,8 @@ function buildDrawer(){
     var el = $('z' + z); el.classList.toggle('on', (patch.gridN || Sim.CFG.gridN) === z);
     el.onclick = function(){ patch.gridN = z; newWorld(); buildDrawer(); };
   });
-  $('bNew').onclick = function(){ newWorld(); buildDrawer(); };
+  $('bNew').onclick = function(){ delete patch.seedGenomes; newWorld(); buildDrawer(); };
+  if (EVOLVED) $('bEvo').onclick = function(){ patch.seedGenomes = evolvedGenomes(); newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ newWorld(Sim.CFG.seed); buildDrawer(); };
   $('bLog').onclick = function(){
     var blob = new Blob([JSON.stringify({kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG, log: Sim.S.log})], {type: 'application/json'});
