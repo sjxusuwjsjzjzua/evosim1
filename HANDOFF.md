@@ -88,8 +88,8 @@ Browser check (Chromium and Playwright are preinstalled):
 
 ## A carnivore species evolved (2026-09-25, seed 21, `upFixed` 0.003, `sex` 0)
 
-Reproducible: `node run.js --seed 21 --ticks 240000 --set upFixed=0.003,sex=0`
-(these are now the defaults, so `--seed 21` alone does it at commit eafc1c4).
+Reproducible at commit eafc1c4: `node run.js --seed 21 --ticks 240000 --set upFixed=0.003,sex=0`
+(later speed changes alter rounding, so the exact trajectory differs at HEAD; the population itself is embedded in the page).
 
 | tick | carnivore cluster | diet gene | lifetime meat | world |
 |---|---|---|---|---|
