@@ -27,6 +27,9 @@ Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved
 predator-and-prey population so you can watch one straight away.
 
+Your world is saved in the browser every minute and when you leave the page, and
+picks up where it was next time you open it. **world → new world** starts over.
+
 ## Controls
 
 - **pause / speed slider**: the slider's right end runs as fast as the device

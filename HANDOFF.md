@@ -45,6 +45,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | diet | one axis: plant yield x (1 − diet), meat yield x (0.4 + 0.6 diet) | flesh is easy to digest, cellulose needs a specialised gut |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
 | combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
+| persistence | `Sim.snapshot()` / `Sim.restore()`; the page autosaves to localStorage every minute and when hidden, and resumes on load | reaching predators takes hours on a phone; genomes are stored at one byte per gene |
 | bootstrap | founders get a cheap ancestral body with spread, a random diet and a completely random brain; they keep arriving while the population is under 200 until one has once reached 400 | fully random bodies rarely survived and bootstrap took 40–65k ticks; now 12–33k |
 
 ## What is known (2026-09-25)
