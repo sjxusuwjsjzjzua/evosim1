@@ -53,7 +53,7 @@ jobs:
           [ -n "${{ inputs.set }}" ] && ARGS="$ARGS --set ${{ inputs.set }}"
           [ -n "${{ inputs.cfg }}" ] && ARGS="$ARGS --cfg ${{ inputs.cfg }}"
           timeout 330m node run.js --seed ${{ matrix.seed }} --ticks ${{ inputs.ticks }} --every 20000 \
-            --out out/s${{ matrix.seed }}.json $ARGS | tee out/s${{ matrix.seed }}.txt
+            --out out/s${{ matrix.seed }}.json --dump out/s${{ matrix.seed }}-genomes.json $ARGS | tee out/s${{ matrix.seed }}.txt
       - uses: actions/upload-artifact@v4
         with:
           name: s${{ matrix.seed }}

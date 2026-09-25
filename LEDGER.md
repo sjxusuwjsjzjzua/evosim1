@@ -9051,3 +9051,131 @@ below sit at least 7 SE clear.
 A 420-day single-seed shakedown ran first against `h22-control` and `h22-carn85`
 to check the extreme cell founds a living population at all. It is a smoke test,
 not evidence, and is not scored.
+
+---
+
+# H22 scored, 2026-09-25 — the gene holds, the behaviour doesn't follow
+
+48 of 48 seeds landed (12 per cell, seeds 94001-94012, v0.58, 800 days) and sat
+unscored for three days. Scored on `tools/score.py`, window days 400-800,
+survival at day 800, runs ending before 800 with animals alive censored.
+
+| cell | surv | carnivory @800 | herbivory @800 | mean N | GRAZE % | ATTACK % | SCAV % | meat share (all) | consumed |
+|---|---|---|---|---|---|---|---|---|---|
+| `h22-control` | 8/10 | 0.12 | 0.74 | 163 | 93.5 | 1.29 | 0.62 | 0.86% | 0.29 |
+| `h22-carn40` | 10/12 | 0.49 | 0.67 | 242 | 95.2 | 0.66 | 0.54 | 1.20% | 0.24 |
+| `h22-carn70` | 9/12 | 0.70 | 0.51 | 224 | 97.9 | 0.48 | 0.19 | 0.90% | 0.13 |
+| `h22-carn85` | 3/12 | 0.84 | 0.35 | 83 | 99.5 | 0.08 | 0.11 | 0.63% | 0.17 |
+
+**Against the frozen criterion: UNREACHABLE PEAK.** carn70 holds median
+carnivory 0.70 (> 0.30) with survival 75% against control 80% (within 20
+points). carn85 holds 0.84 but survives 3/12, the "exists but cannot be
+occupied from a standing start" outcome. carn40 rises, 0.40 to 0.49.
+
+**The criterion measured the wrong thing, and the reading it gives is false.**
+The carnivore cells keep the gene and do not eat meat. ATTACK falls as founder
+carnivory rises (1.29% to 0.08% of acts), GRAZE rises to 99.5%, and the meat
+share of intake stays at 0.6-1.2% in every cell. `carnivory` only enters the
+model as a digestion coefficient on meat an animal happens to eat and as a gut
+upkeep cost. With meat under 1.2% of intake its benefit is negligible, its cost
+is small, and the gene drifts from wherever the founders put it. That is why the
+corpus never saw it leave 0.05 and why H22 never saw it leave 0.85. There is no
+peak here to reach or miss.
+
+The arbiter probe was stopped unfinished when the project moved to the 1.x engine; H23 below answers the same question.
+
+**What this retires.** The reachability framing (H8, H22, the founder-pool
+chaining build) and the premise that the herbivore corner is a trap. The next
+question is why an animal with a good meat gut chooses plants; see `HANDOFF.md`.
+
+**Process note.** The pre-registration named the gene as the endpoint and did not
+name behaviour or intake. Rule 3 of the rewritten `CLAUDE.md` exists because of
+this row.
+
+# H23, frozen 2026-09-25 before any seed runs — is it the two-gene trap?
+
+H22 moved the gut and left the behaviour genes at herbivore values
+(`meatAttraction` 0.10-0.13, `preySizeRatio` 0.5). ATTACK's score carries
+`sizeMatch` (0.5 for a same-sized target at founder `preySizeRatio` 0.5,
+tolerance 0.6) times `k_meatAttrFloor + meatAttraction` (0.6 against GRAZE's
+`plantAttraction` 0.8), and the Luce arbiter raises every score to the power 4.
+A gut with no appetite is neutral; an appetite with no gut is a loss. Each gene
+is worthless without the other, so neither can climb first. H23 founds both.
+
+Two new cells on seeds 94001-94012, v0.58, 800 days, paired against the H22
+cells already run on those seeds:
+
+| | herbivore gut | carnivore gut (carn 0.70, herb 0.25) |
+|---|---|---|
+| herbivore behaviour | `h22-control` (done) | `h22-carn70` (done) |
+| hunting behaviour (`meatAttraction` 0.80, `preySizeRatio` 1.00) | `h23-hunt` | `h23-predator` |
+
+Endpoints, window days 400-800, all behavioural: ATTACK % of acts, meat share of
+intake (`eCarrion` + `eFlesh`), and whether evolved `meatAttraction` is held.
+
+- **TRAP CONFIRMED** if `h23-predator` has median ATTACK >= 3% of acts and meat
+  share >= 5%, and median evolved `meatAttraction` at day 800 >= 0.5. The
+  predator is then a real strategy whose only obstacle was that both genes had
+  to arrive at once, and the work turns to how a lineage could get there.
+- **NOT THE GENOME** if `h23-predator` has median ATTACK < 2% and meat share < 2%.
+  Then even a founded predator won't hunt; the obstacle is the arbiter or the
+  energetics, whatever the genome, and the next change is physics.
+- Anything between locates the boundary. `h23-hunt` separates behaviour from
+  gut: if it hunts as much as `h23-predator`, the gut barely matters.
+
+Thresholds: the highest meat share in any H22 cell is 1.20% and the highest
+ATTACK is 1.29%, so 5% and 3% sit far outside what the current genome produces.
+At n=12 the per-run spread in meat share is roughly 0.5-2%, so a median of 5% is
+not reachable by noise.
+
+# H23 scored, 2026-09-25 — NOT THE GENOME
+
+Partial: the v0.58 line was retired mid-batch and the remaining jobs were
+cancelled to free runners, so the cells have 6-7 seeds, 4-5 alive at day 800.
+Seeds 94001-94012, window days 400-800, paired against the H22 cells.
+
+| cell | alive | ATTACK % | GRAZE % | meat share | meatAttraction @800 | carnivory @800 |
+|---|---|---|---|---|---|---|
+| `h22-control` | 8/12 | 1.29 | 93.5 | 0.86% | 0.05 | 0.12 |
+| `h22-carn70` | 9/12 | 0.48 | 97.9 | 0.90% | 0.10 | 0.67 |
+| `h23-hunt` | 5/6 | 1.55 | 93.0 | 0.97% | 0.72 | 0.16 |
+| `h23-predator` | 4/7 | 0.33 | 99.0 | 0.70% | 0.85 | 0.74 |
+
+`h23-predator` is below 2% on both endpoints: **NOT THE GENOME**. Founded with
+the whole predator package, animals keep the genes (meatAttraction 0.85,
+carnivory 0.74) and still do not hunt. The n is short of the planned 12, but the
+distance from the 3% / 5% hit lines is large enough that more seeds would not
+change the call. In v0.58 the obstacle is the arbiter and the energetics, not
+anything the genome can reach.
+
+---
+
+# 2026-09-25 — the v0.58 line is retired; evosim 1.x replaces it
+
+`evosim.html` is a new engine, written from scratch, and the shipped build from
+now on. Current state and design are in `HANDOFF.md`; this entry records why.
+
+Why not keep patching v0.58: ~200 animals among ~30,000 plant agents (too few
+animals for a trophic level, with plants taking nearly all the CPU at ~30
+minutes per run); behaviour was a hand-derived foraging calculator the genes
+could only weight; digestion and appetite were separate genes each worthless
+without the other (H22, H23).
+
+What the 1.x engine found in its first day, each by a diagnostic run rather than
+by assumption. Hand-built brains competing in the real physics were the main
+tool; none of them ships.
+
+1. Grazing evolves from random brains in every seed.
+2. Efficient grazers could eat a plant cell to zero and wipe out the flora.
+   Plants now keep an ungrazeable root reserve.
+3. A corpse carried 5 energy per unit mass while the animal died holding up to
+   40 in reserves, so a healthy kill paid less than 100 ticks of upkeep. Corpses
+   now carry the reserves.
+4. A hard argmax over mouth acts, and then a softmax over exclusive acts, both let
+   selection bury the meat and attack outputs, because firing them with nothing
+   in reach cost a meal. Independent urges with no wasted ticks fixed it:
+   predation then evolved in every seed, as opportunistic killing by plant-gutted
+   animals (kills became the main cause of death in two of four worlds).
+5. Hand-built specialist hunters injected into a mature world died out at eMeat
+   5 and grew 54 to 127 at eMeat 10; big fast hunters cycled with their prey.
+   eMeat is now 8 (80% of the build cost), and birth size is a gene.
