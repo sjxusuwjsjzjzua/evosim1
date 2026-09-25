@@ -214,6 +214,7 @@ combinations unless mating is already assortative.
 | `sex=1, mateDist=0.1` (`v1-W-sex-md10`) | medium | 7 | 4 | **3** |
 | `dietCurve=2` (`v1-X-small-curve2`) | small | **10** | **10** | **4** |
 | `dietCurve=2` (`v1-Y-medium-curve2`) | medium | **10** | **10** | **4** |
+| current engine (audit fixes, shared mouth time), local seeds 301–308 | small | **8 of 8** | **8 of 8** | **3 of 8** |
 
 - Genetic incompatibility rescues sex: without it sexual worlds had 1 predator
   world and no meat guts; with it they match or beat clonal ones.
