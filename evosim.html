@@ -118,8 +118,10 @@ var CFG_DEFAULT = {
                         // meat yield x (meatFloor + (1 - meatFloor) x diet).
   graze: 0.12,          // plant mass bitten per tick, x mass^0.75
   chew: 0.20,           // flesh eaten per tick, x mass^0.75
-  upFixed: 0.003,       // per animal per tick, whatever its size: why there are no
-                        // mammals smaller than a shrew
+  upFixed: 0.010,       // per animal per tick, whatever its size: why there are no
+                        // mammals smaller than a shrew. Reproductive rate peaks at
+                        // mass ~ (4 upFixed / net intake per mass^0.75)^(4/3); at
+                        // 0.003 that sat below the size floor and size pinned there.
   upBase: 0.008,        // upkeep per tick x mass^0.75
   upSense: 0.004,       // x (sense/10)^2 x mass^0.75
   upWeapon: 0.012,      // x weapon^2 x mass^0.75
