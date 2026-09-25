@@ -141,6 +141,8 @@ var CFG_DEFAULT = {
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
+  sex: 1,               // 1: a breeder recombines with the nearest acceptable adult it
+                        // can sense (clones if there is none). 0: always clone.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
   mutSd: 0.08,          // body genes: sd as a share of range
@@ -165,11 +167,12 @@ var BODY = [
   ['tagR',     0,   1,    false],   // heritable colour: visible to others, costs nothing
   ['tagG',     0,   1,    false],
   ['tagB',     0,   1,    false],
-  ['birthSize',0.1, 0.6,  false]    // newborn mass as a share of adult size: few big young or many small
+  ['birthSize',0.1, 0.6,  false],   // newborn mass as a share of adult size: few big young or many small
+  ['choosy',   0,   1,    false]    // mate tolerance: accept a partner whose colour tag is closer than 1 - choosy
 ];
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
-    G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12;
+    G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13;
 var NI = 22, NH = 8, NO = 5;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
@@ -356,9 +359,54 @@ function setupBody(i, x, y, mass, gen){
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
-function mutateInto(dst, src){
-  var G = S.genome, d = dst*NG, s = src*NG, pm = CFG.mutP;
+function copyGenome(dst, src){
+  var G = S.genome, d = dst*NG, s = src*NG;
   for (var k = 0; k < NG; k++) G[d+k] = G[s+k];
+}
+// Crossover that keeps modules whole: body genes one by one, each hidden
+// neuron with all its incoming and outgoing weights, and each output's direct
+// weights, from one parent or the other.
+function recombine(dst, a, b){
+  var G = S.genome, d = dst*NG, A = a*NG, B = b*NG, k, h, q, src;
+  for (k = 0; k < NB; k++) G[d+k] = G[(rng() < 0.5 ? A : B) + k];
+  for (h = 0; h < NH; h++){
+    src = rng() < 0.5 ? A : B;
+    for (k = 0; k < NI; k++) G[d+W1+h*NI+k] = G[src+W1+h*NI+k];
+    for (q = 0; q < NO; q++) G[d+W2+q*NH+h] = G[src+W2+q*NH+h];
+  }
+  for (q = 0; q < NO; q++){
+    src = rng() < 0.5 ? A : B;
+    for (k = 0; k < NI; k++) G[d+WD+q*NI+k] = G[src+WD+q*NI+k];
+  }
+}
+function tagDist(a, b){
+  var G = S.genome, t = 0;
+  for (var q = 0; q < 3; q++){ var dd = G[a*NG+G_TAG+q] - G[b*NG+G_TAG+q]; t += dd*dd; }
+  return Math.sqrt(t/3);
+}
+// nearest adult within sense range that both partners accept
+function findMate(i){
+  var G = S.genome, g = i*NG, R = G[g+G_SENSE], R2 = R*R, x = S.x[i], y = S.y[i];
+  var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv), bx0 = (x*inv)|0, by0 = (y*inv)|0;
+  var best = -1, bd = R2;
+  for (var dy = -span; dy <= span; dy++){
+    var by = ((by0+dy) % bN + bN) % bN;
+    for (var dx = -span; dx <= span; dx++){
+      var b = by*bN + ((bx0+dx) % bN + bN) % bN;
+      for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
+        if (j === i || !S.alive[j] || S.mass[j] < 0.9*G[j*NG+G_SIZE]) continue;
+        var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d2 = ex*ex + ey*ey;
+        if (d2 >= bd) continue;
+        var td = tagDist(i, j);
+        if (td > 1 - G[g+G_CHOOSY] || td > 1 - G[j*NG+G_CHOOSY]) continue;
+        bd = d2; best = j;
+      }
+    }
+  }
+  return best;
+}
+function mutate(dst){
+  var G = S.genome, d = dst*NG, pm = CFG.mutP;
   for (var b = 0; b < NB; b++){
     if (rng() >= pm) continue;
     var B = BODY[b];
@@ -609,7 +657,9 @@ function updateAnimal(i){
     if (S.E[i] - cost > 0.05*Emax){
       var k = alloc();
       if (k >= 0){
-        mutateInto(k, i);
+        var mate = CFG.sex ? findMate(i) : -1;
+        if (mate >= 0) recombine(k, i, mate); else copyGenome(k, i);
+        mutate(k);
         setupBody(k, S.x[i], S.y[i], m0, S.gen[i]+1);
         S.E[k] = give; S.E[i] -= cost;
         S.c.births++;

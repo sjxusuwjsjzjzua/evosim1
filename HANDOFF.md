@@ -1,129 +1,72 @@
 # evosim — handoff
 
-Current state only. History is in `LEDGER.md` and in git.
+Current state only. `LEDGER.md` holds the history of the previous engine
+(v0.44–v0.58) and the reasons it was retired.
 
-## Where the project stands, 2026-09-25
+## What this is
 
-Started 2026-08-08. Seven weeks, builds v0.44 to v0.58, about 3,200 result
-branches on GitHub. The simulator works: deterministic per seed, matter
-conserved, runs on a phone, plants and animals coexist for 800+ days in most
-seeds, animals kill each other often (predation is about half of animal
-deaths), and grazing does limit plants (animals eat 70-100% of plant growth in
-the control).
+`evosim.html` is a single-file evolution simulator (engine 1.x, written
+2026-09-25). Plants are an evolving cellular layer; animals are agents whose
+behaviour is a neural network in their genome. Nothing in the code says what an
+animal eats, whom it attacks or where it goes. Open the file on a phone to
+watch; run `run.js` to measure.
 
-**The mission has not been reached.** No build has produced carnivores on its
-own. Across 1,700 surviving runs, the share of animal energy that comes from
-meat has a median of about 0.3-0.9% depending on build, and GRAZE is 93-99% of
-all actions in every arm ever run.
+## How to run it
 
-Most of the last four weeks went into process rather than the simulator: four
-program audits in two days, a 475 KB ledger, fourteen numbered rules, and
-pre-registered hypotheses whose runs were starved of seeds or never scored. The
-H22 runs below sat finished and unscored for three days. The rules were cut back
-on 2026-09-25 (see `CLAUDE.md`).
+```bash
+node run.js --seed 1 --ticks 300000 --every 10000 --out runs/s1.json   # one world, headless
+node run.js --seed 1 --ticks 300000 --set eMeat=10,seasonAmp=0.3        # with physics overrides
+python3 tools/v1score.py runs/*.json                                    # one row per world
+```
 
-## What H22 showed (scored 2026-09-25, n=12 seeds per cell)
+On Actions: dispatch `sim.yml` (ref = the working branch) with seeds, ticks,
+optional `set`, and a label; all logs land on branch `results/<label>`.
+Roughly 10 ms per tick at 3,000 animals on one core, so 500,000 ticks is about
+1.5 hours.
 
-H22 started populations at the carnivore end of the diet frontier to ask whether
-a carnivore peak exists that the herbivore population can't reach.
+Browser check (Chromium and Playwright are preinstalled):
+`require(execSync('npm root -g') + '/playwright').chromium`, load
+`file:///…/evosim.html`, wait, screenshot, and collect `pageerror` events.
 
-| cell | founder carn / herb | survived to day 800 | carnivory at 800 | GRAZE % | ATTACK % | meat share of intake |
-|---|---|---|---|---|---|---|
-| control | 0.05 / 0.60 | 8/10 | 0.12 | 93.5 | 1.29 | 0.86% |
-| carn40 | 0.40 / 0.45 | 10/12 | 0.49 | 95.2 | 0.66 | 1.20% |
-| carn70 | 0.70 / 0.25 | 9/12 | 0.70 | 97.9 | 0.48 | 0.90% |
-| carn85 | 0.85 / 0.12 | 3/12 | 0.84 | 99.5 | 0.08 | 0.63% |
+## Design, and why each piece is the way it is
 
-By its own pre-registered criterion this is a HIT for "unreachable peak": the
-carnivore cells keep their carnivory. **That reading is wrong.** The animals keep
-the gene and still graze. The carn85 population attacks *less* than the control
-and gets 99.4% of its energy from plants. The `carnivory` gene only sets how well
-an animal digests meat it happens to eat. It does not change what the animal
-chooses to do, and since almost nothing is eaten as meat, the gene is close to
-neutral and drifts wherever the founders put it. That explains why carnivory
-never rises from 0.05 and never falls from 0.85.
+| piece | how | why |
+|---|---|---|
+| plants | 96x96 cells; biomass grows logistically; genes: stature (capacity vs growth), defence (shrinks a grazer's bite, costs growth), dispersal | cheap enough that thousands of animals fit; still evolves |
+| roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
+| animal body | 13 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize | every capability has an upkeep cost that curves up faster than its benefit |
+| brain | 22 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, nearest animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, animal in reach | facts about the world, not advice |
+| mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only with an animal in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
+| diet | one axis: plant yield x (1 − diet), meat yield x (0.4 + 0.6 diet) | flesh is easy to digest, cellulose needs a specialised gut |
+| corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
+| combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
+| bootstrap | random genomes arrive while the population is under 200, until tick 60,000 | nothing else seeds behaviour |
 
-So the question the last six versions were built around ("is the carnivore peak
-absent or unreachable?") was not the right question. There is no peak to find,
-because carnivory as coded barely affects fitness. What needs explaining is why
-an animal with a good meat gut still chooses plants.
+## What is known (2026-09-25)
 
-## Why a carnivore-gutted animal still grazes
+- **Grazing evolves from random brains** in every seed, in about 10–20k ticks.
+- **Plant defence responds to grazing** (drifts from 0.24 to 0.02–0.45 depending on
+  the world).
+- **Scavenging and opportunistic predation evolve** once the mouth has no wasted
+  ticks. In some worlds killing becomes the main cause of death. It is done by
+  plant-gutted animals (diet ~0.01) biting whoever is in reach, and it tends to
+  fade over ~30 generations as weapons are lost.
+- **Armour rises under predation pressure** (to 0.91 in one world): an arms race.
+- **Specialist predators are viable** when flesh is valuable enough: hand-built
+  hunters injected into a mature world grew 54 → 127 at `eMeat` 10, and big fast
+  hunters cycled with their prey (Lotka–Volterra oscillation, not seasonal).
+- **Not yet seen:** a specialist predator lineage evolving on its own.
 
-Instrumented probe running (2026-09-25), results to follow here.
+## Next
 
-## The physics, in numbers
-
-- A plant gives `tissueValue` 25 energy per unit mass, times `herbivory`, and
-  it sits still.
-- Meat gives `meatValue` 24 x `carrionValue` 0.85 x digestion (0.3 + 0.7 x
-  `carnivory`), about 18 per unit mass for a strong carnivore, after the prey has
-  been found, caught, damaged to death (`k_health` x its mass) and fought
-  (retaliation).
-- Building a unit of animal costs `energyPerMassA` 55.
-
-Per unit mass, meat is worth about the same as leaves and costs far more to get.
-In real ecosystems the gap runs the other way: animals digest meat at roughly
-80-90% and plants at roughly 20-60%. `meat-rich` (`meatValue` 40) is the only
-intervention that moved the meat share (0.86-0.99%) and it raised survival from
-67% to 92%, but it was tested on herbivore founders, which never attacked
-enough for it to matter.
-
-## What to do next
-
-1. **Score from behaviour.** Add a per-animal lifetime energy-by-source record
-   (plant / carrion / flesh) to the log, so a predator subpopulation is visible
-   even when the population average is 1%. A population mean of 1% can be 1% of
-   animals eating 100% meat or every animal eating 1%, and those are different
-   worlds.
-2. **Fix the choice, not the gene.** The probe above says where. Whatever
-   decides that an animal looks at prey should be scored in energy per tick
-   against the plant option on the same terms. The attraction floor
-   `k_meatAttrFloor` and the hunger term are the places to look.
-3. **Test the energetics on carnivore founders.** `meatValue` 40 x the carn70
-   founders is the obvious 2x2: if meat is worth more and the animals already have
-   the gut, do they hunt? That separates "meat isn't worth it" from "the arbiter
-   never offers it".
-4. **Decide what success is.** "Heterotrophy fraction of all animal intake" caps
-   out near its supply term (about 4-6%) even if every corpse is eaten. A better
-   target is whether a lineage that gets most of its energy from meat persists
-   for a few hundred days alongside grazers.
-
-## Open housekeeping (needs the owner's go-ahead)
-
-- About 20 stale files in the repo root are candidates for deletion: the
-  `AUDIT-*`, `HOST-*`, `DAILY-AUDIT`, `AUDITOR-BRIEFING`, `PROGRAM-HISTORY`,
-  `START-PROMPT`, `FINDINGS.md` and `INFLIGHT.json` docs, `audit.py`, the
-  v0.49 and v0.57 builds (v0.57 is `k_possession` 0 on v0.58), and the old
-  v0.4x phone logs and digests. Git keeps all of them.
-- About 3,200 `runs/*` branches on GitHub. Pruning everything older than v0.56
-  would make `git fetch` usable again. This deletes data, so it waits for the
-  owner.
-- `experiment.yml` on `main` still fires four seeds an hour through the H16/H17
-  2x2. Keep it running until those cells reach n=40, or retarget it at item 3
-  above.
-
-## Diagnostic tools worth keeping
-
-**Why a gene pins at a bound.** With cost `k*g^2` and benefit `b*g^p`: p<2 gives
-an interior optimum and a pin means the constant is wrong; p=2 has no interior
-optimum at any k, so the cost *shape* has to change; p>2 always rails high.
-Don't widen the bound; the rail just moves.
-
-**Pivot when changing an exponent.** Re-pivot the constant so the value is
-unchanged at the founder value and only the slope moves, or two things changed
-at once.
-
-**Check the gene is connected before tuning it.** Does anything read it? Does
-the score that reads it share a currency with its rivals? Is there an
-`if (gene > x)` gate around it, which makes low values permanent? And, after
-H22: does it change behaviour, or only the payoff of behaviour that never
-happens?
-
-**Inert genes are a drift yardstick.** `mateChoosiness`, `parentalCare`,
-`pathogenResistance` have no readers. Express responses in founding SD before
-comparing; `parentalCare` has a range 20,000 times the others and swamped the
-raw average until 2026-09-22. Grep for readers before each use.
-
-**Starvation or fecundity?** Before blaming food for an extinction, check
-births per lifetime and whether the plants have collapsed into a few tiles.
+1. Find out whether a specialist predator lineage evolves at `eMeat` 8 given
+   enough generations (`results/v1-L8`, 12 seeds x 500k ticks).
+2. If not, test the gradual path: can an omnivore hunter (diet ~0.3) invade? If
+   omnivore hunters fail where specialists succeed, the diet trade-off shape is
+   the barrier.
+3. Measure more of what should emerge: grouping (crowding when predators are
+   present), speciation (clusters in tag and gene space), and a better predator
+   metric (lifetime intake per individual is logged; plot its distribution).
+4. Sexual reproduction with mate choice, so speciation can be real rather than
+   clonal divergence.
