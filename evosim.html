@@ -158,6 +158,7 @@ var CFG_DEFAULT = {
   wSd: 0.35,            // brain weights: sd
   wMax: 4,
 
+  seedGenomes: null,    // optional array of genomes (from run.js --dump) to found the world from
   // ---- logging ----
   sampleEvery: 500
 };
@@ -361,6 +362,17 @@ var ANCESTOR = {size: 1, speed: 0.6, sense: 8, weapon: 0.15, armour: 0.1, detox:
 function spawnRandom(){
   var i = alloc(); if (i < 0) return -1;
   var g = i*NG, G = S.genome;
+  // seedGenomes: founders drawn from an evolved population instead (copied, then mutated once)
+  var SG = CFG.seedGenomes;
+  if (SG && SG.length){
+    var src = SG[(rng()*SG.length)|0];
+    for (var q = 0; q < NG; q++) G[g+q] = q < src.length ? src[q] : 0;
+    mutate(i);
+    var m1 = G[g+G_SIZE]*Math.max(0.3, G[g+G_BIRTH])*2;
+    setupBody(i, rng()*S.world, rng()*S.world, Math.min(m1, G[g+G_SIZE]), 0);
+    S.E[i] = CFG.eCap*S.mass[i]*0.6;
+    return i;
+  }
   for (var k = 0; k < NB; k++){
     var b = BODY[k], a = ANCESTOR[b[0]];
     if (a === undefined) G[g+k] = b[1] + rng()*(b[2]-b[1]);          // diet, tags, attention: uniform
