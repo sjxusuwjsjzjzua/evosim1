@@ -89,6 +89,10 @@ var CFG_DEFAULT = {
   pDefCost: 0.45,       // share of growth rate given up at defence 1
   kDef: 4,              // a tough plant: bite size / (1 + kDef*defence*(1-detox))
   pSeedB: 0.25,         // biomass a seed starts a cell with (paid by the parent)
+  pRoot: 0.12,          // biomass a grazer cannot reach: roots. Grazing alone
+                        // never kills a plant; a seed can take the cell over
+                        // once it is grazed below pTakeover.
+  pTakeover: 0.4,
   pSeedP: 0.03,         // per-tick seeding chance of a cell at full capacity
   pDispMax: 8,          // longest seed throw, in cells, at dispersal 1
   pDispCost: 0.15,      // share of growth rate given up at dispersal 1
@@ -104,7 +108,9 @@ var CFG_DEFAULT = {
   eCap: 40,             // energy an animal can store per unit body mass
   cBuild: 10,           // energy to build one unit of body mass
   ePlant: 1.0,          // energy per unit plant mass at a perfect plant gut
-  eMeat: 5.0,           // energy per unit flesh at a perfect meat gut
+  eMeat: 5.0,           // energy in one unit of lean flesh. A corpse also carries
+                        // whatever reserves the animal died with, so a healthy
+                        // kill is worth far more than a starved carcass.
   meatFloor: 0.4,       // share of that any gut gets. Flesh is easy to digest;
                         // cellulose is what needs a specialised gut. So the
                         // trade is asymmetric: plant yield x (1 - diet),
@@ -120,9 +126,9 @@ var CFG_DEFAULT = {
   upDetox: 0.006,       // x detox^2 x mass^0.75
   upSpeed: 0.010,       // x (top speed)^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
-  dmg: 0.25,            // damage per tick x weapon x mass^0.75
+  dmg: 0.5,            // damage per tick x weapon x mass^0.75
   atkCost: 0.004,       // energy per attack tick x mass^0.75
-  hpPerMass: 4,
+  hpPerMass: 2,
   heal: 0.003,          // fraction of max hp regained per tick
   armourEff: 0.75,      // damage taken x (1 - armourEff*armour)
   armourSlow: 0.35,     // top speed x (1 - armourSlow*armour)
@@ -229,12 +235,12 @@ function init(patch){
     n: 0, alive: new Uint8Array(M), free: new Int32Array(M), nFree: 0, hi: 0,
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
     E: new Float32Array(M), mass: new Float32Array(M), hp: new Float32Array(M), age: new Float32Array(M),
-    hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M),
+    hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
     act: new Uint8Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
-    cKiller: new Int32Array(M),
+    cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
     // spatial hashes
     bSize: 16, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
     // counters since last sample
@@ -290,7 +296,7 @@ function updatePlants(){
       var tx = ((cx + Math.round(Math.cos(th)*dist)) % n + n) % n;
       var ty = ((cy + Math.round(Math.sin(th)*dist)) % n + n) % n;
       var t = ty*n + tx;
-      if (t !== c && S.pB[t] < 0.2*CFG.pSeedB + 0.05*plantK(t)*(S.pB[t] > 0 ? 1 : 0) + 0.05){
+      if (t !== c && S.pB[t] < CFG.pTakeover){
         B -= CFG.pSeedB;
         S.pB[t] = CFG.pSeedB;
         S.pStat[t] = mutP(S.pStat[c], sd);
@@ -328,8 +334,8 @@ function spawnRandom(){
   return i;
 }
 function setupBody(i, x, y, mass, gen){
-  S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI; S.sp[i] = 0;
-  S.mass[i] = mass; S.hp[i] = CFG.hpPerMass*mass; S.age[i] = 0; S.hurt[i] = 0;
+  S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
+  S.mass[i] = mass; S.rad[i] = radius(mass); S.hp[i] = CFG.hpPerMass*mass; S.age[i] = 0; S.hurt[i] = 0;
   S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
@@ -355,14 +361,15 @@ function die(i, cause){
   if (tot > 1) S.hist.push(S.lM[i]/tot);
   if (S.cN < S.cMax && S.mass[i] > 0.02){
     var c = S.cN++;
-    S.cx[c] = S.x[i]; S.cy[c] = S.y[i]; S.cm[c] = S.mass[i];
+    S.cx[c] = S.x[i]; S.cy[c] = S.y[i]; S.cm[c] = S.mass[i]; S.crad[c] = S.rad[i];
+    S.cE[c] = S.mass[i]*CFG.eMeat + Math.max(0, S.E[i]);
     S.cKiller[c] = 0;   // a kill sets this to the killer's id right after
   }
   S.alive[i] = 0; S.n--; S.free[S.nFree++] = i;
 }
 function removeCorpse(c){
   var l = --S.cN;
-  if (c !== l){ S.cx[c] = S.cx[l]; S.cy[c] = S.cy[l]; S.cm[c] = S.cm[l]; S.cKiller[c] = S.cKiller[l]; }
+  if (c !== l){ S.cx[c] = S.cx[l]; S.cy[c] = S.cy[l]; S.cm[c] = S.cm[l]; S.cKiller[c] = S.cKiller[l]; S.crad[c] = S.crad[l]; S.cE[c] = S.cE[l]; }
 }
 
 function buildHashes(){
@@ -450,10 +457,11 @@ function sense(i){
   IN[18] = Math.min(1, crowd/10);
   IN[19] = rng()*2 - 1;
   // touch: what the mouth could act on right now
-  IN[20] = nearCorpse(i) >= 0 ? 1 : 0;
-  IN[21] = nearAnimal(i) >= 0 ? 1 : 0;
+  var reachI = S.rad[i] + CFG.reach;
+  IN[20] = nearC >= 0 && Math.sqrt(nearCd) - S.crad[nearC] < reachI ? 1 : 0;
+  IN[21] = nearA >= 0 && Math.sqrt(nearAd) - S.rad[nearA] < reachI ? 1 : 0;
 }
-function angDiff(a, b){ var d = a - b; while (d > Math.PI) d -= 2*Math.PI; while (d < -Math.PI) d += 2*Math.PI; return d; }
+function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if (d < -Math.PI) d += 2*Math.PI; return d; }
 
 function think(i){
   sense(i);
@@ -483,7 +491,9 @@ function updateAnimal(i){
   // ---- motor
   var turn = Math.tanh(S.out[o])*CFG.turnMax;
   var want = vmax/(1 + Math.exp(-S.out[o+1]));
-  S.hd[i] += turn;
+  var hd = S.hd[i] + turn;
+  if (hd > Math.PI) hd -= 2*Math.PI; else if (hd < -Math.PI) hd += 2*Math.PI;
+  S.hd[i] = hd;
   S.sp[i] += clamp(want - S.sp[i], -0.1*vmax, 0.1*vmax);
   var sp = S.sp[i];
   S.x[i] = (S.x[i] + Math.cos(S.hd[i])*sp + S.world) % S.world;
@@ -499,19 +509,20 @@ function updateAnimal(i){
   var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 1){
     var c = cellAt(S.x[i], S.y[i]), B = S.pB[c];
-    if (B > 0){
+    if (B > CFG.pRoot){
       var val = CFG.ePlant*(1 - diet);
-      var bite = Math.min(B, CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX])));
+      var bite = Math.min(B - CFG.pRoot, CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX])));
       if (val > 1e-6) bite = Math.min(bite, Math.max(0, Emax - S.E[i])/val);
       S.pB[c] = B - bite;
       var e = bite*val;
       S.E[i] += e; S.lP[i] += e; S.c.eP += e; S.c.plantEaten += bite;
     }
   } else if (act === 2 && nearCorpse(i) >= 0){
-    var cc = lastC, mv = CFG.eMeat*(CFG.meatFloor + (1 - CFG.meatFloor)*diet);
+    var cc = lastC, dens = S.cE[cc]/S.cm[cc];
+    var mv = dens*(CFG.meatFloor + (1 - CFG.meatFloor)*diet);
     var chew = Math.min(S.cm[cc], CFG.chew*m75*slow);
     if (mv > 1e-6) chew = Math.min(chew, Math.max(0, Emax - S.E[i])/mv);
-    S.cm[cc] -= chew;
+    S.cm[cc] -= chew; S.cE[cc] -= chew*dens;
     var em = chew*mv;
     S.E[i] += em; S.lM[i] += em; S.c.meatEaten += chew;
     if (S.cKiller[cc] === S.id[i]) S.c.eK += em; else S.c.eC += em;
@@ -550,7 +561,7 @@ function updateAnimal(i){
   if (mass < size*0.98){
     if (S.E[i] > 0.5*Emax){
       var dM = Math.min(CFG.growRate*mass, (S.E[i] - 0.5*Emax)/CFG.cBuild, size - mass);
-      S.mass[i] = mass + dM; S.E[i] -= dM*CFG.cBuild;
+      S.mass[i] = mass + dM; S.rad[i] = radius(mass + dM); S.E[i] -= dM*CFG.cBuild;
       S.hp[i] += CFG.hpPerMass*dM;
     }
   } else if (S.E[i] > G[g+G_REPROT]*Emax){
@@ -571,13 +582,13 @@ function updateAnimal(i){
 var lastC = -1;
 function nearCorpse(i){
   // uses the sense() result when it is still in contact; otherwise rescan the home bucket
-  var x = S.x[i], y = S.y[i], r = radius(S.mass[i]) + CFG.reach;
+  var x = S.x[i], y = S.y[i], r = S.rad[i] + CFG.reach;
   var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
   for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
     var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
     for (var c = S.cHead[b]; c >= 0; c = S.cNext[c]){
       if (S.cm[c] <= 0) continue;
-      var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), d = Math.sqrt(fx*fx + fy*fy) - radius(S.cm[c]);
+      var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), d = Math.sqrt(fx*fx + fy*fy) - S.crad[c];
       if (d < r && d < bd){ bd = d; best = c; }
     }
   }
@@ -585,13 +596,13 @@ function nearCorpse(i){
   return best;
 }
 function nearAnimal(i){
-  var x = S.x[i], y = S.y[i], ri = radius(S.mass[i]) + CFG.reach;
+  var x = S.x[i], y = S.y[i], ri = S.rad[i] + CFG.reach;
   var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
   for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
     var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
     for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
       if (j === i || !S.alive[j]) continue;
-      var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d = Math.sqrt(ex*ex + ey*ey) - radius(S.mass[j]);
+      var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d = Math.sqrt(ex*ex + ey*ey) - S.rad[j];
       if (d < ri && d < bd){ bd = d; best = j; }
     }
   }
@@ -611,7 +622,7 @@ function step(){
   }
   // corpses rot; the mass goes back to the soil as nothing in particular
   for (var c = S.cN - 1; c >= 0; c--){
-    S.cm[c] -= S.cm[c]*CFG.corpseDecay;
+    S.cm[c] -= S.cm[c]*CFG.corpseDecay; S.cE[c] -= S.cE[c]*CFG.corpseDecay;
     if (S.cm[c] < 0.02) removeCorpse(c);
   }
   if (S.tick < CFG.reseedUntil && S.n < CFG.reseedFloor && S.tick % 4 === 0){
