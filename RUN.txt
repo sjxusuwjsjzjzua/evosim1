@@ -1,0 +1,6 @@
+label=v1-T-fastlife
+seeds=201,202,203,204,205,206
+ticks=300000
+set=ageK=3000,growRate=0.016
+cfg=
+sha=a1795362b0032c4b4caaa526092cf7f8aea331a6
