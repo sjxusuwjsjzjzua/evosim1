@@ -352,13 +352,20 @@ function alloc(){
   return i;
 }
 function geneRange(k){ return BODY[k][2] - BODY[k][1]; }
+// Founders: an ancestral body (cheap organs, some spread) with a random diet
+// and a completely random brain. The body is an initial condition; nothing in
+// it says what to do. Fully random bodies (big weapons, armour, eyes, all with
+// upkeep) almost never survived, and bootstrap took 60k+ ticks.
+var ANCESTOR = {size: 1, speed: 0.6, sense: 8, weapon: 0.15, armour: 0.1, detox: 0.2,
+                reproT: 0.6, childE: 0.3, birthSize: 0.3, choosy: 0.2};
 function spawnRandom(){
   var i = alloc(); if (i < 0) return -1;
   var g = i*NG, G = S.genome;
   for (var k = 0; k < NB; k++){
-    var b = BODY[k];
-    G[g+k] = b[3] ? Math.exp(Math.log(b[1]) + rng()*(Math.log(b[2]) - Math.log(b[1])))
-                  : b[1] + rng()*(b[2]-b[1]);
+    var b = BODY[k], a = ANCESTOR[b[0]];
+    if (a === undefined) G[g+k] = b[1] + rng()*(b[2]-b[1]);          // diet, tags, attention: uniform
+    else if (b[3]) G[g+k] = clamp(a*Math.exp(gauss()*0.3), b[1], b[2]);
+    else G[g+k] = clamp(a + gauss()*0.1*(b[2]-b[1]), b[1], b[2]);
   }
   for (var w = NB; w < NG; w++) G[g+w] = gauss()*1.0;
   var m = G[g+G_SIZE]*G[g+G_BIRTH]*2;
@@ -741,7 +748,7 @@ function step(){
     S.cm[c] -= S.cm[c]*CFG.corpseDecay; S.cE[c] -= S.cE[c]*CFG.corpseDecay;
     if (S.cm[c] < 0.02) removeCorpse(c);
   }
-  if (!S.established && S.n >= 2*CFG.reseedFloor) S.established = true;
+  if (!S.established && S.n >= 2*CFG.reseedFloor){ S.established = true; S.establishedAt = S.tick; }
   if (!S.established && S.tick < CFG.reseedUntil && S.n < CFG.reseedFloor && S.tick % 4 === 0){
     spawnRandom(); S.c.reseeds++;
   }
@@ -844,7 +851,7 @@ function sample(){
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
-    species: sp, clump: clump
+    species: sp, clump: clump, establishedAt: S.establishedAt || 0
   };
   S.log.push(row);
   S.c = newCounters();
