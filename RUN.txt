@@ -1,0 +1,6 @@
+label=v1-X-small-curve2
+seeds=501,502,503,504,505,506,507,508,509,510
+ticks=400000
+set=gridN=64,dietCurve=2
+cfg=
+sha=7a2f730d12fc43f854e8adf121c94ed2e8d5fe5f
