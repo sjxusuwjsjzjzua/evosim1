@@ -9082,7 +9082,7 @@ is small, and the gene drifts from wherever the founders put it. That is why the
 corpus never saw it leave 0.05 and why H22 never saw it leave 0.85. There is no
 peak here to reach or miss.
 
-An instrumented probe of the arbiter is running; results are appended below when it lands.
+The arbiter probe was stopped unfinished when the project moved to the 1.x engine; H23 below answers the same question.
 
 **What this retires.** The reachability framing (H8, H22, the founder-pool
 chaining build) and the premise that the herbivore corner is a trap. The next
@@ -9127,3 +9127,55 @@ Thresholds: the highest meat share in any H22 cell is 1.20% and the highest
 ATTACK is 1.29%, so 5% and 3% sit far outside what the current genome produces.
 At n=12 the per-run spread in meat share is roughly 0.5-2%, so a median of 5% is
 not reachable by noise.
+
+# H23 scored, 2026-09-25 — NOT THE GENOME
+
+Partial: the v0.58 line was retired mid-batch and the remaining jobs were
+cancelled to free runners, so the cells have 6-7 seeds, 4-5 alive at day 800.
+Seeds 94001-94012, window days 400-800, paired against the H22 cells.
+
+| cell | alive | ATTACK % | GRAZE % | meat share | meatAttraction @800 | carnivory @800 |
+|---|---|---|---|---|---|---|
+| `h22-control` | 8/12 | 1.29 | 93.5 | 0.86% | 0.05 | 0.12 |
+| `h22-carn70` | 9/12 | 0.48 | 97.9 | 0.90% | 0.10 | 0.67 |
+| `h23-hunt` | 5/6 | 1.55 | 93.0 | 0.97% | 0.72 | 0.16 |
+| `h23-predator` | 4/7 | 0.33 | 99.0 | 0.70% | 0.85 | 0.74 |
+
+`h23-predator` is below 2% on both endpoints: **NOT THE GENOME**. Founded with
+the whole predator package, animals keep the genes (meatAttraction 0.85,
+carnivory 0.74) and still do not hunt. The n is short of the planned 12, but the
+distance from the 3% / 5% hit lines is large enough that more seeds would not
+change the call. In v0.58 the obstacle is the arbiter and the energetics, not
+anything the genome can reach.
+
+---
+
+# 2026-09-25 — the v0.58 line is retired; evosim 1.x replaces it
+
+`evosim.html` is a new engine, written from scratch, and the shipped build from
+now on. Current state and design are in `HANDOFF.md`; this entry records why.
+
+Why not keep patching v0.58: ~200 animals among ~30,000 plant agents (too few
+animals for a trophic level, with plants taking nearly all the CPU at ~30
+minutes per run); behaviour was a hand-derived foraging calculator the genes
+could only weight; digestion and appetite were separate genes each worthless
+without the other (H22, H23).
+
+What the 1.x engine found in its first day, each by a diagnostic run rather than
+by assumption. Hand-built brains competing in the real physics were the main
+tool; none of them ships.
+
+1. Grazing evolves from random brains in every seed.
+2. Efficient grazers could eat a plant cell to zero and wipe out the flora.
+   Plants now keep an ungrazeable root reserve.
+3. A corpse carried 5 energy per unit mass while the animal died holding up to
+   40 in reserves, so a healthy kill paid less than 100 ticks of upkeep. Corpses
+   now carry the reserves.
+4. A hard argmax over mouth acts, and then a softmax over exclusive acts, both let
+   selection bury the meat and attack outputs, because firing them with nothing
+   in reach cost a meal. Independent urges with no wasted ticks fixed it:
+   predation then evolved in every seed, as opportunistic killing by plant-gutted
+   animals (kills became the main cause of death in two of four worlds).
+5. Hand-built specialist hunters injected into a mature world died out at eMeat
+   5 and grew 54 to 127 at eMeat 10; big fast hunters cycled with their prey.
+   eMeat is now 8 (80% of the build cost), and birth size is a gene.
