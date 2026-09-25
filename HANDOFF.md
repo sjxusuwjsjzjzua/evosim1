@@ -143,6 +143,25 @@ small fixed cost is necessary; clonal reproduction multiplies it. A likely reaso
 sex hurts: recombination with the herbivore majority breaks up carnivore gene
 combinations unless mating is already assortative.
 
+## Herding does not pay in this physics (tested 2026-09-25)
+
+Hand-built test in worlds founded from the evolved predator population: after
+10k ticks, half the herbivores got a weight turning them toward the centre of
+the animals they can see (the `crowdDir` sense).
+
+- Crowd pull alone: herders went from half the herbivores to extinct within 15k
+  ticks in both worlds.
+- With `alarm` / `alarmDir` senses (a neighbour under attack, and where) and a
+  flee response given to **both** halves: herders still lost, 549 → 44–160 in
+  20k ticks, while solitary animals held.
+
+Grouping costs more in shared, depleted plant cells than it returns in early
+warning, and a cruising predator that strikes whatever it touches finds a
+cluster of easy contacts. The senses stay (they are information, and a lone
+animal can use them too); no benefit to grouping has been written in. If herding
+is wanted, the physics to try next is predator confusion or satiation (a
+predator can only use one kill at a time), not a rule.
+
 ## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
 
 Share of energy from meat, per world, last two thirds of the run:
