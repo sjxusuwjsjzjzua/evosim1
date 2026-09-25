@@ -1,0 +1,6 @@
+label=v1-AB-gut1slow
+seeds=201,202,203,204,205,206,207,208,209,210
+ticks=400000
+set=gridN=64,gutCap=1,gutDig=0.08
+cfg=
+sha=71cefb7803b57d812e4454a2b3e1c847f7b6fac8
