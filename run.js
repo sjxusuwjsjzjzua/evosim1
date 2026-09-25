@@ -56,9 +56,14 @@ if (args.dump) dump(args.dump);
 // --dump <path>: the living population's genomes (body + brain), for seeding
 function dump(p) {
   const S = Sim.S, NG = Sim.NG, out = [];
-  const step = Math.max(1, Math.floor(S.n / 300));   // at most ~300, evenly through the slots
-  for (let i = 0, k = 0; i < S.hi; i++) if (S.alive[i] && (k++ % step) === 0)
-    out.push(Array.from(S.genome.subarray(i*NG, (i+1)*NG)).map(v => +v.toFixed(3)));
+  // at most ~300: every animal with a meat gut (diet > 0.3, up to 100), so a rare
+  // carnivore species survives the sampling, then the rest evenly through the slots
+  const G = S.genome, take = i => out.push(Array.from(G.subarray(i*NG, (i+1)*NG)).map(v => +v.toFixed(3)));
+  const meat = [], rest = [];
+  for (let i = 0; i < S.hi; i++) if (S.alive[i]) (G[i*NG + 3] > 0.3 ? meat : rest).push(i);
+  meat.slice(0, 100).forEach(take);
+  const step = Math.max(1, Math.floor(rest.length / (300 - Math.min(100, meat.length))));
+  for (let k = 0; k < rest.length; k += step) take(rest[k]);
   fs.writeFileSync(p, JSON.stringify({ kind: 'evosim1-genomes', version: Sim.VERSION, tick: S.tick, NG, genomes: out }));
 }
 function save() {
