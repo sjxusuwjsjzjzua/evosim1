@@ -180,6 +180,7 @@ combinations unless mating is already assortative.
 | defaults + new senses (`v1-X-small-senses`) | small | 7 | 5 | 1 |
 | `sex=1, mateDist=0.1` (`v1-W-sex-md10`) | medium | 7 | 4 | **3** |
 | `dietCurve=2` (`v1-X-small-curve2`) | small | **10** | **10** | **4** |
+| `dietCurve=2` (`v1-Y-medium-curve2`) | medium | **10** | **10** | **4** |
 
 - Genetic incompatibility rescues sex: without it sexual worlds had 1 predator
   world and no meat guts; with it they match or beat clonal ones.
@@ -239,13 +240,17 @@ generations). In the older engine that took 85–200 generations.
 
 ## Running now
 
-- `results/v1-Y-medium-curve2`: 10 seeds, medium world, `dietCurve` 2. Does the
-  concave trade-off help as much in the bigger world?
 - `results/v1-Z-small-1M`: 10 seeds, small world, 1M ticks. Do predator worlds
   and carnivore species hold for ~1000 generations, or collapse?
 - `results/v1-AA-base`, `-rich` (`pR` 0.024), `-patchy` (`fertNoise` 1): 10 seeds
-  each, 400k ticks. Does grouping (`clump` above 1) evolve on its own once
-  forage is richer or patchier?
+  each, 400k ticks, engine before the audit fixes. Does `clump` rise with
+  richer or patchier forage? (Expected no, given the correction above.)
+- `results/v1-AB-base`, `-gut2` (`gutCap` 2), `-gut1slow` (`gutCap` 1, `gutDig`
+  0.08): 10 seeds each, 400k ticks, current engine. Expected: fewer kills per
+  predator with a stomach; if dilution now pays, `preyClump` above 1 in the
+  predator worlds.
+- Locally: the seed-42 evolved start with and without a stomach, 2 seeds,
+  100k ticks.
 
 ## Next
 
