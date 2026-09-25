@@ -171,6 +171,8 @@ var CFG_DEFAULT = {
                         // default: every predator world so far evolved without it.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
+  mutReflect: 0,        // 1: a mutation past a gene's bound reflects back inside instead of sticking
+                        // to the bound (with clamping, half the mutations of a gene at 0 stay at 0)
   mutSd: 0.08,          // body genes: sd as a share of range (x3, multiplicative, for log-scaled genes)
   wSd: 0.35,            // brain weights: sd
   wMax: 4,
@@ -362,7 +364,7 @@ function updatePlants(){
     S.pB[c] = B;
   }
 }
-function mutP(v, sd){ return rng() < 0.3 ? clamp(v + gauss()*sd, 0, 1) : v; }
+function mutP(v, sd){ return rng() < 0.3 ? bound(v + gauss()*sd, 0, 1) : v; }
 
 // ---------------------------------------------------------------- animals
 function alloc(){
@@ -479,17 +481,25 @@ function findMate(i){
   }
   return best;
 }
+function bound(v, lo, hi){
+  if (CFG.mutReflect){ if (v < lo) v = 2*lo - v; else if (v > hi) v = 2*hi - v; }
+  return clamp(v, lo, hi);
+}
 function mutate(dst){
   var G = S.genome, d = dst*NG, pm = CFG.mutP;
   for (var b = 0; b < NB; b++){
     if (rng() >= pm) continue;
     var B = BODY[b];
-    if (B[3]) G[d+b] = clamp(G[d+b]*Math.exp(gauss()*CFG.mutSd*3), B[1], B[2]);
-    else G[d+b] = clamp(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
+    if (B[3]){   // log-scaled: reflect in log space
+      var v = G[d+b]*Math.exp(gauss()*CFG.mutSd*3);
+      if (CFG.mutReflect){ if (v < B[1]) v = B[1]*B[1]/v; else if (v > B[2]) v = B[2]*B[2]/v; }
+      G[d+b] = clamp(v, B[1], B[2]);
+    }
+    else G[d+b] = bound(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
   }
   for (var w = NB; w < NG; w++){
     if (rng() >= CFG.mutPW) continue;
-    G[d+w] = clamp(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
+    G[d+w] = bound(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
   }
 }
 function die(i, cause){
