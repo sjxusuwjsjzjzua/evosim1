@@ -164,6 +164,7 @@ var CFG_DEFAULT = {
   wMax: 4,
 
   seedGenomes: null,    // optional array of genomes (from run.js --dump) to found the world from
+  seedNI: 0,            // number of senses the seed genomes were evolved with, if fewer than now
   // ---- logging ----
   sampleEvery: 500
 };
@@ -193,11 +194,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 22, NH = 8, NO = 5;
+var NI = 23, NH = 8, NO = 5;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
 
 var CFG, S;   // config and state
@@ -358,6 +359,15 @@ function alloc(){
   return i;
 }
 function geneRange(k){ return BODY[k][2] - BODY[k][1]; }
+// A genome from a build with fewer senses (oldNI inputs): new inputs get zero weights.
+function remapGenome(src, oldNI){
+  var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*NO, k, h, q;
+  for (k = 0; k < NB; k++) out[k] = src[k];
+  for (h = 0; h < NH; h++) for (k = 0; k < oldNI; k++) out[W1+h*NI+k] = src[oW1+h*oldNI+k];
+  for (k = 0; k < NH*NO; k++) out[W2+k] = src[oW2+k];
+  for (q = 0; q < NO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
+  return out;
+}
 // Founders: an ancestral body (cheap organs, some spread) with a random diet
 // and a completely random brain. The body is an initial condition; nothing in
 // it says what to do. Fully random bodies (big weapons, armour, eyes, all with
@@ -371,7 +381,8 @@ function spawnRandom(){
   var SG = CFG.seedGenomes;
   if (SG && SG.length){
     var src = SG[(rng()*SG.length)|0];
-    for (var q = 0; q < NG; q++) G[g+q] = q < src.length ? src[q] : 0;
+    var src2 = CFG.seedNI && CFG.seedNI !== NI ? remapGenome(src, CFG.seedNI) : src;
+    for (var q = 0; q < NG; q++) G[g+q] = q < src2.length ? src2[q] : 0;
     mutate(i);
     var m1 = G[g+G_SIZE]*Math.max(0.3, G[g+G_BIRTH])*2;
     setupBody(i, rng()*S.world, rng()*S.world, Math.min(m1, G[g+G_SIZE]), 0);
@@ -532,6 +543,7 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   nearA = -1; nearAd = R2; nearC = -1; nearCd = R2; crowd = 0;
+  var cxs = 0, cys = 0;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   for (var dy = -span; dy <= span; dy++){
@@ -542,7 +554,7 @@ function sense(i){
         if (j === i || !S.alive[j]) continue;
         var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d2 = ex*ex + ey*ey;
         if (d2 >= R2) continue;
-        crowd++;
+        crowd++; cxs += ex; cys += ey;
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(S.mass[j]/mi), -3, 3)/3
                 + aK*(1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)) + aW*G[og2+G_WEAPON]/1.5;
@@ -589,6 +601,8 @@ function sense(i){
   var reachI = S.rad[i] + CFG.reach;
   IN[20] = nearC >= 0 && Math.sqrt(nearCd) - S.crad[nearC] < reachI ? 1 : 0;
   IN[21] = nearA >= 0 && Math.sqrt(nearAd) - S.rad[nearA] < reachI ? 1 : 0;
+  // where the others are: direction to the centre of every animal in sense range
+  IN[22] = crowd > 0 ? angDiff(Math.atan2(cys, cxs), h)/Math.PI : 0;
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -1186,8 +1200,8 @@ function buildDrawer(){
     var el = $('z' + z); el.classList.toggle('on', (patch.gridN || Sim.CFG.gridN) === z);
     el.onclick = function(){ patch.gridN = z; newWorld(); buildDrawer(); };
   });
-  $('bNew').onclick = function(){ delete patch.seedGenomes; delete patch.founders; newWorld(); buildDrawer(); };
-  if (EVOLVED) $('bEvo').onclick = function(){ patch.seedGenomes = evolvedGenomes(); patch.founders = 600; newWorld(); buildDrawer(); };
+  $('bNew').onclick = function(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.founders; newWorld(); buildDrawer(); };
+  if (EVOLVED) $('bEvo').onclick = function(){ patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ newWorld(Sim.CFG.seed); buildDrawer(); };
   $('bLog').onclick = function(){
     var blob = new Blob([JSON.stringify({kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG, log: Sim.S.log})], {type: 'application/json'});
