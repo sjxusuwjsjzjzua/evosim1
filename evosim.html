@@ -1060,6 +1060,7 @@ function hud(){
     '<span><span class="k">plants</span><b class="leaf">' + (L.plantMass|0) + '</b></span>' +
     '<span><span class="k">meat</span><b class="ember">' + ((L.meatShare||0)*100).toFixed(1) + '%</b></span>' +
     '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
+    '<span><span class="k">carnivores</span><b class="ember">' + (L.dietHist ? L.dietHist.slice(5).reduce(function(a, b){ return a + b; }, 0) : 0) + '</b></span>' +
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
