@@ -204,16 +204,22 @@ the animals they can see (the `crowdDir` sense).
   flee response given to **both** halves: herders still lost, 549 → 44–160 in
   20k ticks, while solitary animals held.
 
-Grouping costs more in shared, depleted plant cells than it returns in early
-warning, and a cruising predator that strikes whatever it touches finds a
-cluster of easy contacts. The senses stay (they are information, and a lone
+**Correction (2026-09-25, measured).** Forage is not what herders lose to. Rerun
+from the seed-42 evolved start, herders' plant intake per head was within 5% of
+the controls and their births per head equal or higher. What differed was
+predation: herders took 15–60% more strikes per head and had an 8–27% higher
+kill hazard. The reason is that predators never fill up. A kill is worth a
+median 5% of the killer's energy capacity, is eaten in about one tick, and the
+next kill follows a median 34 ticks later (20% within 10). A group is a buffet
+and gives no dilution. The herder brain also steered toward all animals, since
+`crowdDir` includes predators. A plant "lawn" that regrew faster raised
+herbivore intake and herders still lost. The senses stay (they are information, and a lone
 animal can use them too); no benefit to grouping has been written in.
 
 Predator confusion (`kConfusion`: strike damage / (1 + k x others within 3 of the
 target), off by default) was tested too: at k 0.5 and 1.5 herders still fell to
-0–51 of ~550 in 20k ticks. Sharing depleted plant cells costs more than any of
-these benefits return. Herding would likely need a different plant ecology
-(abundant forage in patches, so groups do not starve each other), not a rule.
+0–51 of ~550 in 20k ticks. Confusion lowers damage per strike, not kills per
+encounter, so it cannot help while a predator never fills up.
 
 ## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
 
@@ -243,12 +249,11 @@ generations). In the older engine that took 85–200 generations.
 
 ## Next
 
-1. Herding: if neither richer nor patchier forage lifts `clump`, the benefit of
-   a group is too small against the cost of sharing forage. Handling time and
-   satiety are already physics (a corpse is chewed at `chew` x mass^0.75 a
-   tick, intake stops at the energy cap, a strike costs `atkCost`), so a group
-   already dilutes a sated predator. What is missing is a reason for prey to
-   be near each other that outweighs sharing forage.
+1. Herding: predators do not fill up, so a group gives no dilution (above).
+   Next physics: a gut. Eating fills a stomach of limited capacity that
+   digests into reserves over time, and a sense reports how full it is. Then a
+   predator can use about one kill per encounter, and striking while full buys
+   nothing but the strike's cost.
 2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
    each). A cluster living mostly on meat was present in the last 10 samples of
    4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility

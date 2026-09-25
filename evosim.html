@@ -344,6 +344,7 @@ function updatePlants(){
         S.pStat[t] = mutP(S.pStat[c], sd);
         S.pDef[t]  = mutP(S.pDef[c], sd);
         S.pDisp[t] = mutP(S.pDisp[c], sd);
+        S.pSeed[t] = 0;
         cachePlant(t);
       }
     }
@@ -361,7 +362,6 @@ function alloc(){
   S.alive[i] = 1; S.n++;
   return i;
 }
-function geneRange(k){ return BODY[k][2] - BODY[k][1]; }
 // A genome from a build with fewer senses (oldNI inputs): new inputs get zero weights.
 function remapGenome(src, oldNI){
   var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*NO, k, h, q;
@@ -407,7 +407,7 @@ function spawnRandom(){
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
-  S.tgt[i] = -1; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0;
+  S.tgt[i] = -1; S.tgtId[i] = -1; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
@@ -532,7 +532,7 @@ function bodyCache(i){
   S.rad[i] = radius(m); S.m75[i] = Math.pow(m, 0.75); S.maxAge[i] = CFG.ageK*Math.pow(m, 0.25);
   var G = S.genome, g = i*NG, size = G[g+G_SIZE];
   var v = G[g+G_SPEED]*(1 - CFG.armourSlow*G[g+G_ARMOUR]);
-  if (CFG.juvSlow > 0 && m < size) v *= Math.pow(m/size, CFG.juvSlow);
+  if (CFG.juvSlow > 0 && m < 0.98*size) v *= Math.pow(m/(0.98*size), CFG.juvSlow);   // growth stops at 0.98
   S.vmax[i] = v;
 }
 
@@ -565,6 +565,7 @@ function sense(i){
         if (sal > bestSal){ bestSal = sal; nearAd = d2; nearA = j; }
       }
       for (var c = S.cHead[b]; c >= 0; c = S.cNext[c]){
+        if (S.cm[c] <= 0) continue;
         var fx = wrap(S.cx[c]-x), fy = wrap(S.cy[c]-y), e2 = fx*fx + fy*fy;
         if (e2 < nearCd){ nearCd = e2; nearC = c; }
       }
@@ -585,7 +586,7 @@ function sense(i){
   if (nearA >= 0){
     var ax = wrap(S.x[nearA]-x), ay = wrap(S.y[nearA]-y), og = nearA*NG;
     IN[9] = 1;
-    IN[10] = angDiff(Math.atan2(ay, ax), h)/Math.PI;
+    IN[10] = ax || ay ? angDiff(Math.atan2(ay, ax), h)/Math.PI : 0;   // a newborn sits exactly on its parent
     IN[11] = 1 - Math.sqrt(nearAd)/R;
     IN[12] = clamp(Math.log2(S.mass[nearA]/S.mass[i]), -3, 3)/3;
     var td = 0;
@@ -596,7 +597,7 @@ function sense(i){
   if (nearC >= 0){
     var qx = wrap(S.cx[nearC]-x), qy = wrap(S.cy[nearC]-y);
     IN[15] = 1;
-    IN[16] = angDiff(Math.atan2(qy, qx), h)/Math.PI;
+    IN[16] = qx || qy ? angDiff(Math.atan2(qy, qx), h)/Math.PI : 0;
     IN[17] = 1 - Math.sqrt(nearCd)/R;
   } else { IN[15] = 0; IN[16] = 0; IN[17] = 0; }
   IN[18] = Math.min(1, crowd/10);
@@ -606,9 +607,9 @@ function sense(i){
   IN[20] = nearC >= 0 && Math.sqrt(nearCd) - S.crad[nearC] < reachI ? 1 : 0;
   IN[21] = nearA >= 0 && Math.sqrt(nearAd) - S.rad[nearA] < reachI ? 1 : 0;
   // where the others are: direction to the centre of every animal in sense range
-  IN[22] = crowd > 0 ? angDiff(Math.atan2(cys, cxs), h)/Math.PI : 0;
+  IN[22] = crowd > 0 && (cxs || cys) ? angDiff(Math.atan2(cys, cxs), h)/Math.PI : 0;
   IN[23] = Math.min(1, alarm);
-  IN[24] = alarm > 0 ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
+  IN[24] = alarm > 0 && (alx || aly) ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -743,14 +744,14 @@ function updateAnimal(i){
         var mate = CFG.sex ? findMate(i) : -1;
         if (mate >= 0) recombine(k, i, mate); else copyGenome(k, i);
         mutate(k);
-        setupBody(k, S.x[i], S.y[i], m0, S.gen[i]+1);
-        S.E[k] = give; S.E[i] -= cost;
+        var mk = Math.min(m0, 0.9*G[k*NG+G_SIZE]), gk = Math.min(give, CFG.eCap*mk);   // no newborn above its own adult size
+        setupBody(k, S.x[i], S.y[i], mk, S.gen[i]+1);
+        S.E[k] = gk; S.E[i] -= mk*CFG.cBuild + gk;
         S.c.births++;
       }
     }
   }
 }
-var lastC = -1;
 function nearCorpse(i){
   // nearest corpse within reach, from the 3x3 buckets around the animal
   var x = S.x[i], y = S.y[i], r = S.rad[i] + CFG.reach;
@@ -763,7 +764,6 @@ function nearCorpse(i){
       if (d < r && d < bd){ bd = d; best = c; }
     }
   }
-  lastC = best;
   return best;
 }
 // other animals within r of animal j, not counting `skip`
@@ -785,19 +785,6 @@ function attendedInReach(i){
   if (j < 0 || !S.alive[j] || S.id[j] !== S.tgtId[i]) return -1;
   var ex = wrap(S.x[j]-S.x[i]), ey = wrap(S.y[j]-S.y[i]);
   return Math.sqrt(ex*ex + ey*ey) - S.rad[j] < S.rad[i] + CFG.reach ? j : -1;
-}
-function nearAnimal(i){
-  var x = S.x[i], y = S.y[i], ri = S.rad[i] + CFG.reach;
-  var inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, best = -1, bd = 1e9;
-  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
-    var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
-    for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
-      if (j === i || !S.alive[j]) continue;
-      var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d = Math.sqrt(ex*ex + ey*ey) - S.rad[j];
-      if (d < ri && d < bd){ bd = d; best = j; }
-    }
-  }
-  return best;
 }
 
 function step(){
@@ -961,6 +948,15 @@ function unf32(str){ return new Float32Array(b64dec(str).buffer); }
 var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr'];
 function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
 function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
+function geneLog(k){ return k < NB && BODY[k][3]; }
+function geneToByte(k, v){
+  var lo = geneLo(k), hi = geneHi(k);
+  return Math.round(255*clamp(geneLog(k) ? Math.log(v/lo)/Math.log(hi/lo) : (v - lo)/(hi - lo), 0, 1));
+}
+function byteToGene(k, b, logQ){
+  var lo = geneLo(k), hi = geneHi(k), t = b/255;
+  return logQ && geneLog(k) ? lo*Math.pow(hi/lo, t) : lo + (hi - lo)*t;
+}
 function snapshot(){
   var idx = [];
   for (var i = 0; i < S.hi; i++) if (S.alive[i]) idx.push(i);
@@ -968,19 +964,18 @@ function snapshot(){
   AFIELDS.forEach(function(f){ var a = new Float32Array(n); for (var k = 0; k < n; k++) a[k] = S[f][idx[k]]; A[f] = f32(a); });
   for (var k = 0; k < n; k++){
     var i2 = idx[k], g = i2*NG;
-    for (var q = 0; q < NG; q++){
-      var lo = geneLo(q), hi = geneHi(q);
-      gb[k*NG+q] = Math.round(255*clamp((S.genome[g+q] - lo)/(hi - lo), 0, 1));
-    }
+    for (var q = 0; q < NG; q++) gb[k*NG+q] = geneToByte(q, S.genome[g+q]);
     ints[k*4] = S.id[i2]; ints[k*4+1] = S.gen[i2]; ints[k*4+2] = S.kills[i2]; ints[k*4+3] = S.act[i2];
   }
   var cfg = {};
   for (var key in CFG) if (key !== 'seedGenomes') cfg[key] = CFG[key];
   var c = S.cN, sl = function(a){ return f32(Array.prototype.slice.call(a, 0, c)); };
   return {
-    kind: 'evosim1-world', version: VERSION, NG: NG, NI: NI, cfg: cfg, tick: S.tick,
+    kind: 'evosim1-world', version: VERSION, gq: 'log', NG: NG, NI: NI, cfg: cfg, tick: S.tick, gCache: gCache,
     established: S.established, establishedAt: S.establishedAt || 0, nextId: S.nextId,
-    rng: [rs0, rs1, rs2, rs3], n: n, animals: A, genomes: b64enc(gb), ints: b64enc(new Uint8Array(ints.buffer)),
+    rng: [rs0, rs1, rs2, rs3], n: n, animals: A, genomes: b64enc(gb),
+    ints: b64enc(new Uint8Array(ints.buffer)),
+    size: f32(Float32Array.from(idx, function(i3){ return S.genome[i3*NG+G_SIZE]; })),   // exact: adulthood is 0.98 x size
     plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed)},
     corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad),
               k: b64enc(new Uint8Array(new Int32Array(Array.prototype.slice.call(S.cKiller, 0, c)).buffer))},
@@ -996,11 +991,12 @@ function restore(w){
   S.pB.set(unf32(P.B)); S.pStat.set(unf32(P.stat)); S.pDef.set(unf32(P.def)); S.pDisp.set(unf32(P.disp));
   S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed));
   for (var c = 0; c < S.pB.length; c++) cachePlant(c);
-  var n = w.n, F = {}, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
+  var n = w.n, F = {}, sizes = w.size ? unf32(w.size) : null, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
   AFIELDS.forEach(function(f){ F[f] = unf32(w.animals[f]); });
   for (var k = 0; k < n; k++){
     var i = alloc(), g = i*NG;
-    for (var q = 0; q < NG; q++){ var lo = geneLo(q), hi = geneHi(q); S.genome[g+q] = lo + (hi - lo)*gb[k*NG+q]/255; }
+    for (var q = 0; q < NG; q++) S.genome[g+q] = byteToGene(q, gb[k*NG+q], w.gq === 'log');
+    if (sizes) S.genome[g+G_SIZE] = sizes[k];
     AFIELDS.forEach(function(f){ S[f][i] = F[f][k]; });
     S.id[i] = ints[k*4]; S.gen[i] = ints[k*4+1]; S.kills[i] = ints[k*4+2]; S.act[i] = ints[k*4+3];
     S.tgt[i] = -1; bodyCache(i);
@@ -1010,7 +1006,7 @@ function restore(w){
   for (var j = 0; j < C.n; j++){ S.cx[j] = cx[j]; S.cy[j] = cy[j]; S.cm[j] = cm[j]; S.cE[j] = cE[j]; S.crad[j] = cr[j]; S.cKiller[j] = ck[j]; }
   S.cN = C.n;
   S.tick = w.tick; S.established = w.established; S.establishedAt = w.establishedAt; S.nextId = w.nextId;
-  rs0 = w.rng[0]; rs1 = w.rng[1]; rs2 = w.rng[2]; rs3 = w.rng[3]; gCache = null;
+  rs0 = w.rng[0]; rs1 = w.rng[1]; rs2 = w.rng[2]; rs3 = w.rng[3]; gCache = w.gCache != null ? w.gCache : null;
   S.log = w.log || []; S.c = newCounters();
   return true;
 }
