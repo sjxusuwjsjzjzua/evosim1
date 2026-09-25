@@ -128,7 +128,7 @@ This population is embedded in the page ("evolved start" in the world drawer,
 600 founders); the carnivores held on in 3 of 4 test worlds, one of them with
 predator-prey oscillation (3,520 → 1,076 → 2,911 animals).
 
-The current default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
+The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
 (`results/v1-U-base`), so the defaults were switched.
 
 ## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
