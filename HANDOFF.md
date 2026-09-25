@@ -125,9 +125,29 @@ Carnivores are big armed cruisers that strike whatever they meet; herbivores are
 small vigilant grazers that watch large strangers and run from them, with
 maximal detox against defended plants.
 
-This population is embedded in the page ("evolved start" in the world drawer,
-600 founders); the carnivores held on in 3 of 4 test worlds, one of them with
-predator-prey oscillation (3,520 → 1,076 → 2,911 animals).
+This population was the page's "evolved start" until 2026-09-25. Under the
+current defaults (`dietCurve` 2, small world) it established predation in only 2
+of 4 test worlds, so it was replaced (next section).
+
+## The evolved start (2026-09-25)
+
+Four small worlds on the current defaults, 300k ticks each, with genome dumps
+(`run.js --dump`). Three became predator-dominated (regime 72–98%). Each dump
+was then founded into 4 new small worlds (600 founders, seeds 3, 5, 7, 9, 40k
+ticks); a world counts if meat is over 15% of intake with more than 5 adults
+living mostly on meat:
+
+| population | worlds | meat at 40k |
+|---|---|---|
+| seed 41 | 4 of 4 | 22–25% |
+| **seed 42** | **4 of 4** | **30–34%** |
+| seed 44 | 2 of 4 | 4–26% |
+| seed 21 (the previous one) | 2 of 4 | 3–26% |
+
+Seed 42 is now embedded. Its 80 predators (diet 0.45, size 3.7, weapon 0.58)
+cruise (throttle 0.79 alone) and strike 95% of what they touch; its 263
+herbivores (size 0.39, speed 1.41, detox 0.99) sit still grazing (throttle 0.06)
+and speed up to 0.50 when a big armed animal is in view.
 
 The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
 (`results/v1-U-base`), so the defaults were switched.
@@ -206,18 +226,24 @@ generations). In the older engine that took 85–200 generations.
 
 ## Running now
 
-- `results/v1-U-base`, `results/v1-U-meat10`: 20 seeds each, 600k ticks. The
-  question is how often a predator-dominated world appears.
-- Locally: the current engine at `upFixed` 0.003 and `sex` 0, the setting of the
-  two predator worlds found so far.
+- `results/v1-Y-medium-curve2`: 10 seeds, medium world, `dietCurve` 2. Does the
+  concave trade-off help as much in the bigger world?
+- `results/v1-Z-small-1M`: 10 seeds, small world, 1M ticks. Do predator worlds
+  and carnivore species hold for ~1000 generations, or collapse?
+- `results/v1-AA-base`, `-rich` (`pR` 0.024), `-patchy` (`fertNoise` 1): 10 seeds
+  each, 400k ticks. Does grouping (`clump` above 1) evolve on its own once
+  forage is richer or patchier?
 
 ## Next
 
-1. Score the U batch by its tail: count worlds that reach >20% meat and hold it.
-2. Pick defaults that maximise that rate, then make it faster per tick (fewer
-   ticks per generation) so it shows up on a phone within an hour.
-3. Grouping: the `clump` index sits near 1 (random) so far. Herding should pay
-   under predation through the attended-target mechanics; check it in the
-   predator worlds.
-4. Speciation: `species` clusters exist (several per world). Check whether they
-   are reproductively isolated (choosy) and ecologically distinct.
+1. Herding: if neither richer nor patchier forage lifts `clump`, the benefit of
+   a group is too small against the cost of sharing forage. Handling time and
+   satiety are already physics (a corpse is chewed at `chew` x mass^0.75 a
+   tick, intake stops at the energy cap, a strike costs `atkCost`), so a group
+   already dilutes a sated predator. What is missing is a reason for prey to
+   be near each other that outweighs sharing forage.
+2. Speciation under sex: clonal worlds have lineages, not species. With
+   `sex=1, mateDist=0.1` clusters are reproductively isolated; check whether
+   they split by niche (diet) in the predator worlds.
+3. Time to predators: 100–300 generations. Anything that shortens it without
+   writing in a diet helps the phone.
