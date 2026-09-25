@@ -56,7 +56,19 @@ Browser check (Chromium and Playwright are preinstalled):
 - **Specialist predators are viable** when flesh is valuable enough: hand-built
   hunters injected into a mature world grew 54 → 127 at `eMeat` 10, and big fast
   hunters cycled with their prey (Lotka–Volterra oscillation, not seasonal).
-- **Not yet seen:** a specialist predator lineage evolving on its own.
+- **Predator-structured worlds evolve on their own, given time.** In the first
+  long batch (500k ticks, 200–450 generations, engine at commit b808ed6/6b3b891)
+  2 of 14 worlds became predator-dominated: 30% of all animal energy from meat,
+  9–16% of adults living mostly on meat by lifetime intake, killing nearly the
+  only cause of death, and plants recovering from ~2k to 10–30k because
+  predators hold grazers down (a trophic cascade nobody wrote). In seed 72 it
+  switched on around generation 85 after a long peaceful phase, then held for
+  250k ticks while top speed doubled (0.64 → 1.38) and sense range doubled:
+  a pursuit arms race. Four more worlds held steady killing at 5–8% meat.
+  Logs: branches `results/v1-L8`, `results/v1-L9-sex`.
+- **The diet gene lags behaviour.** Even in predator worlds mean diet is
+  0.04–0.10: predators are omnivore-gutted killers. A gut shift only pays once a
+  lineage gets over ~40% of its energy from meat (linear trade-off, floor 0.4).
 
 ## Next
 
