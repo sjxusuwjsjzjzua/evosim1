@@ -243,6 +243,7 @@ function init(patch){
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
     E: new Float32Array(M), mass: new Float32Array(M), hp: new Float32Array(M), age: new Float32Array(M),
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
+    m75: new Float32Array(M), maxAge: new Float32Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
     act: new Uint8Array(M), want: new Uint8Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
@@ -349,7 +350,7 @@ function spawnRandom(){
 }
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
-  S.mass[i] = mass; S.rad[i] = radius(mass); S.hp[i] = CFG.hpPerMass*mass; S.age[i] = 0; S.hurt[i] = 0;
+  S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
   S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
@@ -405,12 +406,19 @@ function buildHashes(){
 }
 function wrap(d){ var w = S.world; return d > w*0.5 ? d - w : d < -w*0.5 ? d + w : d; }
 function cellAt(x, y){
-  var n = CFG.gridN, cs = CFG.cellSize;
-  var cx = Math.floor(x/cs) % n, cy = Math.floor(y/cs) % n;
-  if (cx < 0) cx += n; if (cy < 0) cy += n;
+  var n = CFG.gridN, w = S.world, k = n/w;
+  if (x < 0) x += w; else if (x >= w) x -= w;
+  if (y < 0) y += w; else if (y >= w) y -= w;
+  var cx = (x*k)|0, cy = (y*k)|0;
+  if (cx >= n) cx = n-1; if (cy >= n) cy = n-1;
   return cy*n + cx;
 }
 function radius(m){ return CFG.radiusK*Math.cbrt(m); }
+// everything that depends only on body mass, recomputed when mass changes
+function bodyCache(i){
+  var m = S.mass[i];
+  S.rad[i] = radius(m); S.m75[i] = Math.pow(m, 0.75); S.maxAge[i] = CFG.ageK*Math.pow(m, 0.25);
+}
 
 var IN = new Float32Array(NI), HID = new Float32Array(NH);
 // nearest-neighbour results of the last sense() call
@@ -493,6 +501,9 @@ function think(i){
     S.out[o+q] = t;
   }
   S.hurt[i] *= 0.5;
+  // motor commands, held until the next think
+  S.turn[i] = Math.tanh(S.out[o])*CFG.turnMax;
+  S.thr[i] = sig(S.out[o+1]);
   // MOUTH. Three independent urges, each a probability: eat, prefer meat,
   // strike. Eating takes whatever food is in reach, and the preference only
   // matters when there is a choice; a strike only happens when there is an
@@ -507,14 +518,14 @@ function think(i){
 // one animal, one tick
 function updateAnimal(i){
   var G = S.genome, g = i*NG, o = i*NO;
-  var mass = S.mass[i], m75 = Math.pow(mass, 0.75);
+  var mass = S.mass[i], m75 = S.m75[i];
   var size = G[g+G_SIZE], diet = G[g+G_DIET], armour = G[g+G_ARMOUR];
   var vmax = G[g+G_SPEED]*(1 - CFG.armourSlow*armour);
   var Emax = CFG.eCap*mass;
 
   // ---- motor
-  var turn = Math.tanh(S.out[o])*CFG.turnMax;
-  var want = vmax/(1 + Math.exp(-S.out[o+1]));
+  var turn = S.turn[i];
+  var want = vmax*S.thr[i];
   var hd = S.hd[i] + turn;
   if (hd > Math.PI) hd -= 2*Math.PI; else if (hd < -Math.PI) hd += 2*Math.PI;
   S.hd[i] = hd;
@@ -581,13 +592,13 @@ function updateAnimal(i){
   var hpMax = CFG.hpPerMass*mass;
   if (S.hp[i] < hpMax) S.hp[i] = Math.min(hpMax, S.hp[i] + CFG.heal*hpMax);
   if (S.E[i] <= 0){ die(i, 0); return; }
-  if (S.age[i] > CFG.ageK*Math.pow(mass, 0.25)){ die(i, 1); return; }
+  if (S.age[i] > S.maxAge[i]){ die(i, 1); return; }
 
   // ---- grow, then breed
   if (mass < size*0.98){
     if (S.E[i] > 0.5*Emax){
       var dM = Math.min(CFG.growRate*mass, (S.E[i] - 0.5*Emax)/CFG.cBuild, size - mass);
-      S.mass[i] = mass + dM; S.rad[i] = radius(mass + dM); S.E[i] -= dM*CFG.cBuild;
+      S.mass[i] = mass + dM; bodyCache(i); S.E[i] -= dM*CFG.cBuild;
       S.hp[i] += CFG.hpPerMass*dM;
     }
   } else if (S.E[i] > G[g+G_REPROT]*Emax){
