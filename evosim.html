@@ -882,15 +882,20 @@ function newWorld(seed){
   selId = -1; follow = false; $('card').classList.remove('on');
   resetCam();
 }
-function resize(){
-  cv.width = innerWidth*DPR; cv.height = innerHeight*DPR;
+function layout(){
   var top = $('top').getBoundingClientRect().bottom, bot = $('bar').getBoundingClientRect().top;
   view.x = 0; view.y = top; view.w = innerWidth; view.h = Math.max(100, bot - top);
   gcv.style.top = ''; gcv.style.bottom = (innerHeight - bot + 8) + 'px';
-  gcv.width = gcv.clientWidth*DPR; gcv.height = gcv.clientHeight*DPR;
   $('card').style.top = (top + 8) + 'px';
+  return top;
+}
+function resize(){
+  cv.width = innerWidth*DPR; cv.height = innerHeight*DPR;
+  layout();
+  gcv.width = gcv.clientWidth*DPR; gcv.height = gcv.clientHeight*DPR;
   resetCam();
 }
+var lastTop = 0;
 function resetCam(){
   if (!Sim.S) return;
   var W = Sim.S.world;
@@ -995,9 +1000,11 @@ function drawGraph(){
   line('#7fc24a', function(r){ return r.plantMass/maxP; });
   line('#6fa3c4', function(r){ return r.animals/maxA; });
   line('#e0704a', function(r){ return r.meatShare; });
-  line('#e0c04a', function(r){ return r.genes.diet; });
-  gctx.fillStyle = '#6a7e86'; gctx.font = (9*DPR) + 'px ui-monospace,monospace';
-  gctx.fillText('plants  animals(max ' + maxA + ')  meat share  mean diet', 6*DPR, 11*DPR);
+  var maxK = 1; for (var j = s; j < L.length; j++) maxK = Math.max(maxK, L[j].kills);
+  line('#b04040', function(r){ return r.kills/maxK; });
+  var lab = [['plants', '#7fc24a'], ['animals ' + maxA, '#6fa3c4'], ['meat share', '#e0704a'], ['kills', '#b04040']], x = 6*DPR;
+  gctx.font = (9*DPR) + 'px ui-monospace,monospace';
+  lab.forEach(function(l){ gctx.fillStyle = l[1]; gctx.fillText(l[0], x, 11*DPR); x += gctx.measureText(l[0]).width + 10*DPR; });
 }
 function hud(){
   var S = Sim.S, L = S.log[S.log.length-1] || {};
@@ -1007,9 +1014,23 @@ function hud(){
     '<span><span class="k">animals</span><b class="sky">' + S.n + '</b></span>' +
     '<span><span class="k">plants</span><b class="leaf">' + (L.plantMass|0) + '</b></span>' +
     '<span><span class="k">meat</span><b class="ember">' + ((L.meatShare||0)*100).toFixed(1) + '%</b></span>' +
-    '<span><span class="k">predators</span><b class="ember">' + (L.predators||0) + '</b></span>' +
+    '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
+    '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
-    '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>';
+    '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
+    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving</span>');
+  var tb = $('top').getBoundingClientRect().bottom;
+  if (tb !== lastTop){ lastTop = tb; layout(); }
+  var sp = $('species');
+  if (sp && $('drawer').classList.contains('open')){
+    var h = '';
+    (L.species || []).forEach(function(c){
+      h += '<div class="row"><span style="flex:0 0 14px;height:14px;border-radius:7px;background:' + dietColour(c.diet) + '"></span>' +
+           '<label style="flex:1">' + c.n + ' animals · size ' + c.size + '</label><span style="flex:0 0 auto">diet ' + c.diet.toFixed(2) +
+           ' · ' + (100*c.meat).toFixed(0) + '% meat</span></div>';
+    });
+    sp.innerHTML = h || '<p class="note">no cluster above 2% of animals yet</p>';
+  }
 }
 function findSel(){
   if (selId < 0) return -1;
@@ -1085,7 +1106,7 @@ var SLIDERS = [
   ['dmg', 'bite damage', 0.05, 1, 0.05], ['seasonAmp', 'seasons', 0, 0.8, 0.05], ['mutP', 'mutation rate', 0.01, 0.2, 0.01]
 ];
 function buildDrawer(){
-  var d = $('drawer'), h = '<h4>physics — live</h4>';
+  var d = $('drawer'), h = '<h4>species — measured, not declared</h4><div id="species"></div><h4>physics — live</h4>';
   SLIDERS.forEach(function(s){
     h += '<div class="row"><label>' + s[1] + '</label><input type="range" id="s_' + s[0] + '" min="' + s[2] + '" max="' + s[3] +
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
