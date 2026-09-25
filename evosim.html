@@ -137,6 +137,7 @@ var CFG_DEFAULT = {
   upDetox: 0.006,       // x detox^2 x mass^0.75
   upSpeed: 0.010,       // x (top speed)^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
+  kConfusion: 0,        // predator confusion: strike damage / (1 + k x others within 3 of the target). 0 = off
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
   atkCost: 0.004,       // energy per attack tick x mass^0.75
   hpPerMass: 2,
@@ -152,6 +153,8 @@ var CFG_DEFAULT = {
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
+  mateDist: 1,          // with sex on: partners whose body genomes differ by more than this
+                        // (mean normalised difference) cannot breed. 1 = no limit.
   sex: 0,               // 1: a breeder recombines with the nearest acceptable adult it
                         // can sense (clones if there is none). 0: always clone. Off by
                         // default: every predator world so far evolved without it.
@@ -162,6 +165,7 @@ var CFG_DEFAULT = {
   wMax: 4,
 
   seedGenomes: null,    // optional array of genomes (from run.js --dump) to found the world from
+  seedNI: 0,            // number of senses the seed genomes were evolved with, if fewer than now
   // ---- logging ----
   sampleEvery: 500
 };
@@ -191,11 +195,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 22, NH = 8, NO = 5;
+var NI = 25, NH = 8, NO = 5;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
 
 var CFG, S;   // config and state
@@ -265,7 +269,7 @@ function init(patch){
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
     E: new Float32Array(M), mass: new Float32Array(M), hp: new Float32Array(M), age: new Float32Array(M),
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
-    m75: new Float32Array(M), maxAge: new Float32Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
+    m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
     act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
@@ -356,6 +360,15 @@ function alloc(){
   return i;
 }
 function geneRange(k){ return BODY[k][2] - BODY[k][1]; }
+// A genome from a build with fewer senses (oldNI inputs): new inputs get zero weights.
+function remapGenome(src, oldNI){
+  var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*NO, k, h, q;
+  for (k = 0; k < NB; k++) out[k] = src[k];
+  for (h = 0; h < NH; h++) for (k = 0; k < oldNI; k++) out[W1+h*NI+k] = src[oW1+h*oldNI+k];
+  for (k = 0; k < NH*NO; k++) out[W2+k] = src[oW2+k];
+  for (q = 0; q < NO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
+  return out;
+}
 // Founders: an ancestral body (cheap organs, some spread) with a random diet
 // and a completely random brain. The body is an initial condition; nothing in
 // it says what to do. Fully random bodies (big weapons, armour, eyes, all with
@@ -369,7 +382,8 @@ function spawnRandom(){
   var SG = CFG.seedGenomes;
   if (SG && SG.length){
     var src = SG[(rng()*SG.length)|0];
-    for (var q = 0; q < NG; q++) G[g+q] = q < src.length ? src[q] : 0;
+    var src2 = CFG.seedNI && CFG.seedNI !== NI ? remapGenome(src, CFG.seedNI) : src;
+    for (var q = 0; q < NG; q++) G[g+q] = q < src2.length ? src2[q] : 0;
     mutate(i);
     var m1 = G[g+G_SIZE]*Math.max(0.3, G[g+G_BIRTH])*2;
     setupBody(i, rng()*S.world, rng()*S.world, Math.min(m1, G[g+G_SIZE]), 0);
@@ -420,6 +434,16 @@ function tagDist(a, b){
   for (var q = 0; q < 3; q++){ var dd = G[a*NG+G_TAG+q] - G[b*NG+G_TAG+q]; t += dd*dd; }
   return Math.sqrt(t/3);
 }
+// mean normalised difference over the body genes (colour tags excluded)
+function bodyDist(a, b){
+  var G = S.genome, A = a*NG, B = b*NG, t = 0, n = 0;
+  for (var k = 0; k < NB; k++){
+    if (k >= G_TAG && k < G_TAG + 3) continue;
+    var lo = BODY[k][1], hi = BODY[k][2], x = G[A+k], y = G[B+k];
+    t += BODY[k][3] ? Math.abs(Math.log(x/y))/Math.log(hi/lo) : Math.abs(x - y)/(hi - lo); n++;
+  }
+  return t/n;
+}
 // nearest adult within sense range that both partners accept
 function findMate(i){
   var G = S.genome, g = i*NG, R = G[g+G_SENSE], R2 = R*R, x = S.x[i], y = S.y[i];
@@ -435,6 +459,7 @@ function findMate(i){
         if (d2 >= bd) continue;
         var td = tagDist(i, j);
         if (td > 1 - G[g+G_CHOOSY] || td > 1 - G[j*NG+G_CHOOSY]) continue;
+        if (CFG.mateDist < 1 && bodyDist(i, j) > CFG.mateDist) continue;   // genomes too far apart to breed
         bd = d2; best = j;
       }
     }
@@ -503,6 +528,10 @@ function radius(m){ return CFG.radiusK*Math.cbrt(m); }
 function bodyCache(i){
   var m = S.mass[i];
   S.rad[i] = radius(m); S.m75[i] = Math.pow(m, 0.75); S.maxAge[i] = CFG.ageK*Math.pow(m, 0.25);
+  var G = S.genome, g = i*NG, size = G[g+G_SIZE];
+  var v = G[g+G_SPEED]*(1 - CFG.armourSlow*G[g+G_ARMOUR]);
+  if (CFG.juvSlow > 0 && m < size) v *= Math.pow(m/size, CFG.juvSlow);
+  S.vmax[i] = v;
 }
 
 var IN = new Float32Array(NI), HID = new Float32Array(NH);
@@ -515,6 +544,7 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   nearA = -1; nearAd = R2; nearC = -1; nearCd = R2; crowd = 0;
+  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   for (var dy = -span; dy <= span; dy++){
@@ -525,7 +555,8 @@ function sense(i){
         if (j === i || !S.alive[j]) continue;
         var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y), d2 = ex*ex + ey*ey;
         if (d2 >= R2) continue;
-        crowd++;
+        crowd++; cxs += ex; cys += ey;
+        if (S.hurt[j] > alarm){ alarm = S.hurt[j]; alx = ex; aly = ey; }   // a neighbour under attack
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(S.mass[j]/mi), -3, 3)/3
                 + aK*(1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)) + aW*G[og2+G_WEAPON]/1.5;
@@ -572,6 +603,10 @@ function sense(i){
   var reachI = S.rad[i] + CFG.reach;
   IN[20] = nearC >= 0 && Math.sqrt(nearCd) - S.crad[nearC] < reachI ? 1 : 0;
   IN[21] = nearA >= 0 && Math.sqrt(nearAd) - S.rad[nearA] < reachI ? 1 : 0;
+  // where the others are: direction to the centre of every animal in sense range
+  IN[22] = crowd > 0 ? angDiff(Math.atan2(cys, cxs), h)/Math.PI : 0;
+  IN[23] = Math.min(1, alarm);
+  IN[24] = alarm > 0 ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -611,8 +646,7 @@ function updateAnimal(i){
   var G = S.genome, g = i*NG, o = i*NO;
   var mass = S.mass[i], m75 = S.m75[i];
   var size = G[g+G_SIZE], diet = G[g+G_DIET], armour = G[g+G_ARMOUR];
-  var vmax = G[g+G_SPEED]*(1 - CFG.armourSlow*armour);
-  if (CFG.juvSlow > 0 && mass < size) vmax *= Math.pow(mass/size, CFG.juvSlow);
+  var vmax = S.vmax[i];
   var Emax = CFG.eCap*mass;
 
   // ---- motor
@@ -623,14 +657,17 @@ function updateAnimal(i){
   S.hd[i] = hd;
   S.sp[i] += clamp(want - S.sp[i], -0.1*vmax, 0.1*vmax);
   var sp = S.sp[i];
-  S.x[i] = (S.x[i] + Math.cos(S.hd[i])*sp + S.world) % S.world;
-  S.y[i] = (S.y[i] + Math.sin(S.hd[i])*sp + S.world) % S.world;
+  var W = S.world, nx = S.x[i] + Math.cos(hd)*sp, ny = S.y[i] + Math.sin(hd)*sp;
+  if (nx < 0) nx += W; else if (nx >= W) nx -= W;
+  if (ny < 0) ny += W; else if (ny >= W) ny -= W;
+  S.x[i] = nx; S.y[i] = ny;
 
   // ---- mouth: strike if an animal is in reach and the urge is on, else eat
   var want = S.want[i], act = 0, tj = -1, cc = -1;
   if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
   if (act === 0 && (want & 1)){
     var hc = cellAt(S.x[i], S.y[i]), plantOK = S.pB[hc] > CFG.pRoot;
+    S.cellTmp = hc;
     cc = nearCorpse(i);
     if (cc >= 0 && ((want & 2) || !plantOK)) act = 2;
     else if (plantOK) act = 1;
@@ -638,7 +675,7 @@ function updateAnimal(i){
   S.act[i] = act;
   var slow = 1 - 0.7*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 1){
-    var c = cellAt(S.x[i], S.y[i]), B = S.pB[c];
+    var c = S.cellTmp, B = S.pB[c];
     if (B > CFG.pRoot){
       var val = CFG.ePlant*(1 - Math.pow(diet, CFG.dietCurve));
       var bite = Math.min(B - CFG.pRoot, CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX])));
@@ -661,6 +698,7 @@ function updateAnimal(i){
     {
       S.c.attacks++;
       var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng());
+      if (CFG.kConfusion > 0) dmg /= 1 + CFG.kConfusion*neighboursOf(tj, 3, i);
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
@@ -725,6 +763,19 @@ function nearCorpse(i){
   }
   lastC = best;
   return best;
+}
+// other animals within r of animal j, not counting `skip`
+function neighboursOf(j, r, skip){
+  var x = S.x[j], y = S.y[j], r2 = r*r, inv = 1/S.bSize, bN = S.bN, bx0 = (x*inv)|0, by0 = (y*inv)|0, n = 0;
+  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+    var b = (((by0+dy) % bN + bN) % bN)*bN + ((bx0+dx) % bN + bN) % bN;
+    for (var k = S.aHead[b]; k >= 0; k = S.aNext[k]){
+      if (k === j || k === skip || !S.alive[k]) continue;
+      var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
+      if (ex*ex + ey*ey < r2) n++;
+    }
+  }
+  return n;
 }
 // the animal this one is attending to, if it is still alive and within reach
 function attendedInReach(i){
@@ -873,7 +924,96 @@ function sample(){
   return row;
 }
 
-return { init: init, step: step, sample: sample, get S(){ return S; }, get CFG(){ return CFG; },
+
+// ---------------------------------------------------------------- save / restore
+// A world as a plain object of strings and numbers, small enough for
+// localStorage: per-animal state as float32, genomes at one byte per gene
+// (mutation noise swamps the rounding), plants and corpses as float32.
+var B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function b64enc(u8){
+  var out = '', i, n = u8.length;
+  for (i = 0; i + 2 < n; i += 3){
+    var v = (u8[i] << 16) | (u8[i+1] << 8) | u8[i+2];
+    out += B64[v >> 18] + B64[(v >> 12) & 63] + B64[(v >> 6) & 63] + B64[v & 63];
+  }
+  if (i < n){
+    var w = u8[i] << 16 | (i + 1 < n ? u8[i+1] << 8 : 0);
+    out += B64[w >> 18] + B64[(w >> 12) & 63] + (i + 1 < n ? B64[(w >> 6) & 63] : '=') + '=';
+  }
+  return out;
+}
+function b64dec(str){
+  var L = str.length, pad = str[L-1] === '=' ? (str[L-2] === '=' ? 2 : 1) : 0;
+  var out = new Uint8Array(L/4*3 - pad), o = 0, look = {};
+  for (var k = 0; k < 64; k++) look[B64[k]] = k;
+  for (var i = 0; i < L; i += 4){
+    var v = (look[str[i]] << 18) | (look[str[i+1]] << 12) | ((look[str[i+2]] || 0) << 6) | (look[str[i+3]] || 0);
+    if (o < out.length) out[o++] = v >> 16;
+    if (o < out.length) out[o++] = (v >> 8) & 255;
+    if (o < out.length) out[o++] = v & 255;
+  }
+  return out;
+}
+function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
+function unf32(str){ return new Float32Array(b64dec(str).buffer); }
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr'];
+function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
+function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
+function snapshot(){
+  var idx = [];
+  for (var i = 0; i < S.hi; i++) if (S.alive[i]) idx.push(i);
+  var n = idx.length, A = {}, gb = new Uint8Array(n*NG), ints = new Int32Array(n*4);
+  AFIELDS.forEach(function(f){ var a = new Float32Array(n); for (var k = 0; k < n; k++) a[k] = S[f][idx[k]]; A[f] = f32(a); });
+  for (var k = 0; k < n; k++){
+    var i2 = idx[k], g = i2*NG;
+    for (var q = 0; q < NG; q++){
+      var lo = geneLo(q), hi = geneHi(q);
+      gb[k*NG+q] = Math.round(255*clamp((S.genome[g+q] - lo)/(hi - lo), 0, 1));
+    }
+    ints[k*4] = S.id[i2]; ints[k*4+1] = S.gen[i2]; ints[k*4+2] = S.kills[i2]; ints[k*4+3] = S.act[i2];
+  }
+  var cfg = {};
+  for (var key in CFG) if (key !== 'seedGenomes') cfg[key] = CFG[key];
+  var c = S.cN, sl = function(a){ return f32(Array.prototype.slice.call(a, 0, c)); };
+  return {
+    kind: 'evosim1-world', version: VERSION, NG: NG, NI: NI, cfg: cfg, tick: S.tick,
+    established: S.established, establishedAt: S.establishedAt || 0, nextId: S.nextId,
+    rng: [rs0, rs1, rs2, rs3], n: n, animals: A, genomes: b64enc(gb), ints: b64enc(new Uint8Array(ints.buffer)),
+    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed)},
+    corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad),
+              k: b64enc(new Uint8Array(new Int32Array(Array.prototype.slice.call(S.cKiller, 0, c)).buffer))},
+    log: S.log.slice(-200)
+  };
+}
+function restore(w){
+  if (!w || w.kind !== 'evosim1-world' || w.NG !== NG) return false;
+  init(w.cfg);
+  // init drew founders; clear them and put the saved world in their place
+  S.alive.fill(0); S.n = 0; S.nFree = 0; S.hi = 0; S.cN = 0;
+  var P = w.plants;
+  S.pB.set(unf32(P.B)); S.pStat.set(unf32(P.stat)); S.pDef.set(unf32(P.def)); S.pDisp.set(unf32(P.disp));
+  S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed));
+  for (var c = 0; c < S.pB.length; c++) cachePlant(c);
+  var n = w.n, F = {}, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
+  AFIELDS.forEach(function(f){ F[f] = unf32(w.animals[f]); });
+  for (var k = 0; k < n; k++){
+    var i = alloc(), g = i*NG;
+    for (var q = 0; q < NG; q++){ var lo = geneLo(q), hi = geneHi(q); S.genome[g+q] = lo + (hi - lo)*gb[k*NG+q]/255; }
+    AFIELDS.forEach(function(f){ S[f][i] = F[f][k]; });
+    S.id[i] = ints[k*4]; S.gen[i] = ints[k*4+1]; S.kills[i] = ints[k*4+2]; S.act[i] = ints[k*4+3];
+    S.tgt[i] = -1; bodyCache(i);
+  }
+  var C = w.corpses, cx = unf32(C.x), cy = unf32(C.y), cm = unf32(C.m), cE = unf32(C.E), cr = unf32(C.r),
+      ck = new Int32Array(b64dec(C.k).buffer);
+  for (var j = 0; j < C.n; j++){ S.cx[j] = cx[j]; S.cy[j] = cy[j]; S.cm[j] = cm[j]; S.cE[j] = cE[j]; S.crad[j] = cr[j]; S.cKiller[j] = ck[j]; }
+  S.cN = C.n;
+  S.tick = w.tick; S.established = w.established; S.establishedAt = w.establishedAt; S.nextId = w.nextId;
+  rs0 = w.rng[0]; rs1 = w.rng[1]; rs2 = w.rng[2]; rs3 = w.rng[3]; gCache = null;
+  S.log = w.log || []; S.c = newCounters();
+  return true;
+}
+
+return { init: init, step: step, sample: sample, snapshot: snapshot, restore: restore, get S(){ return S; }, get CFG(){ return CFG; },
             CFG_DEFAULT: CFG_DEFAULT, BODY: BODY, NB: NB, NG: NG, NI: NI, NH: NH, NO: NO,
             W1: W1, W2: W2, WD: WD, INPUT_NAMES: INPUT_NAMES, OUTPUT_NAMES: OUTPUT_NAMES,
             VERSION: VERSION, radius: radius, cellAt: cellAt };
@@ -909,12 +1049,15 @@ function evolvedGenomes(){
 }
 var COLOUR_NAMES = ['diet', 'kin', 'action'];
 var cam = {x: 0, y: 0, z: 1}, view = {x: 0, y: 0, w: 0, h: 0};
-var patch = {};
+var patch = {gridN: 64};   // the small world by default: about twice as fast, and predators evolve as often
 var plantImg = null, plantCv = document.createElement('canvas'), pctx = plantCv.getContext('2d');
 
 function newWorld(seed){
   patch.seed = seed != null ? seed : (Math.random()*1e9)|0;
   Sim.init(patch);
+  afterLoad();
+}
+function afterLoad(){
   var n = Sim.CFG.gridN;
   plantCv.width = n; plantCv.height = n;
   plantImg = pctx.createImageData(n, n);
@@ -1054,10 +1197,13 @@ function hud(){
     '<span><span class="k">plants</span><b class="leaf">' + (L.plantMass|0) + '</b></span>' +
     '<span><span class="k">meat</span><b class="ember">' + ((L.meatShare||0)*100).toFixed(1) + '%</b></span>' +
     '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
+    '<span><span class="k">carnivores</span><b class="ember">' + (L.dietHist ? L.dietHist.slice(5).reduce(function(a, b){ return a + b; }, 0) : 0) + '</b></span>' +
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
-    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving</span>');
+    (resumedFrom && S.tick - resumedFrom < 3000 ? '<span class="k" style="color:#6fa3c4">resumed your saved world</span>' : '') +
+    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving' +
+      (EVOLVED && !patch.seedGenomes ? ' · world → evolved start skips ahead to predators and prey' : '') + '</span>');
   var tb = $('top').getBoundingClientRect().bottom;
   if (tb !== lastTop){ lastTop = tb; layout(); }
   var sp = $('species');
@@ -1154,7 +1300,7 @@ function buildDrawer(){
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
-  h += '<p class="note">A smaller world runs faster, so evolution gets further per minute; predators usually need a few hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">Small is the default: it runs about twice as fast and predators evolved in as many test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
   SLIDERS.forEach(function(s){
@@ -1166,8 +1312,8 @@ function buildDrawer(){
     var el = $('z' + z); el.classList.toggle('on', (patch.gridN || Sim.CFG.gridN) === z);
     el.onclick = function(){ patch.gridN = z; newWorld(); buildDrawer(); };
   });
-  $('bNew').onclick = function(){ delete patch.seedGenomes; delete patch.founders; newWorld(); buildDrawer(); };
-  if (EVOLVED) $('bEvo').onclick = function(){ patch.seedGenomes = evolvedGenomes(); patch.founders = 600; newWorld(); buildDrawer(); };
+  $('bNew').onclick = function(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.founders; newWorld(); buildDrawer(); };
+  if (EVOLVED) $('bEvo').onclick = function(){ patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ newWorld(Sim.CFG.seed); buildDrawer(); };
   $('bLog').onclick = function(){
     var blob = new Blob([JSON.stringify({kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG, log: Sim.S.log})], {type: 'application/json'});
@@ -1191,7 +1337,27 @@ function frame(ts){
   requestAnimationFrame(frame);
 }
 addEventListener('resize', resize);
-newWorld(1); buildDrawer(); resize();
+// ---- keep the world across visits: autosave to localStorage, resume on load
+var SAVE_KEY = 'evosim-world', resumedFrom = 0;
+function saveWorld(){
+  if (!Sim.S || !Sim.S.established) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(Sim.snapshot())); } catch (e) { /* full or blocked: carry on */ }
+}
+function resumeWorld(){
+  try {
+    var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if (w && Sim.restore(w)){
+      ['gridN', 'seed'].forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      resumedFrom = Sim.S.tick; afterLoad(); return true;
+    }
+  } catch (e) {}
+  return false;
+}
+setInterval(saveWorld, 60000);
+window.evosim = { save: saveWorld, get resumedFrom(){ return resumedFrom; } };   // for tests and the console
+document.addEventListener('visibilitychange', function(){ if (document.hidden) saveWorld(); });
+if (!resumeWorld()) newWorld((Math.random()*1e9)|0);
+buildDrawer(); resize();
 requestAnimationFrame(frame);
 })();
 </script>

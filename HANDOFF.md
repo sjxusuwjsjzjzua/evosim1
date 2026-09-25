@@ -45,6 +45,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | diet | one axis: plant yield x (1 − diet), meat yield x (0.4 + 0.6 diet) | flesh is easy to digest, cellulose needs a specialised gut |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
 | combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
+| persistence | `Sim.snapshot()` / `Sim.restore()`; the page autosaves to localStorage every minute and when hidden, and resumes on load | reaching predators takes hours on a phone; genomes are stored at one byte per gene |
 | bootstrap | founders get a cheap ancestral body with spread, a random diet and a completely random brain; they keep arriving while the population is under 200 until one has once reached 400 | fully random bodies rarely survived and bootstrap took 40–65k ticks; now 12–33k |
 
 ## What is known (2026-09-25)
@@ -88,8 +89,8 @@ Browser check (Chromium and Playwright are preinstalled):
 
 ## A carnivore species evolved (2026-09-25, seed 21, `upFixed` 0.003, `sex` 0)
 
-Reproducible: `node run.js --seed 21 --ticks 240000 --set upFixed=0.003,sex=0`
-(these are now the defaults, so `--seed 21` alone does it at commit eafc1c4).
+Reproducible at commit eafc1c4: `node run.js --seed 21 --ticks 240000 --set upFixed=0.003,sex=0`
+(later speed changes alter rounding, so the exact trajectory differs at HEAD; the population itself is embedded in the page).
 
 | tick | carnivore cluster | diet gene | lifetime meat | world |
 |---|---|---|---|---|
@@ -130,6 +131,41 @@ predator-prey oscillation (3,520 → 1,076 → 2,911 animals).
 
 The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
 (`results/v1-U-base`), so the defaults were switched.
+
+## The defaults, tested: fixed cost x sex, 10 seeds a cell, 400k ticks (`results/v1-V-*`, `results/v1-U-base`)
+
+| | asexual | sexual |
+|---|---|---|
+| `upFixed` 0.003 | **6 of 10** worlds predator-dominated (regime 17–81%); **2 of 10** with meat guts (up to 10% of animals at diet ≥ 0.5, peak meat share 50–57%) | 1 of 10 predator-dominated; no gut shift |
+| `upFixed` 0.010 | 0 of 10 | 0 of 20 (600k ticks) |
+
+regime = share of post-bootstrap samples with meat above 15% of intake. The
+small fixed cost is necessary; clonal reproduction multiplies it. A likely reason
+sex hurts: recombination with the herbivore majority breaks up carnivore gene
+combinations unless mating is already assortative.
+
+## Herding does not pay in this physics (tested 2026-09-25)
+
+Hand-built test in worlds founded from the evolved predator population: after
+10k ticks, half the herbivores got a weight turning them toward the centre of
+the animals they can see (the `crowdDir` sense).
+
+- Crowd pull alone: herders went from half the herbivores to extinct within 15k
+  ticks in both worlds.
+- With `alarm` / `alarmDir` senses (a neighbour under attack, and where) and a
+  flee response given to **both** halves: herders still lost, 549 → 44–160 in
+  20k ticks, while solitary animals held.
+
+Grouping costs more in shared, depleted plant cells than it returns in early
+warning, and a cruising predator that strikes whatever it touches finds a
+cluster of easy contacts. The senses stay (they are information, and a lone
+animal can use them too); no benefit to grouping has been written in.
+
+Predator confusion (`kConfusion`: strike damage / (1 + k x others within 3 of the
+target), off by default) was tested too: at k 0.5 and 1.5 herders still fell to
+0–51 of ~550 in 20k ticks. Sharing depleted plant cells costs more than any of
+these benefits return. Herding would likely need a different plant ecology
+(abundant forage in patches, so groups do not starve each other), not a rule.
 
 ## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
 

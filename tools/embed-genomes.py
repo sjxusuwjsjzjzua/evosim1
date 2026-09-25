@@ -22,8 +22,8 @@ for g in src['genomes']:
         v = min(max(g[k], lo[k]), hi[k])
         out.append(round(255*(v-lo[k])/(hi[k]-lo[k])))
 b64 = base64.b64encode(bytes(out)).decode()
-block = ("/*EVOLVED-START*/var EVOLVED = {NG: %d, n: %d, tick: %d, note: %s, data: '%s'};/*EVOLVED-END*/"
-         % (NG, len(src['genomes']), src.get('tick', 0), json.dumps(note), b64))
+block = ("/*EVOLVED-START*/var EVOLVED = {NG: %d, ni: %d, n: %d, tick: %d, note: %s, data: '%s'};/*EVOLVED-END*/"
+         % (NG, src.get('NI', 22), len(src['genomes']), src.get('tick', 0), json.dumps(note), b64))
 if '/*EVOLVED-START*/' in html:
     html = re.sub(r'/\*EVOLVED-START\*/[\s\S]*?/\*EVOLVED-END\*/', lambda m: block, html)
 else:
