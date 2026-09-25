@@ -131,6 +131,18 @@ predator-prey oscillation (3,520 → 1,076 → 2,911 animals).
 The previous default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
 (`results/v1-U-base`), so the defaults were switched.
 
+## The defaults, tested: fixed cost x sex, 10 seeds a cell, 400k ticks (`results/v1-V-*`, `results/v1-U-base`)
+
+| | asexual | sexual |
+|---|---|---|
+| `upFixed` 0.003 | **6 of 10** worlds predator-dominated (regime 17–81%); **2 of 10** with meat guts (up to 10% of animals at diet ≥ 0.5, peak meat share 50–57%) | 1 of 10 predator-dominated; no gut shift |
+| `upFixed` 0.010 | 0 of 10 | 0 of 20 (600k ticks) |
+
+regime = share of post-bootstrap samples with meat above 15% of intake. The
+small fixed cost is necessary; clonal reproduction multiplies it. A likely reason
+sex hurts: recombination with the herbivore majority breaks up carnivore gene
+combinations unless mating is already assortative.
+
 ## Sweep, 2026-09-25, previous default at 300k ticks (6 seeds each, `results/v1-T-*`)
 
 Share of energy from meat, per world, last two thirds of the run:
