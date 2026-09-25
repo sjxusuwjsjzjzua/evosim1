@@ -42,7 +42,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance within both partners' `choosy`), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; a 2x2 is separating its effect from the fixed cost |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only with an animal in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
-| diet | one axis: plant yield x (1 − diet), meat yield x (0.4 + 0.6 diet) | flesh is easy to digest, cellulose needs a specialised gut |
+| diet | one axis, concave (`dietCurve` 2): plant yield x (1 − diet²), meat yield x (0.4 + 0.6 (1 − (1 − diet)²)) | flesh is easy to digest, cellulose needs a specialised gut; the concave form made a first step toward either gut cheap and raised the predator rate (16 of 20 worlds against 11 of 20) |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
 | combat | damage = `dmg` x weapon x mass^0.75 x (1 − 0.75 armour); hp = 2 x mass | an equal-sized kill takes ~4 ticks; size protects |
 | persistence | `Sim.snapshot()` / `Sim.restore()`; the page autosaves to localStorage every minute and when hidden, and resumes on load | reaching predators takes hours on a phone; genomes are stored at one byte per gene |
@@ -159,8 +159,11 @@ combinations unless mating is already assortative.
 - The concave diet trade-off (`dietCurve` 2: a first step toward either gut is
   cheap) is the strongest lever found. Every world became predator-dominated,
   meat typically 16–29% of intake, mean diet 0.04–0.22, and 4 of 10 grew
-  specialists. Replication on fresh seeds and the sex x curve combination are
-  running (`v1-Y-*`).
+  specialists. On fresh seeds (`v1-Y-small-curve2`) it gave 6 of 10 and 2 of 10:
+  over both batches 16 of 20 predator-dominated and 6 of 20 with meat guts,
+  against 11 and 3 of 20 for the linear trade. **Now the default.** Adding
+  `sex=1, mateDist=0.1` on top (`v1-Y-small-curve2-sexmd`) gave 7 and 1 of 10,
+  so reproduction stays clonal by default.
 
 ## Herding does not pay in this physics (tested 2026-09-25)
 

@@ -27,20 +27,20 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 
 ## How the engine works, in one paragraph
 
-Plants are a 96x96 grid of cells; an occupied cell has biomass and three genes
+Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell has biomass and three genes
 (stature, defence, dispersal), grows logistically, keeps an ungrazeable root
 reserve, and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
-and a neural network (22 senses, 8 hidden,
+and a neural network (25 senses, 8 hidden,
 5 outputs: turn, throttle, eat, meat preference, attack). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is
-in reach. Diet is one axis: plant yield x (1 - diet), meat yield
-x (0.4 + 0.6 diet). A corpse carries its flesh plus the reserves the animal died
+in reach. Diet is one axis with a concave trade-off: plant yield x (1 - diet^2),
+meat yield x (0.4 + 0.6 (1 - (1 - diet)^2)). A corpse carries its flesh plus the reserves the animal died
 with. Attention picks which neighbour the animal senses and strikes; its weights
-are genes. Juveniles are slow. Reproduction is sexual when an acceptable mate is
-in sense range. Founders have a cheap ancestral body and a random brain and keep
+are genes. Juveniles are slow. Reproduction is clonal by default (`sex` 1 recombines with an acceptable
+mate in sense range; `mateDist` adds genetic incompatibility). Founders have a cheap ancestral body and a random brain and keep
 arriving until a population establishes. See `HANDOFF.md` for why each piece is
 there.
 
