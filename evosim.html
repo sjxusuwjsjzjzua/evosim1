@@ -102,8 +102,10 @@ var CFG_DEFAULT = {
   // ---- animals: bodies ----
   maxA: 12000,
   founders: 300,
-  reseedUntil: 60000,   // random genomes keep arriving until this tick while
-  reseedFloor: 200,     // the population is below the floor. Bootstrap only.
+  reseedFloor: 200,    // BOOTSTRAP ONLY: random genomes arrive while the population is
+                        // below this, until a population has once established itself
+                        // (reached 2 x the floor). After that, nothing is ever added.
+  reseedUntil: 400000,  // give up bootstrapping after this tick
   think: 2,             // ticks between brain evaluations
   eCap: 40,             // energy an animal can store per unit body mass
   cBuild: 10,           // energy to build one unit of body mass
@@ -137,6 +139,7 @@ var CFG_DEFAULT = {
   heal: 0.003,          // fraction of max hp regained per tick
   armourEff: 0.75,      // damage taken x (1 - armourEff*armour)
   armourSlow: 0.35,     // top speed x (1 - armourSlow*armour)
+  juvSlow: 0.5,         // top speed x (mass / adult size)^juvSlow: the young are slow. 0 = off
   turnMax: 0.35,
   radiusK: 0.7,         // body radius = radiusK * mass^(1/3)
   reach: 0.6,
@@ -245,7 +248,7 @@ function init(patch){
   seedRng(CFG.seed*2654435761 + 12345); gCache = null;
   var n = CFG.gridN, nc = n*n, M = CFG.maxA;
   S = {
-    tick: 0, world: n*CFG.cellSize,
+    tick: 0, world: n*CFG.cellSize, established: false,
     // plants
     pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
@@ -585,6 +588,7 @@ function updateAnimal(i){
   var mass = S.mass[i], m75 = S.m75[i];
   var size = G[g+G_SIZE], diet = G[g+G_DIET], armour = G[g+G_ARMOUR];
   var vmax = G[g+G_SPEED]*(1 - CFG.armourSlow*armour);
+  if (CFG.juvSlow > 0 && mass < size) vmax *= Math.pow(mass/size, CFG.juvSlow);
   var Emax = CFG.eCap*mass;
 
   // ---- motor
@@ -735,7 +739,8 @@ function step(){
     S.cm[c] -= S.cm[c]*CFG.corpseDecay; S.cE[c] -= S.cE[c]*CFG.corpseDecay;
     if (S.cm[c] < 0.02) removeCorpse(c);
   }
-  if (S.tick < CFG.reseedUntil && S.n < CFG.reseedFloor && S.tick % 4 === 0){
+  if (!S.established && S.n >= 2*CFG.reseedFloor) S.established = true;
+  if (!S.established && S.tick < CFG.reseedUntil && S.n < CFG.reseedFloor && S.tick % 4 === 0){
     spawnRandom(); S.c.reseeds++;
   }
   if (S.tick % CFG.sampleEvery === 0) sample();
@@ -1107,7 +1112,7 @@ function frame(ts){
     var budget = performance.now() + 30, n = SPEEDS[speedIdx];
     for (var k = 0; k < n && performance.now() < budget; k++){
       Sim.step();
-      if (Sim.S.n === 0 && Sim.S.tick > Sim.CFG.reseedUntil){ running = false; $('bPlay').textContent = 'play'; break; }
+      if (Sim.S.n === 0 && (Sim.S.established || Sim.S.tick > Sim.CFG.reseedUntil)){ running = false; $('bPlay').textContent = 'play'; break; }
     }
   }
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);

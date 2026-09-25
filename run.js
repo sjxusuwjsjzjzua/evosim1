@@ -49,7 +49,7 @@ for (let t = 1; t <= ticks; t++) {
     // a partial log survives a killed job
     if (args.out && S.tick % (every*5) === 0) save();
   }
-  if (S.n === 0 && S.tick > Sim.CFG.reseedUntil) { console.log(`extinct at t=${S.tick}`); break; }
+  if (S.n === 0 && (S.established || S.tick > Sim.CFG.reseedUntil)) { console.log(`extinct at t=${S.tick}`); break; }
 }
 if (args.out) save();
 function save() {
