@@ -21,6 +21,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/v1score.py` | one row per log, last half of the run: population, meat share, kill share, predators, diet, regime%, clump, carnivore species. `python3 tools/v1score.py runs/*.json` |
 | `tools/fetch-results.sh [prefix]` | pulls `results/*` branches into `runs/<label>/` (gitignored). |
 | `tools/genomes.js` | brain probes of a `--dump`, split at diet 0.3. |
+| `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
 | `.github/workflows/sim.yml` | the same on GitHub Actions, one seed per job; every log of a dispatch lands on one branch, `results/<label>`. Dispatch with ref = the working branch. |
