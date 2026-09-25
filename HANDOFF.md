@@ -104,6 +104,30 @@ and sense range rose on both sides through the run. Nothing about diet, prey or
 hunting is written anywhere: the brains started random and the gut followed the
 behaviour once a lineage got most of its energy from flesh.
 
+What evolved, from the genome dump at tick 200,000 (`tools/genomes.js`, brain
+probes with synthetic senses):
+
+| | carnivores | herbivores |
+|---|---|---|
+| body size | 2.70 | 0.36 |
+| top speed | 1.28 | 0.89 |
+| weapon / armour | 0.70 / 0.61 | 0.11 / 0.04 |
+| diet gene | 0.95 | 0.01 |
+| detox (vs plant defence) | 0.11 | 1.00 |
+| sense range | 3.4 | 7.3 |
+| strikes when touching an animal | 95–98% | 12–13% |
+| throttle alone / near a big armed animal | 0.81 / 0.91 | 0.23 / 0.46 |
+| steering near others | neutral | away |
+| attention | — | bigger animals (+0.98), strangers (kin −1.59) |
+
+Carnivores are big armed cruisers that strike whatever they meet; herbivores are
+small vigilant grazers that watch large strangers and run from them, with
+maximal detox against defended plants.
+
+This population is embedded in the page ("evolved start" in the world drawer,
+600 founders); the carnivores held on in 3 of 4 test worlds, one of them with
+predator-prey oscillation (3,520 → 1,076 → 2,911 animals).
+
 The current default (0.010 with sex) produced 0 such worlds in 20 at 600k ticks
 (`results/v1-U-base`), so the defaults were switched.
 
