@@ -966,8 +966,6 @@ function species(){
   }
   return out;
 }
-// Grouping: mean number of other animals within 6 units, over what random
-// placement at the same density would give. 1 = random, above 1 = herds.
 // neighbours within 6 against a uniform scatter: 1 = random, above 1 = in groups.
 // preyOnly: animals whose lifetime intake is mostly plants, among themselves
 function clumping(preyOnly){
@@ -1347,6 +1345,7 @@ function hud(){
     '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
     '<span><span class="k">predators</span><b class="ember">' + (L.predators||0) + '</b></span>' +
     '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
+    '<span><span class="k">groups</span><b class="sky">' + (L.clumpPrey != null ? L.clumpPrey.toFixed(1) + '×' : '-') + '</b></span>' +
     '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
     '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
     (S.n === 0 && S.tick > 0 && (S.established || S.tick > Sim.CFG.reseedUntil) ? '<span class="k" style="color:#e0704a">extinct · world → new world or evolved start</span>' : '') +
@@ -1450,10 +1449,12 @@ function buildDrawer(){
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
   });
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
+  h += '<div class="row"><label>reproduction</label><button id="rC">clonal</button><button id="rS">sexual</button></div>';
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
+  h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds the clusters become true species that cannot interbreed, sometimes split by diet.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
@@ -1467,6 +1468,12 @@ function buildDrawer(){
     el.onclick = function(){ if (!discardOK()) return; patch.gridN = z; fresh(); newWorld(); buildDrawer(); };
   });
   function fresh(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.founders; }
+  // sexual worlds: a breeder recombines with an acceptable mate in sense range, and
+  // genomes too far apart cannot breed, so clusters become true species
+  var sexual = !!Sim.CFG.sex;
+  $('rC').classList.toggle('on', !sexual); $('rS').classList.toggle('on', sexual);
+  $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; delete patch.mateDist; fresh(); newWorld(); buildDrawer(); };
+  $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; patch.mateDist = 0.1; fresh(); newWorld(); buildDrawer(); };
   $('bNew').onclick = function(){ if (!discardOK()) return; fresh(); newWorld(); buildDrawer(); };
   if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ if (!discardOK()) return; newWorld(Sim.CFG.seed); buildDrawer(); };
@@ -1508,7 +1515,7 @@ function resumeWorld(){
   try {
     var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
     if (w && Sim.restore(w)){
-      ['gridN', 'seed'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      ['gridN', 'seed', 'sex', 'mateDist'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
       resumedFrom = Sim.S.tick; afterLoad(); return true;
     }
   } catch (e) {}

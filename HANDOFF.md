@@ -254,6 +254,30 @@ engine with and without it:
 - Founded into 4 new worlds under it, the seed-42 evolved start held predation
   in all 4 (meat 33–50% at 40k ticks).
 
+## Species in sexual worlds are reproductively isolated (2026-09-26)
+
+Current engine, seeds 601–608, 400k ticks, `sex=1, mateDist=0.1` against clonal.
+Isolation measured on the end-of-run dumps with `tools/isolation.py`: the share
+of cross-cluster pairs the engine's mating rule allows.
+
+- Predator-dominated: 3 of 8 either way. Worlds ending with a cluster living
+  mostly on meat: 1 of 8 sexual, 3 of 8 clonal. Pooled with the earlier sexual
+  batches (`v1-W-sex-md10`, `v1-Y-small-curve2-sexmd`), meat guts evolve about
+  half as often with sex.
+- The clusters in sexual worlds are species in the biological sense. In s602
+  the meat-leaning cluster (diet 0.56) can breed with 0% of the three grazer
+  clusters. In s601 the omnivore cluster (diet 0.31) is isolated (0%) from four
+  of the five others. In s603 and s604 choosiness rose to 0.66–0.87:
+  assortative mating evolved. Clonal worlds only have lineages.
+- Clonal stays the default for the predator rate. The page offers sexual
+  worlds as a choice.
+
+## Reflecting mutation bounds: no clear effect (`mutReflect`, 2026-09-25)
+
+A mutation past a gene's bound reflects back instead of sticking to the bound.
+Seeds 501–508, 400k ticks: 4 of 8 predator-dominated against 3 of 8 clamped,
+2 worlds with a carnivore cluster either way. Off by default.
+
 ## Herding without vigilance (tested 2026-09-25)
 
 Hand-built test in worlds founded from the seed-21 population (the evolved start at the time): after
