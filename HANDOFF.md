@@ -386,6 +386,31 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## Switch results, seeds 401–412, 400k ticks (2026-09-26)
+
+Baseline (current defaults, `runs/voice`): 10 of 12 predator-dominated,
+carnivore clusters in 9, one giant world.
+
+| switch | predator-dominated | carnivore clusters | giant / dwarf worlds |
+|---|---|---|---|
+| baseline | 10 | 9 | 1 / 0 |
+| `vigilShare` 1 | 9 | 5 | 2 / 0 |
+| **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
+| lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
+| `hazard` 0.0001 | 8 | 7 | 5 / 0 |
+| `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
+| `packHunt` 1 | 11 | 7 | 6 / 0 |
+| `fibre` 0.6 | 8 | 6 | 7 / 0 (populations 160–700) |
+| `sizeMax` 24 | 8 | 3 | 5 / 0 (size 6–7, well under the new cap) |
+
+`browseGrown` (plant height grows with the plant and does not shrink when
+grazed; seedlings are short and grazeable) removed both body-size traps at
+400k. The lunge was far too harsh: in a bootstrap population everyone looks
+alike, strikes almost never connect, and predation never starts; milder
+settings are next (`runs/lungeM`, `runs/coolOnly`). `browseGrown` is being
+checked at 1M ticks (`v1-AH-1M-grown`) and on fresh seeds
+(`v1-AH-grown-rep` against `v1-AH-base-rep`, seeds 801–812).
+
 ## A voice: prey flee calls, predators home on them (2026-09-26)
 
 Every animal has a `call` output (loudness, costs `callCost` 0.002 x loudness x
