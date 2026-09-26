@@ -254,6 +254,18 @@ engine with and without it:
 - Founded into 4 new worlds under it, the seed-42 evolved start held predation
   in all 4 (meat 33–50% at 40k ticks).
 
+## Worlds without predators are dwarf worlds (2026-09-26)
+
+Across the 40 worlds run on the current engine (seeds 401–412 twice, 501–508,
+601–608), 16 ended with mean body size at the size gene's floor (0.30–0.32),
+and those are the worlds without predation. In each, killing started (100–600
+kills per 1000 ticks early on) and stopped within a few thousand ticks of the
+body size reaching the floor, at 80–160k ticks. Among equal dwarves a kill takes
+~12 strikes and is worth a small corpse; where predation holds, it holds body
+size at 0.6–0.8. The race to small bodies is what the low fixed cost (`upFixed`
+0.003) allows. Big predators injected into a dwarf world still take it over
+(`reinvade.js`), so the trap is the missing path, not the physics.
+
 ## Species in sexual worlds are reproductively isolated (2026-09-26)
 
 Current engine, seeds 601–608, 400k ticks, `sex=1, mateDist=0.1` against clonal.
