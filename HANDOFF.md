@@ -469,6 +469,9 @@ means more killing by the same omnivores, not more specialisation.
 against 12, diet 0.084 against 0.099, p 0.15). Across 0.1–0.6 the meat floor
 barely matters.
 
+`chew` 1 (24 paired seeds): nothing significant (prey clumping 0.886 against
+0.900, p 0.31; meat share 0.267 against 0.272).
+
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
 recovery and look-alike confusion (two settings), cover. Prey clump stays at
