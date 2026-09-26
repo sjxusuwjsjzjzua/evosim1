@@ -8,6 +8,8 @@ const ctx = { module: { exports: {} }, console, Math }; vm.createContext(ctx);
 vm.runInContext(html.match(/<script id="engine">([\s\S]*?)<\/script>/)[1], ctx);
 const Sim = ctx.module.exports, NI = Sim.NI, NH = Sim.NH, NO = Sim.NO;
 const d = JSON.parse(fs.readFileSync(process.argv[2]));
+// dumps from before later senses or the voice: remap to the current layout
+if (d.NG !== Sim.NG) d.genomes = d.genomes.map(g => Array.from(Sim.remapGenome(g, d.NI || 22, d.NO || 5)));
 const IN = n => Sim.INPUT_NAMES.indexOf(n), sig = x => 1/(1+Math.exp(-x));
 function run(G, inp){
   const H = []; for (let h = 0; h < NH; h++){ let s = 0; for (let k = 0; k < NI; k++) s += G[Sim.W1+h*NI+k]*inp[k]; H.push(Math.tanh(s)); }
