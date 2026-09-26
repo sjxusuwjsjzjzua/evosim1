@@ -67,7 +67,7 @@ function dump(p) {
   meat.slice(0, 100).forEach(take);
   const step = Math.max(1, Math.floor(rest.length / (300 - Math.min(100, meat.length))));
   for (let k = 0; k < rest.length; k += step) take(rest[k]);
-  fs.writeFileSync(p, JSON.stringify({ kind: 'evosim1-genomes', version: Sim.VERSION, tick: S.tick, NG, NI: Sim.NI, genomes: out }));
+  fs.writeFileSync(p, JSON.stringify({ kind: 'evosim1-genomes', version: Sim.VERSION, tick: S.tick, NG, NI: Sim.NI, NO: Sim.NO, genomes: out }));
 }
 function save() {
   fs.writeFileSync(args.out, JSON.stringify({ kind: 'evosim1-log', version: Sim.VERSION, cfg: Sim.CFG,

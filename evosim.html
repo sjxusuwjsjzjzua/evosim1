@@ -118,6 +118,8 @@ var CFG_DEFAULT = {
                         // straight into reserves). With one, food fills the stomach and is
                         // digested into reserves at gutDig x mass^0.75 a tick, so a second
                         // kill is worth nothing until the first is digested.
+  callCost: 0.002,      // energy per tick for calling at full loudness, x mass^0.75
+  hear: 1,              // 0: calls go unheard (a control: calling then only costs)
   headDown: 0.7,        // an animal that ate last tick senses animals over (1 - headDown) of its
                         // range: eyes on the food are not on the horizon. Over 12 worlds a side
                         // it made prey group where predators were (prey clump 1.17 against 0.90)
@@ -190,6 +192,7 @@ var CFG_DEFAULT = {
 
   seedGenomes: null,    // optional array of genomes (from run.js --dump) to found the world from
   seedNI: 0,            // number of senses the seed genomes were evolved with, if fewer than now
+  seedNO: 0,            // number of brain outputs they were evolved with (0 = 5, before the voice)
   // ---- logging ----
   sampleEvery: 500
 };
@@ -219,12 +222,12 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 27, NH = 8, NO = 5;
+var NI = 29, NH = 8, NO = 6;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed'];
-var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir'];
+var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
 
 var CFG, S;   // config and state
 
@@ -297,7 +300,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    gut: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    gut: new Float32Array(M), call: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
@@ -387,12 +390,14 @@ function alloc(){
   return i;
 }
 // A genome from a build with fewer senses (oldNI inputs): new inputs get zero weights.
-function remapGenome(src, oldNI){
-  var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*NO, k, h, q;
+function remapGenome(src, oldNI, oldNO){
+  oldNO = oldNO || 5;
+  var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*oldNO, k, h, q;
   for (k = 0; k < NB; k++) out[k] = src[k];
   for (h = 0; h < NH; h++) for (k = 0; k < oldNI; k++) out[W1+h*NI+k] = src[oW1+h*oldNI+k];
-  for (k = 0; k < NH*NO; k++) out[W2+k] = src[oW2+k];
-  for (q = 0; q < NO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
+  for (q = 0; q < oldNO; q++) for (h = 0; h < NH; h++) out[W2+q*NH+h] = src[oW2+q*NH+h];
+  for (q = 0; q < oldNO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
+  for (q = oldNO; q < NO; q++) out[WD+q*NI] = -3;   // an output the ancestors lacked starts nearly silent
   return out;
 }
 // Founders: an ancestral body (cheap organs, some spread) with a random diet
@@ -408,7 +413,8 @@ function spawnRandom(){
   var SG = CFG.seedGenomes;
   if (SG && SG.length){
     var src = SG[(rng()*SG.length)|0];
-    var src2 = CFG.seedNI && CFG.seedNI !== NI ? remapGenome(src, CFG.seedNI) : src;
+    var sNI = CFG.seedNI || NI, sNO = CFG.seedNO || 5;
+    var src2 = sNI !== NI || sNO !== NO ? remapGenome(src, sNI, sNO) : src;
     for (var q = 0; q < NG; q++) G[g+q] = q < src2.length ? src2[q] : 0;
     mutate(i);
     var m1 = G[g+G_SIZE]*Math.max(0.3, G[g+G_BIRTH])*2;
@@ -431,7 +437,7 @@ function spawnRandom(){
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
-  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
+  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
@@ -576,7 +582,7 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
-  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp;
+  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
   var ate = S.act[i] === 1 || S.act[i] === 2, RA2 = ate && CFG.headDown > 0 ? R2*(1 - CFG.headDown)*(1 - CFG.headDown) : R2;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
@@ -593,6 +599,9 @@ function sense(i){
         var ex = AX[j]-x, ey = AY[j]-y;
         ex = ex > Wh ? ex - W : ex < -Wh ? ex + W : ex; ey = ey > Wh ? ey - W : ey < -Wh ? ey + W : ey;
         var d2 = ex*ex + ey*ey;
+        if (d2 >= R2) continue;
+        var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
+        if (lv > heard){ heard = lv; hx = ex; hy = ey; }
         if (d2 >= RA2) continue;
         crowd++; cxs += ex; cys += ey; spd += SPD[j];
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
@@ -651,6 +660,9 @@ function sense(i){
   IN[24] = alarm > 0 && (alx || aly) ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
   IN[25] = CFG.gutCap > 0 ? S.gut[i]/(CFG.gutCap*S.mass[i]) : 0;   // how full the stomach is
   IN[26] = crowd > 0 ? spd/crowd/1.6 : 0;   // how fast the animals in view are moving
+  if (!CFG.hear) heard = 0;
+  IN[27] = heard;                           // the loudest call in range
+  IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -698,23 +710,23 @@ function brain85(G, g, OUT, o){
   }
   HID[0] = tanh32(s0, 1); HID[1] = tanh32(s1, 1); HID[2] = tanh32(s2, 1); HID[3] = tanh32(s3, 1);
   HID[4] = tanh32(s4, 1); HID[5] = tanh32(s5, 1); HID[6] = tanh32(s6, 1); HID[7] = tanh32(s7, 1);
-  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, h;
+  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, h;
   w = g + W2;
   for (h = 0; h < 8; h++, w++){
     v = HID[h];
-    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v;
+    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v;
   }
   w = g + WD;
   for (k = 0; k < NI; k++, w++){
     v = IN[k];
-    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v;
+    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v;
   }
-  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4;
+  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5;
 }
 function think(i){
   sense(i);
   var G = S.genome, g = i*NG, o = i*NO;
-  if (NH === 8 && NO === 5) brain85(G, g, S.out, o);
+  if (NH === 8 && NO === 6) brain85(G, g, S.out, o);
   else {
     for (var h = 0; h < NH; h++){
       var s = 0, w = g + W1 + h*NI;
@@ -732,6 +744,7 @@ function think(i){
   // motor commands, held until the next think
   S.turn[i] = tanh32(S.out[o], CFG.turnMax);
   S.thr[i] = sig32(S.out[o+1]);
+  S.call[i] = sig32(S.out[o+5]);   // how loud it calls: heard by everyone in range, heads down or not
   // MOUTH. Three independent urges, each a probability: eat, prefer meat,
   // strike. Eating takes whatever food is in reach, and the preference only
   // matters when there is a choice; a strike only happens when there is an
@@ -850,7 +863,7 @@ function updateAnimal(i){
   var up = CFG.upFixed
          + m75*(CFG.upBase + CFG.upSense*R*R + CFG.upWeapon*w*w + CFG.upArmour*armour + CFG.upDetox*dt*dt
                 + CFG.upSpeed*V*V)
-         + CFG.upMove*mass*sp*sp;
+         + CFG.upMove*mass*sp*sp + CFG.callCost*S.call[i]*m75;
   if (S.gut[i] > 0){   // digestion, until the reserves are full
     var dg = Math.min(S.gut[i], CFG.gutDig*m75, Math.max(0, Emax - S.E[i]));
     S.gut[i] -= dg; S.E[i] += dg;
@@ -1004,7 +1017,7 @@ function clumping(preyOnly){
 }
 function sample(){
   var G = S.genome, n = 0, sums = new Float64Array(NB), dh = new Array(10).fill(0);
-  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0;
+  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0, calls = 0;
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
     n++;
@@ -1012,7 +1025,7 @@ function sample(){
     for (var k = 0; k < NB; k++) sums[k] += G[g+k];
     dh[Math.min(9, (G[g+G_DIET]*10)|0)]++;
     act[S.act[i]]++;
-    gens += S.gen[i];
+    gens += S.gen[i]; calls += S.call[i];
     var tot = S.lP[i] + S.lM[i];
     if (S.mass[i] >= 0.9*G[g+G_SIZE] && tot > 1){
       adults++;
@@ -1046,7 +1059,7 @@ function sample(){
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
-    species: spc, clump: clump, clumpPrey: clumpPrey, establishedAt: S.establishedAt || 0
+    species: spc, clump: clump, clumpPrey: clumpPrey, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   S.log.push(row);
   S.c = newCounters();
@@ -1085,7 +1098,7 @@ function b64dec(str){
 }
 function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
 function unf32(str){ return new Float32Array(b64dec(str).buffer); }
-var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut'];
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut','call'];
 function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
 function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
 function geneLog(k){ return k < NB && BODY[k][3]; }
@@ -1111,7 +1124,7 @@ function snapshot(){
   for (var key in CFG) if (key !== 'seedGenomes') cfg[key] = CFG[key];
   var c = S.cN, sl = function(a){ return f32(Array.prototype.slice.call(a, 0, c)); };
   return {
-    kind: 'evosim1-world', version: VERSION, gq: 'log', NG: NG, NI: NI, cfg: cfg, tick: S.tick, gCache: gCache,
+    kind: 'evosim1-world', version: VERSION, gq: 'log', NG: NG, NI: NI, NO: NO, cfg: cfg, tick: S.tick, gCache: gCache,
     established: S.established, establishedAt: S.establishedAt || 0, nextId: S.nextId,
     rng: [RS[0], RS[1], RS[2], RS[3]], n: n, animals: A, genomes: b64enc(gb),
     ints: b64enc(new Uint8Array(ints.buffer)),
@@ -1124,8 +1137,8 @@ function snapshot(){
 }
 function restore(w){
   if (!w || w.kind !== 'evosim1-world') return false;
-  var oNG = w.NG, oNI = w.NI || NI;   // a save from before senses were added is remapped
-  if (oNG !== NG && oNG !== NB + oNI*NH + NH*NO + oNI*NO) return false;
+  var oNG = w.NG, oNI = w.NI || NI, oNO = w.NO || 5;   // a save from before senses or the voice were added is remapped
+  if (oNG !== NG && oNG !== NB + oNI*NH + NH*oNO + oNI*oNO) return false;
   init(w.cfg);
   // init drew founders; clear them and put the saved world in their place
   S.alive.fill(0); S.n = 0; S.nFree = 0; S.hi = 0; S.cN = 0;
@@ -1141,7 +1154,7 @@ function restore(w){
     else {
       var old = new Array(oNG);
       for (var q2 = 0; q2 < oNG; q2++) old[q2] = byteToGene(q2, gb[k*oNG+q2], w.gq === 'log');
-      var nw = remapGenome(old, oNI);
+      var nw = remapGenome(old, oNI, oNO);
       for (var q3 = 0; q3 < NG; q3++) S.genome[g+q3] = nw[q3];
     }
     if (sizes) S.genome[g+G_SIZE] = sizes[k];
@@ -1479,7 +1492,7 @@ function buildDrawer(){
     var el = $('z' + z); el.classList.toggle('on', (patch.gridN || Sim.CFG.gridN) === z);
     el.onclick = function(){ if (!discardOK()) return; patch.gridN = z; fresh(); newWorld(); buildDrawer(); };
   });
-  function fresh(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.founders; }
+  function fresh(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.seedNO; delete patch.founders; }
   // sexual worlds: a breeder recombines with an acceptable mate in sense range, and
   // genomes too far apart cannot breed, so clusters become true species
   var sexual = !!Sim.CFG.sex;
@@ -1487,7 +1500,7 @@ function buildDrawer(){
   $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; delete patch.mateDist; fresh(); newWorld(); buildDrawer(); };
   $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; patch.mateDist = 0.1; fresh(); newWorld(); buildDrawer(); };
   $('bNew').onclick = function(){ if (!discardOK()) return; fresh(); newWorld(); buildDrawer(); };
-  if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.founders = 600; newWorld(); buildDrawer(); };
+  if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.seedNO = EVOLVED.no || 5; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ if (!discardOK()) return; newWorld(Sim.CFG.seed); buildDrawer(); };
   $('bLog').onclick = function(){
     var cfg = {}; for (var k in Sim.CFG) if (k !== 'seedGenomes') cfg[k] = Sim.CFG[k];
