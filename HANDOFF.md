@@ -466,7 +466,13 @@ Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
 worlds against 8, with no dwarf worlds either way. Now the default. The
 evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks). Populations evolved under the
 current engine transplant worse (seeds 802, 805, 808 of `v1-AH-grown-rep`: 0,
-3 and 2 of 4 worlds), so seed 42 stays. Seed 808 has the clearest voice seen:
+3 and 2 of 4 worlds), so seed 42 stays. A second try, 600k ticks on the full
+current engine (`runs/evo600`, seeds 1101–1104): seed 1104 shows nearly
+everything (alarm and food calls, grazers turning from calls, meat guts
+homing on them, grazers following kin and avoiding strangers) but held in 2
+of 4 transplants, seed 1103 in 3 of 4; predators died out early in the
+failures (1104's dump had 43 meat guts against seed 42's 80). Seed 808 has
+the clearest voice seen:
 grazers bolt on a call (+0.79) and turn away (−1.84), meat guts turn toward it
 (+0.88).
 
