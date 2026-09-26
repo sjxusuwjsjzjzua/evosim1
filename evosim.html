@@ -164,6 +164,13 @@ var CFG_DEFAULT = {
   upSpeed: 0.010,       // x speed gene^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
   kConfusion: 0,        // predator confusion: strike damage / (1 + k x others within 3 of the target). 0 = off
+  strikeCool: 0,        // ticks after a strike before the next one (a lunge takes recovering from). 0 = off
+  missCool: 0,          // ticks after a strike that missed
+  confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
+                        // animals within confR of it with a similar colour tag and size. 0 = always
+  confR: 8,
+  hazard: 0,            // chance per tick of dying of something no body size escapes (disease,
+                        // accident). 0 = none
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
   atkCost: 0.004,       // energy per attack tick x mass^0.75
   hpPerMass: 2,
@@ -305,7 +312,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    gut: new Float32Array(M), call: new Float32Array(M), eatT: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    gut: new Float32Array(M), call: new Float32Array(M), eatT: new Float32Array(M), cool: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
@@ -445,7 +452,7 @@ function spawnRandom(){
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
-  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.eatT[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
+  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.eatT[i] = 0; S.cool[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
@@ -830,7 +837,8 @@ function updateAnimal(i){
   // threshold picks between them, so a nearly bare cell costs a sliver of the
   // tick, not all of it.
   var want = S.want[i], act = 0, tj = -1, eatShare = 0;
-  if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
+  if (S.cool[i] > 0) S.cool[i]--;
+  if ((want & 4) && S.cool[i] <= 0){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
   var slow = 1 - CFG.eatMoveSlow*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 0 && (want & 1)){
     // food goes into the stomach if there is one, else straight into reserves
@@ -854,7 +862,10 @@ function updateAnimal(i){
     S.E[i] -= CFG.atkCost*m75;
     {
       S.c.attacks++;
-      var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng());
+      // a crowd of look-alikes round the target can make the strike miss
+      var hit = CFG.confHit > 0 ? rng()*(1 + CFG.confHit*lookAlikes(tj, CFG.confR, i)) < 1 : true;
+      if (CFG.strikeCool > 0 || CFG.missCool > 0) S.cool[i] = hit ? CFG.strikeCool : Math.max(CFG.strikeCool, CFG.missCool);
+      var dmg = hit ? CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng()) : 0;
       if (CFG.kConfusion > 0) dmg /= 1 + CFG.kConfusion*neighboursOf(tj, 3, i);
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
@@ -884,6 +895,7 @@ function updateAnimal(i){
   if (S.hp[i] < hpMax) S.hp[i] = Math.min(hpMax, S.hp[i] + CFG.heal*hpMax);
   if (S.E[i] <= 0){ die(i, 0); return; }
   if (S.age[i] > S.maxAge[i]){ die(i, 1); return; }
+  if (CFG.hazard > 0 && rng() < CFG.hazard){ die(i, 1); return; }
 
   // ---- grow, then breed
   if (mass < size*0.98){
@@ -937,6 +949,27 @@ function neighboursOf(j, r, skip){
       if (k === j || k === skip || !S.alive[k]) continue;
       var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
       if (ex*ex + ey*ey < r2) n++;
+    }
+  }
+  return n;
+}
+// how many animals within r of animal j look like it (colour tag and size), not counting `skip`:
+// each counts 0..1, falling off with tag distance (to 0 at 0.3) and size ratio (to 0 at 2x)
+function lookAlikes(j, r, skip){
+  var x = S.x[j], y = S.y[j], r2 = r*r, inv = 1/S.bSize, bN = S.bN, span = Math.ceil(r*inv), n = 0, G = S.genome, gj = j*NG;
+  var bx0 = (x*inv)|0, by0 = (y*inv)|0, mj = S.mass[j];
+  for (var dy = -span; dy <= span; dy++){
+    var by = ((by0+dy) % bN + bN) % bN;
+    for (var dx = -span; dx <= span; dx++){
+      var b = by*bN + ((bx0+dx) % bN + bN) % bN;
+      for (var k = S.aHead[b]; k >= 0; k = S.aNext[k]){
+        if (k === j || k === skip || !S.alive[k]) continue;
+        var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
+        if (ex*ex + ey*ey >= r2) continue;
+        var gk = k*NG, t0 = G[gk+G_TAG]-G[gj+G_TAG], t1 = G[gk+G_TAG+1]-G[gj+G_TAG+1], t2 = G[gk+G_TAG+2]-G[gj+G_TAG+2];
+        var tl = 1 - Math.sqrt((t0*t0 + t1*t1 + t2*t2)/3)/0.3, sl = 1 - Math.abs(Math.log2(S.mass[k]/mj));
+        if (tl > 0 && sl > 0) n += tl*sl;
+      }
     }
   }
   return n;
@@ -1108,7 +1141,7 @@ function b64dec(str){
 }
 function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
 function unf32(str){ return new Float32Array(b64dec(str).buffer); }
-var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut','call','eatT'];
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut','call','eatT','cool'];
 function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
 function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
 function geneLog(k){ return k < NB && BODY[k][3]; }
