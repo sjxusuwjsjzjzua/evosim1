@@ -14,7 +14,8 @@ What evolves, without being written in:
 - **grazing**, in every world, within a few dozen generations;
 - **scavenging and predation**. In about 5 of 6 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
-  typically 20–30%;
+  typically 20–30%. Much of the killing is done by plant-gutted animals biting
+  whoever they touch, their own kind included;
 - **carnivore species**. In about half of worlds a lineage's gut shifts toward
   flesh (diet gene 0.45–1.0, 75–100% of its energy from meat) and lives
   alongside herbivore species. The predators are big, armed cruisers that strike
@@ -36,7 +37,8 @@ What evolves, without being written in:
 
 Not every world gets there: in about one world in six predators never take
 hold. Once predators are there they tend to stay: in ten test worlds run for a
-million ticks, all ten still had predators at the end.
+million ticks, most still had them at the end, and none collapsed into worlds
+of dwarf or giant grazers.
 
 Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved

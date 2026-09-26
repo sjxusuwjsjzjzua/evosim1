@@ -337,12 +337,13 @@ of cross-cluster pairs the engine's mating rule allows.
   worlds as a choice.
 
 Re-checked under the current defaults (`v1-AI-sex`, seeds 401–412): 9 of 12
-predator-dominated against 12 clonal. In all 5 worlds checked with
-`tools/isolation.py` (402, 404, 406, 410, 412) the meat-leaning clusters (diet
-0.46–0.77) breed with 0% of the grazer clusters, and choosiness rose to
+predator-dominated against 12 clonal. In 4 of the 5 worlds checked with
+`tools/isolation.py` (402, 404, 410, 412; not 406, whose most meat-leaning
+cluster is diet 0.29 and breeds with grazers at 13–32%) the meat clusters
+(diet 0.46–0.77) breed with 0% of the grazer clusters, and choosiness rose to
 0.4–0.85. In s402 two meat clusters (diet 0.54 and 0.65) interbreed with each
-other (76–77%) and not with grazers. Diet-split species are the rule in sexual
-worlds now, not the exception.
+other (76–77%) and not with grazers. Corrected by the program audit: isolated meat species show up in about a
+third of sexual worlds, and dumps oversample meat eaters, which inflates them.
 
 ## Reflecting mutation bounds: no clear effect (`mutReflect`, 2026-09-25)
 
