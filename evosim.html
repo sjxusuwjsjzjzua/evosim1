@@ -166,7 +166,10 @@ var CFG_DEFAULT = {
   radiusK: 0.7,         // body radius = radiusK * mass^(1/3)
   reach: 0.6,
   corpseDecay: 0.0015,  // fraction of corpse mass lost per tick
-  growRate: 0.008,      // max growth per tick as a share of current mass
+  growRate: 0.008,      // max growth per tick, x mass^growExp
+  growExp: 1,           // 1: growth in proportion to mass, so every body size matures in the same
+                        // time. 0.75: growth scales like metabolism and time to maturity rises as
+                        // mass^0.25, as lifespan already does
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
@@ -860,7 +863,7 @@ function updateAnimal(i){
   // ---- grow, then breed
   if (mass < size*0.98){
     if (S.E[i] > CFG.growAbove*Emax){
-      var dM = Math.min(CFG.growRate*mass, (S.E[i] - CFG.growAbove*Emax)/CFG.cBuild, size - mass);
+      var dM = Math.min(CFG.growRate*(CFG.growExp === 1 ? mass : Math.pow(mass, CFG.growExp)), (S.E[i] - CFG.growAbove*Emax)/CFG.cBuild, size - mass);
       S.mass[i] = mass + dM; bodyCache(i); S.E[i] -= dM*CFG.cBuild;
       S.hp[i] += CFG.hpPerMass*dM;
     }
