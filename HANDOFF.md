@@ -395,6 +395,14 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## The current defaults, measured (2026-09-26)
+
+24 fresh worlds, seeds 1001–1024, 400k ticks (`results/v1-AL-current24`):
+predator-dominated 20, carnivore clusters 12, giant 1, dwarf 0. At 1M ticks
+(`v1-AL-1M-current`, seeds 701–710): no giant or dwarf worlds, 4 exits from
+the predator state in 7.1k thousand predator ticks (0.06 per 100k); seed 701
+barely started.
+
 ## Switch results, seeds 401–412, 400k ticks (2026-09-26)
 
 Baseline (current defaults, `runs/voice`): 10 of 12 predator-dominated,
@@ -466,7 +474,14 @@ Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
 worlds against 8, with no dwarf worlds either way. Now the default. The
 evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks). Populations evolved under the
 current engine transplant worse (seeds 802, 805, 808 of `v1-AH-grown-rep`: 0,
-3 and 2 of 4 worlds), so seed 42 stays. Seed 808 has the clearest voice seen:
+3 and 2 of 4 worlds), so seed 42 stays. A second try, 600k ticks on the full
+current engine (`runs/evo600`, seeds 1101–1104): seed 1104 shows nearly
+everything (alarm and food calls, grazers turning from calls, meat guts
+homing on them, grazers following kin and avoiding strangers) but held in 2
+of 4 transplants, seed 1103 in 3 of 4; predators died out early in the
+failures (1104's dump had 43 meat guts against seed 42's 80). Seed 808 has
+clearest voice seen (re-dumped with the killers oversampled by lifetime
+intake, 1104 held in 1 of 4 and 1103 in 3 of 4; seed 42 stays):
 grazers bolt on a call (+0.79) and turn away (−1.84), meat guts turn toward it
 (+0.88).
 
