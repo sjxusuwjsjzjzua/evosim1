@@ -200,11 +200,12 @@ var CFG_DEFAULT = {
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
-  mateDist: 1,          // with sex on: partners whose body genomes differ by more than this
+  mateDist: 0.1,        // with sex on: partners whose body genomes differ by more than this
                         // (mean normalised difference) cannot breed. 1 = no limit.
-  sex: 0,               // 1: a breeder recombines with the nearest acceptable adult it
-                        // can sense (clones if there is none). 0: always clone. Off by
-                        // default: every predator world so far evolved without it.
+  sex: 1,               // 1: a breeder recombines with the nearest acceptable adult it
+                        // can sense (clones if there is none). 0: always clone. Over 24
+                        // paired worlds sexual ones got predators as often as clonal ones,
+                        // and in 13 the meat-eaters became a separate species.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
   mutSd: 0.08,          // body genes: sd as a share of range (x3, multiplicative, for log-scaled genes)
@@ -1691,7 +1692,7 @@ function buildDrawer(){
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
-  h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In most sexual worlds (7 of 8 tested) meat-eaters and grazers become separate species that cannot interbreed.</p>';
+  h += '<p class="note">Sexual is the default. In about half of test worlds meat-eaters became a separate species that cannot interbreed with the grazers, and in some the grazers split too. Clonal worlds get predators as often, but a species there is only a cluster of look-alikes.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
@@ -1711,8 +1712,8 @@ function buildDrawer(){
   // genomes too far apart cannot breed, so clusters become true species
   var sexual = !!Sim.CFG.sex;
   $('rC').classList.toggle('on', !sexual); $('rS').classList.toggle('on', sexual);
-  $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; delete patch.mateDist; fresh(); newWorld(); buildDrawer(); };
-  $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; patch.mateDist = 0.1; fresh(); newWorld(); buildDrawer(); };
+  $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; fresh(); newWorld(); buildDrawer(); };
+  $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; fresh(); newWorld(); buildDrawer(); };
   $('bNew').onclick = function(){ if (!discardOK()) return; fresh(); newWorld(); buildDrawer(); };
   if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.seedNO = EVOLVED.no || 5; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ if (!discardOK()) return; newWorld(Sim.CFG.seed); buildDrawer(); };

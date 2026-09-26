@@ -51,8 +51,8 @@ matters when both plant and corpse are; a strike only happens when an animal is
 in reach (the attended one). Diet is one axis with a concave trade-off (`dietCurve` 2, `meatFloor` 0.4): plant yield x (1 - diet^2),
 meat yield x (0.4 + 0.6 (1 - (1 - diet)^2)). A corpse carries its flesh plus the reserves the animal died
 with. Attention picks which neighbour the animal senses and strikes; its weights
-are genes. An animal that ate last tick senses animals over only 30% of its range (`headDown`). A call is heard by every animal in range, heads down or not; it costs energy and means whatever evolution makes it mean. Juveniles are slow. Reproduction is clonal by default (`sex` 1 recombines with an acceptable
-mate in sense range; `mateDist` below 1 adds genetic incompatibility). Founders have a cheap ancestral body and a random brain and keep
+are genes. An animal that ate last tick senses animals over only 30% of its range (`headDown`). A call is heard by every animal in range, heads down or not; it costs energy and means whatever evolution makes it mean. Juveniles are slow. Reproduction is sexual by default (`sex` 1: a breeder recombines with an acceptable
+mate in sense range, else clones; `mateDist` 0.1 makes genomes too far apart unable to breed, so clusters become species; `sex` 0 clones). Founders have a cheap ancestral body and a random brain and keep
 arriving until a population establishes. See `HANDOFF.md` for why each piece is
 there.
 
