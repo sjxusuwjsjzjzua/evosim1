@@ -540,7 +540,14 @@ at the new scale (6 units now spans 2 cells, not 1.5). The top of the tail
 does herd, though: the three most clumped dense worlds (1.68, 1.23, 1.22)
 turn toward kin at +1.24, +0.85, +0.30. s1021 has the strongest kin
 following of all 48 worlds, with prey clumping 1.1–2.0 through the run.
-`cellSize` 2 is the dose check.
+Result, `cellSize` 2 (24 paired seeds; s1009 went extinct at 58k and s1015
+at 397k, none in baseline): prey clumping 1.195 against 0.903 without s1009
+(18 of 23 up, p 0.011), a dose response. Giant worlds 7 against 1 (p 0.07),
+diet gene 0.18 against 0.10 (p 0.09), predator clumping 1.29 against 1.77. But
+kin steering falls (mean −0.37, 1 world above +0.5), so the rise is not
+grazers seeking look-alikes. A mid-run knockout of the social senses (crowd,
+crowdDir, crowdSpeed, heard, heardDir, kinDir) at 200k ticks in four of these
+worlds tests whether it is behaviour at all (scratchpad `knock2.js`).
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
@@ -693,7 +700,7 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-`cellSize` 2 on Actions (v1-AO-cell2). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+Social-sense knockout in dense worlds (local). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
