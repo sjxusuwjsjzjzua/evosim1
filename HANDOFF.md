@@ -397,6 +397,7 @@ carnivore clusters in 9, one giant world.
 | `vigilShare` 1 | 9 | 5 | 2 / 0 |
 | **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
 | lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
+| mild lunge (`strikeCool` 2, `missCool` 6, `confHit` 0.2), local | 6 | 7 | 4 / 0 (prey clump no higher) |
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
