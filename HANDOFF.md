@@ -444,6 +444,14 @@ spread out (0.36–1.00), but predation falls (6 of 8 predator-dominated against
 8). Whether the default grouping is cooperative hunting or predators
 converging on the same prey and carcasses is not yet known.
 
+**`kinDir`** (new sense, direction to the centre of look-alikes; local seeds
+401–412 on the current defaults): 11 of 12 predator-dominated, carnivore
+clusters 8, prey clump 0.64–1.10 (mean 0.92, as without). Probes
+(`tools/herd.js`): grazers turn toward kin in 3 worlds and away in 4; in two
+(408, 409) they turn toward kin (+1.2, +1.3) and away from the crowd (−1.4,
+−0.8), following their own kind and avoiding strangers, without that making
+them clump more. Grazers turn away from calls in 11 of 12 (replicated).
+
 Handling time does not make groups pay: surplus killing inside a group is not
 what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
