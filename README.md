@@ -15,7 +15,7 @@ What evolves, without being written in:
 - **scavenging and predation**. In about 6 of 10 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
   typically 20–30%;
-- **carnivore species**. In about 3 of 10 worlds a lineage's gut shifts toward
+- **carnivore species**. In about 2 of 3 worlds a lineage's gut shifts toward
   flesh (diet gene 0.45–1.0, 75–100% of its energy from meat) and lives
   alongside herbivore species. The predators are big, armed cruisers that strike
   whatever they touch; the herbivores are small grazers that sit still and speed
