@@ -9179,3 +9179,21 @@ tool; none of them ships.
 5. Hand-built specialist hunters injected into a mature world died out at eMeat
    5 and grew 54 to 127 at eMeat 10; big fast hunters cycled with their prey.
    eMeat is now 8 (80% of the build cost), and birth size is a gene.
+
+## Program audit of engine 1.x, 2026-09-26 (`AUDIT-HOST-v1.md`, `AUDIT-AUDITOR-v1.md`)
+
+Verdict: pivot. Predation converged; herding is looping. Responses:
+
+| # | finding (confidence) | tag | response |
+|---|---|---|---|
+| A1 | herding looping (9) | [cross-validated] H1 | **accept.** No more one-switch 12-seed herding batches. Next herding work only after the diagnostic shows grouping paying, and after hits are split by attacker diet (A10). |
+| A2 | defaults on unresolvable differences (8) | [cross-validated] H3 | **accept.** Defaults change only at p < 0.05 or with 24+ paired seeds. README's "all ten at 1M" came from the pre-kinDir engine; the current engine ended with meat > 15% in 6 of 10 (end window). Corrected. |
+| A3 | energy constants never varied (8) | [auditor-only] | **accept.** Paired 24-seed factorial on eMeat, meatFloor, chew next. |
+| A4 | big effects rejected for small predation drops (8) | [auditor-only] | **partly accept.** Sexual worlds are one tap away in the page, so the build can form species; clonal stays default because the predation and carnivore-cluster drops come with it. The call-cost and packHunt verdicts were made on 12 seeds; they are marked unresolved, not rejected. |
+| A5 | speciation overstated (8) | [auditor-only] | **accept.** s406's most meat-leaning cluster is diet 0.29 and breeds with grazers at 13–32%. HANDOFF corrected: isolated meat species in 4 of the 5 checked, about a third of sexual worlds. |
+| A6 | "predator-dominated" counts worlds without carnivores (8) | [cross-validated] H4 | **accept.** Carnivore-cluster persistence and exit rate become the headline measures; README says killing is often by plant-gutted animals. |
+| A7 | carnivore size at the gene cap (7) | [auditor-only] | **accept.** sizeMax 24 retested under browseGrown with paired seeds. |
+| A8 | unjustified switches and a dead input (7) | [cross-validated] H2 | **accept** for the switches: removed (results stay in HANDOFF). The gut input stays as an always-0 sense so older genomes keep their layout. |
+| A9 | process limit is resolution and target choice (7) | [auditor-only] | **accept.** 24 paired seeds per arm from here. |
+| A10 | herding aimed at the wrong cause (7) | [auditor-only] | **accept, test first.** Herder diagnostic re-run with hits split by attacker diet. |
+| H5 | evolved-start refresh without a hypothesis (5) | [cross-validated] | **accept.** Stopped; seed 42 stays. |
