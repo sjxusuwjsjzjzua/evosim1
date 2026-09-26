@@ -718,6 +718,14 @@ Expectation: without a compass `waveVx` stays near 0.03 as before. With one,
 some worlds evolve a heading bias along the wave and `waveVx` rises well
 above 0.1 in the last half. A population moving with the season would also
 travel together, which is another route to grouping.
+Result, compass in a travelling season (`v1-AT-wavec1` against `-wavec0`, 24
+paired seeds, sexual): prey clumping 1.381 against 0.862, up in 23 of 24
+worlds (p < 0.001). Prey populations stream along x at 0.2–7.7 times the
+wave's speed: with the wave in 18 worlds, against it in 6 (sign test p
+0.023). Worlds streaming with it sit deeper in the growth band (`waveTrack`
+up to 0.43), those against it the least (0.09–0.14). Carnivore clusters 7
+against 12 (p 0.27), meat share 0.169 against 0.206: not significant.
+
 Local preview, compass with no season (`runs/c1`, 4 seeds): prey populations
 stream one way. `polar` 0.54–0.86 (about 0.02 without a compass), `align`
 0.30–0.73, prey clumping 1.07–1.96. In each world `align` is close to `polar`
