@@ -871,7 +871,16 @@ core, so local batches beat Actions for anything under ~20 worlds.
    lasting groups. What might change it: prey that are much denser than
    their sense range (a smaller world per animal), or predators that cannot
    kill again while the group is still near.
-3. **Speciation.** Sexual worlds on the current physics (`runs/sexH`, seeds
+3. **Speciation: browsers and grazers.** In the 24 sexual worlds of `v1-AP-sex`,
+   `tools/gsplit.py` finds plant-eater clusters that cannot interbreed (at
+   most 5% of cross pairs) in 7. In 4 of them (s1002, s1020, s1022, s1023) the
+   split is by body size: small grazers (size 0.3–0.9) against large browsers
+   (2.4–4.8). The large ones breed only at higher reserves (reproT 0.6–0.7
+   against 0.3–0.4) and give each young more (childE 0.45–0.5 against
+   0.25). Plant height is the likely reason a large plant-eater can live
+   apart (it reaches taller plants); not yet tested. In the other three
+   (s1001, s1012, s1016) the split is mainly in attention genes and colour.
+   Earlier: sexual worlds on the current physics (`runs/sexH`, seeds
    2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
    now prints size and speed): a meat-eating species that cannot breed with any
    grazer cluster (0% of cross pairs) in 7 of 8 worlds. The eighth has no
