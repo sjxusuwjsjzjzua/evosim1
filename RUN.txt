@@ -1,0 +1,6 @@
+label=v1-AI-sex
+seeds=401,402,403,404,405,406,407,408,409,410,411,412
+ticks=400000
+set=gridN=64,sex=1,mateDist=0.1
+cfg=
+sha=287d556cf1ff66bc96b462279c39f3ea1a8e13aa
