@@ -274,8 +274,22 @@ dwarf lawn is where most worlds end: 7 of 10 had mean size 0.30 and meat ~4% by
 1M ticks, against 5 of 10 on the older engine (`v1-Z-small-1M`), and none came
 back. Predation lasted 100k–700k ticks before the fall. The trap is absorbing.
 `browse` (plants taller than an animal's reach keep a canopy it cannot crop;
-off by default) is being tested against it: `results/v1-AD-1M-browse2`,
-`-browse4`, same seeds.
+off by default) is being tested against it. Local, 400k ticks, seeds 401–412
+(browse 1: 401–408), against the same seeds without it:
+
+| | none | `browse` 1 | `browse` 2 |
+|---|---|---|---|
+| predator-dominated | 8 of 12 | 4 of 8 | 8 of 12 |
+| worlds with a carnivore cluster | 3 of 12 | 3 of 8 | **8 of 12** |
+| dwarf worlds (size ≤ 0.35) | 3 | 2 | 0 |
+| giant worlds (size ≥ 5, 100–350 animals) | 0 | 0 | 4 |
+| plant stature at the end | 0.03–0.38 | | 0.3–0.98 |
+
+Height turns carnivore specialisation from rare to common, and trees grow
+tall. But at `browse` 2 the dwarf trap becomes a giant one: giants sit at mass
+8–10, what it takes to reach the tallest plants (height 2 = reach of mass 8).
+Next: `browse` 1.5 (tallest plants reachable at mass 3.4); 1M-tick runs at 2
+and 4 on Actions (`results/v1-AD-1M-browse2`, `-browse4`).
 
 `upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
 predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds
