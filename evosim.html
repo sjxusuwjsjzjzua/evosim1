@@ -193,6 +193,8 @@ var CFG_DEFAULT = {
   confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
                         // animals within confR of it with a similar colour tag and size. 0 = always
   confR: 8,
+  killCool: 0,          // handling time: ticks after a kill before the killer can strike again
+                        // (subduing and eating a catch). Misses stay free. 0 = off
   packHunt: 0,          // 1: armour fully protects only against the first strike a target takes in a
                         // tick; later strikes that tick ignore it (hunting together pays)
   fibre: 0,             // mature plants are fibrous: plant energy x (1 - fibre x B/K x (1 - digestion)),
@@ -907,6 +909,7 @@ function updateAnimal(i){
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
         S.c.kills++; S.kills[i]++;
+        if (CFG.killCool > 0) S.cool[i] = Math.max(S.cool[i], CFG.killCool);
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
