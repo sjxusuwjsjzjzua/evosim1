@@ -193,6 +193,8 @@ var CFG_DEFAULT = {
   confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
                         // animals within confR of it with a similar colour tag and size. 0 = always
   confR: 8,
+  cover: 0,             // an animal standing among plants taller than its reach is seen only within
+                        // R / (1 + cover x (plant height / its reach - 1)); calls still carry. 0 = off
   killCool: 0,          // handling time: ticks after a kill before the killer can strike again
                         // (subduing and eating a catch). Misses stay free. 0 = off
   packHunt: 0,          // 1: armour fully protects only against the first strike a target takes in a
@@ -653,6 +655,13 @@ function sense(i){
         if (d2 >= R2) continue;
         var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
         if (lv > heard){ heard = lv; hx = ex; hy = ey; }
+        if (CFG.cover > 0){   // an animal among plants taller than itself is hard to see
+          var cj = cellAt(AX[j], AY[j]);
+          if (S.pB[cj] > 0){
+            var hj = CFG.browseGrown ? S.pH[cj] : CFG.browse*S.pStat[cj], rj = Math.cbrt(MA[j]);
+            if (hj > rj){ var vis = 1/(1 + CFG.cover*(hj/rj - 1)); if (d2 >= RA2*vis*vis) continue; }
+          }
+        }
         if (d2 >= RA2) continue;
         crowd++; cxs += ex; cys += ey; spd += SPD[j];
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
