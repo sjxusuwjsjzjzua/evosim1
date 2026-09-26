@@ -748,6 +748,19 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Day and night (`dayTicks`, new, 0 = off): light follows a sine over `dayTicks`
+ticks. At full dark animals and corpses are seen over `nightSight` (0.3) of the
+sense range, while ears and the plant senses are unaffected. New sense `light`
+(NI 37). Logged per row when on: `killsNight`, and mean speed of prey and of
+meat-eaters by day and by night (`preySpDay`, `preySpNight`, `predSpDay`,
+`predSpNight`). `v1-AY-day` (`dayTicks` 400, several days per lifetime)
+against `v1-AY-noday` (0), 24 paired seeds on the same build. Expectation:
+kills fall at night at first (hunters hunt by sight). Some worlds evolve a
+rhythm: prey slower at night than by day (resting, hidden by the dark), or
+predators active at night if calls and short sight suffice. Score: prey and
+predator night/day speed ratios and the night share of kills, against the
+first 20k ticks.
+
 **Feeding** (2026-09-26): a seventh brain output, `give`. When its urge fires
 and the attended animal is in reach, the animal passes it energy from its
 reserves (`giveRate` 0.1 x mass^0.75 per tick, at most half its reserves; the
@@ -763,7 +776,7 @@ else p > 0.3). Giving is selected down, from 1.3–6.0% of intake in the first
 What remains is not aimed. Its kin share tracks `kinNear` (e.g. 97 against 94,
 82 against 83, 88 against 97), and its juvenile share (44–69%) looks like the
 juveniles nearby. No parental feeding. The action stays available, and the
-switch is gone.
+switch is gone. `v1-AX-give1` is the baseline for the current build.
 
 **Sparing kin does not pay a meat-eater** (scratchpad `spare.js`; at 200k
 ticks the meat-eaters of seeds 1001, 1006, 1013 and 1020 are split in half,

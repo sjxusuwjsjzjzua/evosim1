@@ -111,6 +111,8 @@ var CFG_DEFAULT = {
                         // or magnetic compass would; 0 = those inputs read 0. With it prey
                         // populations evolve a shared bearing and travel together (24 paired
                         // worlds: prey clumping 1.22 against 0.84, predation unchanged)
+  dayTicks: 0,          // ticks per day and night; 0 = always day
+  nightSight: 0.3,      // at full dark, animals and corpses are seen over this share of the sense range
   seasonWave: 0,        // 1 = the season travels along x, one wavelength per world width per year:
                         // a band of fast growth moving at world/yearTicks per tick
 
@@ -249,11 +251,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 36, NH = 8, NO = 7;
+var NI = 37, NH = 8, NO = 7;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading','light'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call','give'];
 
 var CFG, S;   // config and state
@@ -315,7 +317,7 @@ function init(patch){
   seedRng(CFG.seed*2654435761 + 12345); gCache = null;
   var n = CFG.gridN, nc = n*n, M = CFG.maxA;
   S = {
-    tick: 0, world: n*CFG.cellSize, established: false,
+    tick: 0, light: 1, world: n*CFG.cellSize, established: false,
     // plants
     pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
@@ -359,7 +361,7 @@ function init(patch){
 }
 
 function newCounters(){
-  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, gives: 0, eG: 0, eGkin: 0, eGjuv: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
+  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, gives: 0, eG: 0, eGkin: 0, eGjuv: 0, killsNight: 0, mvPd: 0, mvPn: 0, nPd: 0, nPn: 0, mvMd: 0, mvMn: 0, nMd: 0, nMn: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
           plantEaten: 0, meatEaten: 0, reseeds: 0};
 }
 
@@ -614,6 +616,9 @@ function sense(i){
   var kxs = 0, kys = 0, cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
   // eyes on the food: an animal that ate last tick sees animals over (1 - headDown) of its range
   var down = S.act[i] === 1 || S.act[i] === 2 ? Math.min(1, CFG.headDown) : 0, RA2 = R2*(1 - down)*(1 - down);
+  // eyes need light: at night animals and corpses are seen over nightSight of the range (ears are unaffected)
+  var sight = CFG.dayTicks > 0 ? CFG.nightSight + (1 - CFG.nightSight)*S.light : 1;
+  RA2 *= sight*sight; nearCd *= sight*sight;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -700,6 +705,7 @@ function sense(i){
   IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   IN[29] = kxs || kys ? angDiff(Math.atan2(kys, kxs), h)/Math.PI : 0;   // toward the centre of look-alikes in view
   IN[33] = CFG.compass*Math.cos(h); IN[34] = CFG.compass*Math.sin(h);   // which way it is facing, in world terms
+  IN[36] = S.light;   // how light it is
   IN[35] = hcs || hsn ? angDiff(Math.atan2(hsn, hcs), h)/Math.PI : 0;   // which way the moving animals in view are going, relative to its own heading
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
@@ -848,6 +854,7 @@ function updateAnimal(i){
   S.hd[i] = hd;
   S.sp[i] += clamp(want - S.sp[i], -CFG.accel*vmax, CFG.accel*vmax);
   var sp = S.sp[i];
+  if (CFG.dayTicks > 0){ var CD = S.c, nt = S.light < 0.5; if (S.lM[i] > S.lP[i]){ if (nt){ CD.mvMn += sp; CD.nMn++; } else { CD.mvMd += sp; CD.nMd++; } } else { if (nt){ CD.mvPn += sp; CD.nPn++; } else { CD.mvPd += sp; CD.nPd++; } } }
   var W = S.world, nx = S.x[i] + Math.cos(hd)*sp, ny = S.y[i] + Math.sin(hd)*sp;
   if (nx < 0) nx += W; else if (nx >= W) nx -= W;
   if (ny < 0) ny += W; else if (ny >= W) ny -= W;
@@ -902,7 +909,7 @@ function updateAnimal(i){
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
-        S.c.kills++; S.kills[i]++; if (S.lM[tj] > S.lP[tj]){ S.c.killsMeat++; if (S.lM[i] > S.lP[i]) S.c.killsMeatByMeat++; }   // the victim lived mostly on meat; so did the killer
+        S.c.kills++; S.kills[i]++; if (S.light < 0.5) S.c.killsNight++; if (S.lM[tj] > S.lP[tj]){ S.c.killsMeat++; if (S.lM[i] > S.lP[i]) S.c.killsMeatByMeat++; }   // the victim lived mostly on meat; so did the killer
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
@@ -991,6 +998,7 @@ function attendedInReach(i){
 
 function step(){
   S.tick++;
+  S.light = CFG.dayTicks > 0 ? 0.5 + 0.5*Math.sin(2*Math.PI*S.tick/CFG.dayTicks) : 1;
   if (S.tick % CFG.plantEvery === 0) updatePlants();
   buildHashes();
   var ph = S.tick % CFG.think;
@@ -1169,6 +1177,11 @@ function sample(){
   var qm = Math.sqrt(qcx*qcx + qcy*qcy), pm = Math.sqrt(pcx*pcx + pcy*pcy);
   row.polarPred = qn ? +(qm/qn).toFixed(3) : 0;
   row.predVsPrey = qm > 0 && pm > 0 ? +((qcx*pcx + qcy*pcy)/(qm*pm)).toFixed(3) : 0;
+  if (CFG.dayTicks > 0){   // day against night: kills, and how fast prey and meat-eaters move
+    row.killsNight = C.killsNight;
+    row.preySpDay = C.nPd ? +(C.mvPd/C.nPd).toFixed(4) : 0; row.preySpNight = C.nPn ? +(C.mvPn/C.nPn).toFixed(4) : 0;
+    row.predSpDay = C.nMd ? +(C.mvMd/C.nMd).toFixed(4) : 0; row.predSpNight = C.nMn ? +(C.mvMn/C.nMn).toFixed(4) : 0;
+  }
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
   S.log.push(row);
   S.c = newCounters();
