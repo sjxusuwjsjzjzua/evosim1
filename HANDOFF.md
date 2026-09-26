@@ -474,6 +474,12 @@ barely matters.
 `chew` 4 (24 paired seeds): nothing significant either (prey clumping 0.834
 against 0.900, p 0.54). Chewing time in both directions leaves grouping flat.
 
+Strike cost, `atkCost` 0.02 and 0.05 against 0.004 (v1-AN-atk20/atk50, 24 paired
+seeds, dispatched). Expectation, written before the results: grazers' strike
+urges fall (two early local worlds at 0.02: 0.01 against 0.23, 0.40 against 0.85)
+and prey clumping rises if biting between grazers is what punishes grouping.
+Kill share may fall at 0.05, because predators pay the same cost.
+
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
 recovery and look-alike confusion (two settings), cover. Prey clump stays at
