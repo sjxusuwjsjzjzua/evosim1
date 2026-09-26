@@ -386,6 +386,28 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## A voice: prey flee calls, predators home on them (2026-09-26)
+
+Every animal has a `call` output (loudness, costs `callCost` 0.002 x loudness x
+mass^0.75) and hears the loudest call in sense range, heads down or not.
+Seeds 401–412, 400k ticks, against `hear` 0 (calls cost but go unheard).
+Probes with `tools/voice.js`:
+
+| | heard | deaf (control) |
+|---|---|---|
+| predator-dominated worlds | 10 of 12 (populations 850–1,500) | 8 of 12 (three at 100–400 animals) |
+| grazers bolt on a call (throttle up) | 11 of 12 worlds, +0.07 to +0.59 | 7 of 12 (untrained weights) |
+| grazers turn away from a call | 9 of 12, −0.3 to −1.7 | 5 of 12 |
+| meat-eaters turn toward a call | 7 of 10, +0.6 to +1.35 | 4 of 9 |
+| alarm calls (louder at a big armed stranger) | 2 of 12 (+0.51, +0.66) | |
+
+- In deaf worlds the hearing weights drift unused, so the probes there read
+  about ±1 at random; the heard-world pattern is in the expected direction but
+  modest at 12 worlds a side.
+- Predators eavesdropping on prey calls is a real phenomenon; nothing wrote it in.
+- The call is too cheap to be silenced: mean loudness drifts from 0 to 0.9
+  even in deaf worlds. A higher `callCost` is the obvious next test.
+
 ## What 476 run logs say (2026-09-26, `MINING.md`)
 
 - Nearly every world has a predator phase early (meat first passes 15% at a
