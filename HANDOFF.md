@@ -711,7 +711,11 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+Sexual as the default? `v1-AP-sex` (`sex` 1, `mateDist` 0.1, 24 paired seeds
+against `v1-AL-current24`). Expectation from `runs/sexH`: predator-dominated
+and carnivore clusters no lower than clonal (5 of 8 with carnivore clusters
+there, 12 of 24 clonal). If so, sexual becomes the default, since it adds
+speciation (meat species isolated in 7 of 8). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
