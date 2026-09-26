@@ -22,9 +22,14 @@ What evolves, without being written in:
   up when a big armed animal comes into view;
 - **arms races**: armour against weapons, speed against speed, herbivore detox
   against plant defence;
-- **safety in numbers**: an animal eating has its eyes on the food, so where
-  there are predators prey end up in groups, bolt when their neighbours bolt,
-  and in some worlds steer toward each other;
+- **vigilance and alarm**: an animal eating has its eyes on the food, so prey
+  learn to bolt when their neighbours bolt;
+- **calls**: every animal has a voice. Grazers learn to turn away from a call
+  (in 11 of 12 test worlds), meat-eaters often learn to home in on one, and in
+  some worlds grazers call when a big armed stranger comes close;
+- **company**: meat-eaters move in loose groups; in some worlds grazers follow
+  their own kind and avoid strangers. Prey rarely form tight herds: in this
+  physics a group costs them more than it saves;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
