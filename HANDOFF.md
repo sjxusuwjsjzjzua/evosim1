@@ -437,8 +437,8 @@ full-height plants (1.17) has not carried over to growing plants.
 predator-dominated, carnivore clusters 7, prey clump 0.69–1.11 (mean 0.93, as
 without). No grouping gain.
 
-**Why grouping does not pay: grazers bite each other** (program audit A10,
-confirmed 2026-09-26). The herder diagnostic with each hit attributed to its
+**Grazers bite each other, but that is not why grouping does not pay**
+(program audit A10; the mechanism was ruled out 2026-09-26, below). The herder diagnostic with each hit attributed to its
 attacker (kin-steering herders, seeds 3, 5, 7): 75–90% of the hits grazers
 take come from animals living mostly on plants (15–20 per 1000 animal-ticks),
 2.5–5 from meat-eaters. Plant-gutted animals strike whoever they touch, their
@@ -479,6 +479,23 @@ seeds, dispatched). Expectation, written before the results: grazers' strike
 urges fall (two early local worlds at 0.02: 0.01 against 0.23, 0.40 against 0.85)
 and prey clumping rises if biting between grazers is what punishes grouping.
 Kill share may fall at 0.05, because predators pay the same cost.
+Result, `atkCost` 0.02 (24 paired seeds): grazers' strike urges fell (0.28/0.32
+on contact with smaller/bigger, against 0.45/0.45) but prey clumping did not
+move (0.859 against 0.900, p 0.54), nor did anything else. Locally (`runs/atk20`,
+12 seeds) the urges did not even fall; the two early worlds were noise.
+`size` 24 (24 paired seeds): nothing significant (carnivore clusters 7 against
+12, p 0.23; prey clumping 0.883 against 0.900).
+
+**Biting ruled out as the barrier** (herder diagnostic, `herd3.js` with `NOBITE`:
+every grazer's strike bias −20 at the split, kin-steering herders, seeds 3, 5,
+7, 30k ticks). Hits from plant-eaters fell from 14–20 to 2–5 per 1000
+animal-ticks, and herders lost in all three worlds (41 against 302, 0 against
+823, 0 against 597). With biting left on, the same herders won two of three (172
+against 28, 1092 against 21) and lost seed 5. Lineage outcomes over 30k ticks
+are mostly drift, and herders were not much more grouped than controls in any
+arm (0.35–2.5 neighbours against 0.5–1.9). Cheaper biting is not what grouping
+lacks: steering toward look-alikes does not raise density enough to buy
+anything.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
