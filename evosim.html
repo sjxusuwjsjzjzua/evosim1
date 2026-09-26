@@ -87,9 +87,11 @@ var CFG_DEFAULT = {
   pR: 0.012,            // logistic growth rate per tick at fertility 1, no costs paid
   pKmin: 2, pKmax: 14,  // standing-crop capacity, set by the stature gene
   pStatCost: 0.55,      // share of growth rate given up at stature 1
-  browse: 0,            // plant height per unit stature, in reach units. An animal reaches
+  browse: 2,            // plant height per unit stature, in reach units. An animal reaches
                         // mass^(1/3) high and cannot crop the share of a cell's capacity that
-                        // stands above its reach. 0 = everything is in reach
+                        // stands above its reach. 0 = everything is in reach. At 2, over 12
+                        // worlds: carnivore specialists in 8 (3 without), no dwarf worlds,
+                        // tall trees; but 4 worlds of giants
   pDefCost: 0.45,       // share of growth rate given up at defence 1
   kDef: 4,              // a tough plant: bite size / (1 + kDef*defence*(1-detox))
   pSeedB: 0.25,         // biomass a seed starts a cell with (paid by the parent)

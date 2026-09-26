@@ -42,6 +42,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
+| plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`, default off), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; with incompatibility (`mateDist` 0.1) sexual worlds match clonal ones, without it they fall behind (below) |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
@@ -300,7 +301,16 @@ without height, body size runs to a bound.
 A likely reason: growth is `growRate` x mass, so every body size matures in
 the same ~170 ticks, while lifespan grows as mass^0.25. Giants get long lives
 and quick maturity for free. `growExp` 0.75 (growth like metabolism, time to
-maturity rising as mass^0.25) is being tested with and without browse 2.
+maturity rising as mass^0.25) made it worse: seeds 401–408 without browse,
+dwarf worlds 3–4 against 1 and predator worlds 4 against 5; with browse 2,
+giant worlds 5 against 2. Maturation time is not what drives the runaway;
+more likely only giants reach a tall canopy, and their bulk keeps predators
+off. `growExp` stays 1.
+
+`browse` 2 is now the default: over the first 400k ticks it turns carnivore
+specialists from rare to common and removes dwarf worlds, at the price of
+giant ones; at 1M ticks predation lasts in more worlds (4 against 2–3 of 10).
+The seed-42 evolved start holds 4 of 4 under it (meat 34–43% at 10–40k).
 
 `upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
 predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds

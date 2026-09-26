@@ -26,6 +26,8 @@ What evolves, without being written in:
   there are predators prey end up in groups, bolt when their neighbours bolt,
   and in some worlds steer toward each other;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
+- **trees and browsers**: plants grow tall enough to keep their leaves out of
+  a small grazer's reach, and bodies grow to reach them.
 
 Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved
