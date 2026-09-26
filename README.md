@@ -12,11 +12,11 @@ what a bite does).
 What evolves, without being written in:
 
 - **grazing**, in every world, within a few dozen generations;
-- **scavenging and predation**. In about 5 of 6 worlds killing becomes the main
+- **scavenging and predation**. In about 3 of 4 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
   typically 20–30%. Much of the killing is done by plant-gutted animals biting
   whoever they touch, their own kind included;
-- **carnivore species**. In about half of worlds a lineage's gut shifts toward
+- **carnivore species**. In about a third of worlds a lineage's gut shifts toward
   flesh (diet gene 0.45–1.0, 75–100% of its energy from meat) and lives
   alongside herbivore species. The predators are big, armed cruisers that strike
   whatever they touch; the herbivores are small grazers that sit still and speed
@@ -46,7 +46,7 @@ What evolves, without being written in:
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
 
-Not every world gets there: in about one world in six predators never take
+Not every world gets there: in about one world in four predators never take
 hold. Once predators are there they tend to stay: in ten test worlds run for a
 million ticks, most still had them at the end, and none collapsed into worlds
 of dwarf or giant grazers.
