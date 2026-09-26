@@ -105,8 +105,10 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
-  compass: 0,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
-                        // or magnetic compass would; 0 = those inputs read 0
+  compass: 1,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
+                        // or magnetic compass would; 0 = those inputs read 0. With it prey
+                        // populations evolve a shared bearing and travel together (24 paired
+                        // worlds: prey clumping 1.22 against 0.84, predation unchanged)
   seasonWave: 0,        // 1 = the season travels along x, one wavelength per world width per year:
                         // a band of fast growth moving at world/yearTicks per tick
 
@@ -1707,6 +1709,7 @@ function buildDrawer(){
     h += '<div class="row"><label>' + s[1] + '</label><input type="range" id="s_' + s[0] + '" min="' + s[2] + '" max="' + s[3] +
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
   });
+  h += '<div class="row"><label>seasons move</label><button id="wS">still</button><button id="wT">travelling</button></div>';
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
   h += '<div class="row"><label>reproduction</label><button id="rC">clonal</button><button id="rS">sexual</button></div>';
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
@@ -1715,6 +1718,7 @@ function buildDrawer(){
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
   h += '<p class="note">Sexual is the default. In about half of test worlds meat-eaters became a separate species that cannot interbreed with the grazers, and in some the grazers split too. Clonal worlds get predators as often, but a species there is only a cluster of look-alikes.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; grazers can tell which way they face and in most test worlds learned to go with it.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
@@ -1735,6 +1739,10 @@ function buildDrawer(){
   $('rC').classList.toggle('on', !sexual); $('rS').classList.toggle('on', sexual);
   $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; fresh(); newWorld(); buildDrawer(); };
   $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; fresh(); newWorld(); buildDrawer(); };
+  var wave = !!Sim.CFG.seasonWave;
+  $('wS').classList.toggle('on', !wave); $('wT').classList.toggle('on', wave);
+  $('wS').onclick = function(){ Sim.CFG.seasonWave = 0; patch.seasonWave = 0; buildDrawer(); };
+  $('wT').onclick = function(){ Sim.CFG.seasonWave = 1; patch.seasonWave = 1; if (!Sim.CFG.seasonAmp){ Sim.CFG.seasonAmp = 0.8; patch.seasonAmp = 0.8; } buildDrawer(); };
   $('bNew').onclick = function(){ if (!discardOK()) return; fresh(); newWorld(); buildDrawer(); };
   if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.seedNO = EVOLVED.no || 5; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ if (!discardOK()) return; newWorld(Sim.CFG.seed); buildDrawer(); };
@@ -1778,7 +1786,7 @@ function resumeWorld(){
   try {
     var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
     if (w && Sim.restore(w)){
-      ['gridN', 'seed', 'sex', 'mateDist'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
       resumedFrom = Sim.S.tick; afterLoad(); return true;
     }
   } catch (e) {}

@@ -711,7 +711,7 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Compass (`compass`, new, off by default): senses compassX/Y (cos and sin of the
+Compass (`compass`, on by default since 2026-09-26): senses compassX/Y (cos and sin of the
 animal's heading in world terms, NI 35). `v1-AT-wavec1` against `v1-AT-wavec0`
 (`seasonAmp` 0.8, `seasonWave` 1, sexual default), 24 paired seeds.
 Expectation: without a compass `waveVx` stays near 0.03 as before. With one,
@@ -734,6 +734,28 @@ matching each other. The bearing is inherited and moving straight avoids
 re-grazing, so a lineage's direction takes over the population. Parallel
 travel keeps relatives near each other. Paired test: `v1-AU-c1` against
 `v1-AU-c0`, 24 seeds.
+
+**Result, compass with no season** (`v1-AU-c1` against `v1-AU-c0`, 24 paired
+seeds, sexual):
+- `polar` 0.728 against 0.035 and `align` 0.551 against 0.017, 24 of 24 worlds.
+- Prey clumping 1.223 against 0.841, 23 of 24 (p < 0.001).
+- Predator-dominated 16 against 16, carnivore clusters 8 against 8, meat
+  share 0.219 against 0.234.
+
+Streaming appears within 40–200k ticks. It is a shared bearing, not flocking.
+`align − polar²` averages −0.015 and is positive in 4 of 24 worlds, so
+neighbours line up no more than a common direction implies. The bearing is
+adaptive, not a mark of common descent (scratchpad `compassko.js`). At 150k
+ticks half the grazers lose their compass weights, and the lines are followed
+through the mother. In the three worlds already streaming, the cut lines were
+gone within 60k ticks (0 against 1679, 0 against 678, 0 against 917). In the
+one that was not yet streaming (`polar` 0.11) the cut line won (449 against
+175). Moving on in one direction likely keeps an animal off ground its
+neighbours and its own line have grazed. The build noise between two
+identical-in-effect builds (`v1-AS-base24` against `v1-AU-c0`) was 20 against
+16 predator worlds (p 0.29). The compass is now on by default. `v1-AU-c1` is the baseline for the
+current build (sexual, compass, 35 senses). The page has a "seasons move:
+still / travelling" control next to the seasons slider.
 
 **Migration pays, and needs a compass** (scratchpad `east.js`; evolved start
 in a wave world, `seasonAmp` 0.8, clonal; after 20k ticks half the grazers get

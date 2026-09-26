@@ -36,6 +36,12 @@ What evolves, without being written in:
   interbreeding with each other. In one, a
   new grazer species with little detox arose once the plants had lost their
   defences, and it was replacing the old one;
+- **streaming herds**: every animal can tell which way it is facing, as with a
+  sun compass. Within a few hundred generations a world's grazers share a
+  bearing and travel together across the (wrapping) world, keeping off ground
+  already grazed. Nothing tells them which way to go; different worlds pick
+  different directions. With the travelling season on, most worlds go the
+  way the season goes;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
