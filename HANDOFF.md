@@ -397,6 +397,7 @@ carnivore clusters in 9, one giant world.
 | `vigilShare` 1 | 9 | 5 | 2 / 0 |
 | **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
 | lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
+| `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 
 `browseGrown` (plant height grows with the plant and does not shrink when
 grazed; seedlings are short and grazeable) removed both body-size traps at
