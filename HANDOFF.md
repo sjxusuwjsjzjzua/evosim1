@@ -409,7 +409,17 @@ Fresh seeds 801–812 (`v1-AH-base-rep` against `v1-AH-grown-rep`): predator-
 dominated 9 against 9, carnivore clusters 4 against 8, giant worlds 7 against 0.
 Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
 worlds against 8, with no dwarf worlds either way. Now the default. The
-evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks).
+evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks). Populations evolved under the
+current engine transplant worse (seeds 802, 805, 808 of `v1-AH-grown-rep`: 0,
+3 and 2 of 4 worlds), so seed 42 stays. Seed 808 has the clearest voice seen:
+grazers bolt on a call (+0.79) and turn away (−1.84), meat guts turn toward it
+(+0.88).
+
+At 1M ticks (`v1-AH-1M-grown` against `v1-AE-1M-voice`, seeds 701–710)
+predation lasts: all 10 worlds still predatory at 1M (meat 12–31%), 9.0k of
+~9.4k possible thousand ticks in the predator state against 6.5k, exits 0.04
+per 100k predator ticks against 0.11, and no giant or dwarf worlds (mean sizes
+0.5–4.9). The body-size traps that ended most long runs are gone.
 
 Predation here needs a predator free to strike every tick: any strike
 recovery (`strikeCool`) starved predators before confusion could shape prey.
@@ -501,26 +511,8 @@ core, so local batches beat Actions for anything under ~20 worlds.
 
 ## Next
 
-1. **Giant worlds.** With plant height, 4 of 12 worlds (and 6–7 of 10 by 1M
-   ticks) end as giants: size 6–11, 100–350 animals, little predation. Not a
-   canopy race: plants in the giant worlds are short (stature 0.21–0.30,
-   height ~0.6), while the predator worlds have tall plants (0.95). Scarce food
-   per animal pushes the best body size up (optimum ~ (4 upFixed / net intake
-   per mass^0.75)^(4/3)), and giants also appeared at `upFixed` 0.005 without
-   browse. Fixed cost with browse 2, seeds 401–412 (giant = mean size ≥ 5):
-
-   | `upFixed` | giant worlds | predator-dominated | carnivore clusters |
-   |---|---|---|---|
-   | 0.002 | 7 | 6 | 4 |
-   | **0.003** | **4** | 8 | **8** |
-   | 0.004 | 6 | 9 | 7 |
-   | 0.006 | 8 | 5 | 2 |
-
-   0.003 is the minimum for giants either way, so the fixed cost is not the
-   lever. Big bodies carry more reserve per unit of upkeep (40 x mass against
-   mass^0.75), so they outlast scarcity; nothing yet pays for being small
-   except a head start on the dwarf race that plant height now blocks. Growth time (`growExp`
-   0.75) made it worse.
+1. **Giant worlds: solved** by `browseGrown` (above). Over 1M ticks every
+   test world stayed predatory.
 2. **Herding.** Vigilance made grouping pay (prey clump 1.17 against 0.90 in
    predator worlds), but active steering toward others evolved in 1 of 12
    worlds; mostly prey bolt when neighbours bolt. Longer runs, or the sexual
