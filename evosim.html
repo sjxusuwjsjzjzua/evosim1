@@ -169,6 +169,12 @@ var CFG_DEFAULT = {
   confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
                         // animals within confR of it with a similar colour tag and size. 0 = always
   confR: 8,
+  packHunt: 0,          // 1: armour fully protects only against the first strike a target takes in a
+                        // tick; later strikes that tick ignore it (hunting together pays)
+  fibre: 0,             // mature plants are fibrous: plant energy x (1 - fibre x B/K x (1 - digestion)),
+                        // digestion = min(1, (mass/digestMass)^0.25). Small grazers do best on
+                        // regrowth, big ones can use mature stands. 0 = all plant matter is equal
+  digestMass: 8,
   hazard: 0,            // chance per tick of dying of something no body size escapes (disease,
                         // accident). 0 = none
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
@@ -312,7 +318,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    gut: new Float32Array(M), call: new Float32Array(M), eatT: new Float32Array(M), cool: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    gut: new Float32Array(M), call: new Float32Array(M), eatT: new Float32Array(M), cool: new Float32Array(M), hitAt: new Int32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
@@ -452,7 +458,7 @@ function spawnRandom(){
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
-  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.eatT[i] = 0; S.cool[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
+  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.eatT[i] = 0; S.cool[i] = 0; S.hitAt[i] = -1; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
@@ -785,6 +791,7 @@ function eatPlant(i, c, t, slow, m75, diet){
   }
   if (t <= 0 || B <= floor) return 0;
   var val = CFG.ePlant*(1 - Math.pow(diet, CFG.dietCurve));
+  if (CFG.fibre > 0) val *= 1 - CFG.fibre*Math.min(1, B/S.pK[c])*(1 - Math.min(1, Math.pow(S.mass[i]/CFG.digestMass, 0.25)));
   var rate = CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX]));
   if (rate <= 0) return 0;
   var bite = Math.min(B - floor, rate*t);
@@ -865,7 +872,9 @@ function updateAnimal(i){
       // a crowd of look-alikes round the target can make the strike miss
       var hit = CFG.confHit > 0 ? rng()*(1 + CFG.confHit*lookAlikes(tj, CFG.confR, i)) < 1 : true;
       if (CFG.strikeCool > 0 || CFG.missCool > 0) S.cool[i] = hit ? CFG.strikeCool : Math.max(CFG.strikeCool, CFG.missCool);
-      var dmg = hit ? CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng()) : 0;
+      var arm = CFG.armourEff*S.genome[tj*NG+G_ARMOUR];
+      if (CFG.packHunt){ if (S.hitAt[tj] === S.tick) arm = 0; S.hitAt[tj] = S.tick; }   // armour turns only the first blow of a tick
+      var dmg = hit ? CFG.dmg*G[g+G_WEAPON]*m75*(1 - arm)*(0.8 + 0.4*rng()) : 0;
       if (CFG.kConfusion > 0) dmg /= 1 + CFG.kConfusion*neighboursOf(tj, 3, i);
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
