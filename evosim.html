@@ -146,6 +146,7 @@ var CFG_DEFAULT = {
   headDown: 0.7,        // an animal that ate last tick senses animals over (1 - headDown) of its
                         // range: eyes on the food are not on the horizon. Over 12 worlds a side
                         // it made prey group where predators were (prey clump 1.17 against 0.90)
+  seeTags: 1,           // the attended animal's colour tag is sensed (animalR/G/B); 0 = those inputs read 0
   cBuild: 10,           // energy to build one unit of body mass
   growAbove: 0.5,       // a juvenile grows only with reserves above this share of capacity
   breedMargin: 0.05,    // a parent keeps at least this share of capacity after giving birth
@@ -240,11 +241,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 30, NH = 8, NO = 6;
+var NI = 33, NH = 8, NO = 6;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
 
 var CFG, S;   // config and state
@@ -659,7 +660,10 @@ function sense(i){
     for (var q = 0; q < 3; q++){ var dd = G[g+G_TAG+q] - G[og+G_TAG+q]; td += dd*dd; }
     IN[13] = 1 - Math.sqrt(td/3);
     IN[14] = G[og+G_WEAPON]/1.5;
-  } else { IN[9] = 0; IN[10] = 0; IN[11] = 0; IN[12] = 0; IN[13] = 0; IN[14] = 0; }
+    // its colour tag, the same signal a mate is chosen by
+    var st = CFG.seeTags;
+    IN[30] = st*G[og+G_TAG]; IN[31] = st*G[og+G_TAG+1]; IN[32] = st*G[og+G_TAG+2];
+  } else { IN[9] = 0; IN[10] = 0; IN[11] = 0; IN[12] = 0; IN[13] = 0; IN[14] = 0; IN[30] = 0; IN[31] = 0; IN[32] = 0; }
   if (nearC >= 0){
     var qx = wrap(S.cx[nearC]-x), qy = wrap(S.cy[nearC]-y);
     IN[15] = 1;

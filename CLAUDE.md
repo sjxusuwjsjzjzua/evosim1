@@ -42,7 +42,7 @@ Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell
 reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
-and a neural network (30 senses, 8 hidden,
+and a neural network (33 senses, 8 hidden,
 6 outputs: turn, throttle, eat, meat preference, attack, call). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is

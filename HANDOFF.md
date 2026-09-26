@@ -711,6 +711,16 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Colour senses (`seeTags`, new, on by default): the attended animal's colour tag
+is now three senses (animalR/G/B, NI 33). Before, an animal sensed only how
+much another looked like itself, so a colour could not mean anything to a
+predator: no warning colours, no mimicry, no colour-based prey choice.
+`v1-AQ-tags1` against `v1-AQ-tags0` (same build, inputs read 0), 24 paired
+seeds. Expectation: predation rates unchanged. Among prey, colour predicts
+armour more with the senses on, if armoured prey gain from being recognised.
+Predators' strike urge depends on the target's colour (probe). If
+nothing differs, the senses stay as information and the switch goes.
+
 Sexual as the default? `v1-AP-sex` (`sex` 1, `mateDist` 0.1, 24 paired seeds
 against `v1-AL-current24`). Expectation from `runs/sexH`: predator-dominated
 and carnivore clusters no lower than clonal (5 of 8 with carnivore clusters
