@@ -386,6 +386,29 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## What 476 run logs say (2026-09-26, `MINING.md`)
+
+- Nearly every world has a predator phase early (meat first passes 15% at a
+  median 20k ticks). What differs is how long it lasts: exits run at ~0.2 per
+  100k predator-state ticks in all three engine generations (curve 2,
+  vigilance, plant height), so a predator phase lasts ~500k ticks on average.
+  Score levers by exit rate in long runs, not by onset.
+- Early genes predict nothing (AUC 0.45–0.55). Concentrated meat-eating does,
+  weakly: the share of adults living on meat at 40k gives ~67–70% against a
+  58% base rate.
+- Plant height changed where worlds fall, not how often: before it, 63 of 82
+  exits went to dwarf worlds; with it, 42 of 60 went to giant worlds.
+- Dwarf exits: plant mass and stature fall 50–60k ticks before the collapse;
+  grazers shrink to the size floor while meat-eaters grow (size ratio 3 → 10)
+  and then vanish.
+- Giant exits: meat-eaters are already at size 10–12 against a gene cap of 12
+  (23 of 32 exits); grazers grow 5 → 8 and the predator/prey size ratio falls
+  1.6 → 1.4. `sizeMax` (new) tests whether the cap ends these worlds.
+- Plant height keeps early carnivore clusters alive more than it makes new ones.
+- Plant defence tracks grazer detox, not predation: a plant–grazer cycle of
+  its own. Predation speeds up breeding (reproT 0.37 in predator worlds, 0.58
+  in giant ones).
+
 ## Literature-driven switches (2026-09-26, off by default)
 
 `SURVEY.md` compares this engine with other artificial-life systems. Two of its
