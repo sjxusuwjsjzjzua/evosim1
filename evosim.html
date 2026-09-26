@@ -1070,6 +1070,25 @@ function sample(){
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
   var spc = species(), clump = clumping(false), clumpPrey = clumping(1), clumpPred = clumping(2);
+  // moving prey: polar = how much the whole population faces one way (0 random, 1 all
+  // the same); align = mean cosine between the headings of moving prey neighbours within 6
+  var pcx = 0, pcy = 0, pn = 0, alS = 0, alN = 0, inv6 = 1/S.bSize, bN6 = S.bN, sp6 = Math.ceil(6*inv6);
+  for (var u = 0; u < S.hi; u++){
+    if (!S.alive[u] || S.lM[u] > S.lP[u] || S.sp[u] < 0.05) continue;
+    pcx += Math.cos(S.hd[u]); pcy += Math.sin(S.hd[u]); pn++;
+    if (u % 3) continue;
+    var ux = S.x[u], uy = S.y[u], ubx = (ux*inv6)|0, uby = (uy*inv6)|0;
+    for (var ddy = -sp6; ddy <= sp6; ddy++){
+      var uby2 = ((uby+ddy) % bN6 + bN6) % bN6;
+      for (var ddx = -sp6; ddx <= sp6; ddx++){
+        for (var v = S.aHead[uby2*bN6 + ((ubx+ddx) % bN6 + bN6) % bN6]; v >= 0; v = S.aNext[v]){
+          if (v === u || !S.alive[v] || S.lM[v] > S.lP[v] || S.sp[v] < 0.05) continue;
+          var vx6 = wrap(S.x[v]-ux), vy6 = wrap(S.y[v]-uy);
+          if (vx6*vx6 + vy6*vy6 < 36){ alS += Math.cos(S.hd[v] - S.hd[u]); alN++; }
+        }
+      }
+    }
+  }
   // with a travelling season: where prey sit in it (1 = at the peak of growth, 0 = no
   // preference) and how fast they move with it (1 = at the wave's own speed)
   var wTrack = 0, wVx = 0, wN = 0;
@@ -1099,6 +1118,7 @@ function sample(){
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
+  row.polar = pn ? +(Math.sqrt(pcx*pcx + pcy*pcy)/pn).toFixed(3) : 0; row.align = alN ? +(alS/alN).toFixed(3) : 0;
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
   S.log.push(row);
   S.c = newCounters();

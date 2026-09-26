@@ -732,6 +732,17 @@ gradient through the grazing noise. Local previews of the wave (4 seeds each,
 `yearTicks` 6000 and 24000) agree: prey track the band by breeding in it
 (`waveTrack` 0.13–0.38) and drift with it at only 0.03 of its speed.
 
+**Travelling season, result** (`v1-AR-wave8` against `v1-AR-glob8`, both
+`seasonAmp` 0.8, clonal, 24 paired seeds):
+- Giant worlds: 7 against 18 (McNemar p 0.003). A global season makes giants
+  in three worlds of four; a travelling one mostly does not.
+- Prey clumping: 0.954 against 0.840 (p 0.023).
+- Predator-dominated: 10 against 12 (both far below the ~20 of 24 without
+  seasons).
+- Prey drift along the wave in 21 of 24 worlds (sign test p < 0.001), but at
+  only 0.03 of its speed (`waveVx` −0.008 to 0.065). They follow it by
+  breeding in it (`waveTrack` 0.07–0.37), not by travelling.
+
 Travelling season (`seasonWave`, new, off by default): with `seasonAmp` > 0 the
 season's phase shifts with x, so a band of fast plant growth crosses the world
 once a year (256 units per 6000 ticks, 0.043 per tick). Logged: `waveTrack`
