@@ -193,6 +193,10 @@ var CFG_DEFAULT = {
   confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
                         // animals within confR of it with a similar colour tag and size. 0 = always
   confR: 8,
+  cover: 0,             // an animal standing among plants taller than its reach is seen only within
+                        // R / (1 + cover x (plant height / its reach - 1)); calls still carry. 0 = off
+  killCool: 0,          // handling time: ticks after a kill before the killer can strike again
+                        // (subduing and eating a catch). Misses stay free. 0 = off
   packHunt: 0,          // 1: armour fully protects only against the first strike a target takes in a
                         // tick; later strikes that tick ignore it (hunting together pays)
   fibre: 0,             // mature plants are fibrous: plant energy x (1 - fibre x B/K x (1 - digestion)),
@@ -651,6 +655,13 @@ function sense(i){
         if (d2 >= R2) continue;
         var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
         if (lv > heard){ heard = lv; hx = ex; hy = ey; }
+        if (CFG.cover > 0){   // an animal among plants taller than itself is hard to see
+          var cj = cellAt(AX[j], AY[j]);
+          if (S.pB[cj] > 0){
+            var hj = CFG.browseGrown ? S.pH[cj] : CFG.browse*S.pStat[cj], rj = Math.cbrt(MA[j]);
+            if (hj > rj){ var vis = 1/(1 + CFG.cover*(hj/rj - 1)); if (d2 >= RA2*vis*vis) continue; }
+          }
+        }
         if (d2 >= RA2) continue;
         crowd++; cxs += ex; cys += ey; spd += SPD[j];
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
@@ -907,6 +918,7 @@ function updateAnimal(i){
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
         S.c.kills++; S.kills[i]++;
+        if (CFG.killCool > 0) S.cool[i] = Math.max(S.cool[i], CFG.killCool);
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
@@ -1072,18 +1084,19 @@ function species(){
 }
 // neighbours within 6 against a uniform scatter: 1 = random, above 1 = in groups.
 // preyOnly: animals whose lifetime intake is mostly plants, among themselves
-function clumping(preyOnly){
+function clumping(preyOnly){   // preyOnly: 1 = animals living mostly on plants, 2 = mostly on meat
   var r = 6, r2 = r*r, tot = 0, n = 0, inv = 1/S.bSize, bN = S.bN, span = Math.ceil(r*inv), np = 0;
-  if (preyOnly){ for (var p = 0; p < S.hi; p++) if (S.alive[p] && S.lM[p] <= S.lP[p]) np++; } else np = S.n;
+  var sel = function(k){ return !preyOnly || (preyOnly === 1 ? S.lM[k] <= S.lP[k] : S.lM[k] > S.lP[k]); };
+  if (preyOnly){ for (var p = 0; p < S.hi; p++) if (S.alive[p] && sel(p)) np++; } else np = S.n;
   for (var i = 0; i < S.hi; i += 3){
-    if (!S.alive[i] || (preyOnly && S.lM[i] > S.lP[i])) continue;
+    if (!S.alive[i] || !sel(i)) continue;
     var x = S.x[i], y = S.y[i], bx0 = (x*inv)|0, by0 = (y*inv)|0; n++;
     for (var dy = -span; dy <= span; dy++){
       var by = ((by0+dy) % bN + bN) % bN;
       for (var dx = -span; dx <= span; dx++){
         var b = by*bN + ((bx0+dx) % bN + bN) % bN;
         for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
-          if (j === i || !S.alive[j] || (preyOnly && S.lM[j] > S.lP[j])) continue;
+          if (j === i || !S.alive[j] || !sel(j)) continue;
           var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y);
           if (ex*ex + ey*ey < r2) tot++;
         }
@@ -1119,7 +1132,7 @@ function sample(){
   }
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
-  var spc = species(), clump = clumping(false), clumpPrey = clumping(true);
+  var spc = species(), clump = clumping(false), clumpPrey = clumping(1), clumpPred = clumping(2);
   var C = S.c, eAll = C.eP + C.eC + C.eK;
   var dead = S.hist; S.hist = [];
   var dhist = new Array(10).fill(0);
@@ -1138,7 +1151,7 @@ function sample(){
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
-    species: spc, clump: clump, clumpPrey: clumpPrey, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
+    species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   S.log.push(row);
   S.c = newCounters();
@@ -1733,7 +1746,7 @@ function buildDrawer(){
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
-  h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds the clusters become true species that cannot interbreed, sometimes split by diet.</p>';
+  h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds meat-eaters and grazers usually become separate species that cannot interbreed.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';

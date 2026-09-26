@@ -217,6 +217,7 @@ combinations unless mating is already assortative.
 | `dietCurve=2` (`v1-X-small-curve2`) | small | **10** | **10** | **4** |
 | `dietCurve=2` (`v1-Y-medium-curve2`) | medium | **10** | **10** | **4** |
 | current engine (audit fixes, shared mouth time), local seeds 301–308 | small | **8 of 8** | **8 of 8** | **3 of 8** |
+| current defaults (vigilance, voice, growing plants), `v1-AK-medium`, seeds 901–910 | medium | 9 | 9 | 2 |
 
 - Genetic incompatibility rescues sex: without it sexual worlds had 1 predator
   world and no meat guts; with it they match or beat clonal ones.
@@ -335,6 +336,14 @@ of cross-cluster pairs the engine's mating rule allows.
 - Clonal stays the default for the predator rate. The page offers sexual
   worlds as a choice.
 
+Re-checked under the current defaults (`v1-AI-sex`, seeds 401–412): 9 of 12
+predator-dominated against 12 clonal. In all 5 worlds checked with
+`tools/isolation.py` (402, 404, 406, 410, 412) the meat-leaning clusters (diet
+0.46–0.77) breed with 0% of the grazer clusters, and choosiness rose to
+0.4–0.85. In s402 two meat clusters (diet 0.54 and 0.65) interbreed with each
+other (76–77%) and not with grazers. Diet-split species are the rule in sexual
+worlds now, not the exception.
+
 ## Reflecting mutation bounds: no clear effect (`mutReflect`, 2026-09-25)
 
 A mutation past a gene's bound reflects back instead of sticking to the bound.
@@ -399,6 +408,44 @@ carnivore clusters in 9, one giant world.
 | lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
 | mild lunge (`strikeCool` 2, `missCool` 6, `confHit` 0.2), local | 6 | 7 | 4 / 0 (prey clump no higher) |
 | strike recovery only (`strikeCool` 3), local | 1–3 | 0 | 10 / 0 |
+| `killCool` 20 (handling time after a kill), on top of `browseGrown` | 12 | 9 | 0 / 0 (prey clump ~0.90, no gain) |
+| `killCool` 60 | 9 | 5 | 0 / 0 (meat 6–29%, prey clump ~0.80) |
+
+`headDown` 0.9 (local, on `browseGrown`): 10 of 12 predator-dominated, prey
+clump 0.70–1.09, no gain over 0.7. The grouping vigilance gave under
+full-height plants (1.17) has not carried over to growing plants.
+
+`cover` 2 (animals among taller plants are hard to see; local): 10 of 12
+predator-dominated, carnivore clusters 7, prey clump 0.69–1.11 (mean 0.93, as
+without). No grouping gain.
+
+**Herding under growing plants is the main open question.** Tried and null:
+stronger head-down (0.9), handling time after a kill (20, 60), strike
+recovery and look-alike confusion (two settings), cover. Prey clump stays at
+0.9–1.0 with predators present. The next honest step is a hand-built herder
+diagnostic under the current physics (rule 5): if grouping does not pay even
+when built in, no amount of evolution will find it.
+
+**Hand-built herder diagnostic under the current physics** (`herd3.js` in the
+session scratchpad; seed-42 evolved start, half the grazers given +3 on
+turn-toward-crowd after 10k ticks, lineage inherited): herders died out in 3
+of 3 worlds within 20–30k ticks. They took 12–70% more hits per head and had
+slightly fewer births, and were not even more grouped (1.4–2.1 neighbours
+against 1.4–2.3). `crowdDir` points at every animal in view, predators
+included, so steering toward it means steering toward predators. Grouping
+does not pay in this physics even when built in; evolution cannot be expected
+to find it until something changes that.
+
+**Predators group; prey do not** (`clumpPred`, new, local seeds 401–408 on the
+current defaults): meat-eaters sit at 1.35–2.81x a random scatter while prey
+sit at 0.77–1.14. With `packHunt` (armour turns only the first blow of a tick)
+predators form tight packs (4.1, 8.5, 14.7, 3.1x in four worlds) and prey
+spread out (0.36–1.00), but predation falls (6 of 8 predator-dominated against
+8). Whether the default grouping is cooperative hunting or predators
+converging on the same prey and carcasses is not yet known.
+
+Handling time does not make groups pay: surplus killing inside a group is not
+what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
@@ -457,7 +504,11 @@ Probes with `tools/voice.js`:
   baseline loudness fell to 0.00–0.04 in 8 of 12 worlds, 4 of 12 call louder
   at a big armed stranger (+0.19 to +0.52), and grazers turn away from a call
   in 11 of 12 (−0.4 to −1.9). But predator-dominated worlds fell to 8 of 12
-  with several small populations. `callCost` 0.008 is next.
+  with several small populations. At `callCost` 0.008 (`runs/call4`): alarm
+  calls in 4 of 12 (+0.27 to +0.58), grazers turn away from calls in 12 of
+  12, but 7 of 12 predator-dominated. Costlier calls make clearer signals and
+  consistently cost predation (random founders call at ~0.5 and pay for it
+  during bootstrap), so the default stays at 0.002.
 
 ## What 476 run logs say (2026-09-26, `MINING.md`)
 
