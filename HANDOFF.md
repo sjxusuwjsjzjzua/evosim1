@@ -522,6 +522,12 @@ and keeping a group takes movement that costs forage and breaks off fleeing,
 and a pair (the first step) buys almost nothing. Seeing further is worth a
 great deal to a grazer, alone.
 
+**Density** (`cellSize` 3 and 2 against 4, same 64 x 64 plant cells, so 1.8x
+and 4x the animals per area; v1-AO-cell3/cell2, 24 paired seeds, dispatched).
+Expectation: more look-alikes in view, so if the sparse world is what stops
+grouping, prey clumping rises above 0.9, most at `cellSize` 2. Predators meet
+prey more often too, so kill share may rise and predator worlds may crash more.
+
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
 recovery and look-alike confusion (two settings), cover. Prey clump stays at
