@@ -388,9 +388,10 @@ generations). In the older engine that took 85–200 generations.
 
 ## Running now
 
-Nothing. Local batches run 4 at a time with `scratchpad/V/go2.sh` (a frozen
-copy of the build, so editing `evosim.html` mid-batch is safe); a 400k-tick
-small world takes ~10 minutes on one core.
+Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
+is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
+core, so local batches beat Actions for anything under ~20 worlds.
 
 ## Next
 
