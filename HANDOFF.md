@@ -752,6 +752,7 @@ not evolve. Tested as a switch, 24 paired seeds each:
 Flocking does not evolve. Matching neighbours' headings does not pay here,
 just as steering toward company does not. The sense stays as information and
 the switch is gone.
+`v1-AV-h1` is the baseline for the current build (it ran with the sense on).
 
 Predators against streaming prey (`runs/predstream`, local, seeds 1001, 1004,
 1006, 1020, current defaults). New log fields: `polarPred` (the meat-eaters'
