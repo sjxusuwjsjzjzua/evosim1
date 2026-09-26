@@ -105,7 +105,6 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
-  seeHeading: 1,        // 1 = an animal senses which way the moving animals in view are heading (crowdHeading)
   compass: 1,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
                         // or magnetic compass would; 0 = those inputs read 0. With it prey
                         // populations evolve a shared bearing and travel together (24 paired
@@ -699,7 +698,7 @@ function sense(i){
   IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   IN[29] = kxs || kys ? angDiff(Math.atan2(kys, kxs), h)/Math.PI : 0;   // toward the centre of look-alikes in view
   IN[33] = CFG.compass*Math.cos(h); IN[34] = CFG.compass*Math.sin(h);   // which way it is facing, in world terms
-  IN[35] = CFG.seeHeading && (hcs || hsn) ? angDiff(Math.atan2(hsn, hcs), h)/Math.PI : 0;   // which way the moving animals in view are going, relative to its own heading
+  IN[35] = hcs || hsn ? angDiff(Math.atan2(hsn, hcs), h)/Math.PI : 0;   // which way the moving animals in view are going, relative to its own heading
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }

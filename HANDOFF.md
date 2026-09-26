@@ -737,14 +737,21 @@ plant-eaters biting on contact, as for grazers. A third trophic level would
 show as a steady share of kills by meat-eaters of meat-eaters, with the
 killers larger than the victims.
 
-Heading sense (`seeHeading`, new, on by default pending the test):
-`crowdHeading`, the mean heading of the moving animals in view relative to the
-animal's own (NI 36). Without it an animal could not see which way others
-face, so local alignment (the Boids rule) could not evolve. `v1-AV-h1`
-against `v1-AV-h0`, 24 paired seeds. Expectation: `align` rises above
-`polar`², meaning local alignment beyond the shared bearing. Prey clumping
-rises, and some worlds form flocks going different ways (`polar` falls while
-`align` holds).
+Heading sense (2026-09-26): `crowdHeading`, the mean heading of the moving
+animals in view relative to the animal's own (NI 36). Without it an animal
+could not see which way others face, so the alignment rule of flocking could
+not evolve. Tested as a switch, 24 paired seeds each:
+- With the compass (`v1-AV-h1` against `-h0`): a tighter shared bearing,
+  `polar` 0.777 against 0.692 (p 0.064), `align` 0.594 against 0.485 (p 0.023).
+  No local alignment beyond it: `align − polar²` −0.029 in both. Predator
+  worlds 14 against 18 (p 0.34), prey clumping 1.14 against 1.05 (p 0.15).
+- Without the compass (`-h1c0` against `-h0c0`): nothing. `polar` 0.031
+  against 0.033, `align` −0.005 against 0.019 (p 0.15), prey clumping 0.88
+  against 0.85.
+
+Flocking does not evolve. Matching neighbours' headings does not pay here,
+just as steering toward company does not. The sense stays as information and
+the switch is gone.
 
 Predators against streaming prey (`runs/predstream`, local, seeds 1001, 1004,
 1006, 1020, current defaults). New log fields: `polarPred` (the meat-eaters'
