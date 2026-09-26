@@ -335,6 +335,14 @@ of cross-cluster pairs the engine's mating rule allows.
 - Clonal stays the default for the predator rate. The page offers sexual
   worlds as a choice.
 
+Re-checked under the current defaults (`v1-AI-sex`, seeds 401–412): 9 of 12
+predator-dominated against 12 clonal. In all 5 worlds checked with
+`tools/isolation.py` (402, 404, 406, 410, 412) the meat-leaning clusters (diet
+0.46–0.77) breed with 0% of the grazer clusters, and choosiness rose to
+0.4–0.85. In s402 two meat clusters (diet 0.54 and 0.65) interbreed with each
+other (76–77%) and not with grazers. Diet-split species are the rule in sexual
+worlds now, not the exception.
+
 ## Reflecting mutation bounds: no clear effect (`mutReflect`, 2026-09-25)
 
 A mutation past a gene's bound reflects back instead of sticking to the bound.
