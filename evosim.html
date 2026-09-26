@@ -1121,6 +1121,13 @@ function sample(){
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   row.polar = pn ? +(Math.sqrt(pcx*pcx + pcy*pcy)/pn).toFixed(3) : 0; row.align = alN ? +(alS/alN).toFixed(3) : 0;
+  // meat-eaters on the move: their shared heading, and how it lies against the prey's
+  // (1 = the same way, -1 = head-on)
+  var qcx = 0, qcy = 0, qn = 0;
+  for (var u2 = 0; u2 < S.hi; u2++) if (S.alive[u2] && S.lM[u2] > S.lP[u2] && S.sp[u2] >= 0.05){ qcx += Math.cos(S.hd[u2]); qcy += Math.sin(S.hd[u2]); qn++; }
+  var qm = Math.sqrt(qcx*qcx + qcy*qcy), pm = Math.sqrt(pcx*pcx + pcy*pcy);
+  row.polarPred = qn ? +(qm/qn).toFixed(3) : 0;
+  row.predVsPrey = qm > 0 && pm > 0 ? +((qcx*pcx + qcy*pcy)/(qm*pm)).toFixed(3) : 0;
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
   S.log.push(row);
   S.c = newCounters();

@@ -729,6 +729,12 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Predators against streaming prey (`runs/predstream`, local, seeds 1001, 1004,
+1006, 1020, current defaults). New log fields: `polarPred` (the meat-eaters'
+shared heading) and `predVsPrey` (the cosine between the predators' and prey's
+mean headings; −1 = head-on). Expectation: head-on travel (negative) meets
+more prey per tick, so predators with their own bearing should evolve it.
+
 Compass (`compass`, on by default since 2026-09-26): senses compassX/Y (cos and sin of the
 animal's heading in world terms, NI 35). `v1-AT-wavec1` against `v1-AT-wavec0`
 (`seasonAmp` 0.8, `seasonWave` 1, sexual default), 24 paired seeds.
