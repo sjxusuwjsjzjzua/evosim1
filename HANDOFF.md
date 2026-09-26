@@ -396,10 +396,14 @@ carnivore clusters in 9, one giant world.
 | baseline | 10 | 9 | 1 / 0 |
 | `vigilShare` 1 | 9 | 5 | 2 / 0 |
 | **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
+| lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
 
 `browseGrown` (plant height grows with the plant and does not shrink when
 grazed; seedlings are short and grazeable) removed both body-size traps at
-400k. Being checked at 1M ticks (`v1-AH-1M-grown`) and on fresh seeds
+400k. The lunge was far too harsh: in a bootstrap population everyone looks
+alike, strikes almost never connect, and predation never starts; milder
+settings are next (`runs/lungeM`, `runs/coolOnly`). `browseGrown` is being
+checked at 1M ticks (`v1-AH-1M-grown`) and on fresh seeds
 (`v1-AH-grown-rep` against `v1-AH-base-rep`, seeds 801–812).
 
 ## A voice: prey flee calls, predators home on them (2026-09-26)
