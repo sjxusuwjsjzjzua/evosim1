@@ -386,6 +386,22 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## Switch results, seeds 401–412, 400k ticks (2026-09-26)
+
+Baseline (current defaults, `runs/voice`): 10 of 12 predator-dominated,
+carnivore clusters in 9, one giant world.
+
+| switch | predator-dominated | carnivore clusters | giant / dwarf worlds |
+|---|---|---|---|
+| baseline | 10 | 9 | 1 / 0 |
+| `vigilShare` 1 | 9 | 5 | 2 / 0 |
+| **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
+
+`browseGrown` (plant height grows with the plant and does not shrink when
+grazed; seedlings are short and grazeable) removed both body-size traps at
+400k. Being checked at 1M ticks (`v1-AH-1M-grown`) and on fresh seeds
+(`v1-AH-grown-rep` against `v1-AH-base-rep`, seeds 801–812).
+
 ## A voice: prey flee calls, predators home on them (2026-09-26)
 
 Every animal has a `call` output (loudness, costs `callCost` 0.002 x loudness x
