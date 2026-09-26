@@ -18,6 +18,9 @@
   clump     mean clumping index (1 = random, above 1 = animals in groups)
   preyClump the same among animals living mostly on plants
   carnSp    species at the last sample living mostly on meat (meat > 50%)
+  predK     thousands of ticks in the predator state (20k-tick rolling meat share
+            enters it above 15%, leaves below 8%), after tick 60k
+  exits     times the world left the predator state
 """
 import json, sys, statistics as st
 
@@ -26,9 +29,9 @@ while av:
     a = av.pop(0)
     if a == '--from': frac = 1 - float(av.pop(0))
     elif not a.startswith('--'): args.append(a)
-hdr = ('%-26s %7s %6s %7s %6s %6s %7s %6s %8s %5s %5s %6s %6s %6s %7s %7s %5s %6s %6s'
+hdr = ('%-26s %7s %6s %7s %6s %6s %7s %6s %8s %5s %5s %6s %6s %6s %7s %7s %5s %6s %6s %6s %5s'
        % ('run', 'ticks', 'anim', 'meat%', 'kill%', 'pred%', 'kills/kt', 'diet', 'hi-diet%', 'size', 'spd', 'weapon', 'armour', 'pDef',
-          'regime%', 'maxMeat', 'clump', 'preyCl', 'carnSp'))
+          'regime%', 'maxMeat', 'clump', 'preyCl', 'carnSp', 'predK', 'exits'))
 print(hdr)
 for f in args:
     d = json.load(open(f))
@@ -52,7 +55,18 @@ for f in args:
     clump = st.mean(r.get('clump', float('nan')) for r in w)
     preyCl = st.mean(r.get('clumpPrey', float('nan')) for r in w)
     carnSp = sum(1 for sp in last.get('species', []) if sp.get('meat', 0) > 0.5)
-    print('%-26s %7d %6.0f %7.2f %6.2f %6.1f %7.2f %6.3f %8.1f %5.2f %5.2f %6.2f %6.2f %6.2f %7.1f %7.1f %5.2f %6.2f %6d' % (
+    # predator state with hysteresis on a 20k-tick rolling meat share
+    inP, predT, exits, prev_t = False, 0, 0, None
+    for k, r in enumerate(L):
+        win = [q for q in L[max(0, k - 60):k + 1] if q['t'] > r['t'] - 20000]
+        eAk = sum(q['eP'] + q['eC'] + q['eK'] for q in win) or 1
+        ms = sum(q['eC'] + q['eK'] for q in win) / eAk
+        if r['t'] > 60000:
+            if not inP and ms > 0.15: inP = True
+            elif inP and ms < 0.08: inP = False; exits += 1
+            if inP and prev_t is not None: predT += r['t'] - prev_t
+        prev_t = r['t']
+    print('%-26s %7d %6.0f %7.2f %6.2f %6.1f %7.2f %6.3f %8.1f %5.2f %5.2f %6.2f %6.2f %6.2f %7.1f %7.1f %5.2f %6.2f %6d %6.0f %5d' % (
         f.split('/')[-1][:26], d['ticks'], m('animals'), 100 * (eC + eK) / eA, 100 * eK / eA,
         100 * sum(r['predators'] for r in w) / ad, 1000 * sum(r['kills'] for r in w) / span,
-        mg('diet'), 100 * sum(dh[5:]) / n, mg('size'), mg('speed'), mg('weapon'), mg('armour'), m('plantDef'), regime, maxMeat, clump, preyCl, carnSp))
+        mg('diet'), 100 * sum(dh[5:]) / n, mg('size'), mg('speed'), mg('weapon'), mg('armour'), m('plantDef'), regime, maxMeat, clump, preyCl, carnSp, predT / 1000, exits))

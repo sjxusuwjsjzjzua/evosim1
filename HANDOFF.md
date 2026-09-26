@@ -38,8 +38,8 @@ Browser check (Chromium and Playwright are preinstalled):
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
 | animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | sense, weapon, detox and speed have quadratic upkeep; armour costs linearly and slows; tags, attention and life-history genes are free |
 | fixed cost | `upFixed` 0.003 per animal per tick regardless of size | 0.010 gave an interior body size but 0 predator worlds in 20 at 600k ticks; at 0.003 small fast breeders evolve predation, and predation holds size off the floor |
-| brain | 27 senses → 8 hidden (tanh) → 5 outputs, plus direct input→output weights | the genome is the behaviour |
-| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view | facts about the world, not advice |
+| brain | 29 senses → 8 hidden (tanh) → 6 outputs (turn, throttle, eat, meat preference, attack, call), plus direct input→output weights | the genome is the behaviour |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view, the loudest call in range and its direction | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
 | plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
@@ -385,6 +385,71 @@ Share of energy from meat, per world, last two thirds of the run:
 
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
+
+## A voice: prey flee calls, predators home on them (2026-09-26)
+
+Every animal has a `call` output (loudness, costs `callCost` 0.002 x loudness x
+mass^0.75) and hears the loudest call in sense range, heads down or not.
+Seeds 401–412, 400k ticks, against `hear` 0 (calls cost but go unheard).
+Probes with `tools/voice.js`:
+
+| | heard | deaf (control) |
+|---|---|---|
+| predator-dominated worlds | 10 of 12 (populations 850–1,500) | 8 of 12 (three at 100–400 animals) |
+| grazers bolt on a call (throttle up) | 11 of 12 worlds, +0.07 to +0.59 | 7 of 12 (untrained weights) |
+| grazers turn away from a call | 9 of 12, −0.3 to −1.7 | 5 of 12 |
+| meat-eaters turn toward a call | 7 of 10, +0.6 to +1.35 | 4 of 9 |
+| alarm calls (louder at a big armed stranger) | 2 of 12 (+0.51, +0.66) | |
+
+- In deaf worlds the hearing weights drift unused, so the probes there read
+  about ±1 at random; the heard-world pattern is in the expected direction but
+  modest at 12 worlds a side.
+- Predators eavesdropping on prey calls is a real phenomenon; nothing wrote it in.
+- The call is too cheap to be silenced: mean loudness drifts from 0 to 0.9
+  even in deaf worlds. A higher `callCost` is the obvious next test.
+
+## What 476 run logs say (2026-09-26, `MINING.md`)
+
+- Nearly every world has a predator phase early (meat first passes 15% at a
+  median 20k ticks). What differs is how long it lasts: exits run at ~0.2 per
+  100k predator-state ticks in all three engine generations (curve 2,
+  vigilance, plant height), so a predator phase lasts ~500k ticks on average.
+  Score levers by exit rate in long runs, not by onset (`v1score` columns
+  predK and exits). Measured that way on the 1M-tick batches (seeds 701–710),
+  plant height does lower it: 0.23 exits per 100k predator ticks without,
+  0.16 at browse 2, 0.10 at browse 4 (5.1k, 5.8k, 6.9k thousand ticks spent
+  predatory).
+- Early genes predict nothing (AUC 0.45–0.55). Concentrated meat-eating does,
+  weakly: the share of adults living on meat at 40k gives ~67–70% against a
+  58% base rate.
+- Plant height changed where worlds fall, not how often: before it, 63 of 82
+  exits went to dwarf worlds; with it, 42 of 60 went to giant worlds.
+- Dwarf exits: plant mass and stature fall 50–60k ticks before the collapse;
+  grazers shrink to the size floor while meat-eaters grow (size ratio 3 → 10)
+  and then vanish.
+- Giant exits: meat-eaters are already at size 10–12 against a gene cap of 12
+  (23 of 32 exits); grazers grow 5 → 8 and the predator/prey size ratio falls
+  1.6 → 1.4. `sizeMax` (new) tests whether the cap ends these worlds.
+- Plant height keeps early carnivore clusters alive more than it makes new ones.
+- Plant defence tracks grazer detox, not predation: a plant–grazer cycle of
+  its own. Predation speeds up breeding (reproT 0.37 in predator worlds, 0.58
+  in giant ones).
+
+## Literature-driven switches (2026-09-26, off by default)
+
+`SURVEY.md` compares this engine with other artificial-life systems. Two of its
+ranked changes are now switches, being tested on Actions (seeds 401–412):
+
+- `strikeCool` / `missCool` / `confHit` / `confR`: a strike costs recovery
+  time, more after a miss, and connects with chance 1 / (1 + confHit x
+  look-alikes near the target). Olson et al. evolved swarming this way; our
+  `kConfusion` only divided damage, which costs a predator nothing
+  (`results/v1-AG-lunge`).
+- `hazard`: a per-tick death chance that no body size escapes, the usual
+  stabiliser of body size (`results/v1-AG-hazard1`, `-hazard3`).
+- Also from a review: `vigilShare` (head-down in proportion to eating time)
+  and `browseGrown` (plant height grows with the plant, seedlings are short):
+  `results/v1-AF-vigilShare`, `-browseGrown`.
 
 ## Running now
 

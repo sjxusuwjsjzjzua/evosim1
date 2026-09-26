@@ -48,6 +48,9 @@ picks up where it was next time you open it. **world → new world** starts over
   gut), kin (heritable colour) and action (grazing, eating meat, attacking).
 - **tap an animal** to follow it and see its genes, diet and kills.
 - **drag** pans, **pinch** or the mouse wheel zooms.
+- a **blue ring** round an animal means it is calling. Every animal has a voice
+  that costs energy and ears that work while it eats; what a call means, if
+  anything, is up to evolution.
 - **world**: species measured live, physics sliders, world size and
   reproduction (clonal or sexual; each starts a new world), new world, same
   seed, evolved start, save the log.

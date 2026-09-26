@@ -87,6 +87,9 @@ var CFG_DEFAULT = {
   pR: 0.012,            // logistic growth rate per tick at fertility 1, no costs paid
   pKmin: 2, pKmax: 14,  // standing-crop capacity, set by the stature gene
   pStatCost: 0.55,      // share of growth rate given up at stature 1
+  browseGrown: 0,       // 1: a plant's height grows with it (browse x stature x biomass / capacity)
+                        // and does not shrink when grazed, like a trunk; a new seedling is short.
+                        // 0: every plant stands at its full height, seedlings included
   browse: 2,            // plant height per unit stature, in reach units. An animal reaches
                         // mass^(1/3) high and cannot crop the share of a cell's capacity that
                         // stands above its reach. 0 = everything is in reach. At 2, over 12
@@ -118,6 +121,10 @@ var CFG_DEFAULT = {
                         // straight into reserves). With one, food fills the stomach and is
                         // digested into reserves at gutDig x mass^0.75 a tick, so a second
                         // kill is worth nothing until the first is digested.
+  callCost: 0.002,      // energy per tick for calling at full loudness, x mass^0.75
+  hear: 1,              // 0: calls go unheard (a control: calling then only costs)
+  vigilShare: 0,        // 1: the head-down cut scales with the share of the tick spent eating
+                        // (a sliver of a meal costs a sliver of vigilance); 0: any eating costs all of it
   headDown: 0.7,        // an animal that ate last tick senses animals over (1 - headDown) of its
                         // range: eyes on the food are not on the horizon. Over 12 worlds a side
                         // it made prey group where predators were (prey clump 1.17 against 0.90)
@@ -157,6 +164,21 @@ var CFG_DEFAULT = {
   upSpeed: 0.010,       // x speed gene^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
   kConfusion: 0,        // predator confusion: strike damage / (1 + k x others within 3 of the target). 0 = off
+  strikeCool: 0,        // ticks after a strike before the next one (a lunge takes recovering from). 0 = off
+  missCool: 0,          // ticks after a strike that missed
+  confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
+                        // animals within confR of it with a similar colour tag and size. 0 = always
+  confR: 8,
+  packHunt: 0,          // 1: armour fully protects only against the first strike a target takes in a
+                        // tick; later strikes that tick ignore it (hunting together pays)
+  fibre: 0,             // mature plants are fibrous: plant energy x (1 - fibre x B/K x (1 - digestion)),
+                        // digestion = min(1, (mass/digestMass)^0.25). Small grazers do best on
+                        // regrowth, big ones can use mature stands. 0 = all plant matter is equal
+  digestMass: 8,
+  sizeMax: 12,          // the body-size gene's upper bound. Giant worlds end when predators reach it
+                        // (23 of 32 exits had meat-eaters at size 10 or more)
+  hazard: 0,            // chance per tick of dying of something no body size escapes (disease,
+                        // accident). 0 = none
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
   atkCost: 0.004,       // energy per attack tick x mass^0.75
   hpPerMass: 2,
@@ -190,6 +212,7 @@ var CFG_DEFAULT = {
 
   seedGenomes: null,    // optional array of genomes (from run.js --dump) to found the world from
   seedNI: 0,            // number of senses the seed genomes were evolved with, if fewer than now
+  seedNO: 0,            // number of brain outputs they were evolved with (0 = 5, before the voice)
   // ---- logging ----
   sampleEvery: 500
 };
@@ -219,12 +242,12 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 27, NH = 8, NO = 5;
+var NI = 29, NH = 8, NO = 6;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed'];
-var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir'];
+var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
 
 var CFG, S;   // config and state
 
@@ -281,6 +304,7 @@ function init(patch){
   CFG = {};
   for (var k in CFG_DEFAULT) CFG[k] = CFG_DEFAULT[k];
   if (patch) for (var k2 in patch) CFG[k2] = patch[k2];
+  BODY[G_SIZE][2] = CFG.sizeMax;   // the size gene's range is physics too
   seedRng(CFG.seed*2654435761 + 12345); gCache = null;
   var n = CFG.gridN, nc = n*n, M = CFG.maxA;
   S = {
@@ -289,7 +313,7 @@ function init(patch){
     pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
     pK: new Float32Array(nc), pRate: new Float32Array(nc),   // cached from the genome
-    pSeed: new Float32Array(nc),   // accumulated seed pressure; a seed flies at 1
+    pSeed: new Float32Array(nc), pH: new Float32Array(nc),   // accumulated seed pressure; a seed flies at 1
     // animals, structure of arrays
     n: 0, alive: new Uint8Array(M), free: new Int32Array(M), nFree: 0, hi: 0,
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
@@ -297,7 +321,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    gut: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    gut: new Float32Array(M), call: new Float32Array(M), eatT: new Float32Array(M), cool: new Float32Array(M), hitAt: new Int32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
@@ -349,6 +373,7 @@ function updatePlants(){
     var K = S.pK[c];
     B += S.pRate[c]*season*B*(1 - B/K)*dt;
     if (B < 0.01){ S.pB[c] = 0; continue; }
+    if (CFG.browseGrown){ var hg = CFG.browse*S.pStat[c]*B/K; if (hg > S.pH[c]) S.pH[c] = hg; }   // a trunk: grows, never shrinks
     // seeding: a full cell throws seed; it lands only where there is room
     var full = B/K;
     if (full <= 0.5){ S.pB[c] = B; continue; }
@@ -368,7 +393,7 @@ function updatePlants(){
         S.pStat[t] = mutP(S.pStat[c], sd);
         S.pDef[t]  = mutP(S.pDef[c], sd);
         S.pDisp[t] = mutP(S.pDisp[c], sd);
-        S.pSeed[t] = 0;
+        S.pSeed[t] = 0; S.pH[t] = 0;
         cachePlant(t);
       }
     }
@@ -387,12 +412,14 @@ function alloc(){
   return i;
 }
 // A genome from a build with fewer senses (oldNI inputs): new inputs get zero weights.
-function remapGenome(src, oldNI){
-  var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*NO, k, h, q;
+function remapGenome(src, oldNI, oldNO){
+  oldNO = oldNO || 5;
+  var out = new Array(NG).fill(0), oW1 = NB, oW2 = oW1 + oldNI*NH, oWD = oW2 + NH*oldNO, k, h, q;
   for (k = 0; k < NB; k++) out[k] = src[k];
   for (h = 0; h < NH; h++) for (k = 0; k < oldNI; k++) out[W1+h*NI+k] = src[oW1+h*oldNI+k];
-  for (k = 0; k < NH*NO; k++) out[W2+k] = src[oW2+k];
-  for (q = 0; q < NO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
+  for (q = 0; q < oldNO; q++) for (h = 0; h < NH; h++) out[W2+q*NH+h] = src[oW2+q*NH+h];
+  for (q = 0; q < oldNO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
+  for (q = oldNO; q < NO; q++) out[WD+q*NI] = -3;   // an output the ancestors lacked starts nearly silent
   return out;
 }
 // Founders: an ancestral body (cheap organs, some spread) with a random diet
@@ -408,7 +435,10 @@ function spawnRandom(){
   var SG = CFG.seedGenomes;
   if (SG && SG.length){
     var src = SG[(rng()*SG.length)|0];
-    var src2 = CFG.seedNI && CFG.seedNI !== NI ? remapGenome(src, CFG.seedNI) : src;
+    var sNI = CFG.seedNI || NI, sNO = CFG.seedNO || 5;
+    if (src.length !== NG && src.length !== NB + sNI*NH + NH*sNO + sNI*sNO)
+      throw new Error('seedGenomes of length ' + src.length + ' do not match seedNI ' + sNI + ' / seedNO ' + sNO);
+    var src2 = src.length === NG ? src : remapGenome(src, sNI, sNO);
     for (var q = 0; q < NG; q++) G[g+q] = q < src2.length ? src2[q] : 0;
     mutate(i);
     var m1 = G[g+G_SIZE]*Math.max(0.3, G[g+G_BIRTH])*2;
@@ -431,7 +461,7 @@ function spawnRandom(){
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
-  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
+  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.eatT[i] = 0; S.cool[i] = 0; S.hitAt[i] = -1; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
@@ -576,8 +606,9 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
-  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp;
-  var ate = S.act[i] === 1 || S.act[i] === 2, RA2 = ate && CFG.headDown > 0 ? R2*(1 - CFG.headDown)*(1 - CFG.headDown) : R2;
+  var cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
+  // eyes on the food: all of the cut after any eating, or (vigilShare) in proportion to the share of the tick spent eating
+  var down = Math.min(1, CFG.headDown)*(CFG.vigilShare ? S.eatT[i] : (S.act[i] === 1 || S.act[i] === 2 ? 1 : 0)), RA2 = R2*(1 - down)*(1 - down);
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -593,6 +624,9 @@ function sense(i){
         var ex = AX[j]-x, ey = AY[j]-y;
         ex = ex > Wh ? ex - W : ex < -Wh ? ex + W : ex; ey = ey > Wh ? ey - W : ey < -Wh ? ey + W : ey;
         var d2 = ex*ex + ey*ey;
+        if (d2 >= R2) continue;
+        var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
+        if (lv > heard){ heard = lv; hx = ex; hy = ey; }
         if (d2 >= RA2) continue;
         crowd++; cxs += ex; cys += ey; spd += SPD[j];
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
@@ -651,6 +685,9 @@ function sense(i){
   IN[24] = alarm > 0 && (alx || aly) ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
   IN[25] = CFG.gutCap > 0 ? S.gut[i]/(CFG.gutCap*S.mass[i]) : 0;   // how full the stomach is
   IN[26] = crowd > 0 ? spd/crowd/1.6 : 0;   // how fast the animals in view are moving
+  if (!CFG.hear) heard = 0;
+  IN[27] = heard;                           // the loudest call in range
+  IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -687,7 +724,7 @@ function chance(x){
 }
 function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if (d < -Math.PI) d += 2*Math.PI; return d; }
 
-// The brain for NH 8, NO 5: the same sums in the same order as the generic loops
+// The brain for NH 8, NO 6: the same sums in the same order as the generic loops
 // in think(), computed side by side so the adds do not wait on each other.
 function brain85(G, g, OUT, o){
   var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, k, v, w = g + W1;
@@ -698,23 +735,23 @@ function brain85(G, g, OUT, o){
   }
   HID[0] = tanh32(s0, 1); HID[1] = tanh32(s1, 1); HID[2] = tanh32(s2, 1); HID[3] = tanh32(s3, 1);
   HID[4] = tanh32(s4, 1); HID[5] = tanh32(s5, 1); HID[6] = tanh32(s6, 1); HID[7] = tanh32(s7, 1);
-  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, h;
+  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, h;
   w = g + W2;
   for (h = 0; h < 8; h++, w++){
     v = HID[h];
-    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v;
+    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v;
   }
   w = g + WD;
   for (k = 0; k < NI; k++, w++){
     v = IN[k];
-    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v;
+    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v;
   }
-  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4;
+  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5;
 }
 function think(i){
   sense(i);
   var G = S.genome, g = i*NG, o = i*NO;
-  if (NH === 8 && NO === 5) brain85(G, g, S.out, o);
+  if (NH === 8 && NO === 6) brain85(G, g, S.out, o);
   else {
     for (var h = 0; h < NH; h++){
       var s = 0, w = g + W1 + h*NI;
@@ -732,6 +769,7 @@ function think(i){
   // motor commands, held until the next think
   S.turn[i] = tanh32(S.out[o], CFG.turnMax);
   S.thr[i] = sig32(S.out[o+1]);
+  S.call[i] = sig32(S.out[o+5]);   // how loud it calls: heard by everyone in range, heads down or not
   // MOUTH. Three independent urges, each a probability: eat, prefer meat,
   // strike. Eating takes whatever food is in reach, and the preference only
   // matters when there is a choice; a strike only happens when there is an
@@ -751,17 +789,18 @@ function eatPlant(i, c, t, slow, m75, diet){
   MOUTH[0] = 0;
   var B = S.pB[c], G = S.genome, g = i*NG, floor = CFG.pRoot;
   if (CFG.browse > 0){   // the part of a tall plant above this animal's reach is out of reach
-    var H = CFG.browse*S.pStat[c], reach = Math.cbrt(S.mass[i]);
+    var H = CFG.browseGrown ? S.pH[c] : CFG.browse*S.pStat[c], reach = Math.cbrt(S.mass[i]);
     if (reach < H) floor += (S.pK[c] - CFG.pRoot)*(1 - reach/H);
   }
   if (t <= 0 || B <= floor) return 0;
   var val = CFG.ePlant*(1 - Math.pow(diet, CFG.dietCurve));
+  if (CFG.fibre > 0) val *= 1 - CFG.fibre*Math.min(1, B/S.pK[c])*(1 - Math.min(1, Math.pow(S.mass[i]/CFG.digestMass, 0.25)));
   var rate = CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX]));
   if (rate <= 0) return 0;
   var bite = Math.min(B - floor, rate*t);
   if (val > 1e-6) bite = Math.min(bite, MOUTH[1]/val);
   S.pB[c] = B - bite;
-  MOUTH[0] = bite*val; MOUTH[1] -= MOUTH[0];
+  MOUTH[0] = bite*val; MOUTH[1] = Math.max(0, MOUTH[1] - MOUTH[0]);
   S.lP[i] += MOUTH[0]; S.c.eP += MOUTH[0]; S.c.plantEaten += bite;
   return bite/rate;
 }
@@ -775,7 +814,7 @@ function eatMeat(i, cc, t, slow, m75, diet){
   var chew = Math.min(S.cm[cc], rate*t);
   if (mv > 1e-6) chew = Math.min(chew, MOUTH[1]/mv);
   S.cm[cc] -= chew; S.cE[cc] -= chew*dens;
-  MOUTH[0] = chew*mv; MOUTH[1] -= MOUTH[0];
+  MOUTH[0] = chew*mv; MOUTH[1] = Math.max(0, MOUTH[1] - MOUTH[0]);
   S.lM[i] += MOUTH[0]; S.c.meatEaten += chew;
   if (S.cKiller[cc] === S.id[i]) S.c.eK += MOUTH[0]; else S.c.eC += MOUTH[0];
   return chew/rate;
@@ -807,8 +846,9 @@ function updateAnimal(i){
   // is on), and whatever share of the tick it did not need goes to the other. No
   // threshold picks between them, so a nearly bare cell costs a sliver of the
   // tick, not all of it.
-  var want = S.want[i], act = 0, tj = -1;
-  if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
+  var want = S.want[i], act = 0, tj = -1, eatShare = 0;
+  if (S.cool[i] > 0) S.cool[i]--;
+  if ((want & 4) && S.cool[i] <= 0){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
   var slow = 1 - CFG.eatMoveSlow*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 0 && (want & 1)){
     // food goes into the stomach if there is one, else straight into reserves
@@ -820,18 +860,24 @@ function updateAnimal(i){
       t -= eatPlant(i, hc, t, slow, m75, diet); eP = MOUTH[0];
     } else {
       t -= eatPlant(i, hc, 1, slow, m75, diet); eP = MOUTH[0];
-      if (cc >= 0){ eatMeat(i, cc, t, slow, m75, diet); eM = MOUTH[0]; }
+      if (cc >= 0){ t -= eatMeat(i, cc, t, slow, m75, diet); eM = MOUTH[0]; }
     }
+    eatShare = 1 - t;
     var e = eP + eM;
     if (stomach) S.gut[i] += e; else S.E[i] += e;
     act = eP + eM <= 0 ? 0 : eM > eP ? 2 : 1;
   }
-  S.act[i] = act;
+  S.act[i] = act; S.eatT[i] = act === 1 || act === 2 ? eatShare : 0;
   if (act === 3){
     S.E[i] -= CFG.atkCost*m75;
     {
       S.c.attacks++;
-      var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - CFG.armourEff*S.genome[tj*NG+G_ARMOUR])*(0.8 + 0.4*rng());
+      // a crowd of look-alikes round the target can make the strike miss
+      var hit = CFG.confHit > 0 ? rng()*(1 + CFG.confHit*lookAlikes(tj, CFG.confR, i)) < 1 : true;
+      if (CFG.strikeCool > 0 || CFG.missCool > 0) S.cool[i] = hit ? CFG.strikeCool : Math.max(CFG.strikeCool, CFG.missCool);
+      var arm = CFG.armourEff*S.genome[tj*NG+G_ARMOUR];
+      if (CFG.packHunt){ if (S.hitAt[tj] === S.tick) arm = 0; S.hitAt[tj] = S.tick; }   // armour turns only the first blow of a tick
+      var dmg = hit ? CFG.dmg*G[g+G_WEAPON]*m75*(1 - arm)*(0.8 + 0.4*rng()) : 0;
       if (CFG.kConfusion > 0) dmg /= 1 + CFG.kConfusion*neighboursOf(tj, 3, i);
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
@@ -850,7 +896,7 @@ function updateAnimal(i){
   var up = CFG.upFixed
          + m75*(CFG.upBase + CFG.upSense*R*R + CFG.upWeapon*w*w + CFG.upArmour*armour + CFG.upDetox*dt*dt
                 + CFG.upSpeed*V*V)
-         + CFG.upMove*mass*sp*sp;
+         + CFG.upMove*mass*sp*sp + CFG.callCost*S.call[i]*m75;
   if (S.gut[i] > 0){   // digestion, until the reserves are full
     var dg = Math.min(S.gut[i], CFG.gutDig*m75, Math.max(0, Emax - S.E[i]));
     S.gut[i] -= dg; S.E[i] += dg;
@@ -861,6 +907,7 @@ function updateAnimal(i){
   if (S.hp[i] < hpMax) S.hp[i] = Math.min(hpMax, S.hp[i] + CFG.heal*hpMax);
   if (S.E[i] <= 0){ die(i, 0); return; }
   if (S.age[i] > S.maxAge[i]){ die(i, 1); return; }
+  if (CFG.hazard > 0 && rng() < CFG.hazard){ die(i, 1); return; }
 
   // ---- grow, then breed
   if (mass < size*0.98){
@@ -914,6 +961,27 @@ function neighboursOf(j, r, skip){
       if (k === j || k === skip || !S.alive[k]) continue;
       var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
       if (ex*ex + ey*ey < r2) n++;
+    }
+  }
+  return n;
+}
+// how many animals within r of animal j look like it (colour tag and size), not counting `skip`:
+// each counts 0..1, falling off with tag distance (to 0 at 0.3) and size ratio (to 0 at 2x)
+function lookAlikes(j, r, skip){
+  var x = S.x[j], y = S.y[j], r2 = r*r, inv = 1/S.bSize, bN = S.bN, span = Math.ceil(r*inv), n = 0, G = S.genome, gj = j*NG;
+  var bx0 = (x*inv)|0, by0 = (y*inv)|0, mj = S.mass[j];
+  for (var dy = -span; dy <= span; dy++){
+    var by = ((by0+dy) % bN + bN) % bN;
+    for (var dx = -span; dx <= span; dx++){
+      var b = by*bN + ((bx0+dx) % bN + bN) % bN;
+      for (var k = S.aHead[b]; k >= 0; k = S.aNext[k]){
+        if (k === j || k === skip || !S.alive[k]) continue;
+        var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
+        if (ex*ex + ey*ey >= r2) continue;
+        var gk = k*NG, t0 = G[gk+G_TAG]-G[gj+G_TAG], t1 = G[gk+G_TAG+1]-G[gj+G_TAG+1], t2 = G[gk+G_TAG+2]-G[gj+G_TAG+2];
+        var tl = 1 - Math.sqrt((t0*t0 + t1*t1 + t2*t2)/3)/0.3, sl = 1 - Math.abs(Math.log2(S.mass[k]/mj));
+        if (tl > 0 && sl > 0) n += tl*sl;
+      }
     }
   }
   return n;
@@ -1004,7 +1072,7 @@ function clumping(preyOnly){
 }
 function sample(){
   var G = S.genome, n = 0, sums = new Float64Array(NB), dh = new Array(10).fill(0);
-  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0;
+  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0, calls = 0;
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
     n++;
@@ -1012,7 +1080,7 @@ function sample(){
     for (var k = 0; k < NB; k++) sums[k] += G[g+k];
     dh[Math.min(9, (G[g+G_DIET]*10)|0)]++;
     act[S.act[i]]++;
-    gens += S.gen[i];
+    gens += S.gen[i]; calls += S.call[i];
     var tot = S.lP[i] + S.lM[i];
     if (S.mass[i] >= 0.9*G[g+G_SIZE] && tot > 1){
       adults++;
@@ -1046,7 +1114,7 @@ function sample(){
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
-    species: spc, clump: clump, clumpPrey: clumpPrey, establishedAt: S.establishedAt || 0
+    species: spc, clump: clump, clumpPrey: clumpPrey, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   S.log.push(row);
   S.c = newCounters();
@@ -1085,7 +1153,7 @@ function b64dec(str){
 }
 function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
 function unf32(str){ return new Float32Array(b64dec(str).buffer); }
-var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut'];
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut','call','eatT','cool'];
 function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
 function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
 function geneLog(k){ return k < NB && BODY[k][3]; }
@@ -1111,12 +1179,12 @@ function snapshot(){
   for (var key in CFG) if (key !== 'seedGenomes') cfg[key] = CFG[key];
   var c = S.cN, sl = function(a){ return f32(Array.prototype.slice.call(a, 0, c)); };
   return {
-    kind: 'evosim1-world', version: VERSION, gq: 'log', NG: NG, NI: NI, cfg: cfg, tick: S.tick, gCache: gCache,
+    kind: 'evosim1-world', version: VERSION, gq: 'log', NG: NG, NI: NI, NO: NO, cfg: cfg, tick: S.tick, gCache: gCache,
     established: S.established, establishedAt: S.establishedAt || 0, nextId: S.nextId,
     rng: [RS[0], RS[1], RS[2], RS[3]], n: n, animals: A, genomes: b64enc(gb),
     ints: b64enc(new Uint8Array(ints.buffer)),
     size: f32(Float32Array.from(idx, function(i3){ return S.genome[i3*NG+G_SIZE]; })),   // exact: adulthood is 0.98 x size
-    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed)},
+    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed), H: f32(S.pH)},
     corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad),
               k: b64enc(new Uint8Array(new Int32Array(Array.prototype.slice.call(S.cKiller, 0, c)).buffer))},
     log: S.log.slice(-200)
@@ -1124,14 +1192,14 @@ function snapshot(){
 }
 function restore(w){
   if (!w || w.kind !== 'evosim1-world') return false;
-  var oNG = w.NG, oNI = w.NI || NI;   // a save from before senses were added is remapped
-  if (oNG !== NG && oNG !== NB + oNI*NH + NH*NO + oNI*NO) return false;
+  var oNG = w.NG, oNI = w.NI || NI, oNO = w.NO || 5;   // a save from before senses or the voice were added is remapped
+  if (oNG !== NG && oNG !== NB + oNI*NH + NH*oNO + oNI*oNO) return false;
   init(w.cfg);
   // init drew founders; clear them and put the saved world in their place
   S.alive.fill(0); S.n = 0; S.nFree = 0; S.hi = 0; S.cN = 0;
   var P = w.plants;
   S.pB.set(unf32(P.B)); S.pStat.set(unf32(P.stat)); S.pDef.set(unf32(P.def)); S.pDisp.set(unf32(P.disp));
-  S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed));
+  S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed)); if (P.H) S.pH.set(unf32(P.H));
   for (var c = 0; c < S.pB.length; c++) cachePlant(c);
   var n = w.n, F = {}, sizes = w.size ? unf32(w.size) : null, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
   AFIELDS.forEach(function(f){ F[f] = w.animals[f] ? unf32(w.animals[f]) : new Float32Array(w.n); });
@@ -1141,7 +1209,7 @@ function restore(w){
     else {
       var old = new Array(oNG);
       for (var q2 = 0; q2 < oNG; q2++) old[q2] = byteToGene(q2, gb[k*oNG+q2], w.gq === 'log');
-      var nw = remapGenome(old, oNI);
+      var nw = remapGenome(old, oNI, oNO);
       for (var q3 = 0; q3 < NG; q3++) S.genome[g+q3] = nw[q3];
     }
     if (sizes) S.genome[g+G_SIZE] = sizes[k];
@@ -1162,7 +1230,7 @@ function restore(w){
 return { init: init, step: step, sample: sample, snapshot: snapshot, restore: restore, get S(){ return S; }, get CFG(){ return CFG; },
             CFG_DEFAULT: CFG_DEFAULT, BODY: BODY, NB: NB, NG: NG, NI: NI, NH: NH, NO: NO,
             W1: W1, W2: W2, WD: WD, INPUT_NAMES: INPUT_NAMES, OUTPUT_NAMES: OUTPUT_NAMES,
-            VERSION: VERSION, radius: radius, cellAt: cellAt };
+            VERSION: VERSION, radius: radius, cellAt: cellAt, remapGenome: remapGenome };
 })(Math);
 if (typeof module !== 'undefined') module.exports = Sim;
 </script>
@@ -1303,6 +1371,11 @@ function drawAnimalsAt(offX, offY, near){
     else if (colourMode === 1) ctx.fillStyle = 'rgb(' + (60 + 195*G[g+9]|0) + ',' + (60 + 195*G[g+10]|0) + ',' + (60 + 195*G[g+11]|0) + ')';
     else ctx.fillStyle = ACT_COL[S.act[i]];
     ctx.beginPath(); ctx.arc(q[0], q[1], rad, 0, 6.2832); ctx.fill();
+    var cl = S.call[i];
+    if (cl > 0.3){   // calling: a ring that grows with loudness
+      ctx.strokeStyle = 'rgba(111,163,196,' + ((cl - 0.3)*0.9).toFixed(2) + ')'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(q[0], q[1], rad + 2 + 8*cl*cam.z/Math.max(1, cam.z), 0, 6.2832); ctx.stroke();
+    }
     if (rad > 3){
       ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.beginPath();
       ctx.moveTo(q[0], q[1]); ctx.lineTo(q[0] + Math.cos(S.hd[i])*rad*1.6, q[1] + Math.sin(S.hd[i])*rad*1.6); ctx.stroke();
@@ -1468,6 +1541,7 @@ function buildDrawer(){
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
   h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds the clusters become true species that cannot interbreed, sometimes split by diet.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
   SLIDERS.forEach(function(s){
@@ -1479,7 +1553,7 @@ function buildDrawer(){
     var el = $('z' + z); el.classList.toggle('on', (patch.gridN || Sim.CFG.gridN) === z);
     el.onclick = function(){ if (!discardOK()) return; patch.gridN = z; fresh(); newWorld(); buildDrawer(); };
   });
-  function fresh(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.founders; }
+  function fresh(){ delete patch.seedGenomes; delete patch.seedNI; delete patch.seedNO; delete patch.founders; }
   // sexual worlds: a breeder recombines with an acceptable mate in sense range, and
   // genomes too far apart cannot breed, so clusters become true species
   var sexual = !!Sim.CFG.sex;
@@ -1487,7 +1561,7 @@ function buildDrawer(){
   $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; delete patch.mateDist; fresh(); newWorld(); buildDrawer(); };
   $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; patch.mateDist = 0.1; fresh(); newWorld(); buildDrawer(); };
   $('bNew').onclick = function(){ if (!discardOK()) return; fresh(); newWorld(); buildDrawer(); };
-  if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.founders = 600; newWorld(); buildDrawer(); };
+  if (EVOLVED) $('bEvo').onclick = function(){ if (!discardOK()) return; patch.seedGenomes = evolvedGenomes(); patch.seedNI = EVOLVED.ni || 22; patch.seedNO = EVOLVED.no || 5; patch.founders = 600; newWorld(); buildDrawer(); };
   $('bSeed').onclick = function(){ if (!discardOK()) return; newWorld(Sim.CFG.seed); buildDrawer(); };
   $('bLog').onclick = function(){
     var cfg = {}; for (var k in Sim.CFG) if (k !== 'seedGenomes') cfg[k] = Sim.CFG[k];
