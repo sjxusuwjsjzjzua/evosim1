@@ -35,7 +35,8 @@ What evolves, without being written in:
 - **speciation**: in 13 of 24 test worlds the meat-eaters became a species
   that cannot breed with any grazer, and in 7 grazer lineages stopped
   interbreeding with each other. In 4 of those the split is small grazers
-  against large browsers (up to 15 times the body mass). In another test
+  against large browsers (up to 15 times the body mass) that feed on taller
+  plants. In another test
   world a new grazer species with little detox arose once the plants had
   lost their defences, and it was replacing the old one;
 - **streaming herds**: every animal can tell which way it is facing, as with a

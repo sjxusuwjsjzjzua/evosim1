@@ -877,8 +877,14 @@ core, so local batches beat Actions for anything under ~20 worlds.
    split is by body size: small grazers (size 0.3–0.9) against large browsers
    (2.4–4.8). The large ones breed only at higher reserves (reproT 0.6–0.7
    against 0.3–0.4) and give each young more (childE 0.45–0.5 against
-   0.25). Plant height is the likely reason a large plant-eater can live
-   apart (it reaches taller plants); not yet tested. In the other three
+   0.25). Replays on the build they ran on (scratchpad `browse.js`,
+   300–400k): in s1020 the large species (mass about 2.7) feeds on plants
+   0.61–0.69 tall, 30–36% of its feeding on plants taller than a small grazer
+   reaches (12–13% of plant cells). The small one (mass about 0.3) feeds on
+   plants 0.11–0.21 tall, 1–6% of it above its reach. That is niche
+   partitioning by plant height. In s1023 plant height swings widely (27–57%
+   of cells tall) and both species use tall cells; the large one leans
+   taller in 4 of 6 samples. In the other three
    (s1001, s1012, s1016) the split is mainly in attention genes and colour.
    Earlier: sexual worlds on the current physics (`runs/sexH`, seeds
    2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
