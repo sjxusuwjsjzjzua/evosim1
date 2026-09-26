@@ -1,0 +1,6 @@
+label=v1-AF-browseGrown
+seeds=401,402,403,404,405,406,407,408,409,410,411,412
+ticks=400000
+set=gridN=64,browseGrown=1
+cfg=
+sha=3e8c8b61b2ea3d4f3acd53f144c6829ba7789eba
