@@ -1,0 +1,6 @@
+label=v1-AJ-kill60
+seeds=401,402,403,404,405,406,407,408,409,410,411,412
+ticks=400000
+set=gridN=64,killCool=60
+cfg=
+sha=067cc8333fe14f40505e187b0bdc898c0eacb011
