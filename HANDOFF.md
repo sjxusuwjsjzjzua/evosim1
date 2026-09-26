@@ -386,6 +386,22 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## Literature-driven switches (2026-09-26, off by default)
+
+`SURVEY.md` compares this engine with other artificial-life systems. Two of its
+ranked changes are now switches, being tested on Actions (seeds 401–412):
+
+- `strikeCool` / `missCool` / `confHit` / `confR`: a strike costs recovery
+  time, more after a miss, and connects with chance 1 / (1 + confHit x
+  look-alikes near the target). Olson et al. evolved swarming this way; our
+  `kConfusion` only divided damage, which costs a predator nothing
+  (`results/v1-AG-lunge`).
+- `hazard`: a per-tick death chance that no body size escapes, the usual
+  stabiliser of body size (`results/v1-AG-hazard1`, `-hazard3`).
+- Also from a review: `vigilShare` (head-down in proportion to eating time)
+  and `browseGrown` (plant height grows with the plant, seedlings are short):
+  `results/v1-AF-vigilShare`, `-browseGrown`.
+
 ## Running now
 
 Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`

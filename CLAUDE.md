@@ -27,6 +27,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `README.md` | for people opening the page. |
 | `.github/workflows/sim.yml` | the same on GitHub Actions, one seed per job; every log of a dispatch lands on one branch, `results/<label>`. Dispatch with ref = the working branch. |
 | `HANDOFF.md` | current state and next steps. |
+| `SURVEY.md` | what other artificial-life systems made emerge and by which physics; ranked engine changes. Some claims are from memory and marked so. |
 | `LEDGER.md` | archive of the v0.44–v0.58 program (the previous engine). Read for history only. |
 | `evosim-v0_*.html`, `headless.js`, `check.js`, `analyze.py`, `audit.py`, `experiment.js`, `tools/score.py`, `tools/arms.py`, `tools/collect.sh`, `cfg-patches/`, `.github/workflows/experiment.yml`, `AUDIT-*.md`, `HOST-*.md`, `FINDINGS.md`, `PROGRAM-HISTORY.md` and the other upper-case notes | the previous engine, its tooling and audits. History only. |
 | `STYLE.md` | how to write replies, commits and docs. `bash tools/style-check.sh` greps for its banned phrases. |
