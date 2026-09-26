@@ -401,7 +401,7 @@ core, so local batches beat Actions for anything under ~20 worlds.
    height ~0.6), while the predator worlds have tall plants (0.95). Scarce food
    per animal pushes the best body size up (optimum ~ (4 upFixed / net intake
    per mass^0.75)^(4/3)), and giants also appeared at `upFixed` 0.005 without
-   browse. Testing `upFixed` 0.002 with browse 2. Growth time (`growExp`
+   browse. But `upFixed` 0.002 with browse 2 made 9 of 12 worlds giant (4 at 0.003), so a lower fixed cost means bigger bodies here; 0.004 and 0.006 are next. Growth time (`growExp`
    0.75) made it worse.
 2. **Herding.** Vigilance made grouping pay (prey clump 1.17 against 0.90 in
    predator worlds), but active steering toward others evolved in 1 of 12
