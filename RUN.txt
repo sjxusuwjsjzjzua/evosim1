@@ -1,0 +1,6 @@
+label=v1-AG-fibre
+seeds=401,402,403,404,405,406,407,408,409,410,411,412
+ticks=400000
+set=gridN=64,fibre=0.6
+cfg=
+sha=a27f57021512b53a56e7cb40626ebfc4d35698ed
