@@ -446,6 +446,9 @@ own kind included, because a kill pays even to a plant gut (`meatFloor` 0.4).
 A grazer that joins a group mostly gains neighbours that bite it. The paired
 factorial includes `meatFloor` 0.2, which should cut that biting; if prey
 clumping rises there, this is the mechanism.
+Dropping `meatFloor` to 0.1 in the diagnostic did not cut the biting within
+30k ticks (still 20–34 hits per 1000 from plant-eaters): the evolved strike
+urges persist; the factorial from random brains is the real test.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
