@@ -437,6 +437,16 @@ full-height plants (1.17) has not carried over to growing plants.
 predator-dominated, carnivore clusters 7, prey clump 0.69–1.11 (mean 0.93, as
 without). No grouping gain.
 
+**Why grouping does not pay: grazers bite each other** (program audit A10,
+confirmed 2026-09-26). The herder diagnostic with each hit attributed to its
+attacker (kin-steering herders, seeds 3, 5, 7): 75–90% of the hits grazers
+take come from animals living mostly on plants (15–20 per 1000 animal-ticks),
+2.5–5 from meat-eaters. Plant-gutted animals strike whoever they touch, their
+own kind included, because a kill pays even to a plant gut (`meatFloor` 0.4).
+A grazer that joins a group mostly gains neighbours that bite it. The paired
+factorial includes `meatFloor` 0.2, which should cut that biting; if prey
+clumping rises there, this is the mechanism.
+
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
 recovery and look-alike confusion (two settings), cover. Prey clump stays at
