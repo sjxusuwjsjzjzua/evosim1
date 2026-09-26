@@ -44,7 +44,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
 | plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
-| sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`, default off), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; with incompatibility (`mateDist` 0.1) sexual worlds match clonal ones, without it they fall behind (below) |
+| sex | `sex` 1, `mateDist` 0.1 by default (2026-09-26). A breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`), else clones; crossover keeps each neuron's wiring whole | against clonal over 24 paired seeds (`v1-AP-sex`): predator-dominated 20 against 20, carnivore clusters 10 against 12, nothing significant. In 13 of 24 the meat-eaters are a separate species (at most 5% of cross pairs could breed), and in 7 some grazer clusters are isolated from each other. Without `mateDist` sexual worlds fall behind (below) |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
 | diet | one axis, concave (`dietCurve` 2): plant yield x (1 − diet²), meat yield x (0.4 + 0.6 (1 − (1 − diet)²)) | flesh is easy to digest, cellulose needs a specialised gut; the concave form made a first step toward either gut cheap and raised the predator rate (16 of 20 worlds against 11 of 20) |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
@@ -138,7 +138,25 @@ This population was the page's "evolved start" until 2026-09-25. Under the
 current defaults (`dietCurve` 2, small world) it established predation in only 2
 of 4 test worlds, so it was replaced (next section).
 
-## The evolved start (2026-09-25)
+## The evolved start (2026-09-26): `v1-AU-c1` seed 1006
+
+Current build (sexual, compass, 35 senses), 400k ticks from random brains.
+The source world had a carnivore species (diet gene 0.62, 75% of energy from
+meat) beside four grazer clusters, with prey streaming (`polar` 0.78).
+Candidate dumps founded into new worlds (600 founders, 60k ticks):
+
+| dump | predators held | meat, last half |
+|---|---|---|
+| s1006 | 7 of 8 | 0.27–0.36 (one at 0.11) |
+| s1006, quantised as the page stores it | 4 of 4 | 0.24–0.30 |
+| s1001 | 2 of 4 | |
+| s1020 | 1 of 4 | |
+
+Founded worlds stream from the start (`polar` 0.66–0.82). The meat-eaters are
+big (size 8.4), armoured (0.45) and fast. The grazers are tiny (0.32), never
+strike, and turn away from other animals.
+
+## The evolved start before that (2026-09-25)
 
 Four small worlds on the current defaults, 300k ticks each, with genome dumps
 (`run.js --dump`). Three became predator-dominated (regime 72–98%). Each dump
@@ -711,7 +729,105 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+Compass (`compass`, on by default since 2026-09-26): senses compassX/Y (cos and sin of the
+animal's heading in world terms, NI 35). `v1-AT-wavec1` against `v1-AT-wavec0`
+(`seasonAmp` 0.8, `seasonWave` 1, sexual default), 24 paired seeds.
+Expectation: without a compass `waveVx` stays near 0.03 as before. With one,
+some worlds evolve a heading bias along the wave and `waveVx` rises well
+above 0.1 in the last half. A population moving with the season would also
+travel together, which is another route to grouping.
+Result, compass in a travelling season (`v1-AT-wavec1` against `-wavec0`, 24
+paired seeds, sexual): prey clumping 1.381 against 0.862, up in 23 of 24
+worlds (p < 0.001). Prey populations stream along x at 0.2–7.7 times the
+wave's speed: with the wave in 18 worlds, against it in 6 (sign test p
+0.023). Worlds streaming with it sit deeper in the growth band (`waveTrack`
+up to 0.43), those against it the least (0.09–0.14). Carnivore clusters 7
+against 12 (p 0.27), meat share 0.169 against 0.206: not significant.
+
+Local preview, compass with no season (`runs/c1`, 4 seeds): prey populations
+stream one way. `polar` 0.54–0.86 (about 0.02 without a compass), `align`
+0.30–0.73, prey clumping 1.07–1.96. In each world `align` is close to `polar`
+squared, which a shared bearing alone produces, so neighbours are not
+matching each other. The bearing is inherited and moving straight avoids
+re-grazing, so a lineage's direction takes over the population. Parallel
+travel keeps relatives near each other. Paired test: `v1-AU-c1` against
+`v1-AU-c0`, 24 seeds.
+
+**Result, compass with no season** (`v1-AU-c1` against `v1-AU-c0`, 24 paired
+seeds, sexual):
+- `polar` 0.728 against 0.035 and `align` 0.551 against 0.017, 24 of 24 worlds.
+- Prey clumping 1.223 against 0.841, 23 of 24 (p < 0.001).
+- Predator-dominated 16 against 16, carnivore clusters 8 against 8, meat
+  share 0.219 against 0.234.
+
+Streaming appears within 40–200k ticks. It is a shared bearing, not flocking.
+`align − polar²` averages −0.015 and is positive in 4 of 24 worlds, so
+neighbours line up no more than a common direction implies. The bearing is
+adaptive, not a mark of common descent (scratchpad `compassko.js`). At 150k
+ticks half the grazers lose their compass weights, and the lines are followed
+through the mother. In the three worlds already streaming, the cut lines were
+gone within 60k ticks (0 against 1679, 0 against 678, 0 against 917). In the
+one that was not yet streaming (`polar` 0.11) the cut line won (449 against
+175). Moving on in one direction likely keeps an animal off ground its
+neighbours and its own line have grazed. The build noise between two
+identical-in-effect builds (`v1-AS-base24` against `v1-AU-c0`) was 20 against
+16 predator worlds (p 0.29). The compass is now on by default. `v1-AU-c1` is the baseline for the
+current build (sexual, compass, 35 senses). The page has a "seasons move:
+still / travelling" control next to the seasons slider.
+
+**Migration pays, and needs a compass** (scratchpad `east.js`; evolved start
+in a wave world, `seasonAmp` 0.8, clonal; after 20k ticks half the grazers get
++2 x the heading error to east added to their turn, inherited). With the wave,
+east-steerers beat the rest in 4 of 4 worlds within 40k ticks (599 against
+210, 1227 against 0, 761 against 31, 1350 against 5), with more births per
+head. Control, the same world with a season that does not travel: 2 wins, 2
+losses (190 against 390, 0 against 361, 531 against 0, 73 against 16). Evolution
+cannot find this without a compass. An animal senses nothing about absolute
+direction, and the plants it can see (at most 10 units ahead) show no season
+gradient through the grazing noise. Local previews of the wave (4 seeds each,
+`yearTicks` 6000 and 24000) agree: prey track the band by breeding in it
+(`waveTrack` 0.13–0.38) and drift with it at only 0.03 of its speed.
+
+**Travelling season, result** (`v1-AR-wave8` against `v1-AR-glob8`, both
+`seasonAmp` 0.8, clonal, 24 paired seeds):
+- Giant worlds: 7 against 18 (McNemar p 0.003). A global season makes giants
+  in three worlds of four; a travelling one mostly does not.
+- Prey clumping: 0.954 against 0.840 (p 0.023).
+- Predator-dominated: 10 against 12 (both far below the ~20 of 24 without
+  seasons).
+- Prey drift along the wave in 21 of 24 worlds (sign test p < 0.001), but at
+  only 0.03 of its speed (`waveVx` −0.008 to 0.065). They follow it by
+  breeding in it (`waveTrack` 0.07–0.37), not by travelling.
+
+Travelling season (`seasonWave`, new, off by default): with `seasonAmp` > 0 the
+season's phase shifts with x, so a band of fast plant growth crosses the world
+once a year (256 units per 6000 ticks, 0.043 per tick). Logged: `waveTrack`
+(where prey sit in the season, 1 = at the peak) and `waveVx` (prey velocity
+along the wave, in units of its speed). `v1-AR-wave8` (`seasonAmp` 0.8,
+`seasonWave` 1) against `v1-AR-glob8` (`seasonAmp` 0.8, a global season), 24
+paired seeds. Expectation: prey sit ahead of the trough in both. `waveTrack`
+above 0 in the wave arm comes from demography alone (more births where
+plants grow) and is not migration. Migration is `waveVx` well above 0 across
+the last half of the run. That would take steering that tracks plant
+gradients over generations, so maybe a minority of worlds. Predator rates may
+fall under seasons (bottlenecks).
+
+Colour senses (2026-09-26): the attended animal's colour tag is three senses
+(animalR/G/B, NI 33). Before, an animal sensed only how much another looked
+like itself. Tested as a switch, `v1-AQ-tags1` against `v1-AQ-tags0` (same
+build, inputs read 0), 24 paired seeds, clonal: nothing significant.
+Predator-dominated 15 against 18, meat share 0.197 against 0.240 (p 0.15).
+`tools/colour.js` finds no warning colours. How well prey colour predicts
+armour scatters the same in both arms (R2 0.00–0.60 on, 0.00–0.74 off), and
+hunters' colour sensitivity does not line up with armour in either. The
+senses are used: in s1022 hunters' strike urge depends strongly on the
+target's colour (mean effect 0.76), not in line with armour, which suggests
+telling species apart. The senses stay, the switch is gone.
+
+Sexual is now the default (result in the table at the top). The colour and
+season arms below were dispatched before the switch and run clonal; they
+are paired within themselves. The evolved start keeps its predators with sex
+on (4 of 4 worlds, meat 26–34% at 60k ticks against 34–40% clonal). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
@@ -737,8 +853,12 @@ core, so local batches beat Actions for anything under ~20 worlds.
    armed (weapon 0.17–0.25) and high-detox (0.87–0.98), with short sight (3.1–3.6)
    and attention turned away from kin and weapons. The other is unarmed
    (0.02–0.08), lower-detox (0.63–0.66) and sharper-eyed (5.2–5.6), and attends
-   to kin. Mean plant defence fell from 0.28 to 0.09 over the run, so what keeps
-   the high-detox species is not known. Partial isolation between grazer
+   to kin. A replay (scratchpad `niche.js`) shows a replacement, not two
+   niches. The low-detox species was 5% of grazers at 240k and 1% at 280k,
+   then grew to 68% by 400k as mean plant defence fell from 0.26 to 0.09.
+   What the two ate barely differs: defence 0.12 against 0.10, height 0.78
+   against 0.58 of reach. A cheaper species that could not interbreed with
+   the old one took over once detox stopped paying. Partial isolation between grazer
    clusters (19–25%) in s2006.
    Earlier: speciation is real in sexual worlds (0% interbreeding between a meat
    cluster and grazer clusters). With plant height, check whether browsers and

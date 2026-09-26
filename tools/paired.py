@@ -11,6 +11,7 @@ last half of the run:
   meat      meat share of intake
   preyCl    prey clumping (1 = random)
   predCl    meat-eater clumping
+  polar     how much moving prey face one way; align: heading agreement of prey neighbours
   diet      mean diet gene
 Yes/no measures: counts and an exact McNemar p (discordant pairs, two-sided).
 Continuous measures: mean difference (arm - baseline) and an exact sign-test p.
@@ -36,7 +37,7 @@ def world(f):
         'carn': any(sp['meat'] > 0.5 and sp['n'] >= 10 for sp in L[-1]['species']),
         'giant': size >= 5, 'dwarf': size <= 0.35,
         'meat': sum(r['eC'] + r['eK'] for r in half) / eA,
-        'preyCl': m('clumpPrey'), 'predCl': m('clumpPred'),
+        'preyCl': m('clumpPrey'), 'predCl': m('clumpPred'), 'polar': m('polar'), 'align': m('align'),
         'diet': sum(r['genes']['diet'] for r in half) / len(half),
     }
 
@@ -58,7 +59,7 @@ for arm_dir in sys.argv[2:]:
         b = sum(base[s][k] for s in seeds); a = sum(arm[s][k] for s in seeds)
         up = sum(1 for s in seeds if arm[s][k] and not base[s][k]); down = sum(1 for s in seeds if base[s][k] and not arm[s][k])
         print('  %-6s baseline %2d  arm %2d   (+%d / -%d)  McNemar p %.3f' % (k, b, a, up, down, binom_p(up, up + down)))
-    for k in ('meat', 'preyCl', 'predCl', 'diet'):
+    for k in ('meat', 'preyCl', 'predCl', 'diet', 'polar', 'align'):
         if any(base[s][k] is None or arm[s][k] is None for s in seeds):
             print('  %-6s not logged in one of the batches' % k); continue
         diffs = [arm[s][k] - base[s][k] for s in seeds]
