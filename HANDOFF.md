@@ -711,6 +711,19 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Travelling season (`seasonWave`, new, off by default): with `seasonAmp` > 0 the
+season's phase shifts with x, so a band of fast plant growth crosses the world
+once a year (256 units per 6000 ticks, 0.043 per tick). Logged: `waveTrack`
+(where prey sit in the season, 1 = at the peak) and `waveVx` (prey velocity
+along the wave, in units of its speed). `v1-AR-wave8` (`seasonAmp` 0.8,
+`seasonWave` 1) against `v1-AR-glob8` (`seasonAmp` 0.8, a global season), 24
+paired seeds. Expectation: prey sit ahead of the trough in both. `waveTrack`
+above 0 in the wave arm comes from demography alone (more births where
+plants grow) and is not migration. Migration is `waveVx` well above 0 across
+the last half of the run. That would take steering that tracks plant
+gradients over generations, so maybe a minority of worlds. Predator rates may
+fall under seasons (bottlenecks).
+
 Colour senses (`seeTags`, new, on by default): the attended animal's colour tag
 is now three senses (animalR/G/B, NI 33). Before, an animal sensed only how
 much another looked like itself, so a colour could not mean anything to a

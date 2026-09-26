@@ -105,6 +105,8 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
+  seasonWave: 0,        // 1 = the season travels along x, one wavelength per world width per year:
+                        // a band of fast growth moving at world/yearTicks per tick
 
   // ---- plants ----
   pR: 0.012,            // logistic growth rate per tick at fertility 1, no costs paid
@@ -362,14 +364,19 @@ function plantR(c){
          *(1 - CFG.pDispCost*S.pDisp[c]*S.pDisp[c]);
 }
 function cachePlant(c){ S.pK[c] = plantK(c); S.pRate[c] = plantR(c); }
+var SW = new Float64Array(512);   // the travelling season, per column
 function updatePlants(){
   var n = CFG.gridN, nc = n*n, dt = CFG.plantEvery;
   var season = CFG.seasonAmp > 0 ? 1 + CFG.seasonAmp*Math.sin(2*Math.PI*S.tick/CFG.yearTicks) : 1;
+  var wave = CFG.seasonAmp > 0 && CFG.seasonWave;
+  if (wave && SW.length < n) SW = new Float64Array(n);
+  if (wave) for (var col = 0; col < n; col++) SW[col] = 1 + CFG.seasonAmp*Math.sin(2*Math.PI*(S.tick/CFG.yearTicks - col/n));
   var sd = CFG.pMutSd;
   for (var c = 0; c < nc; c++){
     var B = S.pB[c];
     if (B <= 0) continue;
     var K = S.pK[c];
+    if (wave) season = SW[c % n];
     B += S.pRate[c]*season*B*(1 - B/K)*dt;
     if (B < 0.01){ S.pB[c] = 0; continue; }
     if (CFG.browseGrown){ var hg = CFG.browse*S.pStat[c]*B/K; if (hg > S.pH[c]) S.pH[c] = hg; }   // a trunk: grows, never shrinks
@@ -1061,6 +1068,15 @@ function sample(){
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
   var spc = species(), clump = clumping(false), clumpPrey = clumping(1), clumpPred = clumping(2);
+  // with a travelling season: where prey sit in it (1 = at the peak of growth, 0 = no
+  // preference) and how fast they move with it (1 = at the wave's own speed)
+  var wTrack = 0, wVx = 0, wN = 0;
+  if (CFG.seasonAmp > 0 && CFG.seasonWave){
+    for (var w = 0; w < S.hi; w++) if (S.alive[w] && S.lM[w] <= S.lP[w]){
+      wTrack += Math.sin(2*Math.PI*(S.tick/CFG.yearTicks - S.x[w]/S.world)); wVx += Math.cos(S.hd[w])*S.sp[w]; wN++;
+    }
+    if (wN){ wTrack /= wN; wVx /= wN*S.world/CFG.yearTicks; }
+  }
   var C = S.c, eAll = C.eP + C.eC + C.eK;
   var dead = S.hist; S.hist = [];
   var dhist = new Array(10).fill(0);
@@ -1081,6 +1097,7 @@ function sample(){
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
+  if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
   S.log.push(row);
   S.c = newCounters();
   return row;
