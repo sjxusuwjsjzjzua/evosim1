@@ -408,6 +408,10 @@ carnivore clusters in 9, one giant world.
 | mild lunge (`strikeCool` 2, `missCool` 6, `confHit` 0.2), local | 6 | 7 | 4 / 0 (prey clump no higher) |
 | strike recovery only (`strikeCool` 3), local | 1–3 | 0 | 10 / 0 |
 | `killCool` 20 (handling time after a kill), on top of `browseGrown` | 12 | 9 | 0 / 0 (prey clump ~0.90, no gain) |
+| `killCool` 60 | 9 | 5 | 0 / 0 (meat 6–29%, prey clump ~0.80) |
+
+Handling time does not make groups pay: surplus killing inside a group is not
+what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
