@@ -1,0 +1,6 @@
+label=v1-AG-pack
+seeds=401,402,403,404,405,406,407,408,409,410,411,412
+ticks=400000
+set=gridN=64,packHunt=1
+cfg=
+sha=a27f57021512b53a56e7cb40626ebfc4d35698ed
