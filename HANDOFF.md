@@ -718,6 +718,14 @@ Expectation: without a compass `waveVx` stays near 0.03 as before. With one,
 some worlds evolve a heading bias along the wave and `waveVx` rises well
 above 0.1 in the last half. A population moving with the season would also
 travel together, which is another route to grouping.
+Local preview, compass with no season (`runs/c1`, 4 seeds): prey populations
+stream one way. `polar` 0.54–0.86 (about 0.02 without a compass), `align`
+0.30–0.73, prey clumping 1.07–1.96. In each world `align` is close to `polar`
+squared, which a shared bearing alone produces, so neighbours are not
+matching each other. The bearing is inherited and moving straight avoids
+re-grazing, so a lineage's direction takes over the population. Parallel
+travel keeps relatives near each other. Paired test: `v1-AU-c1` against
+`v1-AU-c0`, 24 seeds.
 
 **Migration pays, and needs a compass** (scratchpad `east.js`; evolved start
 in a wave world, `seasonAmp` 0.8, clonal; after 20k ticks half the grazers get
