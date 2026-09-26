@@ -58,12 +58,13 @@ if (args.dump) dump(args.dump);
 // --dump <path>: the living population's genomes (body + brain), for seeding
 function dump(p) {
   const S = Sim.S, NG = Sim.NG, out = [];
-  // every animal with a meat gut (diet > 0.3, up to 100), so a rare carnivore
+  // every meat eater (up to 100), so a rare carnivore
   // species survives the sampling, then every step-th of the rest to fill ~300
   // slots (the floor on step means the total can run over 300)
   const G = S.genome, take = i => out.push(Array.from(G.subarray(i*NG, (i+1)*NG)).map(v => +v.toFixed(3)));
   const meat = [], rest = [];
-  for (let i = 0; i < S.hi; i++) if (S.alive[i]) (G[i*NG + 3] > 0.3 ? meat : rest).push(i);
+  // meat eaters: a meat gut (diet > 0.3) or a life lived mostly on meat (omnivore-gutted killers)
+  for (let i = 0; i < S.hi; i++) if (S.alive[i]) (G[i*NG + 3] > 0.3 || S.lM[i] > S.lP[i] ? meat : rest).push(i);
   meat.slice(0, 100).forEach(take);
   const step = Math.max(1, Math.floor(rest.length / (300 - Math.min(100, meat.length))));
   for (let k = 0; k < rest.length; k += step) take(rest[k]);
