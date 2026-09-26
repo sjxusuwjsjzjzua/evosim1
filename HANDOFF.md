@@ -458,6 +458,10 @@ forage) or the urge drifts because a strike is cheap (`atkCost` 0.004 x
 mass^0.75). A 5x strike cost is being tested (`runs/atk20`).
 `eMeat` 5 (24 paired seeds): meat share 0.22 against 0.27 (p 0.064), nothing
 else moved.
+`eMeat` 12 (24 paired seeds): meat share 0.36 against 0.27 (p 0.002);
+predator-dominated 23 against 20 and carnivore clusters 16 against 12, both
+not significant; diet gene, prey and predator clumping unchanged. Richer meat
+means more killing by the same omnivores, not more specialisation.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
