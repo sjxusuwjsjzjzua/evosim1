@@ -682,7 +682,11 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+`runs/sexH` (local, seeds 2001–2008, `sex` 1, `mateDist` 0.1, current
+physics). Expectation: meat/grazer species splits in about a third of worlds,
+as before plant height. New question: do plant-eaters split by body size
+(tall browsers against small grazers) into separate species? Scored with
+`tools/isolation.py` on the dumps. Also the density arms (above) on Actions. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
