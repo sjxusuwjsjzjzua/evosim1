@@ -397,11 +397,22 @@ carnivore clusters in 9, one giant world.
 | `vigilShare` 1 | 9 | 5 | 2 / 0 |
 | **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
 | lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
+| mild lunge (`strikeCool` 2, `missCool` 6, `confHit` 0.2), local | 6 | 7 | 4 / 0 (prey clump no higher) |
+| strike recovery only (`strikeCool` 3), local | 1–3 | 0 | 10 / 0 |
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
 | `fibre` 0.6 | 8 | 6 | 7 / 0 (populations 160–700) |
 | `sizeMax` 24 | 8 | 3 | 5 / 0 (size 6–7, well under the new cap) |
+
+Fresh seeds 801–812 (`v1-AH-base-rep` against `v1-AH-grown-rep`): predator-
+dominated 9 against 9, carnivore clusters 4 against 8, giant worlds 7 against 0.
+Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
+worlds against 8, with no dwarf worlds either way. Now the default. The
+evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks).
+
+Predation here needs a predator free to strike every tick: any strike
+recovery (`strikeCool`) starved predators before confusion could shape prey.
 
 `browseGrown` (plant height grows with the plant and does not shrink when
 grazed; seedlings are short and grazeable) removed both body-size traps at
@@ -430,8 +441,13 @@ Probes with `tools/voice.js`:
   about ±1 at random; the heard-world pattern is in the expected direction but
   modest at 12 worlds a side.
 - Predators eavesdropping on prey calls is a real phenomenon; nothing wrote it in.
-- The call is too cheap to be silenced: mean loudness drifts from 0 to 0.9
-  even in deaf worlds. A higher `callCost` is the obvious next test.
+- The call is too cheap to be silenced at the default: mean loudness drifts
+  from 0 to 0.9 even in deaf worlds.
+- At `callCost` 0.02 (10x, `runs/call10`) calls turn into a costly, reliable signal:
+  baseline loudness fell to 0.00–0.04 in 8 of 12 worlds, 4 of 12 call louder
+  at a big armed stranger (+0.19 to +0.52), and grazers turn away from a call
+  in 11 of 12 (−0.4 to −1.9). But predator-dominated worlds fell to 8 of 12
+  with several small populations. `callCost` 0.008 is next.
 
 ## What 476 run logs say (2026-09-26, `MINING.md`)
 
