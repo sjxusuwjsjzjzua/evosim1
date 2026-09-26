@@ -734,6 +734,19 @@ Predators against streaming prey (`runs/predstream`, local, seeds 1001, 1004,
 shared heading) and `predVsPrey` (the cosine between the predators' and prey's
 mean headings; −1 = head-on). Expectation: head-on travel (negative) meets
 more prey per tick, so predators with their own bearing should evolve it.
+Result, the reverse. Last half of each run, samples with more than 5 predators:
+
+| seed | prey `polar` | `polarPred` | `predVsPrey` |
+|---|---|---|---|
+| 1001 | 0.73 | 0.49 | +0.94 (never negative) |
+| 1004 | 0.75 | 0.37 | +0.40 (negative in 24% of samples) |
+| 1006 | 0.78 | 0.70 | +0.99 (never negative) |
+| 1020 | 0.81 | 0.56 | +0.88 (never negative) |
+
+Predators move with the herd, as wolves follow a caribou migration. A strike
+needs the target within reach, so a hunter keeping pace stays in contact,
+while a head-on pass lasts a tick. Whether they hold the bearing by compass
+or by chasing is not yet separated.
 
 Compass (`compass`, on by default since 2026-09-26): senses compassX/Y (cos and sin of the
 animal's heading in world terms, NI 35). `v1-AT-wavec1` against `v1-AT-wavec0`

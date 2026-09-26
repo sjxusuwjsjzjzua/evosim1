@@ -40,8 +40,9 @@ What evolves, without being written in:
   sun compass. Within a few hundred generations a world's grazers share a
   bearing and travel together across the (wrapping) world, keeping off ground
   already grazed. Nothing tells them which way to go; different worlds pick
-  different directions. With the travelling season on, most worlds go the
-  way the season goes;
+  different directions. The meat-eaters travel with the herd rather than
+  against it. With the travelling season on, most worlds go the way the
+  season goes;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
