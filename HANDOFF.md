@@ -38,8 +38,8 @@ Browser check (Chromium and Playwright are preinstalled):
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
 | animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | sense, weapon, detox and speed have quadratic upkeep; armour costs linearly and slows; tags, attention and life-history genes are free |
 | fixed cost | `upFixed` 0.003 per animal per tick regardless of size | 0.010 gave an interior body size but 0 predator worlds in 20 at 600k ticks; at 0.003 small fast breeders evolve predation, and predation holds size off the floor |
-| brain | 29 senses → 8 hidden (tanh) → 6 outputs (turn, throttle, eat, meat preference, attack, call), plus direct input→output weights | the genome is the behaviour |
-| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view, the loudest call in range and its direction | facts about the world, not advice |
+| brain | 30 senses → 8 hidden (tanh) → 6 outputs (turn, throttle, eat, meat preference, attack, call), plus direct input→output weights | the genome is the behaviour |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view, the loudest call in range and its direction, direction to the centre of look-alikes in view (kinDir) | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
 | plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
@@ -443,6 +443,14 @@ predators form tight packs (4.1, 8.5, 14.7, 3.1x in four worlds) and prey
 spread out (0.36–1.00), but predation falls (6 of 8 predator-dominated against
 8). Whether the default grouping is cooperative hunting or predators
 converging on the same prey and carcasses is not yet known.
+
+**`kinDir`** (new sense, direction to the centre of look-alikes; local seeds
+401–412 on the current defaults): 11 of 12 predator-dominated, carnivore
+clusters 8, prey clump 0.64–1.10 (mean 0.92, as without). Probes
+(`tools/herd.js`): grazers turn toward kin in 3 worlds and away in 4; in two
+(408, 409) they turn toward kin (+1.2, +1.3) and away from the crowd (−1.4,
+−0.8), following their own kind and avoiding strangers, without that making
+them clump more. Grazers turn away from calls in 11 of 12 (replicated).
 
 Handling time does not make groups pay: surplus killing inside a group is not
 what keeps prey apart.

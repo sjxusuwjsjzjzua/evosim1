@@ -22,6 +22,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/fetch-results.sh [prefix]` | pulls `results/*` branches into `runs/<label>/` (gitignored). |
 | `tools/genomes.js` | brain probes of a `--dump`, split at diet 0.3. |
 | `tools/batch.sh` | local batch, 4 worlds at a time, on a frozen copy of the build: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>` → `runs/<label>/`. |
+| `tools/voice.js`, `tools/herd.js` | brain probes of a dump: what calls mean; whether grazers steer toward look-alikes, everyone, or calls. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
@@ -40,7 +41,7 @@ Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell
 reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
-and a neural network (29 senses, 8 hidden,
+and a neural network (30 senses, 8 hidden,
 6 outputs: turn, throttle, eat, meat preference, attack, call). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is
