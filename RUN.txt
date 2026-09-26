@@ -1,0 +1,6 @@
+label=v1-AK-medium
+seeds=901,902,903,904,905,906,907,908,909,910
+ticks=400000
+set=gridN=96
+cfg=
+sha=750b58fdffeb07993674f6bd66a589687ab62948
