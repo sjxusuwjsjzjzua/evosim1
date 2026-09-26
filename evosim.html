@@ -175,6 +175,8 @@ var CFG_DEFAULT = {
                         // digestion = min(1, (mass/digestMass)^0.25). Small grazers do best on
                         // regrowth, big ones can use mature stands. 0 = all plant matter is equal
   digestMass: 8,
+  sizeMax: 12,          // the body-size gene's upper bound. Giant worlds end when predators reach it
+                        // (23 of 32 exits had meat-eaters at size 10 or more)
   hazard: 0,            // chance per tick of dying of something no body size escapes (disease,
                         // accident). 0 = none
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
@@ -302,6 +304,7 @@ function init(patch){
   CFG = {};
   for (var k in CFG_DEFAULT) CFG[k] = CFG_DEFAULT[k];
   if (patch) for (var k2 in patch) CFG[k2] = patch[k2];
+  BODY[G_SIZE][2] = CFG.sizeMax;   // the size gene's range is physics too
   seedRng(CFG.seed*2654435761 + 12345); gCache = null;
   var n = CFG.gridN, nc = n*n, M = CFG.maxA;
   S = {
