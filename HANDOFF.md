@@ -396,6 +396,15 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## Switches removed after the program audit (2026-09-26)
+
+These were tested, came out null or worse, and are gone from the build (the
+results stay in this file): stomach (`gutCap`, `gutDig`; the `gut` sense is
+kept as an always-0 input so evolved genomes keep their layout), `vigilShare`,
+`mutReflect`, `growExp`, `strikeCool`/`missCool`/`confHit`/`confR`, `hazard`,
+`packHunt`, `fibre`/`digestMass`, `killCool`, `cover`, `kConfusion`. Defaults
+bit-identical before and after. `sizeMax` stays for a retest.
+
 ## The current defaults, measured (2026-09-26)
 
 24 fresh worlds, seeds 1001–1024, 400k ticks (`results/v1-AL-current24`):
