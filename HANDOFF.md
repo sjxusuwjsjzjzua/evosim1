@@ -395,6 +395,14 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## The current defaults, measured (2026-09-26)
+
+24 fresh worlds, seeds 1001–1024, 400k ticks (`results/v1-AL-current24`):
+predator-dominated 20, carnivore clusters 12, giant 1, dwarf 0. At 1M ticks
+(`v1-AL-1M-current`, seeds 701–710): no giant or dwarf worlds, 4 exits from
+the predator state in 7.1k thousand predator ticks (0.06 per 100k); seed 701
+barely started.
+
 ## Switch results, seeds 401–412, 400k ticks (2026-09-26)
 
 Baseline (current defaults, `runs/voice`): 10 of 12 predator-dominated,
