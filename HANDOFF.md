@@ -407,6 +407,7 @@ carnivore clusters in 9, one giant world.
 | lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
 | mild lunge (`strikeCool` 2, `missCool` 6, `confHit` 0.2), local | 6 | 7 | 4 / 0 (prey clump no higher) |
 | strike recovery only (`strikeCool` 3), local | 1–3 | 0 | 10 / 0 |
+| `killCool` 20 (handling time after a kill), on top of `browseGrown` | 12 | 9 | 0 / 0 (prey clump ~0.90, no gain) |
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
@@ -465,7 +466,11 @@ Probes with `tools/voice.js`:
   baseline loudness fell to 0.00–0.04 in 8 of 12 worlds, 4 of 12 call louder
   at a big armed stranger (+0.19 to +0.52), and grazers turn away from a call
   in 11 of 12 (−0.4 to −1.9). But predator-dominated worlds fell to 8 of 12
-  with several small populations. `callCost` 0.008 is next.
+  with several small populations. At `callCost` 0.008 (`runs/call4`): alarm
+  calls in 4 of 12 (+0.27 to +0.58), grazers turn away from calls in 12 of
+  12, but 7 of 12 predator-dominated. Costlier calls make clearer signals and
+  consistently cost predation (random founders call at ~0.5 and pay for it
+  during bootstrap), so the default stays at 0.002.
 
 ## What 476 run logs say (2026-09-26, `MINING.md`)
 
