@@ -27,6 +27,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/colour.js` | does colour mean anything in a `--dump`: how well prey colour predicts armour, and how hunters' strike urge depends on the target's colour. |
 | `tools/wave.py` | migration under a travelling season (`seasonWave`): where prey sit in it and how fast they move with it. |
 | `tools/gsplit.py` | which body genes separate plant-eater clusters that cannot interbreed. |
+| `tools/give.py` | feeding (the give output): gift share of intake, and how much goes to look-alikes and juveniles, early against late. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
