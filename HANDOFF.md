@@ -483,6 +483,9 @@ Result, `atkCost` 0.02 (24 paired seeds): grazers' strike urges fell (0.28/0.32
 on contact with smaller/bigger, against 0.45/0.45) but prey clumping did not
 move (0.859 against 0.900, p 0.54), nor did anything else. Locally (`runs/atk20`,
 12 seeds) the urges did not even fall; the two early worlds were noise.
+`atkCost` 0.05, 12x (24 paired seeds): nothing significant. Grazer urges
+0.30/0.30, prey clumping 0.868 against 0.900 (p 0.15), kill share 26% against
+27%. Predation does not rest on cheap strikes.
 `size` 24 (24 paired seeds): nothing significant (carnivore clusters 7 against
 12, p 0.23; prey clumping 0.883 against 0.900).
 
