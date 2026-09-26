@@ -729,13 +729,22 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Who kills meat-eaters? New log counters `killsMeat` (kills whose victim lived
-mostly on meat) and `killsMeatByMeat` (the killer did too). `runs/trophic`,
-local, seeds 1001, 1006, 1013, 1020 (worlds with 1–2 carnivore clusters in
-`v1-AU-c1`). Expectation: most meat-eater deaths by killing come from
-plant-eaters biting on contact, as for grazers. A third trophic level would
-show as a steady share of kills by meat-eaters of meat-eaters, with the
-killers larger than the victims.
+**Meat-eaters eat their own young** (2026-09-26). Log counters `killsMeat`
+(kills whose victim lived mostly on meat) and `killsMeatByMeat` (the killer did
+too). `runs/trophic`, seeds 1001, 1006, 1013, 1020, current defaults, last
+half: meat-eaters are 2–4% of kill victims. Expectation was that plant-eaters
+biting on contact would do most of it. Wrong: meat-eaters made 88–98% of
+those kills. A replay (scratchpad `mm.js`, same kill counts as the batch)
+of the kills after 200k in seeds 1001 and 1013:
+
+| seed | kills | killer/victim mass, median (quartiles) | victim a juvenile | victim a look-alike |
+|---|---|---|---|---|
+| 1001 | 3565 | 1.8 (1.2–6.0) | 73% | 71% (colour distance < 0.3) |
+| 1013 | 18786 | 2.5 (1.8–24) | 80% | 69% |
+
+The killer is the larger one in about 90% of cases. So it is cannibalism of
+juveniles of the killer's own kind, not a third trophic level. No kin
+avoidance evolved, even though the attention genes could weight kinship.
 
 Heading sense (2026-09-26): `crowdHeading`, the mean heading of the moving
 animals in view relative to the animal's own (NI 36). Without it an animal

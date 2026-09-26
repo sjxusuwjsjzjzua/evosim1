@@ -21,6 +21,9 @@ What evolves, without being written in:
   alongside herbivore species. The predators are big, armed cruisers that strike
   whatever they touch; the herbivores are small grazers that sit still and speed
   up when a big armed animal comes into view;
+- **cannibalism**: meat-eaters that die by killing are nearly all killed by
+  other meat-eaters, and the victims are mostly juveniles of the killer's
+  own kind;
 - **arms races**: armour against weapons, speed against speed, herbivore detox
   against plant defence;
 - **vigilance and alarm**: an animal eating has its eyes on the food, so prey
