@@ -291,8 +291,16 @@ tall. But at `browse` 2 the dwarf trap becomes a giant one: giants sit at mass
 `browse` 1.5 (tallest plants reachable at mass 3.4), same 12 seeds: 6 of 12
 predator-dominated, carnivore clusters in 2, and 5 peaceful worlds of mid-sized
 grazers (size 1.9–3.3) too big for their predators. Not monotone in height.
-The default stays off until the 1M-tick runs (`results/v1-AD-1M-browse2`,
-`-browse4`) show whether giant worlds are as absorbing as dwarf ones.
+At 1M ticks (`results/v1-AD-1M-browse2`, `-browse4`, seeds 701–710, against
+`v1-AC-1M-vigil`), predation (meat > 15%) was alive at 800k–1M in 4 of 10
+worlds at browse 2 and 4–6 of 10 at browse 4, against 2–3 of 10 without. But 6–7
+of 10 ended as giants (mean size 5–8 at 2, ~11 at 4, 160–380 animals). With or
+without height, body size runs to a bound.
+
+A likely reason: growth is `growRate` x mass, so every body size matures in
+the same ~170 ticks, while lifespan grows as mass^0.25. Giants get long lives
+and quick maturity for free. `growExp` 0.75 (growth like metabolism, time to
+maturity rising as mass^0.25) is being tested with and without browse 2.
 
 `upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
 predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds
