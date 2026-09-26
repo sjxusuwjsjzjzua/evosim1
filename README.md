@@ -12,7 +12,7 @@ what a bite does).
 What evolves, without being written in:
 
 - **grazing**, in every world, within a few dozen generations;
-- **scavenging and predation**. In about 6 of 10 worlds killing becomes the main
+- **scavenging and predation**. In about 7 of 8 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
   typically 20–30%;
 - **carnivore species**. In about 2 of 3 worlds a lineage's gut shifts toward
@@ -29,9 +29,9 @@ What evolves, without being written in:
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
 
-Not every world gets there. About one world in three settles into a few
-hundred peaceful giants, big grazers that nothing can kill. Left running for
-hours, most worlds end in giants, or in dwarves on a cropped lawn.
+Not every world gets there: in about one world in eight predators never take
+hold. Predator phases can also end after a long run, and a world can settle
+into peaceful grazers.
 
 Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved
