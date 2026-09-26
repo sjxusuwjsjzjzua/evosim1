@@ -472,7 +472,8 @@ everything (alarm and food calls, grazers turning from calls, meat guts
 homing on them, grazers following kin and avoiding strangers) but held in 2
 of 4 transplants, seed 1103 in 3 of 4; predators died out early in the
 failures (1104's dump had 43 meat guts against seed 42's 80). Seed 808 has
-the clearest voice seen:
+clearest voice seen (re-dumped with the killers oversampled by lifetime
+intake, 1104 held in 1 of 4 and 1103 in 3 of 4; seed 42 stays):
 grazers bolt on a call (+0.79) and turn away (−1.84), meat guts turn toward it
 (+0.88).
 
