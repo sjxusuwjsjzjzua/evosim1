@@ -548,6 +548,17 @@ kin steering falls (mean −0.37, 1 world above +0.5), so the rise is not
 grazers seeking look-alikes. A mid-run knockout of the social senses (crowd,
 crowdDir, crowdSpeed, heard, heardDir, kinDir) at 200k ticks in four of these
 worlds tests whether it is behaviour at all (scratchpad `knock2.js`).
+Knockout result (seeds 1001, 1007, 1012, 1019 at `cellSize` 2; mean prey
+clumping over the 60k ticks after the cut, against the same world uncut):
+1.18 against 1.62, 1.72 against 2.07, 2.18 against 1.74, 1.96 against 2.13. Cut
+prey still clump at 1.2–2.2, far above the 0.9 of normal worlds, so most of
+the dense-world clumping is not social steering. Likely causes are food
+patches at the finer scale, or young staying where they were born, since
+a denser world holds the same food per cell in a smaller area. A social part
+exists in some worlds. The cut also cost population in three of four worlds
+(1389 → 851, 836 → 692, 909 → 559), so prey use those senses, mostly to
+flee. `cellSize` stays 4: the clumping is mostly not herding, and giant worlds
+rise.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
@@ -700,7 +711,7 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Social-sense knockout in dense worlds (local). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
