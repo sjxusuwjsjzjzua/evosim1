@@ -410,6 +410,10 @@ carnivore clusters in 9, one giant world.
 | `killCool` 20 (handling time after a kill), on top of `browseGrown` | 12 | 9 | 0 / 0 (prey clump ~0.90, no gain) |
 | `killCool` 60 | 9 | 5 | 0 / 0 (meat 6–29%, prey clump ~0.80) |
 
+`headDown` 0.9 (local, on `browseGrown`): 10 of 12 predator-dominated, prey
+clump 0.70–1.09, no gain over 0.7. The grouping vigilance gave under
+full-height plants (1.17) has not carried over to growing plants.
+
 Handling time does not make groups pay: surplus killing inside a group is not
 what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
