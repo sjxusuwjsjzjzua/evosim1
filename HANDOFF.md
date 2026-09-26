@@ -729,6 +729,15 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Heading sense (`seeHeading`, new, on by default pending the test):
+`crowdHeading`, the mean heading of the moving animals in view relative to the
+animal's own (NI 36). Without it an animal could not see which way others
+face, so local alignment (the Boids rule) could not evolve. `v1-AV-h1`
+against `v1-AV-h0`, 24 paired seeds. Expectation: `align` rises above
+`polar`², meaning local alignment beyond the shared bearing. Prey clumping
+rises, and some worlds form flocks going different ways (`polar` falls while
+`align` holds).
+
 Predators against streaming prey (`runs/predstream`, local, seeds 1001, 1004,
 1006, 1020, current defaults). New log fields: `polarPred` (the meat-eaters'
 shared heading) and `predVsPrey` (the cosine between the predators' and prey's

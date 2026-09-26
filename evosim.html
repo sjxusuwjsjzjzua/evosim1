@@ -105,6 +105,7 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
+  seeHeading: 1,        // 1 = an animal senses which way the moving animals in view are heading (crowdHeading)
   compass: 1,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
                         // or magnetic compass would; 0 = those inputs read 0. With it prey
                         // populations evolve a shared bearing and travel together (24 paired
@@ -247,11 +248,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 35, NH = 8, NO = 6;
+var NI = 36, NH = 8, NO = 6;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
 
 var CFG, S;   // config and state
@@ -608,6 +609,7 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
+  var hcs = 0, hsn = 0, HD = S.hd;
   var kxs = 0, kys = 0, cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
   // eyes on the food: an animal that ate last tick sees animals over (1 - headDown) of its range
   var down = S.act[i] === 1 || S.act[i] === 2 ? Math.min(1, CFG.headDown) : 0, RA2 = R2*(1 - down)*(1 - down);
@@ -630,7 +632,7 @@ function sense(i){
         var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
         if (lv > heard){ heard = lv; hx = ex; hy = ey; }
         if (d2 >= RA2) continue;
-        crowd++; cxs += ex; cys += ey; spd += SPD[j];
+        crowd++; cxs += ex; cys += ey; spd += SPD[j]; if (SPD[j] >= 0.05){ hcs += Math.cos(HD[j]); hsn += Math.sin(HD[j]); }
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         // look-alikes (colour tag within 0.3, size within 2x) pull the kin direction, weighted by likeness
         var kin = 1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)/0.3, szl = 1 - Math.abs(Math.log2(MA[j]/mi));
@@ -697,6 +699,7 @@ function sense(i){
   IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   IN[29] = kxs || kys ? angDiff(Math.atan2(kys, kxs), h)/Math.PI : 0;   // toward the centre of look-alikes in view
   IN[33] = CFG.compass*Math.cos(h); IN[34] = CFG.compass*Math.sin(h);   // which way it is facing, in world terms
+  IN[35] = CFG.seeHeading && (hcs || hsn) ? angDiff(Math.atan2(hsn, hcs), h)/Math.PI : 0;   // which way the moving animals in view are going, relative to its own heading
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
