@@ -729,6 +729,19 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Feeding (`give`, new, on pending the test): a seventh brain output. When its
+urge fires and the attended animal is in reach, the animal passes it energy
+from its reserves (`giveRate` 0.1 x mass^0.75 per tick, at most half its
+reserves; the receiver gets `giveEff` 0.8 of it). The mouth is busy for that
+tick. Nothing says whom to feed. Logged: `gives`, `eG` (energy received as
+gifts), `eGkin` (to look-alikes, colour distance < 0.3), `eGjuv` (to
+juveniles). `v1-AW-give1` against `v1-AW-give0`, 24 paired seeds.
+Expectation: random founders give at random and pay for it, so giving is
+selected down in most worlds. Where young are born beside their parents it
+may persist, aimed at kin and juveniles (kin selection). Score: gift energy
+as a share of all intake in the last half, and its kin and juvenile shares
+against the first 20k ticks.
+
 **Meat-eaters eat their own young** (2026-09-26). Log counters `killsMeat`
 (kills whose victim lived mostly on meat) and `killsMeatByMeat` (the killer did
 too). `runs/trophic`, seeds 1001, 1006, 1013, 1020, current defaults, last

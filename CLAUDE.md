@@ -46,7 +46,7 @@ reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; 
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
 and a neural network (36 senses, 8 hidden,
-6 outputs: turn, throttle, eat, meat preference, attack, call). Each mouth output is a
+7 outputs: turn, throttle, eat, meat preference, attack, call, give). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is
 in reach (the attended one). Diet is one axis with a concave trade-off (`dietCurve` 2, `meatFloor` 0.4): plant yield x (1 - diet^2),
