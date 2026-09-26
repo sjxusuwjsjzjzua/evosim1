@@ -42,6 +42,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
+| plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 0 by default (clonal). With 1, a breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`, default off), else clones; crossover keeps each neuron's wiring whole | every predator world so far evolved without it; with incompatibility (`mateDist` 0.1) sexual worlds match clonal ones, without it they fall behind (below) |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
@@ -252,7 +253,69 @@ engine with and without it:
   warning, die first. In s406 prey steer hard toward the crowd: herding.
 - Brain probes: `probe-crowd.js` in the session scratchpad.
 - Founded into 4 new worlds under it, the seed-42 evolved start held predation
-  in all 4 (meat 33–50% at 40k ticks).
+  in all 4 (meat 33–50% at 40k ticks), and its prey grouped within 20–30k ticks
+  (prey clump 1.34–2.08 at 30–40k). Populations evolved under vigilance (seeds
+  404 and 406) also held 4 of 4 and grouped from the start, but at 22–32% meat
+  and without a meat-gut cluster, so seed 42 stays the evolved start.
+
+## Worlds without predators are dwarf worlds (2026-09-26)
+
+Across the 40 worlds run on the current engine (seeds 401–412 twice, 501–508,
+601–608), 16 ended with mean body size at the size gene's floor (0.30–0.32),
+and those are the worlds without predation. In each, killing started (100–600
+kills per 1000 ticks early on) and stopped within a few thousand ticks of the
+body size reaching the floor, at 80–160k ticks. Among equal dwarves a kill takes
+~12 strikes and is worth a small corpse; where predation holds, it holds body
+size at 0.6–0.8. The race to small bodies is what the low fixed cost (`upFixed`
+0.003) allows. Big predators injected into a dwarf world still take it over
+(`reinvade.js`), so the trap is the missing path, not the physics.
+
+Over 1M ticks (`results/v1-AC-1M-vigil`, current engine, seeds 701–710) the
+dwarf lawn is where most worlds end: 7 of 10 had mean size 0.30 and meat ~4% by
+1M ticks, against 5 of 10 on the older engine (`v1-Z-small-1M`), and none came
+back. Predation lasted 100k–700k ticks before the fall. The trap is absorbing.
+`browse` (plants taller than an animal's reach keep a canopy it cannot crop;
+off by default) is being tested against it. Local, 400k ticks, seeds 401–412
+(browse 1: 401–408), against the same seeds without it:
+
+| | none | `browse` 1 | `browse` 2 |
+|---|---|---|---|
+| predator-dominated | 8 of 12 | 4 of 8 | 8 of 12 |
+| worlds with a carnivore cluster | 3 of 12 | 3 of 8 | **8 of 12** |
+| dwarf worlds (size ≤ 0.35) | 3 | 2 | 0 |
+| giant worlds (size ≥ 5, 100–350 animals) | 0 | 0 | 4 |
+| plant stature at the end | 0.03–0.38 | | 0.3–0.98 |
+
+Height turns carnivore specialisation from rare to common, and trees grow
+tall. But at `browse` 2 the dwarf trap becomes a giant one: giants sit at mass
+8–10, what it takes to reach the tallest plants (height 2 = reach of mass 8).
+`browse` 1.5 (tallest plants reachable at mass 3.4), same 12 seeds: 6 of 12
+predator-dominated, carnivore clusters in 2, and 5 peaceful worlds of mid-sized
+grazers (size 1.9–3.3) too big for their predators. Not monotone in height.
+At 1M ticks (`results/v1-AD-1M-browse2`, `-browse4`, seeds 701–710, against
+`v1-AC-1M-vigil`), predation (meat > 15%) was alive at 800k–1M in 4 of 10
+worlds at browse 2 and 4–6 of 10 at browse 4, against 2–3 of 10 without. But 6–7
+of 10 ended as giants (mean size 5–8 at 2, ~11 at 4, 160–380 animals). With or
+without height, body size runs to a bound.
+
+A likely reason: growth is `growRate` x mass, so every body size matures in
+the same ~170 ticks, while lifespan grows as mass^0.25. Giants get long lives
+and quick maturity for free. `growExp` 0.75 (growth like metabolism, time to
+maturity rising as mass^0.25) made it worse: seeds 401–408 without browse,
+dwarf worlds 3–4 against 1 and predator worlds 4 against 5; with browse 2,
+giant worlds 5 against 2. Maturation time is not what drives the runaway;
+more likely only giants reach a tall canopy, and their bulk keeps predators
+off. `growExp` stays 1.
+
+`browse` 2 is now the default: over the first 400k ticks it turns carnivore
+specialists from rare to common and removes dwarf worlds, at the price of
+giant ones; at 1M ticks predation lasts in more worlds (4 against 2–3 of 10).
+The seed-42 evolved start holds 4 of 4 under it (meat 34–43% at 10–40k).
+
+`upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
+predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds
+(mean size 7–10, ~200 animals). Body size has two traps, dwarf and giant, and
+predation lives between them. The fixed cost stays at 0.003.
 
 ## Species in sexual worlds are reproductively isolated (2026-09-26)
 
@@ -350,7 +413,8 @@ generations). In the older engine that took 85–200 generations.
    every grazer too. Batches from random (`results/v1-AB-base` against
    `v1-AB-gut2`, 10 seeds each): 5 of 10 predator-dominated either way, prey
    clump 0.67–1.17 against 0.81–1.00. `v1-AB-gut1slow` (`gutDig` 0.08) is the
-   slow end. Vigilance, not a stomach, is what made groups pay (above).
+   slow end: there predation fell (regime above 30% in 1 of 10 worlds). The
+   stomach stays off. Vigilance, not a stomach, is what made groups pay (above).
 2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
    each). A cluster living mostly on meat was present in the last 10 samples of
    4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility

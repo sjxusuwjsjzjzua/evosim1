@@ -12,9 +12,9 @@ what a bite does).
 What evolves, without being written in:
 
 - **grazing**, in every world, within a few dozen generations;
-- **scavenging and predation**. In about 8 of 10 worlds killing becomes the main
+- **scavenging and predation**. In about 6 of 10 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
-  typically 16–29%;
+  typically 20–30%;
 - **carnivore species**. In about 3 of 10 worlds a lineage's gut shifts toward
   flesh (diet gene 0.45–1.0, 75–100% of its energy from meat) and lives
   alongside herbivore species. The predators are big, armed cruisers that strike
@@ -26,6 +26,8 @@ What evolves, without being written in:
   there are predators prey end up in groups, bolt when their neighbours bolt,
   and in some worlds steer toward each other;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
+- **trees and browsers**: plants grow tall enough to keep their leaves out of
+  a small grazer's reach, and bodies grow to reach them.
 
 Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved
