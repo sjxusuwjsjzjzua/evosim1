@@ -414,6 +414,17 @@ carnivore clusters in 9, one giant world.
 clump 0.70–1.09, no gain over 0.7. The grouping vigilance gave under
 full-height plants (1.17) has not carried over to growing plants.
 
+`cover` 2 (animals among taller plants are hard to see; local): 10 of 12
+predator-dominated, carnivore clusters 7, prey clump 0.69–1.11 (mean 0.93, as
+without). No grouping gain.
+
+**Herding under growing plants is the main open question.** Tried and null:
+stronger head-down (0.9), handling time after a kill (20, 60), strike
+recovery and look-alike confusion (two settings), cover. Prey clump stays at
+0.9–1.0 with predators present. The next honest step is a hand-built herder
+diagnostic under the current physics (rule 5): if grouping does not pay even
+when built in, no amount of evolution will find it.
+
 Handling time does not make groups pay: surplus killing inside a group is not
 what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
