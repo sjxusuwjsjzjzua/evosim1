@@ -138,7 +138,25 @@ This population was the page's "evolved start" until 2026-09-25. Under the
 current defaults (`dietCurve` 2, small world) it established predation in only 2
 of 4 test worlds, so it was replaced (next section).
 
-## The evolved start (2026-09-25)
+## The evolved start (2026-09-26): `v1-AU-c1` seed 1006
+
+Current build (sexual, compass, 35 senses), 400k ticks from random brains.
+The source world had a carnivore species (diet gene 0.62, 75% of energy from
+meat) beside four grazer clusters, with prey streaming (`polar` 0.78).
+Candidate dumps founded into new worlds (600 founders, 60k ticks):
+
+| dump | predators held | meat, last half |
+|---|---|---|
+| s1006 | 7 of 8 | 0.27–0.36 (one at 0.11) |
+| s1006, quantised as the page stores it | 4 of 4 | 0.24–0.30 |
+| s1001 | 2 of 4 | |
+| s1020 | 1 of 4 | |
+
+Founded worlds stream from the start (`polar` 0.66–0.82). The meat-eaters are
+big (size 8.4), armoured (0.45) and fast. The grazers are tiny (0.32), never
+strike, and turn away from other animals.
+
+## The evolved start before that (2026-09-25)
 
 Four small worlds on the current defaults, 300k ticks each, with genome dumps
 (`run.js --dump`). Three became predator-dominated (regime 72–98%). Each dump
