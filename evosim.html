@@ -1316,6 +1316,11 @@ function drawAnimalsAt(offX, offY, near){
     else if (colourMode === 1) ctx.fillStyle = 'rgb(' + (60 + 195*G[g+9]|0) + ',' + (60 + 195*G[g+10]|0) + ',' + (60 + 195*G[g+11]|0) + ')';
     else ctx.fillStyle = ACT_COL[S.act[i]];
     ctx.beginPath(); ctx.arc(q[0], q[1], rad, 0, 6.2832); ctx.fill();
+    var cl = S.call[i];
+    if (cl > 0.3){   // calling: a ring that grows with loudness
+      ctx.strokeStyle = 'rgba(111,163,196,' + ((cl - 0.3)*0.9).toFixed(2) + ')'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(q[0], q[1], rad + 2 + 8*cl*cam.z/Math.max(1, cam.z), 0, 6.2832); ctx.stroke();
+    }
     if (rad > 3){
       ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.beginPath();
       ctx.moveTo(q[0], q[1]); ctx.lineTo(q[0] + Math.cos(S.hd[i])*rad*1.6, q[1] + Math.sin(S.hd[i])*rad*1.6); ctx.stroke();
@@ -1481,6 +1486,7 @@ function buildDrawer(){
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
   h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds the clusters become true species that cannot interbreed, sometimes split by diet.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
   SLIDERS.forEach(function(s){
