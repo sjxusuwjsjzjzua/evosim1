@@ -497,6 +497,31 @@ arm (0.35–2.5 neighbours against 0.5–1.9). Cheaper biting is not what groupi
 lacks: steering toward look-alikes does not raise density enough to buy
 anything.
 
+**Dilution exists, grouping still does not pay** (2026-09-26, scratchpad
+`hazard.js`, `herd4.js`):
+- Per-tick kill hazard of a grazer by grazer neighbours within 4, with a
+  meat-eater within 10 (per 10^4 ticks; evolved start seed 3, and
+  `v1-AL-current24` s1004 dump): 0 neighbours 103 / 111, 1: 83 / 105, 2–3:
+  55 / 70, 4–7: 35 / 28. Groups of 2+ are much safer; a pair barely is. Almost
+  all exposure is at 0–1 neighbours.
+- Grazers see few others. About 1000 animals on 256 x 256 leave 1–2 in sense
+  range. Grazers eat 82–92% of ticks, so head-down blinds them most of the time.
+  A look-alike is in view on 18–22% of ticks (28–37% with `headDown` 0).
+- Strong hand-built herders (turn += w x kinDir, throttle up while fewer than 3
+  animals in view): at w 4 and 8, 6 of 6 lost and were not more grouped (1.5–2.6
+  neighbours within 6, against 1.6–2.7). They moved more and bred less.
+- With free 2.5x vision and no head-down for the herder line, vision alone
+  won 3 of 3 worlds outright: killed 1.3–1.6 against 2.5–2.6 per 1000
+  animal-ticks. Vision plus steering toward kin (w 4) lost 2 of 3, and was
+  killed more (1.9–2.1) than vision alone. With 3.6–8.7 animals in view,
+  steering toward the centre of look-alikes still left 0–1.2 neighbours
+  within 6 and cost births.
+
+So grouping fails on the cost side, not for lack of information: reaching
+and keeping a group takes movement that costs forage and breaks off fleeing,
+and a pair (the first step) buys almost nothing. Seeing further is worth a
+great deal to a grazer, alone.
+
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
 recovery and look-alike confusion (two settings), cover. Prey clump stays at
@@ -657,10 +682,13 @@ core, so local batches beat Actions for anything under ~20 worlds.
 
 1. **Giant worlds: solved** by `browseGrown` (above). Over 1M ticks every
    test world stayed predatory.
-2. **Herding.** Vigilance made grouping pay (prey clump 1.17 against 0.90 in
-   predator worlds), but active steering toward others evolved in 1 of 12
-   worlds; mostly prey bolt when neighbours bolt. Longer runs, or the sexual
-   worlds (a mate must be in range), may show more.
+2. **Herding: out of reach in this physics** (factorial and diagnostics
+   above). Energy, strike cost, chew time, meat floor and size cap all left
+   prey clumping at ~0.9. Hand-built herders lose even with free vision. Prey
+   do bolt when neighbours bolt, and some turn toward kin, but no world forms
+   lasting groups. What might change it: prey that are much denser than
+   their sense range (a smaller world per animal), or predators that cannot
+   kill again while the group is still near.
 3. **Speciation** is real in sexual worlds (0% interbreeding between a meat
    cluster and grazer clusters). With plant height, check whether browsers and
    grazers split into species too.
