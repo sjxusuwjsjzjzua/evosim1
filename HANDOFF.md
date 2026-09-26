@@ -471,6 +471,8 @@ barely matters.
 
 `chew` 1 (24 paired seeds): nothing significant (prey clumping 0.886 against
 0.900, p 0.31; meat share 0.267 against 0.272).
+`chew` 4 (24 paired seeds): nothing significant either (prey clumping 0.834
+against 0.900, p 0.54). Chewing time in both directions leaves grouping flat.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
