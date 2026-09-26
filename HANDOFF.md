@@ -530,6 +530,17 @@ and 4x the animals per area; v1-AO-cell3/cell2, 24 paired seeds, dispatched).
 Expectation: more look-alikes in view, so if the sparse world is what stops
 grouping, prey clumping rises above 0.9, most at `cellSize` 2. Predators meet
 prey more often too, so kill share may rise and predator worlds may crash more.
+Result, `cellSize` 3 (24 paired seeds): prey clumping 1.013 against 0.900 (17
+of 24 up, p 0.064), the first arm to move it. Nothing else changed (predator
+worlds 22 against 20, meat 0.289 against 0.272). Grazer brains barely changed
+on average: turn toward kin −0.06 against −0.16, 5 worlds above +0.5 against 4.
+Kin steering does not predict clumping across worlds (rank correlation 0.24,
+permutation p 0.25; 0.08 in baseline). So the mean rise may be food patchiness
+at the new scale (6 units now spans 2 cells, not 1.5). The top of the tail
+does herd, though: the three most clumped dense worlds (1.68, 1.23, 1.22)
+turn toward kin at +1.24, +0.85, +0.30. s1021 has the strongest kin
+following of all 48 worlds, with prey clumping 1.1–2.0 through the run.
+`cellSize` 2 is the dose check.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
@@ -682,11 +693,7 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-`runs/sexH` (local, seeds 2001–2008, `sex` 1, `mateDist` 0.1, current
-physics). Expectation: meat/grazer species splits in about a third of worlds,
-as before plant height. New question: do plant-eaters split by body size
-(tall browsers against small grazers) into separate species? Scored with
-`tools/isolation.py` on the dumps. Also the density arms (above) on Actions. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+`cellSize` 2 on Actions (v1-AO-cell2). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
@@ -702,7 +709,20 @@ core, so local batches beat Actions for anything under ~20 worlds.
    lasting groups. What might change it: prey that are much denser than
    their sense range (a smaller world per animal), or predators that cannot
    kill again while the group is still near.
-3. **Speciation** is real in sexual worlds (0% interbreeding between a meat
+3. **Speciation.** Sexual worlds on the current physics (`runs/sexH`, seeds
+   2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
+   now prints size and speed): a meat-eating species that cannot breed with any
+   grazer cluster (0% of cross pairs) in 7 of 8 worlds. The eighth has no
+   meat-eaters. This was about a third before plant height. Plant-eaters split
+   by body size in none. In s2007 the grazers split into two species (0–1% cross
+   pairs, by body distance alone; colour tags would allow all of them). One is
+   armed (weapon 0.17–0.25) and high-detox (0.87–0.98), with short sight (3.1–3.6)
+   and attention turned away from kin and weapons. The other is unarmed
+   (0.02–0.08), lower-detox (0.63–0.66) and sharper-eyed (5.2–5.6), and attends
+   to kin. Mean plant defence fell from 0.28 to 0.09 over the run, so what keeps
+   the high-detox species is not known. Partial isolation between grazer
+   clusters (19–25%) in s2006.
+   Earlier: speciation is real in sexual worlds (0% interbreeding between a meat
    cluster and grazer clusters). With plant height, check whether browsers and
    grazers split into species too.
 4. **Phone time.** Predators arrive in 20–130k ticks; the page runs ~200–600

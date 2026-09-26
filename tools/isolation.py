@@ -49,5 +49,6 @@ for f in args:
     print('==', f.split('/')[-1], '(%d genomes, mateDist %g)' % (len(G), md))
     for i, c in enumerate(L):
         d = sum(g[DIET] for g in c['m']) / len(c['m'])
-        print('  cluster %d: n=%d diet %.2f choosy %.2f  breed within %3.0f%%' % (i, len(c['m']), d, sum(g[CHOOSY] for g in c['m']) / len(c['m']), share(c['m'], c['m'])),
+        mean = lambda k: sum(g[k] for g in c['m']) / len(c['m'])
+        print('  cluster %d: n=%d diet %.2f size %.2f speed %.2f choosy %.2f  breed within %3.0f%%' % (i, len(c['m']), d, mean(0), mean(1), mean(CHOOSY), share(c['m'], c['m'])),
               ' '.join('x%d %3.0f%%' % (j, share(c['m'], L[j]['m'])) for j in range(len(L)) if j != i))
