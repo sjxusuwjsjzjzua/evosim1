@@ -409,7 +409,11 @@ Fresh seeds 801–812 (`v1-AH-base-rep` against `v1-AH-grown-rep`): predator-
 dominated 9 against 9, carnivore clusters 4 against 8, giant worlds 7 against 0.
 Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
 worlds against 8, with no dwarf worlds either way. Now the default. The
-evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks).
+evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks). Populations evolved under the
+current engine transplant worse (seeds 802, 805, 808 of `v1-AH-grown-rep`: 0,
+3 and 2 of 4 worlds), so seed 42 stays. Seed 808 has the clearest voice seen:
+grazers bolt on a call (+0.79) and turn away (−1.84), meat guts turn toward it
+(+0.88).
 
 Predation here needs a predator free to strike every tick: any strike
 recovery (`strikeCool`) starved predators before confusion could shape prey.
