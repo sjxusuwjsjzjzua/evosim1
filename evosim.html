@@ -26,36 +26,59 @@
     -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
   #cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
   #top{position:fixed;top:0;left:0;right:0;z-index:3;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;
-    background:rgba(10,15,19,.88);border-bottom:1px solid var(--hair);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+    background:rgba(10,15,19,.88);border-bottom:1px solid var(--hair);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px 8px}
   #top b{font-weight:600} .k{color:var(--dim);font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-right:3px}
+  .kpi{display:flex;flex-direction:column;min-width:0;line-height:1.2;cursor:pointer}
+  .kpi b{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kpi.pre b{opacity:.4}
+  #msg{grid-column:1/-1} #msg:empty{display:none}
+  @media (min-width:760px){ #top{grid-template-columns:repeat(10,auto);justify-content:start;column-gap:22px} }
+  #tip{position:fixed;left:8px;right:8px;z-index:6;display:none;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5;
+    background:#16232a;border:1px solid #2c404a;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+  #tip.on{display:block} #tip b{color:var(--leaf)}
   .leaf{color:var(--leaf)} .ember{color:var(--ember)} .sky{color:var(--sky)}
   #graph{position:fixed;left:8px;width:calc(100% - 16px);z-index:2;height:92px;border:1px solid var(--hair);border-radius:8px;
     background:rgba(10,15,19,.82)}
+  #legend{position:fixed;left:8px;right:8px;z-index:2;pointer-events:none;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;
+    font-size:10.5px;color:#a5b6bd;text-shadow:0 0 3px #000,0 0 3px #000}
+  #legend i{display:inline-block;width:9px;height:9px;border-radius:5px;margin-right:4px;vertical-align:-1px;border:1px solid rgba(0,0,0,.6)}
+  #legend .grad{width:54px;border-radius:3px}
   #bar{position:fixed;left:0;right:0;bottom:0;z-index:3;display:flex;gap:6px;align-items:center;
     padding:8px 10px calc(env(safe-area-inset-bottom) + 8px);background:rgba(10,15,19,.94);border-top:1px solid var(--hair)}
-  button{flex:1;min-height:40px;border-radius:9px;font:inherit;color:#a5b6bd;background:#121c21;border:1px solid var(--hair)}
+  button{flex:1;min-height:44px;border-radius:9px;font:inherit;color:#a5b6bd;background:#121c21;border:1px solid var(--hair)}
   button.on{color:var(--leaf);border-color:#3a5730}
   #spd{flex:1.4;accent-color:var(--leaf)}
   #card{position:fixed;left:8px;max-width:min(440px,calc(100% - 16px));z-index:4;display:none;padding:10px 12px;border-radius:10px;
-    background:var(--panel);border:1px solid var(--hair);white-space:pre-wrap;font-size:11px;line-height:1.5}
-  #card.on{display:block}
+    background:var(--panel);border:1px solid var(--hair);font-size:11.5px;line-height:1.5}
+  #card.on{display:block} #card .dim{color:var(--dim)} #card .note2{color:#e0c04a;margin-bottom:4px}
+  .genes{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-top:6px}
+  .genes div{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap} .genes span{color:#8a99a1}
+  .genes i{flex:0 0 100%;height:3px;border-radius:2px;background:#24343c} .genes u{display:block;height:100%;border-radius:2px;background:var(--sky)}
   #drawer{position:fixed;left:0;right:0;bottom:0;z-index:5;max-height:70vh;overflow-y:auto;transform:translateY(101%);visibility:hidden;
     transition:transform .2s,visibility .2s;padding:10px 12px calc(env(safe-area-inset-bottom) + 14px);border-radius:14px 14px 0 0;
     background:var(--panel);border:1px solid var(--hair)}
   #drawer.open{transform:none;visibility:visible}
+  @media (min-width:900px){ #drawer{left:auto;right:8px;width:440px;border-radius:14px} }   /* a side panel, not a wall of 1200px sliders */
+  #toast{position:fixed;left:8px;right:8px;z-index:4;display:none;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.45;
+    background:rgba(22,35,42,.95);border:1px solid #3a5730;color:var(--paper)}
+  #toast.on{display:block} #toast .k{margin-right:6px}
+  .ev{display:flex;gap:10px;margin:4px 0;font-size:11px;line-height:1.45} .ev .k{flex:0 0 64px;text-align:right;margin:0}
   .row{display:flex;align-items:center;gap:8px;margin:6px 0}
   .row label{flex:0 0 42%;color:#8a99a1;font-size:11px}
   .row input{flex:1;min-width:0;accent-color:var(--leaf)}
   input[type=range]{height:40px} .row span{flex:0 0 52px;text-align:right}
-  .note{color:var(--dim);font-size:10.5px;margin:10px 0 4px;line-height:1.5}
-  h4{font:600 9px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf);margin:14px 0 6px}
+  .note{color:#83959d;font-size:11.5px;margin:10px 0 4px;line-height:1.5}
+  h4{font:600 10px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf);margin:14px 0 6px}
 </style>
 </head>
 <body>
 <canvas id="cv"></canvas>
 <div id="top"></div>
+<div id="tip"></div>
 <canvas id="graph"></canvas>
+<div id="legend"></div>
 <div id="card"></div>
+<div id="toast"></div>
 <div id="drawer"></div>
 <div id="bar">
   <button id="bPlay">pause</button>
@@ -1272,8 +1295,11 @@ function newWorld(seed){
   Sim.init(patch);
   resumedFrom = 0; lastSaved = -1; saveFailed = false;
   running = true; $('bPlay').textContent = 'pause'; $('bPlay').classList.remove('on');
+  $('drawer').classList.remove('open'); $('bMore').textContent = 'world';   // show the new world, not the menu
   try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
   afterLoad();
+  toast(0, patch.seedGenomes ? 'founded from an evolved world: big armed meat-eaters among small grazers. Try colour: action to watch hunts.'
+                            : 'random animals are arriving and most will die. Tap a number above to see what it means, or tap an animal to follow it.');
 }
 // one tap should not throw away hours of evolution
 function discardOK(){ return Sim.S.tick < 20000 || Sim.S.n === 0 || confirm('Replace this world (tick ' + Sim.S.tick + ')?'); }
@@ -1281,14 +1307,17 @@ function afterLoad(){
   var n = Sim.CFG.gridN;
   plantCv.width = n; plantCv.height = n;
   plantImg = pctx.createImageData(n, n);
-  selId = -1; follow = false; $('card').classList.remove('on');
+  selId = -1; follow = false; $('card').classList.remove('on'); selIdx = -1; relSet = null; deathNote = null;
   resetCam();
+  resetEvents(); scanEvents(false);   // a resumed world gets its history back without a burst of toasts
 }
 function layout(){
   var top = $('top').getBoundingClientRect().bottom, bot = $('bar').getBoundingClientRect().top;
   view.x = 0; view.y = top; view.w = innerWidth; view.h = Math.max(100, bot - top);
   gcv.style.top = ''; gcv.style.bottom = (innerHeight - bot + 8) + 'px';
-  $('card').style.top = (top + 8) + 'px';
+  $('toast').style.bottom = (innerHeight - bot + 8 + gcv.offsetHeight + 4) + 'px';   // where the legend sits; the legend steps aside
+  $('legend').style.bottom = (innerHeight - bot + 8 + gcv.offsetHeight + 4) + 'px';
+  $('card').style.top = (top + 8) + 'px'; $('tip').style.top = (top + 6) + 'px';
   var dr = $('drawer'); dr.style.bottom = (innerHeight - bot) + 'px'; dr.style.maxHeight = Math.max(120, bot - top - 8) + 'px';
   return top;
 }
@@ -1332,6 +1361,9 @@ function drawPlants(){
     if (a[0] > view.w || a[1] > view.y + view.h || a[0] + sz < 0 || a[1] + sz < view.y) continue;
     ctx.imageSmoothingEnabled = cam.z*Sim.CFG.cellSize < 6;
     ctx.drawImage(plantCv, a[0], a[1], sz, sz);
+    // the world wraps round: mark its edge so a second copy on a tall or wide screen is seen to be a repeat, not more animals
+    ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+    ctx.strokeRect(Math.round(a[0]) + 0.5, Math.round(a[1]) + 0.5, sz, sz); ctx.setLineDash([]);
   }
 }
 function dietColourOf(d){
@@ -1341,7 +1373,16 @@ function dietColourOf(d){
 }
 var DIET_COL = []; for (var dc = 0; dc <= 32; dc++) DIET_COL.push(dietColourOf(dc/32));
 function dietColour(d){ return DIET_COL[Math.max(0, Math.min(32, Math.round(d*32)))]; }
-var ACT_COL = ['#8a9aa2', '#7fc24a', '#f0a040', '#ff3b30'];
+// grazing is pale, not leaf green, so a grazer stands out against the plants it eats
+var ACT_COL = ['#7d8a92', '#f2efc8', '#f0a040', '#ff3b30'];
+function legend(){
+  var h;
+  if (colourMode === 0) h = '<span>diet: plant gut <i class="grad" style="background:linear-gradient(90deg,' + dietColour(0) + ',' + dietColour(0.5) + ',' + dietColour(1) + ')"></i> meat gut</span>';
+  else if (colourMode === 1) h = '<span>kin: a heritable colour, so a shared colour means close relatives</span>';
+  else h = ['idle', 'grazing', 'eating meat', 'attacking'].map(function(a, k){ return '<span><i style="background:' + ACT_COL[k] + '"></i>' + a + '</span>'; }).join('');
+  h += '<span><i style="background:#8a3328"></i>corpse</span><span><i style="background:none;border:1.5px solid #6fa3c4;width:11px;height:11px;border-radius:6px"></i>calling</span>';
+  $('legend').innerHTML = h;
+}
 function drawAnimals(){
   var S = Sim.S, W = S.world, span = W*cam.z;
   cam.x -= W*Math.floor(cam.x/W); cam.y -= W*Math.floor(cam.y/W);
@@ -1361,7 +1402,7 @@ function drawAnimalsAt(offX, offY, near){
   for (var c = 0; c < S.cN; c++){
     var p = place(S.cx[c], S.cy[c], offX, offY, near); if (!p) continue;
     var r = Math.max(1.2, Sim.radius(S.cm[c])*cam.z);
-    ctx.fillStyle = '#5a2020'; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = '#8a3328'; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
   }
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
@@ -1371,6 +1412,7 @@ function drawAnimalsAt(offX, offY, near){
     else if (colourMode === 1) ctx.fillStyle = 'rgb(' + (60 + 195*G[g+9]|0) + ',' + (60 + 195*G[g+10]|0) + ',' + (60 + 195*G[g+11]|0) + ')';
     else ctx.fillStyle = ACT_COL[S.act[i]];
     ctx.beginPath(); ctx.arc(q[0], q[1], rad, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 0.8; ctx.stroke();   // an outline keeps a green grazer visible on green
     var cl = S.call[i];
     if (cl > 0.3){   // calling: a ring that grows with loudness
       ctx.strokeStyle = 'rgba(111,163,196,' + ((cl - 0.3)*0.9).toFixed(2) + ')'; ctx.lineWidth = 1;
@@ -1379,6 +1421,9 @@ function drawAnimalsAt(offX, offY, near){
     if (rad > 3){
       ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.beginPath();
       ctx.moveTo(q[0], q[1]); ctx.lineTo(q[0] + Math.cos(S.hd[i])*rad*1.6, q[1] + Math.sin(S.hd[i])*rad*1.6); ctx.stroke();
+    }
+    if (relSet && S.id[i] !== selId && relSet.has(S.id[i])){   // living relatives of the followed animal
+      ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(q[0], q[1], rad + 2.5, 0, 6.2832); ctx.stroke();
     }
     if (S.id[i] === selId){
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(q[0], q[1], rad + 4, 0, 6.2832); ctx.stroke();
@@ -1395,6 +1440,57 @@ function wrapScreen(wx, wy){
   if (sx < -20 || sx > view.w + 20 || sy < view.y - 20 || sy > view.y + view.h + 20) return null;
   return [sx, sy];
 }
+// ---- events: read off the log rows by the UI, never written into the engine
+var events = [], evSeen = -1, evState = null, toastTimer = 0, toastQ = [], toastBusy = false;
+function resetEvents(){ events = []; evSeen = -1; toastQ = []; nextToast(); evState = {est: false, pred: false, predGone: 0, meat: false, meatRun: 0, killRun: 0, kill: false, group: false, groupRun: 0, gen: 0, cool: 0, hist: [], firstKill: false, hunt: false, huntRun: 0, loudRun: 0, quietRun: 0, voice: ''}; }
+// one line at a time: events that land together queue up; a tap skips to the next
+function toast(t, text){ toastQ.push([t, text]); if (toastQ.length > 4) toastQ.shift(); if (!toastBusy) nextToast(); }
+function nextToast(){
+  var el = $('toast'); clearTimeout(toastTimer);
+  if (!toastQ.length){ toastBusy = false; el.classList.remove('on'); $('legend').style.visibility = ''; return; }
+  var m = toastQ.shift(); toastBusy = true;
+  el.innerHTML = '<span class="k">t ' + m[0] + '</span>' + m[1]; el.classList.add('on'); $('legend').style.visibility = 'hidden';
+  toastTimer = setTimeout(nextToast, toastQ.length ? 3000 : 5000);
+}
+$('toast').addEventListener('pointerdown', nextToast);
+function addEvent(t, text, live){ events.push({t: t, text: text}); if (events.length > 80) events.shift(); if (live) toast(t, text); }
+function scanEvents(live){
+  var L = Sim.S.log, st = evState;
+  for (var i = 0; i < L.length; i++){
+    var r = L[i]; if (r.t <= evSeen) continue; evSeen = r.t;
+    if (!st.est && r.establishedAt && r.t >= r.establishedAt){ st.est = true; if (!Sim.CFG.seedGenomes) addEvent(r.establishedAt, 'a population has taken hold. No more random arrivals: from here on every animal is a descendant.', live); }
+    if (!st.est) continue;   // before that, deaths and meat are random founders
+    var carn = null;
+    (r.species || []).forEach(function(c){ if (c.meat >= 0.5 && c.n >= 10 && (!carn || c.n > carn.n)) carn = c; });
+    // two rows in a row to announce one, ten without to call it gone, so a species near the line does not flicker
+    st.predRun = carn ? (st.predRun || 0) + 1 : 0;
+    if (carn){ st.predGone = 0; if (!st.pred && st.predRun >= 2){ st.pred = true; addEvent(r.t, (st.predSeen ? 'meat-eaters are back: ' : 'a meat-eating species has appeared: ') + carn.n + ' animals, size ' + carn.size + ', ' + Math.round(100*carn.meat) + '% of their food is flesh.', live); st.predSeen = true; } }
+    else if (st.pred && ++st.predGone >= 10){ st.pred = false; addEvent(r.t, 'the meat-eating species has died out or gone back to plants.', live); }
+    st.meatRun = r.meatShare >= 0.15 ? st.meatRun + 1 : 0;
+    if (!st.meat && st.meatRun >= 4){ st.meat = true; addEvent(r.t, 'meat is now ' + Math.round(100*r.meatShare) + '% of everything animals eat.', live); }
+    if (st.meat && r.meatShare < 0.05) st.meat = false;
+    if (!st.firstKill && r.kills > 0){ st.firstKill = true; addEvent(r.t, 'the first kill since the population took hold: an animal struck another dead and the body became food.', live); }
+    st.huntRun = r.killShare > 0.5*r.meatShare && r.meatShare > 0.05 ? st.huntRun + 1 : 0;
+    if (!st.hunt && st.huntRun >= 4){ st.hunt = true; addEvent(r.t, 'hunting now beats scavenging: most meat eaten comes from fresh kills, not found bodies.', live); }
+    if (st.hunt && r.killShare < 0.3*r.meatShare) st.hunt = false;
+    // random brains call at about half loudness; well above or below that is selection at work
+    st.loudRun = r.call >= 0.7 ? st.loudRun + 1 : 0; st.quietRun = r.call <= 0.2 ? st.quietRun + 1 : 0;
+    if (st.voice !== 'loud' && st.loudRun >= 4){ st.voice = 'loud'; addEvent(r.t, 'the world has got loud: animals call at ' + Math.round(100*r.call) + '% on average, and calling costs energy. Look for blue rings.', live); }
+    if (st.voice !== 'quiet' && st.quietRun >= 4){ st.voice = 'quiet'; addEvent(r.t, 'the world has gone quiet: calling costs energy, and the average animal now calls at ' + Math.round(100*r.call) + '%.', live); }
+    if (st.voice && r.call > 0.35 && r.call < 0.55) st.voice = '';
+    st.killRun = r.dKill > r.dStarve + r.dAge ? st.killRun + 1 : 0;
+    if (!st.kill && st.killRun >= 4){ st.kill = true; addEvent(r.t, 'being killed is now the commonest way to die.', live); }
+    if (st.kill && r.dKill < 0.5*(r.dStarve + r.dAge)) st.kill = false;
+    st.groupRun = r.clumpPrey >= 1.5 && r.predators > 0 ? st.groupRun + 1 : 0;
+    if (!st.group && st.groupRun >= 6){ st.group = true; addEvent(r.t, 'with predators about, plant-eaters are keeping together: ' + r.clumpPrey.toFixed(1) + '× the neighbours of a random scatter.', live); }
+    if (st.group && r.clumpPrey < 1.1) st.group = false;
+    st.hist.push(r.animals); if (st.hist.length > 20) st.hist.shift();   // a crash needs 10 rows of history: not the founders settling
+    var mx = Math.max.apply(null, st.hist);
+    if (st.cool > 0) st.cool--;
+    else if (st.hist.length >= 10 && mx >= 100 && r.animals < 0.55*mx){ st.cool = 20; addEvent(r.t, 'population crash: ' + mx + ' → ' + r.animals + ' animals.', live); }
+    [50, 100, 200, 500, 1000].forEach(function(m){ if (st.gen < m && r.meanGen >= m){ st.gen = m; addEvent(r.t, 'generation ' + m + ' on average since the founders.', live); } });
+  }
+}
 function drawGraph(){
   var L = Sim.S.log, w = gcv.width, h = gcv.height;
   gctx.clearRect(0, 0, w, h);
@@ -1405,7 +1501,7 @@ function drawGraph(){
   function line(col, f){
     gctx.strokeStyle = col; gctx.lineWidth = 1.5*DPR; gctx.beginPath();
     for (var i = 0; i < n; i++){
-      var x = i/(n-1)*w, y = h - 4*DPR - f(L[s+i])*(h - 8*DPR);
+      var x = i/(n-1)*w, y = h - 4*DPR - f(L[s+i])*(h - 22*DPR);   // the top 18px hold the labels
       if (i) gctx.lineTo(x, y); else gctx.moveTo(x, y);
     }
     gctx.stroke();
@@ -1414,32 +1510,79 @@ function drawGraph(){
   line('#6fa3c4', function(r){ return r.animals/maxA; });
   line('#e0704a', function(r){ return r.meatShare; });
   var maxK = 1; for (var j = s; j < L.length; j++) maxK = Math.max(maxK, L[j].kills);
-  line('#b04040', function(r){ return r.kills/maxK; });
-  var lab = [['plants', '#7fc24a'], ['animals ' + maxA, '#6fa3c4'], ['meat share', '#e0704a'], ['kills', '#b04040']], x = 6*DPR;
-  gctx.font = (9*DPR) + 'px ui-monospace,monospace';
-  lab.forEach(function(l){ gctx.fillStyle = l[1]; gctx.fillText(l[0], x, 11*DPR); x += gctx.measureText(l[0]).width + 10*DPR; });
+  line('#c77dff', function(r){ return r.kills/maxK; });   // violet: the old dark red read as a second meat line
+  var t0 = L[s].t, t1 = L[L.length-1].t;
+  gctx.strokeStyle = 'rgba(255,255,255,.35)'; gctx.lineWidth = DPR; gctx.setLineDash([2*DPR, 3*DPR]);
+  events.forEach(function(e){
+    if (e.t < t0 || e.t > t1 || t1 === t0) return;
+    var ex = (e.t - t0)/(t1 - t0)*w; gctx.beginPath(); gctx.moveTo(ex, 14*DPR); gctx.lineTo(ex, h); gctx.stroke();
+  });
+  gctx.setLineDash([]);
+  // labels carry the current value; the x axis is the last n rows of 500 ticks
+  var R = L[L.length-1], span = R.t - L[s].t, x = 6*DPR;
+  var lab = [['plants', '#7fc24a'], ['animals ' + R.animals, '#6fa3c4'], ['meat ' + Math.round(100*R.meatShare) + '%', '#e0704a'], ['kills ' + R.kills, '#c77dff']];
+  gctx.font = (10*DPR) + 'px ui-monospace,monospace';
+  lab.forEach(function(l){ gctx.fillStyle = l[1]; gctx.fillText(l[0], x, 12*DPR); x += gctx.measureText(l[0]).width + 9*DPR; });
+  gctx.fillStyle = '#6a7e86'; gctx.textAlign = 'right';
+  if (h > 40*DPR) gctx.fillText('last ' + (span >= 1000 ? Math.round(span/1000) + 'k' : span) + ' ticks · tap to fold', w - 6*DPR, h - 5*DPR);
+  gctx.textAlign = 'left';
 }
+// tap the graph to fold it to its labels and give the world the room
+gcv.addEventListener('click', function(){ gcv.style.height = gcv.clientHeight > 40 ? '22px' : ''; resize(); drawGraph(); });
+// the top bar: [key, label, colour class, tap text]
+var KPIS = [
+  ['t', 't', '', 'Ticks simulated. In one tick every animal senses, decides and moves once, and every plant grows. An animal lives about 6000 ticks at size 1, longer if bigger.'],
+  ['animals', 'animals', 'sky', 'Animals alive now.'],
+  ['plants', 'plants', 'leaf', 'All plant biomass on the grid. It drops when grazers boom and comes back when something thins them.'],
+  ['meat', 'meat', 'ember', 'Of all the food animals ate in the last 500 ticks, the share that was flesh: corpses scavenged or prey killed. While random founders are still arriving it is mostly the dead being eaten.'],
+  ['kills', 'kills', 'ember', 'Animals killed by another animal in the last 500 ticks (not a running total).'],
+  ['predators', 'predators', 'ember', 'Adults that got more than half of all their lifetime food from meat.'],
+  ['species', 'species', '', 'Clusters of animals with a similar heritable colour and gut, each over 2% of the population. Measured, not declared: world lists them.'],
+  ['groups', 'groups', 'sky', 'How many neighbours a plant-eater has, compared with a random scatter. 1.0× is random; above it they are in groups. An animal eating has its eyes on the food, so near predators a crowd is safer.'],
+  ['diet', 'diet', '', 'The average diet gene: 0 is a pure plant gut, 1 a pure meat gut. It is an average over everyone, so a small meat-eating species barely moves it. world shows each species.'],
+  ['gen', 'gen', '', 'Average generations since the random founders. Meat-eating species usually take one to three hundred.']
+];
+var tipTimer = 0;
+function showTip(html){ var t = $('tip'); t.innerHTML = html; t.classList.add('on'); clearTimeout(tipTimer); tipTimer = setTimeout(function(){ t.classList.remove('on'); }, 8000); }
+(function(){
+  var h = '';
+  KPIS.forEach(function(k){ h += '<span class="kpi" data-k="' + k[0] + '"><span class="k">' + k[1] + '</span><b class="' + k[2] + '" id="kv_' + k[0] + '">-</b></span>'; });
+  $('top').innerHTML = h + '<span id="msg"></span>';
+  $('top').addEventListener('pointerdown', function(e){
+    var el = e.target.closest ? e.target.closest('[data-k]') : null; if (!el) return;
+    KPIS.forEach(function(k){ if (k[0] === el.getAttribute('data-k')) showTip('<b>' + k[1] + '</b> · ' + k[3]); });
+  });
+  $('tip').addEventListener('pointerdown', function(){ this.classList.remove('on'); });
+})();
 function hud(){
   var S = Sim.S, L = S.log[S.log.length-1] || {};
-  var g = L.genes || {};
-  $('top').innerHTML =
-    '<span><span class="k">t</span><b>' + S.tick + '</b></span>' +
-    '<span><span class="k">animals</span><b class="sky">' + S.n + '</b></span>' +
-    '<span><span class="k">plants</span><b class="leaf">' + (L.plantMass|0) + '</b></span>' +
-    '<span><span class="k">meat</span><b class="ember">' + ((L.meatShare||0)*100).toFixed(1) + '%</b></span>' +
-    '<span><span class="k">kills</span><b class="ember">' + (L.kills||0) + '</b></span>' +
-    '<span><span class="k">predators</span><b class="ember">' + (L.predators||0) + '</b></span>' +
-    '<span><span class="k">species</span><b>' + ((L.species||[]).length) + '</b></span>' +
-    '<span><span class="k">groups</span><b class="sky">' + (L.clumpPrey != null ? L.clumpPrey.toFixed(1) + '×' : '-') + '</b></span>' +
-    '<span><span class="k">diet</span><b>' + (g.diet != null ? g.diet.toFixed(2) : '-') + '</b></span>' +
-    '<span><span class="k">gen</span><b>' + (L.meanGen||0) + '</b></span>' +
+  var g = L.genes || {}, v = {
+    t: S.tick, animals: S.n, plants: L.plantMass|0, meat: ((L.meatShare||0)*100).toFixed(1) + '%', kills: L.kills||0,
+    predators: L.predators||0, species: (L.species||[]).length, groups: L.clumpPrey != null ? L.clumpPrey.toFixed(1) + '×' : '-',
+    diet: g.diet != null ? g.diet.toFixed(2) : '-', gen: L.meanGen||0};
+  KPIS.forEach(function(k, n){
+    var el = $('kv_' + k[0]), s = String(v[k[0]]);
+    if (el.textContent !== s) el.textContent = s;
+    // during bootstrap the ecology numbers are random founders dying and being eaten: grey them out
+    el.parentNode.classList.toggle('pre', !S.established && n >= 3);
+  });
+  var msg =
     (S.n === 0 && S.tick > 0 && (S.established || S.tick > Sim.CFG.reseedUntil) ? '<span class="k" style="color:#e0704a">extinct · world → new world or evolved start</span>' : '') +
     (saveFailed ? '<span class="k" style="color:#e0c04a">world too big to save in this browser</span>' : '') +
     (resumedFrom && S.tick >= resumedFrom && S.tick - resumedFrom < 3000 ? '<span class="k" style="color:#6fa3c4">resumed your saved world</span>' : '') +
-    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random genomes arriving' +
+    (S.established ? '' : '<span class="k" style="color:#e0c04a">bootstrapping: random animals keep arriving until some can live here' +
       (EVOLVED && !patch.seedGenomes ? ' · world → evolved start skips ahead to predators and prey' : '') + '</span>');
+  if ($('msg').innerHTML !== msg) $('msg').innerHTML = msg;
   var tb = $('top').getBoundingClientRect().bottom;
   if (tb !== lastTop){ lastTop = tb; layout(); }
+  scanEvents(true);
+  var ev = $('events');
+  if (ev && $('drawer').classList.contains('open')){
+    var eh = '';
+    for (var e = events.length - 1; e >= 0; e--) eh += '<div class="ev"><span class="k">t ' + events[e].t + '</span><span>' + events[e].text + '</span></div>';
+    eh = eh || '<p class="note">nothing yet. Meat-eating species, kills, crashes and herds get noted here when they happen.</p>';
+    if (ev.innerHTML !== eh) ev.innerHTML = eh;
+  }
   var sp = $('species');
   if (sp && $('drawer').classList.contains('open')){
     var h = '';
@@ -1457,17 +1600,67 @@ function findSel(){
   for (var i = 0; i < S.hi; i++) if (S.alive[i] && S.id[i] === selId) return i;
   return -1;
 }
+// ---- following: the UI watches the followed animal after every step, so it can say how it died
+// and carry on with its killer or its nearest relative (same colour tag and gut, the rule the species list uses)
+var selIdx = -1, lastSeen = null, deathNote = null, relSet = null;
+function remember(i){
+  var S = Sim.S, G = S.genome, g = i*Sim.NG;
+  lastSeen = {x: S.x[i], y: S.y[i], m: S.mass[i], old: S.age[i] > 0.9*S.maxAge[i], hungry: S.E[i] < 0.1*Sim.CFG.eCap*S.mass[i],
+              c: [G[g+9], G[g+10], G[g+11], G[g+3]]};
+}
+function kinDist2(i, c){ var G = Sim.S.genome, g = i*Sim.NG, a = G[g+9]-c[0], b = G[g+10]-c[1], d = G[g+11]-c[2], e = G[g+3]-c[3]; return a*a + b*b + d*d + e*e; }
+function watchSel(){
+  var S = Sim.S;
+  if (S.alive[selIdx] && S.id[selIdx] === selId){ remember(selIdx); return; }
+  selIdx = -1;
+  if (!lastSeen) return;
+  var ls = lastSeen, W = S.world, killer = 0, next = -1, bd = 1e18, why;
+  for (var c = 0; c < S.cN; c++){
+    var dx = S.cx[c] - ls.x, dy = S.cy[c] - ls.y; dx -= W*Math.round(dx/W); dy -= W*Math.round(dy/W);
+    if (dx*dx + dy*dy < 9 && Math.abs(S.cm[c] - ls.m) < 0.05*ls.m + 0.01){ killer = S.cKiller[c]; break; }
+  }
+  why = killer ? 'was killed by #' + killer : ls.old ? 'died of old age' : ls.hungry ? 'starved' : 'died';
+  for (var i = 0; i < S.hi; i++){
+    if (!S.alive[i]) continue;
+    if (killer && S.id[i] === killer){ next = i; break; }
+    if (kinDist2(i, ls.c) < 0.0225){
+      var ex = S.x[i] - ls.x, ey = S.y[i] - ls.y; ex -= W*Math.round(ex/W); ey -= W*Math.round(ey/W);
+      if (ex*ex + ey*ey < bd){ bd = ex*ex + ey*ey; next = i; }
+    }
+  }
+  var who = '#' + selId + ' ' + why;
+  if (next >= 0){
+    deathNote = {text: who + '. Now following ' + (S.id[next] === killer ? 'its killer' : 'its nearest relative') + ', #' + S.id[next] + '.', until: performance.now() + 5000};
+    selId = S.id[next]; selIdx = next; remember(next);
+  } else {
+    deathNote = {text: who + ', and no relative is left.', until: performance.now() + 4000};
+    selId = -1; follow = false; relSet = null;
+    setTimeout(function(){ if (selId < 0) $('card').classList.remove('on'); }, 4000);
+    $('card').innerHTML = '<div class="note2">' + deathNote.text + '</div>';
+  }
+}
+var GENE_NAMES = {0: 'size', 1: 'top speed', 2: 'eyesight', 3: 'gut: plant→meat', 4: 'weapon', 5: 'armour', 6: 'detox', 7: 'breeds at energy', 8: 'energy per child', 12: 'birth size'};
 function card(){
-  var i = findSel(), el = $('card');
-  if (i < 0){ if (selId >= 0){ el.textContent = 'it died'; selId = -2; setTimeout(function(){ if (selId === -2){ el.classList.remove('on'); selId = -1; } }, 2500); } return; }
-  var S = Sim.S, G = S.genome, g = i*Sim.NG, B = Sim.BODY, t = '';
-  var tot = S.lP[i] + S.lM[i];
-  t += 'animal #' + S.id[i] + '  gen ' + S.gen[i] + '  age ' + (S.age[i]|0) + '\n';
-  t += 'mass ' + S.mass[i].toFixed(2) + '  energy ' + (S.E[i]/(Sim.CFG.eCap*S.mass[i])*100).toFixed(0) + '%  kills ' + S.kills[i] + '\n';
-  t += 'lifetime diet: ' + (tot > 0 ? (100*S.lM[i]/tot).toFixed(0) + '% meat' : 'nothing yet') + '\n';
-  t += 'doing: ' + ['nothing', 'grazing', 'eating meat', 'attacking'][S.act[i]] + '\n';
-  [0,1,2,3,4,5,6,7,8,12].forEach(function(k, n){ t += B[k][0] + ' ' + G[g+k].toFixed(2) + (n % 3 === 2 ? '\n' : '   '); });
-  el.textContent = t;
+  var el = $('card');
+  if (selId < 0) return;
+  var S = Sim.S, i = selIdx >= 0 && S.alive[selIdx] && S.id[selIdx] === selId ? selIdx : findSel();
+  if (i < 0) return;
+  var G = S.genome, g = i*Sim.NG, B = Sim.BODY, h = '';
+  var tot = S.lP[i] + S.lM[i], c = [G[g+9], G[g+10], G[g+11], G[g+3]];
+  relSet = new Set();
+  for (var j = 0; j < S.hi; j++) if (S.alive[j] && kinDist2(j, c) < 0.0225) relSet.add(S.id[j]);
+  if (deathNote && performance.now() < deathNote.until) h += '<div class="note2">' + deathNote.text + '</div>';
+  h += '<div><b>#' + S.id[i] + '</b> <span class="dim">gen</span> ' + S.gen[i] + ' <span class="dim">age</span> ' + (S.age[i]|0) + '/' + (S.maxAge[i]|0) +
+       ' <span class="dim">kills</span> ' + S.kills[i] + '</div>';
+  h += '<div>' + ['idle', 'grazing', 'eating meat', 'attacking'][S.act[i]] + ' · energy ' + (S.E[i]/(Sim.CFG.eCap*S.mass[i])*100).toFixed(0) + '% · ' +
+       (tot > 0 ? (100*S.lM[i]/tot).toFixed(0) + '% of its food was meat' : 'has not eaten yet') + '</div>';
+  h += '<div class="genes">';
+  [0,1,2,3,4,5,6,7,8,12].forEach(function(k){
+    var v = G[g+k], f = Math.max(0, Math.min(1, (v - B[k][1])/(B[k][2] - B[k][1])));
+    h += '<div><span>' + GENE_NAMES[k] + '</span>' + v.toFixed(2) + '<i><u style="width:' + (100*f).toFixed(0) + '%' + (k === 3 ? ';background:' + dietColour(v) : '') + '"></u></i></div>';
+  });
+  h += '</div><div class="dim" style="margin-top:6px">' + (relSet.size - 1) + ' close relatives alive (white rings) · tap open ground to let go</div>';
+  el.innerHTML = h;
 }
 
 // ---- input: drag pans, pinch/wheel zooms, tap selects
@@ -1513,14 +1706,14 @@ function tap(sx, sy){
     var d = dx*dx + dy*dy;
     if (d < bd){ bd = d; best = i; }
   }
-  if (best >= 0 && Math.sqrt(bd)*cam.z < 30){ selId = S.id[best]; follow = true; $('card').classList.add('on'); card(); }
-  else { selId = -1; follow = false; $('card').classList.remove('on'); }
+  if (best >= 0 && Math.sqrt(bd)*cam.z < 30){ selId = S.id[best]; selIdx = best; deathNote = null; remember(best); follow = true; $('card').classList.add('on'); card(); }
+  else { selId = -1; selIdx = -1; relSet = null; follow = false; $('card').classList.remove('on'); }
 }
 
 // ---- controls
 $('bPlay').onclick = function(){ running = !running; this.textContent = running ? 'pause' : 'play'; this.classList.toggle('on', !running); };
 $('spd').oninput = function(){ speedIdx = +this.value; };
-$('bCol').onclick = function(){ colourMode = (colourMode + 1) % 3; this.textContent = COLOUR_NAMES[colourMode]; };
+$('bCol').onclick = function(){ colourMode = (colourMode + 1) % 3; this.textContent = COLOUR_NAMES[colourMode]; legend(); };
 $('bMore').onclick = function(){ var o = $('drawer').classList.toggle('open'); this.textContent = o ? 'close' : 'world'; };
 var SLIDERS = [
   ['eMeat', 'meat energy', 1, 12, 0.5], ['ePlant', 'plant energy', 0.3, 3, 0.1], ['graze', 'graze rate', 0.03, 0.3, 0.01],
@@ -1528,7 +1721,7 @@ var SLIDERS = [
   ['dmg', 'bite damage', 0.05, 1, 0.05], ['seasonAmp', 'seasons', 0, 0.8, 0.05], ['mutP', 'mutation rate', 0.01, 0.2, 0.01]
 ];
 function buildDrawer(){
-  var d = $('drawer'), h = '<h4>physics — live</h4>';
+  var d = $('drawer'), h = '<h4>what happened</h4><div id="events"></div><h4>physics — live</h4>';
   SLIDERS.forEach(function(s){
     h += '<div class="row"><label>' + s[1] + '</label><input type="range" id="s_' + s[0] + '" min="' + s[2] + '" max="' + s[3] +
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
@@ -1541,6 +1734,7 @@ function buildDrawer(){
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
   h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds the clusters become true species that cannot interbreed, sometimes split by diet.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
+  h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
@@ -1578,11 +1772,13 @@ function frame(ts){
     var budget = performance.now() + 30, n = SPEEDS[speedIdx];
     for (var k = 0; k < n && performance.now() < budget; k++){
       Sim.step();
+      if (selIdx >= 0) watchSel();
       if (Sim.S.n === 0 && (Sim.S.established || Sim.S.tick > Sim.CFG.reseedUntil)){ running = false; $('bPlay').textContent = 'play'; $('bPlay').classList.add('on'); break; }
     }
     if (Sim.S.log.length > 6000) Sim.S.log.splice(0, 1000);   // ~3M ticks of rows; the graph shows the last 400
   }
-  if (follow && selId >= 0){ var fi = findSel(); if (fi >= 0){ cam.x = Sim.S.x[fi]; cam.y = Sim.S.y[fi]; } }
+  if (selId >= 0 && (selIdx < 0 || Sim.S.id[selIdx] !== selId)) selIdx = findSel();
+  if (follow && selIdx >= 0){ cam.x = Sim.S.x[selIdx]; cam.y = Sim.S.y[selIdx]; }
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = '#0b1014'; ctx.fillRect(0, 0, innerWidth, innerHeight);
   drawPlants(); drawAnimals();
@@ -1611,7 +1807,7 @@ setInterval(saveWorld, 60000);
 window.evosim = { save: saveWorld, get resumedFrom(){ return resumedFrom; } };   // for tests and the console
 document.addEventListener('visibilitychange', function(){ if (document.hidden) saveWorld(); });
 if (!resumeWorld()) newWorld((Math.random()*1e9)|0);
-buildDrawer(); resize();
+buildDrawer(); resize(); legend();
 requestAnimationFrame(frame);
 })();
 </script>

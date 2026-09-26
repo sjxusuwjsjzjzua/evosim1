@@ -47,6 +47,15 @@ picks up where it was next time you open it. **world → new world** starts over
 - **colour** (the button labelled diet): cycles diet (green plant gut → red meat
   gut), kin (heritable colour) and action (grazing, eating meat, attacking).
 - **tap an animal** to follow it and see its genes, diet and kills.
+- **tap a number** in the top bar for what it means. A **legend** for the
+  current colour mode sits above the graph; tap the graph to fold it.
+- **what happened**: firsts and turning points (the first kill, a meat-eating
+  species appearing, prey grouping, a crash, calls getting loud) pop up as
+  they happen and are listed in the world drawer. They are read off the same
+  log the graph uses; nothing in the simulation knows about them.
+- a followed animal that dies is explained (killed by #N, old age, starved)
+  and the view moves on to its killer or a relative; its relatives get white
+  rings.
 - **drag** pans, **pinch** or the mouse wheel zooms.
 - a **blue ring** round an animal means it is calling. Every animal has a voice
   that costs energy and ears that work while it eats; what a call means, if
