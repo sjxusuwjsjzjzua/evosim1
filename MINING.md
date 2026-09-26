@@ -60,7 +60,7 @@ Classifiers, validated leave-one-batch-out (fit on all other batches, score the 
 | 40k | 68.6% / 0.74 | 65.9% / 0.69 | predFrac > 0.037: 67.2% |
 | 60k | 69.0% / 0.74 | 68.6% / 0.72 | meat > 0.19: 70.0% |
 
-The honest ceiling from ≤ 60k data is about 70% accuracy against a 58% base. At 20k the models are barely above base.
+The ceiling from ≤ 60k data is about 70% accuracy against a 58% base. At 20k the models are barely above base.
 
 Among worlds already predatory at 40k (meat > 0.15, n = 218, 63% go on to dominate), within-batch AUC:
 
