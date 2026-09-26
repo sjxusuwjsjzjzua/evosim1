@@ -252,7 +252,10 @@ engine with and without it:
   warning, die first. In s406 prey steer hard toward the crowd: herding.
 - Brain probes: `probe-crowd.js` in the session scratchpad.
 - Founded into 4 new worlds under it, the seed-42 evolved start held predation
-  in all 4 (meat 33–50% at 40k ticks).
+  in all 4 (meat 33–50% at 40k ticks), and its prey grouped within 20–30k ticks
+  (prey clump 1.34–2.08 at 30–40k). Populations evolved under vigilance (seeds
+  404 and 406) also held 4 of 4 and grouped from the start, but at 22–32% meat
+  and without a meat-gut cluster, so seed 42 stays the evolved start.
 
 ## Worlds without predators are dwarf worlds (2026-09-26)
 
@@ -265,6 +268,11 @@ body size reaching the floor, at 80–160k ticks. Among equal dwarves a kill tak
 size at 0.6–0.8. The race to small bodies is what the low fixed cost (`upFixed`
 0.003) allows. Big predators injected into a dwarf world still take it over
 (`reinvade.js`), so the trap is the missing path, not the physics.
+
+`upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
+predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds
+(mean size 7–10, ~200 animals). Body size has two traps, dwarf and giant, and
+predation lives between them. The fixed cost stays at 0.003.
 
 ## Species in sexual worlds are reproductively isolated (2026-09-26)
 
