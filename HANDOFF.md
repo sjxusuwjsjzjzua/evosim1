@@ -711,6 +711,19 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+**Migration pays, and needs a compass** (scratchpad `east.js`; evolved start
+in a wave world, `seasonAmp` 0.8, clonal; after 20k ticks half the grazers get
++2 x the heading error to east added to their turn, inherited). With the wave,
+east-steerers beat the rest in 4 of 4 worlds within 40k ticks (599 against
+210, 1227 against 0, 761 against 31, 1350 against 5), with more births per
+head. Control, the same world with a season that does not travel: 2 wins, 2
+losses (190 against 390, 0 against 361, 531 against 0, 73 against 16). Evolution
+cannot find this without a compass. An animal senses nothing about absolute
+direction, and the plants it can see (at most 10 units ahead) show no season
+gradient through the grazing noise. Local previews of the wave (4 seeds each,
+`yearTicks` 6000 and 24000) agree: prey track the band by breeding in it
+(`waveTrack` 0.13–0.38) and drift with it at only 0.03 of its speed.
+
 Travelling season (`seasonWave`, new, off by default): with `seasonAmp` > 0 the
 season's phase shifts with x, so a band of fast plant growth crosses the world
 once a year (256 units per 6000 ticks, 0.043 per tick). Logged: `waveTrack`
@@ -724,15 +737,17 @@ the last half of the run. That would take steering that tracks plant
 gradients over generations, so maybe a minority of worlds. Predator rates may
 fall under seasons (bottlenecks).
 
-Colour senses (`seeTags`, new, on by default): the attended animal's colour tag
-is now three senses (animalR/G/B, NI 33). Before, an animal sensed only how
-much another looked like itself, so a colour could not mean anything to a
-predator: no warning colours, no mimicry, no colour-based prey choice.
-`v1-AQ-tags1` against `v1-AQ-tags0` (same build, inputs read 0), 24 paired
-seeds. Expectation: predation rates unchanged. Among prey, colour predicts
-armour more with the senses on, if armoured prey gain from being recognised.
-Predators' strike urge depends on the target's colour (probe). If
-nothing differs, the senses stay as information and the switch goes.
+Colour senses (2026-09-26): the attended animal's colour tag is three senses
+(animalR/G/B, NI 33). Before, an animal sensed only how much another looked
+like itself. Tested as a switch, `v1-AQ-tags1` against `v1-AQ-tags0` (same
+build, inputs read 0), 24 paired seeds, clonal: nothing significant.
+Predator-dominated 15 against 18, meat share 0.197 against 0.240 (p 0.15).
+`tools/colour.js` finds no warning colours. How well prey colour predicts
+armour scatters the same in both arms (R2 0.00–0.60 on, 0.00–0.74 off), and
+hunters' colour sensitivity does not line up with armour in either. The
+senses are used: in s1022 hunters' strike urge depends strongly on the
+target's colour (mean effect 0.76), not in line with armour, which suggests
+telling species apart. The senses stay, the switch is gone.
 
 Sexual is now the default (result in the table at the top). The colour and
 season arms below were dispatched before the switch and run clonal; they

@@ -3,7 +3,7 @@
 //   node tools/colour.js dump.json [...]
 // prey armour R2 / weapon R2: how much of the prey's armour (weapon) their colour tags
 //   predict (least squares on the three tags). Lineages differ in both, so this is
-//   not zero without signalling; compare with a seeTags 0 control.
+//   not zero without signalling (in v1-AQ-tags0, where the colour senses read 0, R2 ran 0.00-0.74).
 // hunters' colour effect: for each hunter and each of up to 60 prey, the strike urge on
 //   contact with that prey, minus the same with the colour senses (animalR/G/B) read 0.
 //   |effect| is the mean size; r(armour) is the correlation, over prey, of the mean effect
