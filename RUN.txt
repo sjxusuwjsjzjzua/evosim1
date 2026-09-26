@@ -1,0 +1,6 @@
+label=v1-AG-size24
+seeds=401,402,403,404,405,406,407,408,409,410,411,412
+ticks=400000
+set=gridN=64,sizeMax=24
+cfg=
+sha=21c4c9ad944f4f465236894d0c40d9a057759e05
