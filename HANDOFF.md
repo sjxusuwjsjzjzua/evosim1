@@ -269,6 +269,14 @@ size at 0.6–0.8. The race to small bodies is what the low fixed cost (`upFixed
 0.003) allows. Big predators injected into a dwarf world still take it over
 (`reinvade.js`), so the trap is the missing path, not the physics.
 
+Over 1M ticks (`results/v1-AC-1M-vigil`, current engine, seeds 701–710) the
+dwarf lawn is where most worlds end: 7 of 10 had mean size 0.30 and meat ~4% by
+1M ticks, against 5 of 10 on the older engine (`v1-Z-small-1M`), and none came
+back. Predation lasted 100k–700k ticks before the fall. The trap is absorbing.
+`browse` (plants taller than an animal's reach keep a canopy it cannot crop;
+off by default) is being tested against it: `results/v1-AD-1M-browse2`,
+`-browse4`, same seeds.
+
 `upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
 predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds
 (mean size 7–10, ~200 animals). Body size has two traps, dwarf and giant, and
@@ -370,7 +378,8 @@ generations). In the older engine that took 85–200 generations.
    every grazer too. Batches from random (`results/v1-AB-base` against
    `v1-AB-gut2`, 10 seeds each): 5 of 10 predator-dominated either way, prey
    clump 0.67–1.17 against 0.81–1.00. `v1-AB-gut1slow` (`gutDig` 0.08) is the
-   slow end. Vigilance, not a stomach, is what made groups pay (above).
+   slow end: there predation fell (regime above 30% in 1 of 10 worlds). The
+   stomach stays off. Vigilance, not a stomach, is what made groups pay (above).
 2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
    each). A cluster living mostly on meat was present in the last 10 samples of
    4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility
