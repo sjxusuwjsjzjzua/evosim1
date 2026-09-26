@@ -465,6 +465,9 @@ means more killing by the same omnivores, not more specialisation.
 `meatFloor` 0.2 (24 paired seeds): nothing significant (predator-dominated
 22 against 20, carnivore clusters 15 against 12, prey clump 0.87 against
 0.90).
+`meatFloor` 0.6 (24 paired seeds): nothing significant (carnivore clusters 9
+against 12, diet 0.084 against 0.099, p 0.15). Across 0.1–0.6 the meat floor
+barely matters.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
