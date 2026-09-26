@@ -425,6 +425,16 @@ recovery and look-alike confusion (two settings), cover. Prey clump stays at
 diagnostic under the current physics (rule 5): if grouping does not pay even
 when built in, no amount of evolution will find it.
 
+**Hand-built herder diagnostic under the current physics** (`herd3.js` in the
+session scratchpad; seed-42 evolved start, half the grazers given +3 on
+turn-toward-crowd after 10k ticks, lineage inherited): herders died out in 3
+of 3 worlds within 20–30k ticks. They took 12–70% more hits per head and had
+slightly fewer births, and were not even more grouped (1.4–2.1 neighbours
+against 1.4–2.3). `crowdDir` points at every animal in view, predators
+included, so steering toward it means steering toward predators. Grouping
+does not pay in this physics even when built in; evolution cannot be expected
+to find it until something changes that.
+
 Handling time does not make groups pay: surplus killing inside a group is not
 what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |

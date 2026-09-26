@@ -1084,18 +1084,19 @@ function species(){
 }
 // neighbours within 6 against a uniform scatter: 1 = random, above 1 = in groups.
 // preyOnly: animals whose lifetime intake is mostly plants, among themselves
-function clumping(preyOnly){
+function clumping(preyOnly){   // preyOnly: 1 = animals living mostly on plants, 2 = mostly on meat
   var r = 6, r2 = r*r, tot = 0, n = 0, inv = 1/S.bSize, bN = S.bN, span = Math.ceil(r*inv), np = 0;
-  if (preyOnly){ for (var p = 0; p < S.hi; p++) if (S.alive[p] && S.lM[p] <= S.lP[p]) np++; } else np = S.n;
+  var sel = function(k){ return !preyOnly || (preyOnly === 1 ? S.lM[k] <= S.lP[k] : S.lM[k] > S.lP[k]); };
+  if (preyOnly){ for (var p = 0; p < S.hi; p++) if (S.alive[p] && sel(p)) np++; } else np = S.n;
   for (var i = 0; i < S.hi; i += 3){
-    if (!S.alive[i] || (preyOnly && S.lM[i] > S.lP[i])) continue;
+    if (!S.alive[i] || !sel(i)) continue;
     var x = S.x[i], y = S.y[i], bx0 = (x*inv)|0, by0 = (y*inv)|0; n++;
     for (var dy = -span; dy <= span; dy++){
       var by = ((by0+dy) % bN + bN) % bN;
       for (var dx = -span; dx <= span; dx++){
         var b = by*bN + ((bx0+dx) % bN + bN) % bN;
         for (var j = S.aHead[b]; j >= 0; j = S.aNext[j]){
-          if (j === i || !S.alive[j] || (preyOnly && S.lM[j] > S.lP[j])) continue;
+          if (j === i || !S.alive[j] || !sel(j)) continue;
           var ex = wrap(S.x[j]-x), ey = wrap(S.y[j]-y);
           if (ex*ex + ey*ey < r2) tot++;
         }
@@ -1131,7 +1132,7 @@ function sample(){
   }
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
-  var spc = species(), clump = clumping(false), clumpPrey = clumping(true);
+  var spc = species(), clump = clumping(false), clumpPrey = clumping(1), clumpPred = clumping(2);
   var C = S.c, eAll = C.eP + C.eC + C.eK;
   var dead = S.hist; S.hist = [];
   var dhist = new Array(10).fill(0);
@@ -1150,7 +1151,7 @@ function sample(){
     kills: C.kills, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
-    species: spc, clump: clump, clumpPrey: clumpPrey, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
+    species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   S.log.push(row);
   S.c = newCounters();
