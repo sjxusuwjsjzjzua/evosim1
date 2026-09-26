@@ -15,7 +15,7 @@ What evolves, without being written in:
 - **scavenging and predation**. In about 6 of 10 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
   typically 20–30%;
-- **carnivore species**. In about 3 of 10 worlds a lineage's gut shifts toward
+- **carnivore species**. In about 2 of 3 worlds a lineage's gut shifts toward
   flesh (diet gene 0.45–1.0, 75–100% of its energy from meat) and lives
   alongside herbivore species. The predators are big, armed cruisers that strike
   whatever they touch; the herbivores are small grazers that sit still and speed
@@ -28,6 +28,10 @@ What evolves, without being written in:
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
+
+Not every world gets there. About one world in three settles into a few
+hundred peaceful giants, big grazers that nothing can kill. Left running for
+hours, most worlds end in giants, or in dwarves on a cropped lawn.
 
 Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved
