@@ -288,8 +288,11 @@ off by default) is being tested against it. Local, 400k ticks, seeds 401–412
 Height turns carnivore specialisation from rare to common, and trees grow
 tall. But at `browse` 2 the dwarf trap becomes a giant one: giants sit at mass
 8–10, what it takes to reach the tallest plants (height 2 = reach of mass 8).
-Next: `browse` 1.5 (tallest plants reachable at mass 3.4); 1M-tick runs at 2
-and 4 on Actions (`results/v1-AD-1M-browse2`, `-browse4`).
+`browse` 1.5 (tallest plants reachable at mass 3.4), same 12 seeds: 6 of 12
+predator-dominated, carnivore clusters in 2, and 5 peaceful worlds of mid-sized
+grazers (size 1.9–3.3) too big for their predators. Not monotone in height.
+The default stays off until the 1M-tick runs (`results/v1-AD-1M-browse2`,
+`-browse4`) show whether giant worlds are as absorbing as dwarf ones.
 
 `upFixed` 0.005 (seeds 401–408, against the same seeds at 0.003): 5 of 8
 predator-dominated either way; dwarf worlds 3 against 1, and two giant worlds
