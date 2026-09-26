@@ -31,6 +31,10 @@ What evolves, without being written in:
 - **company**: meat-eaters move in loose groups; in some worlds grazers follow
   their own kind and avoid strangers. Prey rarely form tight herds: in this
   physics a group costs them more than it saves;
+- **speciation** (with sexual reproduction on): in 7 of 8 test worlds the
+  meat-eaters became a species that cannot breed with any grazer. In one, the
+  grazers split into two species of their own: armed with a strong detox
+  against unarmed with sharper eyes;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.

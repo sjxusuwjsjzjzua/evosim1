@@ -437,8 +437,8 @@ full-height plants (1.17) has not carried over to growing plants.
 predator-dominated, carnivore clusters 7, prey clump 0.69–1.11 (mean 0.93, as
 without). No grouping gain.
 
-**Why grouping does not pay: grazers bite each other** (program audit A10,
-confirmed 2026-09-26). The herder diagnostic with each hit attributed to its
+**Grazers bite each other, but that is not why grouping does not pay**
+(program audit A10; the mechanism was ruled out 2026-09-26, below). The herder diagnostic with each hit attributed to its
 attacker (kin-steering herders, seeds 3, 5, 7): 75–90% of the hits grazers
 take come from animals living mostly on plants (15–20 per 1000 animal-ticks),
 2.5–5 from meat-eaters. Plant-gutted animals strike whoever they touch, their
@@ -446,6 +446,119 @@ own kind included, because a kill pays even to a plant gut (`meatFloor` 0.4).
 A grazer that joins a group mostly gains neighbours that bite it. The paired
 factorial includes `meatFloor` 0.2, which should cut that biting; if prey
 clumping rises there, this is the mechanism.
+Dropping `meatFloor` to 0.1 in the diagnostic did not cut the biting within
+30k ticks (still 20–34 hits per 1000 from plant-eaters): the evolved strike
+urges persist; the factorial from random brains is the real test.
+From random brains over 400k ticks (`runs/floor1`, seeds 1001–1012, paired
+with `v1-AL-current24` by `tools/paired.py`): prey clump unchanged (0.929
+against 0.932), carnivore clusters 3 against 6 (p 0.25), and the grazers'
+strike urges unchanged (0.39 against 0.37 on contact). So grazers do not bite
+for the meat. Either killing a neighbour pays as interference (it frees
+forage) or the urge drifts because a strike is cheap (`atkCost` 0.004 x
+mass^0.75). A 5x strike cost is being tested (`runs/atk20`).
+`eMeat` 5 (24 paired seeds): meat share 0.22 against 0.27 (p 0.064), nothing
+else moved.
+`eMeat` 12 (24 paired seeds): meat share 0.36 against 0.27 (p 0.002);
+predator-dominated 23 against 20 and carnivore clusters 16 against 12, both
+not significant; diet gene, prey and predator clumping unchanged. Richer meat
+means more killing by the same omnivores, not more specialisation.
+`meatFloor` 0.2 (24 paired seeds): nothing significant (predator-dominated
+22 against 20, carnivore clusters 15 against 12, prey clump 0.87 against
+0.90).
+`meatFloor` 0.6 (24 paired seeds): nothing significant (carnivore clusters 9
+against 12, diet 0.084 against 0.099, p 0.15). Across 0.1–0.6 the meat floor
+barely matters.
+
+`chew` 1 (24 paired seeds): nothing significant (prey clumping 0.886 against
+0.900, p 0.31; meat share 0.267 against 0.272).
+`chew` 4 (24 paired seeds): nothing significant either (prey clumping 0.834
+against 0.900, p 0.54). Chewing time in both directions leaves grouping flat.
+
+Strike cost, `atkCost` 0.02 and 0.05 against 0.004 (v1-AN-atk20/atk50, 24 paired
+seeds, dispatched). Expectation, written before the results: grazers' strike
+urges fall (two early local worlds at 0.02: 0.01 against 0.23, 0.40 against 0.85)
+and prey clumping rises if biting between grazers is what punishes grouping.
+Kill share may fall at 0.05, because predators pay the same cost.
+Result, `atkCost` 0.02 (24 paired seeds): grazers' strike urges fell (0.28/0.32
+on contact with smaller/bigger, against 0.45/0.45) but prey clumping did not
+move (0.859 against 0.900, p 0.54), nor did anything else. Locally (`runs/atk20`,
+12 seeds) the urges did not even fall; the two early worlds were noise.
+`atkCost` 0.05, 12x (24 paired seeds): nothing significant. Grazer urges
+0.30/0.30, prey clumping 0.868 against 0.900 (p 0.15), kill share 26% against
+27%. Predation does not rest on cheap strikes.
+`size` 24 (24 paired seeds): nothing significant (carnivore clusters 7 against
+12, p 0.23; prey clumping 0.883 against 0.900).
+
+**Biting ruled out as the barrier** (herder diagnostic, `herd3.js` with `NOBITE`:
+every grazer's strike bias −20 at the split, kin-steering herders, seeds 3, 5,
+7, 30k ticks). Hits from plant-eaters fell from 14–20 to 2–5 per 1000
+animal-ticks, and herders lost in all three worlds (41 against 302, 0 against
+823, 0 against 597). With biting left on, the same herders won two of three (172
+against 28, 1092 against 21) and lost seed 5. Lineage outcomes over 30k ticks
+are mostly drift, and herders were not much more grouped than controls in any
+arm (0.35–2.5 neighbours against 0.5–1.9). Cheaper biting is not what grouping
+lacks: steering toward look-alikes does not raise density enough to buy
+anything.
+
+**Dilution exists, grouping still does not pay** (2026-09-26, scratchpad
+`hazard.js`, `herd4.js`):
+- Per-tick kill hazard of a grazer by grazer neighbours within 4, with a
+  meat-eater within 10 (per 10^4 ticks; evolved start seed 3, and
+  `v1-AL-current24` s1004 dump): 0 neighbours 103 / 111, 1: 83 / 105, 2–3:
+  55 / 70, 4–7: 35 / 28. Groups of 2+ are much safer; a pair barely is. Almost
+  all exposure is at 0–1 neighbours.
+- Grazers see few others. About 1000 animals on 256 x 256 leave 1–2 in sense
+  range. Grazers eat 82–92% of ticks, so head-down blinds them most of the time.
+  A look-alike is in view on 18–22% of ticks (28–37% with `headDown` 0).
+- Strong hand-built herders (turn += w x kinDir, throttle up while fewer than 3
+  animals in view): at w 4 and 8, 6 of 6 lost and were not more grouped (1.5–2.6
+  neighbours within 6, against 1.6–2.7). They moved more and bred less.
+- With free 2.5x vision and no head-down for the herder line, vision alone
+  won 3 of 3 worlds outright: killed 1.3–1.6 against 2.5–2.6 per 1000
+  animal-ticks. Vision plus steering toward kin (w 4) lost 2 of 3, and was
+  killed more (1.9–2.1) than vision alone. With 3.6–8.7 animals in view,
+  steering toward the centre of look-alikes still left 0–1.2 neighbours
+  within 6 and cost births.
+
+So grouping fails on the cost side, not for lack of information: reaching
+and keeping a group takes movement that costs forage and breaks off fleeing,
+and a pair (the first step) buys almost nothing. Seeing further is worth a
+great deal to a grazer, alone.
+
+**Density** (`cellSize` 3 and 2 against 4, same 64 x 64 plant cells, so 1.8x
+and 4x the animals per area; v1-AO-cell3/cell2, 24 paired seeds, dispatched).
+Expectation: more look-alikes in view, so if the sparse world is what stops
+grouping, prey clumping rises above 0.9, most at `cellSize` 2. Predators meet
+prey more often too, so kill share may rise and predator worlds may crash more.
+Result, `cellSize` 3 (24 paired seeds): prey clumping 1.013 against 0.900 (17
+of 24 up, p 0.064), the first arm to move it. Nothing else changed (predator
+worlds 22 against 20, meat 0.289 against 0.272). Grazer brains barely changed
+on average: turn toward kin −0.06 against −0.16, 5 worlds above +0.5 against 4.
+Kin steering does not predict clumping across worlds (rank correlation 0.24,
+permutation p 0.25; 0.08 in baseline). So the mean rise may be food patchiness
+at the new scale (6 units now spans 2 cells, not 1.5). The top of the tail
+does herd, though: the three most clumped dense worlds (1.68, 1.23, 1.22)
+turn toward kin at +1.24, +0.85, +0.30. s1021 has the strongest kin
+following of all 48 worlds, with prey clumping 1.1–2.0 through the run.
+Result, `cellSize` 2 (24 paired seeds; s1009 went extinct at 58k and s1015
+at 397k, none in baseline): prey clumping 1.195 against 0.903 without s1009
+(18 of 23 up, p 0.011), a dose response. Giant worlds 7 against 1 (p 0.07),
+diet gene 0.18 against 0.10 (p 0.09), predator clumping 1.29 against 1.77. But
+kin steering falls (mean −0.37, 1 world above +0.5), so the rise is not
+grazers seeking look-alikes. A mid-run knockout of the social senses (crowd,
+crowdDir, crowdSpeed, heard, heardDir, kinDir) at 200k ticks in four of these
+worlds tests whether it is behaviour at all (scratchpad `knock2.js`).
+Knockout result (seeds 1001, 1007, 1012, 1019 at `cellSize` 2; mean prey
+clumping over the 60k ticks after the cut, against the same world uncut):
+1.18 against 1.62, 1.72 against 2.07, 2.18 against 1.74, 1.96 against 2.13. Cut
+prey still clump at 1.2–2.2, far above the 0.9 of normal worlds, so most of
+the dense-world clumping is not social steering. Likely causes are food
+patches at the finer scale, or young staying where they were born, since
+a denser world holds the same food per cell in a smaller area. A social part
+exists in some worlds. The cut also cost population in three of four worlds
+(1389 → 851, 836 → 692, 909 → 559), so prey use those senses, mostly to
+flee. `cellSize` stays 4: the clumping is mostly not herding, and giant worlds
+rise.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
@@ -607,11 +720,27 @@ core, so local batches beat Actions for anything under ~20 worlds.
 
 1. **Giant worlds: solved** by `browseGrown` (above). Over 1M ticks every
    test world stayed predatory.
-2. **Herding.** Vigilance made grouping pay (prey clump 1.17 against 0.90 in
-   predator worlds), but active steering toward others evolved in 1 of 12
-   worlds; mostly prey bolt when neighbours bolt. Longer runs, or the sexual
-   worlds (a mate must be in range), may show more.
-3. **Speciation** is real in sexual worlds (0% interbreeding between a meat
+2. **Herding: out of reach in this physics** (factorial and diagnostics
+   above). Energy, strike cost, chew time, meat floor and size cap all left
+   prey clumping at ~0.9. Hand-built herders lose even with free vision. Prey
+   do bolt when neighbours bolt, and some turn toward kin, but no world forms
+   lasting groups. What might change it: prey that are much denser than
+   their sense range (a smaller world per animal), or predators that cannot
+   kill again while the group is still near.
+3. **Speciation.** Sexual worlds on the current physics (`runs/sexH`, seeds
+   2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
+   now prints size and speed): a meat-eating species that cannot breed with any
+   grazer cluster (0% of cross pairs) in 7 of 8 worlds. The eighth has no
+   meat-eaters. This was about a third before plant height. Plant-eaters split
+   by body size in none. In s2007 the grazers split into two species (0–1% cross
+   pairs, by body distance alone; colour tags would allow all of them). One is
+   armed (weapon 0.17–0.25) and high-detox (0.87–0.98), with short sight (3.1–3.6)
+   and attention turned away from kin and weapons. The other is unarmed
+   (0.02–0.08), lower-detox (0.63–0.66) and sharper-eyed (5.2–5.6), and attends
+   to kin. Mean plant defence fell from 0.28 to 0.09 over the run, so what keeps
+   the high-detox species is not known. Partial isolation between grazer
+   clusters (19–25%) in s2006.
+   Earlier: speciation is real in sexual worlds (0% interbreeding between a meat
    cluster and grazer clusters). With plant height, check whether browsers and
    grazers split into species too.
 4. **Phone time.** Predators arrive in 20–130k ticks; the page runs ~200–600
