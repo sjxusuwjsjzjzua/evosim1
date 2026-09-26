@@ -396,11 +396,13 @@ core, so local batches beat Actions for anything under ~20 worlds.
 ## Next
 
 1. **Giant worlds.** With plant height, 4 of 12 worlds (and 6–7 of 10 by 1M
-   ticks) end as giants: size 7–11, 100–350 animals, little predation. Only
-   giants reach a tall canopy, and bulk keeps predators off. A cost of height
-   for plants beyond `pStatCost`, or a benefit of small size that does not
-   exist yet (hiding, manoeuvre), are candidates. Growth time
-   (`growExp` 0.75) was tried and made it worse.
+   ticks) end as giants: size 6–11, 100–350 animals, little predation. Not a
+   canopy race: plants in the giant worlds are short (stature 0.21–0.30,
+   height ~0.6), while the predator worlds have tall plants (0.95). Scarce food
+   per animal pushes the best body size up (optimum ~ (4 upFixed / net intake
+   per mass^0.75)^(4/3)), and giants also appeared at `upFixed` 0.005 without
+   browse. Testing `upFixed` 0.002 with browse 2. Growth time (`growExp`
+   0.75) made it worse.
 2. **Herding.** Vigilance made grouping pay (prey clump 1.17 against 0.90 in
    predator worlds), but active steering toward others evolved in 1 of 12
    worlds; mostly prey bolt when neighbours bolt. Longer runs, or the sexual
