@@ -392,7 +392,11 @@ generations). In the older engine that took 85–200 generations.
   median 20k ticks). What differs is how long it lasts: exits run at ~0.2 per
   100k predator-state ticks in all three engine generations (curve 2,
   vigilance, plant height), so a predator phase lasts ~500k ticks on average.
-  Score levers by exit rate in long runs, not by onset.
+  Score levers by exit rate in long runs, not by onset (`v1score` columns
+  predK and exits). Measured that way on the 1M-tick batches (seeds 701–710),
+  plant height does lower it: 0.23 exits per 100k predator ticks without,
+  0.16 at browse 2, 0.10 at browse 4 (5.1k, 5.8k, 6.9k thousand ticks spent
+  predatory).
 - Early genes predict nothing (AUC 0.45–0.55). Concentrated meat-eating does,
   weakly: the share of adults living on meat at 40k gives ~67–70% against a
   58% base rate.
