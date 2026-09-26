@@ -398,6 +398,7 @@ carnivore clusters in 9, one giant world.
 | **`browseGrown` 1** | **12** | 6 | **0 / 0** (sizes 0.5–1.3) |
 | lunge (`strikeCool` 4, `missCool` 12, `confHit` 1) | 0 | 0 | 11 / 0 |
 | mild lunge (`strikeCool` 2, `missCool` 6, `confHit` 0.2), local | 6 | 7 | 4 / 0 (prey clump no higher) |
+| strike recovery only (`strikeCool` 3), local | 1–3 | 0 | 10 / 0 |
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
@@ -407,7 +408,11 @@ carnivore clusters in 9, one giant world.
 Fresh seeds 801–812 (`v1-AH-base-rep` against `v1-AH-grown-rep`): predator-
 dominated 9 against 9, carnivore clusters 4 against 8, giant worlds 7 against 0.
 Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
-worlds against 8, with no dwarf worlds either way. It becomes the default.
+worlds against 8, with no dwarf worlds either way. Now the default. The
+evolved start holds 4 of 4 under it (meat 34–42% at 10–40k ticks).
+
+Predation here needs a predator free to strike every tick: any strike
+recovery (`strikeCool`) starved predators before confusion could shape prey.
 
 `browseGrown` (plant height grows with the plant and does not shrink when
 grazed; seedlings are short and grazeable) removed both body-size traps at

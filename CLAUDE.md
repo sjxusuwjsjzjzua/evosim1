@@ -37,7 +37,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 
 Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell has biomass and three genes
 (stature, defence, dispersal), grows logistically, keeps an ungrazeable root
-reserve, stands 2 x stature tall (an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
+reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
 and a neural network (29 senses, 8 hidden,

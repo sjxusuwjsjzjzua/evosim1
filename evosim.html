@@ -110,9 +110,10 @@ var CFG_DEFAULT = {
   pR: 0.012,            // logistic growth rate per tick at fertility 1, no costs paid
   pKmin: 2, pKmax: 14,  // standing-crop capacity, set by the stature gene
   pStatCost: 0.55,      // share of growth rate given up at stature 1
-  browseGrown: 0,       // 1: a plant's height grows with it (browse x stature x biomass / capacity)
+  browseGrown: 1,       // 1: a plant's height grows with it (browse x stature x biomass / capacity)
                         // and does not shrink when grazed, like a trunk; a new seedling is short.
-                        // 0: every plant stands at its full height, seedlings included
+                        // 0: every plant stands at its full height, seedlings included. Over 24
+                        // worlds it removed the giant trap (0 giant worlds against 8)
   browse: 2,            // plant height per unit stature, in reach units. An animal reaches
                         // mass^(1/3) high and cannot crop the share of a cell's capacity that
                         // stands above its reach. 0 = everything is in reach. At 2, over 12
