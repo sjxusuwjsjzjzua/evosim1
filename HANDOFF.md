@@ -435,6 +435,14 @@ included, so steering toward it means steering toward predators. Grouping
 does not pay in this physics even when built in; evolution cannot be expected
 to find it until something changes that.
 
+**Predators group; prey do not** (`clumpPred`, new, local seeds 401–408 on the
+current defaults): meat-eaters sit at 1.35–2.81x a random scatter while prey
+sit at 0.77–1.14. With `packHunt` (armour turns only the first blow of a tick)
+predators form tight packs (4.1, 8.5, 14.7, 3.1x in four worlds) and prey
+spread out (0.36–1.00), but predation falls (6 of 8 predator-dominated against
+8). Whether the default grouping is cooperative hunting or predators
+converging on the same prey and carcasses is not yet known.
+
 Handling time does not make groups pay: surplus killing inside a group is not
 what keeps prey apart.
 | `hazard` 0.0001 | 8 | 7 | 5 / 0 |
