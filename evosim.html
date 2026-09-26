@@ -1143,6 +1143,26 @@ function sample(){
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   row.polar = pn ? +(Math.sqrt(pcx*pcx + pcy*pcy)/pn).toFixed(3) : 0; row.align = alN ? +(alS/alN).toFixed(3) : 0;
+  // the share of close neighbours (within 3) that are look-alikes (colour distance under
+  // 0.3): the null for how often a gift or a bite lands on kin by chance
+  var knA = 0, knN = 0;
+  for (var u3 = 0; u3 < S.hi; u3 += 3){
+    if (!S.alive[u3]) continue;
+    var x3 = S.x[u3], y3 = S.y[u3], b3x = (x3*inv6)|0, b3y = (y3*inv6)|0;
+    for (var dy3 = -1; dy3 <= 1; dy3++){
+      var r3 = ((b3y+dy3) % bN6 + bN6) % bN6;
+      for (var dx3 = -1; dx3 <= 1; dx3++){
+        for (var v3 = S.aHead[r3*bN6 + ((b3x+dx3) % bN6 + bN6) % bN6]; v3 >= 0; v3 = S.aNext[v3]){
+          if (v3 === u3 || !S.alive[v3]) continue;
+          var ex3 = wrap(S.x[v3]-x3), ey3 = wrap(S.y[v3]-y3);
+          if (ex3*ex3 + ey3*ey3 >= 9) continue;
+          var t3 = 0; for (var q3 = 0; q3 < 3; q3++){ var d3 = S.genome[u3*NG+G_TAG+q3] - S.genome[v3*NG+G_TAG+q3]; t3 += d3*d3; }
+          knN++; if (Math.sqrt(t3/3) < 0.3) knA++;
+        }
+      }
+    }
+  }
+  row.kinNear = knN ? +(knA/knN).toFixed(3) : 0;
   // meat-eaters on the move: their shared heading, and how it lies against the prey's
   // (1 = the same way, -1 = head-on)
   var qcx = 0, qcy = 0, qn = 0;
