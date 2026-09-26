@@ -748,6 +748,16 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Motion catches the eye (`stillHide`, new, 0 = off): an animal moving slower
+than 0.05 is seen over (1 − `stillHide`) of anyone's range. The same rule
+hides a freezing prey and an ambushing hunter. New log fields `preySp` and
+`predSp` (mean speeds). `v1-AZ-still5` (`stillHide` 0.5) against
+`v1-AY-noday` (the same build in effect: `stillHide` 0 is bit-identical), 24
+paired seeds. Expectation: prey mean speed falls (freezing pays), and in
+some worlds predators slow too (waiting pays). Kill share may fall. Probe:
+prey throttle when a big armed animal is in view (`tools/genomes.js`
+throttleSeesBigArmed) against baseline.
+
 Day and night (`dayTicks`, new, 0 = off): light follows a sine over `dayTicks`
 ticks. At full dark animals and corpses are seen over `nightSight` (0.3) of the
 sense range, while ears and the plant senses are unaffected. New sense `light`
