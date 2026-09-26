@@ -432,7 +432,7 @@ Probes with `tools/voice.js`:
 - Predators eavesdropping on prey calls is a real phenomenon; nothing wrote it in.
 - The call is too cheap to be silenced at the default: mean loudness drifts
   from 0 to 0.9 even in deaf worlds.
-- At `callCost` 0.02 (10x, `runs/call10`) calling becomes an honest signal:
+- At `callCost` 0.02 (10x, `runs/call10`) calls turn into a costly, reliable signal:
   baseline loudness fell to 0.00–0.04 in 8 of 12 worlds, 4 of 12 call louder
   at a big armed stranger (+0.19 to +0.52), and grazers turn away from a call
   in 11 of 12 (−0.4 to −1.9). But predator-dominated worlds fell to 8 of 12
