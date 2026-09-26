@@ -42,8 +42,9 @@ picks up where it was next time you open it. **world → new world** starts over
   gut), kin (heritable colour) and action (grazing, eating meat, attacking).
 - **tap an animal** to follow it and see its genes, diet and kills.
 - **drag** pans, **pinch** or the mouse wheel zooms.
-- **world**: species measured live, physics sliders, world size (starts a new
-  world), new world, same seed, evolved start, save the log.
+- **world**: species measured live, physics sliders, world size and
+  reproduction (clonal or sexual; each starts a new world), new world, same
+  seed, evolved start, save the log.
 - **predators** in the top bar counts adults that got most of their lifetime
   energy from meat.
 - **groups** in the top bar is how many neighbours a plant-eater has compared
