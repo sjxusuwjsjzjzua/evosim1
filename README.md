@@ -12,9 +12,9 @@ what a bite does).
 What evolves, without being written in:
 
 - **grazing**, in every world, within a few dozen generations;
-- **scavenging and predation**. In about 8 of 10 worlds killing becomes the main
+- **scavenging and predation**. In about 6 of 10 worlds killing becomes the main
   cause of death and meat is over 15% of all animal energy for most of the run,
-  typically 16–29%;
+  typically 20–30%;
 - **carnivore species**. In about 3 of 10 worlds a lineage's gut shifts toward
   flesh (diet gene 0.45–1.0, 75–100% of its energy from meat) and lives
   alongside herbivore species. The predators are big, armed cruisers that strike
