@@ -729,6 +729,59 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+**Meat-eaters eat their own young** (2026-09-26). Log counters `killsMeat`
+(kills whose victim lived mostly on meat) and `killsMeatByMeat` (the killer did
+too). `runs/trophic`, seeds 1001, 1006, 1013, 1020, current defaults, last
+half: meat-eaters are 2–4% of kill victims. Expectation was that plant-eaters
+biting on contact would do most of it. Wrong: meat-eaters made 88–98% of
+those kills. A replay (scratchpad `mm.js`, same kill counts as the batch)
+of the kills after 200k in seeds 1001 and 1013:
+
+| seed | kills | killer/victim mass, median (quartiles) | victim a juvenile | victim a look-alike |
+|---|---|---|---|---|
+| 1001 | 3565 | 1.8 (1.2–6.0) | 73% | 71% (colour distance < 0.3) |
+| 1013 | 18786 | 2.5 (1.8–24) | 80% | 69% |
+
+The killer is the larger one in about 90% of cases. So it is cannibalism of
+juveniles of the killer's own kind, not a third trophic level. No kin
+avoidance evolved, even though the attention genes could weight kinship.
+
+Heading sense (2026-09-26): `crowdHeading`, the mean heading of the moving
+animals in view relative to the animal's own (NI 36). Without it an animal
+could not see which way others face, so the alignment rule of flocking could
+not evolve. Tested as a switch, 24 paired seeds each:
+- With the compass (`v1-AV-h1` against `-h0`): a tighter shared bearing,
+  `polar` 0.777 against 0.692 (p 0.064), `align` 0.594 against 0.485 (p 0.023).
+  No local alignment beyond it: `align − polar²` −0.029 in both. Predator
+  worlds 14 against 18 (p 0.34), prey clumping 1.14 against 1.05 (p 0.15).
+- Without the compass (`-h1c0` against `-h0c0`): nothing. `polar` 0.031
+  against 0.033, `align` −0.005 against 0.019 (p 0.15), prey clumping 0.88
+  against 0.85.
+
+Flocking does not evolve. Matching neighbours' headings does not pay here,
+just as steering toward company does not. The sense stays as information and
+the switch is gone.
+`v1-AV-h1` is the baseline for the current build (it ran with the sense on).
+
+Predators against streaming prey (`runs/predstream`, local, seeds 1001, 1004,
+1006, 1020, current defaults). New log fields: `polarPred` (the meat-eaters'
+shared heading) and `predVsPrey` (the cosine between the predators' and prey's
+mean headings; −1 = head-on). Expectation: head-on travel (negative) meets
+more prey per tick, so predators with their own bearing should evolve it.
+Result, the reverse. Last half of each run, samples with more than 5 predators:
+
+| seed | prey `polar` | `polarPred` | `predVsPrey` |
+|---|---|---|---|
+| 1001 | 0.73 | 0.49 | +0.94 (never negative) |
+| 1004 | 0.75 | 0.37 | +0.40 (negative in 24% of samples) |
+| 1006 | 0.78 | 0.70 | +0.99 (never negative) |
+| 1020 | 0.81 | 0.56 | +0.88 (never negative) |
+
+Predators move with the herd, as wolves follow a caribou migration. A strike
+needs the target within reach, so a hunter keeping pace stays in contact,
+while a head-on pass lasts a tick. Whether they hold the bearing by compass
+or by chasing is not yet separated.
+
 Compass (`compass`, on by default since 2026-09-26): senses compassX/Y (cos and sin of the
 animal's heading in world terms, NI 35). `v1-AT-wavec1` against `v1-AT-wavec0`
 (`seasonAmp` 0.8, `seasonWave` 1, sexual default), 24 paired seeds.
@@ -843,7 +896,22 @@ core, so local batches beat Actions for anything under ~20 worlds.
    lasting groups. What might change it: prey that are much denser than
    their sense range (a smaller world per animal), or predators that cannot
    kill again while the group is still near.
-3. **Speciation.** Sexual worlds on the current physics (`runs/sexH`, seeds
+3. **Speciation: browsers and grazers.** In the 24 sexual worlds of `v1-AP-sex`,
+   `tools/gsplit.py` finds plant-eater clusters that cannot interbreed (at
+   most 5% of cross pairs) in 7. In 4 of them (s1002, s1020, s1022, s1023) the
+   split is by body size: small grazers (size 0.3–0.9) against large browsers
+   (2.4–4.8). The large ones breed only at higher reserves (reproT 0.6–0.7
+   against 0.3–0.4) and give each young more (childE 0.45–0.5 against
+   0.25). Replays on the build they ran on (scratchpad `browse.js`,
+   300–400k): in s1020 the large species (mass about 2.7) feeds on plants
+   0.61–0.69 tall, 30–36% of its feeding on plants taller than a small grazer
+   reaches (12–13% of plant cells). The small one (mass about 0.3) feeds on
+   plants 0.11–0.21 tall, 1–6% of it above its reach. That is niche
+   partitioning by plant height. In s1023 plant height swings widely (27–57%
+   of cells tall) and both species use tall cells; the large one leans
+   taller in 4 of 6 samples. In the other three
+   (s1001, s1012, s1016) the split is mainly in attention genes and colour.
+   Earlier: sexual worlds on the current physics (`runs/sexH`, seeds
    2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
    now prints size and speed): a meat-eating species that cannot breed with any
    grazer cluster (0% of cross pairs) in 7 of 8 worlds. The eighth has no

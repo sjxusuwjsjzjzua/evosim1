@@ -247,11 +247,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 35, NH = 8, NO = 6;
+var NI = 36, NH = 8, NO = 6;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
 
 var CFG, S;   // config and state
@@ -357,7 +357,7 @@ function init(patch){
 }
 
 function newCounters(){
-  return {eP: 0, eC: 0, eK: 0, kills: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
+  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
           plantEaten: 0, meatEaten: 0, reseeds: 0};
 }
 
@@ -608,6 +608,7 @@ function sense(i){
   var bN = S.bN, inv = 1/S.bSize, span = Math.ceil(R*inv);
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
+  var hcs = 0, hsn = 0, HD = S.hd;
   var kxs = 0, kys = 0, cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
   // eyes on the food: an animal that ate last tick sees animals over (1 - headDown) of its range
   var down = S.act[i] === 1 || S.act[i] === 2 ? Math.min(1, CFG.headDown) : 0, RA2 = R2*(1 - down)*(1 - down);
@@ -630,7 +631,7 @@ function sense(i){
         var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
         if (lv > heard){ heard = lv; hx = ex; hy = ey; }
         if (d2 >= RA2) continue;
-        crowd++; cxs += ex; cys += ey; spd += SPD[j];
+        crowd++; cxs += ex; cys += ey; spd += SPD[j]; if (SPD[j] >= 0.05){ hcs += Math.cos(HD[j]); hsn += Math.sin(HD[j]); }
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         // look-alikes (colour tag within 0.3, size within 2x) pull the kin direction, weighted by likeness
         var kin = 1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)/0.3, szl = 1 - Math.abs(Math.log2(MA[j]/mi));
@@ -697,6 +698,7 @@ function sense(i){
   IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   IN[29] = kxs || kys ? angDiff(Math.atan2(kys, kxs), h)/Math.PI : 0;   // toward the centre of look-alikes in view
   IN[33] = CFG.compass*Math.cos(h); IN[34] = CFG.compass*Math.sin(h);   // which way it is facing, in world terms
+  IN[35] = hcs || hsn ? angDiff(Math.atan2(hsn, hcs), h)/Math.PI : 0;   // which way the moving animals in view are going, relative to its own heading
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -882,7 +884,7 @@ function updateAnimal(i){
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
-        S.c.kills++; S.kills[i]++;
+        S.c.kills++; S.kills[i]++; if (S.lM[tj] > S.lP[tj]){ S.c.killsMeat++; if (S.lM[i] > S.lP[i]) S.c.killsMeatByMeat++; }   // the victim lived mostly on meat; so did the killer
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
@@ -1115,12 +1117,19 @@ function sample(){
     adultMeatShare: meatShareN ? +(meatShareSum/meatShareN).toFixed(4) : 0,
     deadMeatHist: dhist,
     acts: act, meanGen: n ? +(gens/n).toFixed(1) : 0,
-    kills: C.kills, attacks: C.attacks, births: C.births,
+    kills: C.kills, killsMeat: C.killsMeat, killsMeatByMeat: C.killsMeatByMeat, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
   row.polar = pn ? +(Math.sqrt(pcx*pcx + pcy*pcy)/pn).toFixed(3) : 0; row.align = alN ? +(alS/alN).toFixed(3) : 0;
+  // meat-eaters on the move: their shared heading, and how it lies against the prey's
+  // (1 = the same way, -1 = head-on)
+  var qcx = 0, qcy = 0, qn = 0;
+  for (var u2 = 0; u2 < S.hi; u2++) if (S.alive[u2] && S.lM[u2] > S.lP[u2] && S.sp[u2] >= 0.05){ qcx += Math.cos(S.hd[u2]); qcy += Math.sin(S.hd[u2]); qn++; }
+  var qm = Math.sqrt(qcx*qcx + qcy*qcy), pm = Math.sqrt(pcx*pcx + pcy*pcy);
+  row.polarPred = qn ? +(qm/qn).toFixed(3) : 0;
+  row.predVsPrey = qm > 0 && pm > 0 ? +((qcx*pcx + qcy*pcy)/(qm*pm)).toFixed(3) : 0;
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
   S.log.push(row);
   S.c = newCounters();
@@ -1387,6 +1396,15 @@ function drawAnimalsAt(offX, offY, near){
     var r = Math.max(1.2, Sim.radius(S.cm[c])*cam.z);
     ctx.fillStyle = '#8a3328'; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
   }
+  // tails behind moving animals, longer the faster they go: one path, drawn under the bodies
+  ctx.beginPath();
+  for (var t = 0; t < S.hi; t++){
+    if (!S.alive[t] || S.sp[t] <= 0.05) continue;
+    var tq = place(S.x[t], S.y[t], offX, offY, near); if (!tq) continue;
+    var tl = Math.max(1.6, Sim.radius(S.mass[t])*cam.z) + Math.min(14, S.sp[t]*cam.z*5);
+    ctx.moveTo(tq[0], tq[1]); ctx.lineTo(tq[0] - Math.cos(S.hd[t])*tl, tq[1] - Math.sin(S.hd[t])*tl);
+  }
+  ctx.strokeStyle = 'rgba(230,240,220,.35)'; ctx.lineWidth = 1.2; ctx.stroke();
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
     var q = place(S.x[i], S.y[i], offX, offY, near); if (!q) continue;
@@ -1720,6 +1738,7 @@ function buildDrawer(){
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; grazers can tell which way they face and in most test worlds learned to go with it.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
+  h += '<p class="note">A faint tail shows which way an animal is moving and how fast. When the grazers of a world evolve a shared bearing, their tails line up.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;

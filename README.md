@@ -21,6 +21,9 @@ What evolves, without being written in:
   alongside herbivore species. The predators are big, armed cruisers that strike
   whatever they touch; the herbivores are small grazers that sit still and speed
   up when a big armed animal comes into view;
+- **cannibalism**: meat-eaters that die by killing are nearly all killed by
+  other meat-eaters, and the victims are mostly juveniles of the killer's
+  own kind;
 - **arms races**: armour against weapons, speed against speed, herbivore detox
   against plant defence;
 - **vigilance and alarm**: an animal eating has its eyes on the food, so prey
@@ -29,19 +32,23 @@ What evolves, without being written in:
   (in 11 of 12 test worlds), meat-eaters often learn to home in on one, and in
   some worlds grazers call when a big armed stranger comes close;
 - **company**: meat-eaters move in loose groups; in some worlds grazers follow
-  their own kind and avoid strangers. Prey rarely form tight herds: in this
-  physics a group costs them more than it saves;
+  their own kind and avoid strangers. Prey do not seek each other out: in
+  this physics steering toward company costs more than it saves. They end up
+  together anyway by travelling the same way (below);
 - **speciation**: in 13 of 24 test worlds the meat-eaters became a species
   that cannot breed with any grazer, and in 7 grazer lineages stopped
-  interbreeding with each other. In one, a
-  new grazer species with little detox arose once the plants had lost their
-  defences, and it was replacing the old one;
+  interbreeding with each other. In 4 of those the split is small grazers
+  against large browsers (up to 15 times the body mass) that feed on taller
+  plants. In another test
+  world a new grazer species with little detox arose once the plants had
+  lost their defences, and it was replacing the old one;
 - **streaming herds**: every animal can tell which way it is facing, as with a
   sun compass. Within a few hundred generations a world's grazers share a
   bearing and travel together across the (wrapping) world, keeping off ground
   already grazed. Nothing tells them which way to go; different worlds pick
-  different directions. With the travelling season on, most worlds go the
-  way the season goes;
+  different directions. The meat-eaters travel with the herd rather than
+  against it. With the travelling season on, most worlds go the way the
+  season goes;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
@@ -75,6 +82,8 @@ picks up where it was next time you open it. **world → new world** starts over
   and the view moves on to its killer or a relative; its relatives get white
   rings.
 - **drag** pans, **pinch** or the mouse wheel zooms.
+- a faint **tail** behind an animal shows which way it is moving and how fast;
+  when a world's grazers share a bearing the tails line up.
 - a **blue ring** round an animal means it is calling. Every animal has a voice
   that costs energy and ears that work while it eats; what a call means, if
   anything, is up to evolution.
