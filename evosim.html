@@ -105,6 +105,8 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
+  compass: 0,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
+                        // or magnetic compass would; 0 = those inputs read 0
   seasonWave: 0,        // 1 = the season travels along x, one wavelength per world width per year:
                         // a band of fast growth moving at world/yearTicks per tick
 
@@ -243,11 +245,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 33, NH = 8, NO = 6;
+var NI = 35, NH = 8, NO = 6;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
 
 var CFG, S;   // config and state
@@ -692,6 +694,7 @@ function sense(i){
   IN[27] = heard;                           // the loudest call in range
   IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   IN[29] = kxs || kys ? angDiff(Math.atan2(kys, kxs), h)/Math.PI : 0;   // toward the centre of look-alikes in view
+  IN[33] = CFG.compass*Math.cos(h); IN[34] = CFG.compass*Math.sin(h);   // which way it is facing, in world terms
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }

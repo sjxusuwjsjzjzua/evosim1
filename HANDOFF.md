@@ -711,6 +711,14 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Compass (`compass`, new, off by default): senses compassX/Y (cos and sin of the
+animal's heading in world terms, NI 35). `v1-AT-wavec1` against `v1-AT-wavec0`
+(`seasonAmp` 0.8, `seasonWave` 1, sexual default), 24 paired seeds.
+Expectation: without a compass `waveVx` stays near 0.03 as before. With one,
+some worlds evolve a heading bias along the wave and `waveVx` rises well
+above 0.1 in the last half. A population moving with the season would also
+travel together, which is another route to grouping.
+
 **Migration pays, and needs a compass** (scratchpad `east.js`; evolved start
 in a wave world, `seasonAmp` 0.8, clonal; after 20k ticks half the grazers get
 +2 x the heading error to east added to their turn, inherited). With the wave,
