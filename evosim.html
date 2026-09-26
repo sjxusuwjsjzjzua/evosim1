@@ -141,18 +141,11 @@ var CFG_DEFAULT = {
   reseedUntil: 400000,  // give up bootstrapping after this tick
   think: 2,             // ticks between brain evaluations
   eCap: 40,             // energy an animal can store per unit body mass
-  gutCap: 0,            // stomach: energy it holds per unit body mass. 0 = no stomach (food goes
-                        // straight into reserves). With one, food fills the stomach and is
-                        // digested into reserves at gutDig x mass^0.75 a tick, so a second
-                        // kill is worth nothing until the first is digested.
   callCost: 0.002,      // energy per tick for calling at full loudness, x mass^0.75
   hear: 1,              // 0: calls go unheard (a control: calling then only costs)
-  vigilShare: 0,        // 1: the head-down cut scales with the share of the tick spent eating
-                        // (a sliver of a meal costs a sliver of vigilance); 0: any eating costs all of it
   headDown: 0.7,        // an animal that ate last tick senses animals over (1 - headDown) of its
                         // range: eyes on the food are not on the horizon. Over 12 worlds a side
                         // it made prey group where predators were (prey clump 1.17 against 0.90)
-  gutDig: 0.15,         // digestion per tick x mass^0.75 (grazing brings in at most ~0.12)
   cBuild: 10,           // energy to build one unit of body mass
   growAbove: 0.5,       // a juvenile grows only with reserves above this share of capacity
   breedMargin: 0.05,    // a parent keeps at least this share of capacity after giving birth
@@ -187,26 +180,8 @@ var CFG_DEFAULT = {
   upDetox: 0.006,       // x detox^2 x mass^0.75
   upSpeed: 0.010,       // x speed gene^2 x mass^0.75: owning the muscle
   upMove: 0.012,        // x mass x speed^2: using it
-  kConfusion: 0,        // predator confusion: strike damage / (1 + k x others within 3 of the target). 0 = off
-  strikeCool: 0,        // ticks after a strike before the next one (a lunge takes recovering from). 0 = off
-  missCool: 0,          // ticks after a strike that missed
-  confHit: 0,           // a strike connects with chance 1 / (1 + confHit x look-alikes near the target):
-                        // animals within confR of it with a similar colour tag and size. 0 = always
-  confR: 8,
-  cover: 0,             // an animal standing among plants taller than its reach is seen only within
-                        // R / (1 + cover x (plant height / its reach - 1)); calls still carry. 0 = off
-  killCool: 0,          // handling time: ticks after a kill before the killer can strike again
-                        // (subduing and eating a catch). Misses stay free. 0 = off
-  packHunt: 0,          // 1: armour fully protects only against the first strike a target takes in a
-                        // tick; later strikes that tick ignore it (hunting together pays)
-  fibre: 0,             // mature plants are fibrous: plant energy x (1 - fibre x B/K x (1 - digestion)),
-                        // digestion = min(1, (mass/digestMass)^0.25). Small grazers do best on
-                        // regrowth, big ones can use mature stands. 0 = all plant matter is equal
-  digestMass: 8,
   sizeMax: 12,          // the body-size gene's upper bound. Giant worlds end when predators reach it
                         // (23 of 32 exits had meat-eaters at size 10 or more)
-  hazard: 0,            // chance per tick of dying of something no body size escapes (disease,
-                        // accident). 0 = none
   dmg: 0.5,            // damage per tick x weapon x mass^0.75
   atkCost: 0.004,       // energy per attack tick x mass^0.75
   hpPerMass: 2,
@@ -218,10 +193,7 @@ var CFG_DEFAULT = {
   radiusK: 0.7,         // body radius = radiusK * mass^(1/3)
   reach: 0.6,
   corpseDecay: 0.0015,  // fraction of corpse mass lost per tick
-  growRate: 0.008,      // max growth per tick, x mass^growExp
-  growExp: 1,           // 1: growth in proportion to mass, so every body size matures in the same
-                        // time. 0.75: growth scales like metabolism and time to maturity rises as
-                        // mass^0.25, as lifespan already does
+  growRate: 0.008,      // max growth per tick as a share of current mass
   ageK: 6000,           // lifespan in ticks x mass^0.25
 
   // ---- inheritance ----
@@ -232,8 +204,6 @@ var CFG_DEFAULT = {
                         // default: every predator world so far evolved without it.
   mutP: 0.06,           // per-gene mutation probability, body genes
   mutPW: 0.02,          // per-weight mutation probability, brain
-  mutReflect: 0,        // 1: a mutation past a gene's bound reflects back inside instead of sticking
-                        // to the bound (with clamping, half the mutations of a gene at 0 stay at 0)
   mutSd: 0.08,          // body genes: sd as a share of range (x3, multiplicative, for log-scaled genes)
   wSd: 0.35,            // brain weights: sd
   wMax: 4,
@@ -349,7 +319,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    gut: new Float32Array(M), call: new Float32Array(M), eatT: new Float32Array(M), cool: new Float32Array(M), hitAt: new Int32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    call: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
@@ -428,7 +398,7 @@ function updatePlants(){
     S.pB[c] = B;
   }
 }
-function mutP(v, sd){ return rng() < 0.3 ? bound(v + gauss()*sd, 0, 1) : v; }
+function mutP(v, sd){ return rng() < 0.3 ? clamp(v + gauss()*sd, 0, 1) : v; }
 
 // ---------------------------------------------------------------- animals
 function alloc(){
@@ -489,7 +459,7 @@ function spawnRandom(){
 function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
-  S.tgt[i] = -1; S.tgtId[i] = -1; S.gut[i] = 0; S.call[i] = 0; S.eatT[i] = 0; S.cool[i] = 0; S.hitAt[i] = -1; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
+  S.tgt[i] = -1; S.tgtId[i] = -1; S.call[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
@@ -550,25 +520,17 @@ function findMate(i){
   }
   return best;
 }
-function bound(v, lo, hi){
-  if (CFG.mutReflect){ if (v < lo) v = 2*lo - v; else if (v > hi) v = 2*hi - v; }
-  return clamp(v, lo, hi);
-}
 function mutate(dst){
   var G = S.genome, d = dst*NG, pm = CFG.mutP;
   for (var b = 0; b < NB; b++){
     if (rng() >= pm) continue;
     var B = BODY[b];
-    if (B[3]){   // log-scaled: reflect in log space
-      var v = G[d+b]*Math.exp(gauss()*CFG.mutSd*3);
-      if (CFG.mutReflect){ if (v < B[1]) v = B[1]*B[1]/v; else if (v > B[2]) v = B[2]*B[2]/v; }
-      G[d+b] = clamp(v, B[1], B[2]);
-    }
-    else G[d+b] = bound(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
+    if (B[3]) G[d+b] = clamp(G[d+b]*Math.exp(gauss()*CFG.mutSd*3), B[1], B[2]);
+    else G[d+b] = clamp(G[d+b] + gauss()*CFG.mutSd*(B[2]-B[1]), B[1], B[2]);
   }
   for (var w = NB; w < NG; w++){
     if (rng() >= CFG.mutPW) continue;
-    G[d+w] = bound(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
+    G[d+w] = clamp(G[d+w] + gauss()*CFG.wSd, -CFG.wMax, CFG.wMax);
   }
 }
 function die(i, cause){
@@ -579,7 +541,7 @@ function die(i, cause){
   if (S.cN < S.cMax && S.mass[i] > 0.02){
     var c = S.cN++;
     S.cx[c] = S.x[i]; S.cy[c] = S.y[i]; S.cm[c] = S.mass[i]; S.crad[c] = S.rad[i];
-    S.cE[c] = S.mass[i]*CFG.eMeat + Math.max(0, S.E[i]) + S.gut[i];
+    S.cE[c] = S.mass[i]*CFG.eMeat + Math.max(0, S.E[i]);
     S.cKiller[c] = 0;   // a kill sets this to the killer's id right after
   }
   S.alive[i] = 0; S.n--; S.free[S.nFree++] = i;
@@ -635,8 +597,8 @@ function sense(i){
   var bx0 = (x*inv)|0, by0 = (y*inv)|0;
   var nearA = -1, nearAd = R2, nearC = -1, nearCd = R2, crowd = 0;
   var kxs = 0, kys = 0, cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
-  // eyes on the food: all of the cut after any eating, or (vigilShare) in proportion to the share of the tick spent eating
-  var down = Math.min(1, CFG.headDown)*(CFG.vigilShare ? S.eatT[i] : (S.act[i] === 1 || S.act[i] === 2 ? 1 : 0)), RA2 = R2*(1 - down)*(1 - down);
+  // eyes on the food: an animal that ate last tick sees animals over (1 - headDown) of its range
+  var down = S.act[i] === 1 || S.act[i] === 2 ? Math.min(1, CFG.headDown) : 0, RA2 = R2*(1 - down)*(1 - down);
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -655,13 +617,6 @@ function sense(i){
         if (d2 >= R2) continue;
         var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
         if (lv > heard){ heard = lv; hx = ex; hy = ey; }
-        if (CFG.cover > 0){   // an animal among plants taller than itself is hard to see
-          var cj = cellAt(AX[j], AY[j]);
-          if (S.pB[cj] > 0){
-            var hj = CFG.browseGrown ? S.pH[cj] : CFG.browse*S.pStat[cj], rj = Math.cbrt(MA[j]);
-            if (hj > rj){ var vis = 1/(1 + CFG.cover*(hj/rj - 1)); if (d2 >= RA2*vis*vis) continue; }
-          }
-        }
         if (d2 >= RA2) continue;
         crowd++; cxs += ex; cys += ey; spd += SPD[j];
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
@@ -721,7 +676,7 @@ function sense(i){
   IN[22] = crowd > 0 && (cxs || cys) ? angDiff(Math.atan2(cys, cxs), h)/Math.PI : 0;
   IN[23] = Math.min(1, alarm);
   IN[24] = alarm > 0 && (alx || aly) ? angDiff(Math.atan2(aly, alx), h)/Math.PI : 0;
-  IN[25] = CFG.gutCap > 0 ? S.gut[i]/(CFG.gutCap*S.mass[i]) : 0;   // how full the stomach is
+  IN[25] = 0;   // unused (was stomach fill; kept so evolved genomes keep their layout)
   IN[26] = crowd > 0 ? spd/crowd/1.6 : 0;   // how fast the animals in view are moving
   if (!CFG.hear) heard = 0;
   IN[27] = heard;                           // the loudest call in range
@@ -821,8 +776,8 @@ function think(i){
 }
 
 // Eating, for a share t of one tick. Each returns the share of the tick it used
-// and leaves the energy gained in MOUTH[0]; MOUTH[1] is what the stomach (or
-// the reserves) can still take.
+// and leaves the energy gained in MOUTH[0]; MOUTH[1] is what the reserves can
+// still take.
 var MOUTH = new Float64Array(2);   // [0] gain, [1] room. In an array: a closure variable holding a double is boxed on every write
 function eatPlant(i, c, t, slow, m75, diet){
   MOUTH[0] = 0;
@@ -833,7 +788,6 @@ function eatPlant(i, c, t, slow, m75, diet){
   }
   if (t <= 0 || B <= floor) return 0;
   var val = CFG.ePlant*(1 - Math.pow(diet, CFG.dietCurve));
-  if (CFG.fibre > 0) val *= 1 - CFG.fibre*Math.min(1, B/S.pK[c])*(1 - Math.min(1, Math.pow(S.mass[i]/CFG.digestMass, 0.25)));
   var rate = CFG.graze*m75*slow/(1 + CFG.kDef*S.pDef[c]*(1 - G[g+G_DETOX]));
   if (rate <= 0) return 0;
   var bite = Math.min(B - floor, rate*t);
@@ -885,14 +839,11 @@ function updateAnimal(i){
   // is on), and whatever share of the tick it did not need goes to the other. No
   // threshold picks between them, so a nearly bare cell costs a sliver of the
   // tick, not all of it.
-  var want = S.want[i], act = 0, tj = -1, eatShare = 0;
-  if (S.cool[i] > 0) S.cool[i]--;
-  if ((want & 4) && S.cool[i] <= 0){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
+  var want = S.want[i], act = 0, tj = -1;
+  if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
   var slow = 1 - CFG.eatMoveSlow*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 0 && (want & 1)){
-    // food goes into the stomach if there is one, else straight into reserves
-    var stomach = CFG.gutCap > 0;
-    MOUTH[1] = Math.max(0, stomach ? CFG.gutCap*mass - S.gut[i] : Emax - S.E[i]);
+    MOUTH[1] = Math.max(0, Emax - S.E[i]);   // room left in the reserves
     var cc = nearCorpse(i), hc = cellAt(S.x[i], S.y[i]), eP = 0, eM = 0, t = 1;
     if (cc >= 0 && (want & 2)){
       t -= eatMeat(i, cc, 1, slow, m75, diet); eM = MOUTH[0];
@@ -901,28 +852,22 @@ function updateAnimal(i){
       t -= eatPlant(i, hc, 1, slow, m75, diet); eP = MOUTH[0];
       if (cc >= 0){ t -= eatMeat(i, cc, t, slow, m75, diet); eM = MOUTH[0]; }
     }
-    eatShare = 1 - t;
     var e = eP + eM;
-    if (stomach) S.gut[i] += e; else S.E[i] += e;
+    S.E[i] += e;
     act = eP + eM <= 0 ? 0 : eM > eP ? 2 : 1;
   }
-  S.act[i] = act; S.eatT[i] = act === 1 || act === 2 ? eatShare : 0;
+  S.act[i] = act;
   if (act === 3){
     S.E[i] -= CFG.atkCost*m75;
     {
       S.c.attacks++;
       // a crowd of look-alikes round the target can make the strike miss
-      var hit = CFG.confHit > 0 ? rng()*(1 + CFG.confHit*lookAlikes(tj, CFG.confR, i)) < 1 : true;
-      if (CFG.strikeCool > 0 || CFG.missCool > 0) S.cool[i] = hit ? CFG.strikeCool : Math.max(CFG.strikeCool, CFG.missCool);
       var arm = CFG.armourEff*S.genome[tj*NG+G_ARMOUR];
-      if (CFG.packHunt){ if (S.hitAt[tj] === S.tick) arm = 0; S.hitAt[tj] = S.tick; }   // armour turns only the first blow of a tick
-      var dmg = hit ? CFG.dmg*G[g+G_WEAPON]*m75*(1 - arm)*(0.8 + 0.4*rng()) : 0;
-      if (CFG.kConfusion > 0) dmg /= 1 + CFG.kConfusion*neighboursOf(tj, 3, i);
+      var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - arm)*(0.8 + 0.4*rng());
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
         S.c.kills++; S.kills[i]++;
-        if (CFG.killCool > 0) S.cool[i] = Math.max(S.cool[i], CFG.killCool);
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
@@ -937,22 +882,18 @@ function updateAnimal(i){
          + m75*(CFG.upBase + CFG.upSense*R*R + CFG.upWeapon*w*w + CFG.upArmour*armour + CFG.upDetox*dt*dt
                 + CFG.upSpeed*V*V)
          + CFG.upMove*mass*sp*sp + CFG.callCost*S.call[i]*m75;
-  if (S.gut[i] > 0){   // digestion, until the reserves are full
-    var dg = Math.min(S.gut[i], CFG.gutDig*m75, Math.max(0, Emax - S.E[i]));
-    S.gut[i] -= dg; S.E[i] += dg;
-  }
+
   S.E[i] -= up;
   S.age[i]++;
   var hpMax = CFG.hpPerMass*mass;
   if (S.hp[i] < hpMax) S.hp[i] = Math.min(hpMax, S.hp[i] + CFG.heal*hpMax);
   if (S.E[i] <= 0){ die(i, 0); return; }
   if (S.age[i] > S.maxAge[i]){ die(i, 1); return; }
-  if (CFG.hazard > 0 && rng() < CFG.hazard){ die(i, 1); return; }
 
   // ---- grow, then breed
   if (mass < size*0.98){
     if (S.E[i] > CFG.growAbove*Emax){
-      var dM = Math.min(CFG.growRate*(CFG.growExp === 1 ? mass : Math.pow(mass, CFG.growExp)), (S.E[i] - CFG.growAbove*Emax)/CFG.cBuild, size - mass);
+      var dM = Math.min(CFG.growRate*mass, (S.E[i] - CFG.growAbove*Emax)/CFG.cBuild, size - mass);
       S.mass[i] = mass + dM; bodyCache(i); S.E[i] -= dM*CFG.cBuild;
       S.hp[i] += CFG.hpPerMass*dM;
     }
@@ -1001,27 +942,6 @@ function neighboursOf(j, r, skip){
       if (k === j || k === skip || !S.alive[k]) continue;
       var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
       if (ex*ex + ey*ey < r2) n++;
-    }
-  }
-  return n;
-}
-// how many animals within r of animal j look like it (colour tag and size), not counting `skip`:
-// each counts 0..1, falling off with tag distance (to 0 at 0.3) and size ratio (to 0 at 2x)
-function lookAlikes(j, r, skip){
-  var x = S.x[j], y = S.y[j], r2 = r*r, inv = 1/S.bSize, bN = S.bN, span = Math.ceil(r*inv), n = 0, G = S.genome, gj = j*NG;
-  var bx0 = (x*inv)|0, by0 = (y*inv)|0, mj = S.mass[j];
-  for (var dy = -span; dy <= span; dy++){
-    var by = ((by0+dy) % bN + bN) % bN;
-    for (var dx = -span; dx <= span; dx++){
-      var b = by*bN + ((bx0+dx) % bN + bN) % bN;
-      for (var k = S.aHead[b]; k >= 0; k = S.aNext[k]){
-        if (k === j || k === skip || !S.alive[k]) continue;
-        var ex = wrap(S.x[k]-x), ey = wrap(S.y[k]-y);
-        if (ex*ex + ey*ey >= r2) continue;
-        var gk = k*NG, t0 = G[gk+G_TAG]-G[gj+G_TAG], t1 = G[gk+G_TAG+1]-G[gj+G_TAG+1], t2 = G[gk+G_TAG+2]-G[gj+G_TAG+2];
-        var tl = 1 - Math.sqrt((t0*t0 + t1*t1 + t2*t2)/3)/0.3, sl = 1 - Math.abs(Math.log2(S.mass[k]/mj));
-        if (tl > 0 && sl > 0) n += tl*sl;
-      }
     }
   }
   return n;
@@ -1194,7 +1114,7 @@ function b64dec(str){
 }
 function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
 function unf32(str){ return new Float32Array(b64dec(str).buffer); }
-var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','gut','call','eatT','cool'];
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','call'];
 function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
 function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
 function geneLog(k){ return k < NB && BODY[k][3]; }
@@ -1750,7 +1670,7 @@ function buildDrawer(){
   if (EVOLVED) h += '<div class="row"><button id="bEvo">evolved start</button></div><p class="note">Evolved start founds a new world from ' + EVOLVED.n +
     ' animals sampled from a world that had evolved for ' + EVOLVED.tick + ' ticks. ' + EVOLVED.note + '</p>';
   h += '<h4>species — measured, not declared</h4><div id="species"></div>';
-  h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In sexual worlds meat-eaters and grazers usually become separate species that cannot interbreed.</p>';
+  h += '<p class="note">Clonal is the default: meat-eating specialists evolve about twice as often. In some sexual worlds (about a third) meat-eaters and grazers become separate species that cannot interbreed.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';

@@ -337,12 +337,13 @@ of cross-cluster pairs the engine's mating rule allows.
   worlds as a choice.
 
 Re-checked under the current defaults (`v1-AI-sex`, seeds 401–412): 9 of 12
-predator-dominated against 12 clonal. In all 5 worlds checked with
-`tools/isolation.py` (402, 404, 406, 410, 412) the meat-leaning clusters (diet
-0.46–0.77) breed with 0% of the grazer clusters, and choosiness rose to
+predator-dominated against 12 clonal. In 4 of the 5 worlds checked with
+`tools/isolation.py` (402, 404, 410, 412; not 406, whose most meat-leaning
+cluster is diet 0.29 and breeds with grazers at 13–32%) the meat clusters
+(diet 0.46–0.77) breed with 0% of the grazer clusters, and choosiness rose to
 0.4–0.85. In s402 two meat clusters (diet 0.54 and 0.65) interbreed with each
-other (76–77%) and not with grazers. Diet-split species are the rule in sexual
-worlds now, not the exception.
+other (76–77%) and not with grazers. Corrected by the program audit: isolated meat species show up in about a
+third of sexual worlds, and dumps oversample meat eaters, which inflates them.
 
 ## Reflecting mutation bounds: no clear effect (`mutReflect`, 2026-09-25)
 
@@ -395,6 +396,15 @@ Share of energy from meat, per world, last two thirds of the run:
 None reached the predator-dominated state within 300k ticks (~80–160
 generations). In the older engine that took 85–200 generations.
 
+## Switches removed after the program audit (2026-09-26)
+
+These were tested, came out null or worse, and are gone from the build (the
+results stay in this file): stomach (`gutCap`, `gutDig`; the `gut` sense is
+kept as an always-0 input so evolved genomes keep their layout), `vigilShare`,
+`mutReflect`, `growExp`, `strikeCool`/`missCool`/`confHit`/`confR`, `hazard`,
+`packHunt`, `fibre`/`digestMass`, `killCool`, `cover`, `kConfusion`. Defaults
+bit-identical before and after. `sizeMax` stays for a retest.
+
 ## The current defaults, measured (2026-09-26)
 
 24 fresh worlds, seeds 1001–1024, 400k ticks (`results/v1-AL-current24`):
@@ -426,6 +436,16 @@ full-height plants (1.17) has not carried over to growing plants.
 `cover` 2 (animals among taller plants are hard to see; local): 10 of 12
 predator-dominated, carnivore clusters 7, prey clump 0.69–1.11 (mean 0.93, as
 without). No grouping gain.
+
+**Why grouping does not pay: grazers bite each other** (program audit A10,
+confirmed 2026-09-26). The herder diagnostic with each hit attributed to its
+attacker (kin-steering herders, seeds 3, 5, 7): 75–90% of the hits grazers
+take come from animals living mostly on plants (15–20 per 1000 animal-ticks),
+2.5–5 from meat-eaters. Plant-gutted animals strike whoever they touch, their
+own kind included, because a kill pays even to a plant gut (`meatFloor` 0.4).
+A grazer that joins a group mostly gains neighbours that bite it. The paired
+factorial includes `meatFloor` 0.2, which should cut that biting; if prey
+clumping rises there, this is the mechanism.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
