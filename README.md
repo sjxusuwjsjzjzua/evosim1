@@ -29,8 +29,9 @@ What evolves, without being written in:
   (in 11 of 12 test worlds), meat-eaters often learn to home in on one, and in
   some worlds grazers call when a big armed stranger comes close;
 - **company**: meat-eaters move in loose groups; in some worlds grazers follow
-  their own kind and avoid strangers. Prey rarely form tight herds: in this
-  physics a group costs them more than it saves;
+  their own kind and avoid strangers. Prey do not seek each other out: in
+  this physics steering toward company costs more than it saves. They end up
+  together anyway by travelling the same way (below);
 - **speciation**: in 13 of 24 test worlds the meat-eaters became a species
   that cannot breed with any grazer, and in 7 grazer lineages stopped
   interbreeding with each other. In 4 of those the split is small grazers
