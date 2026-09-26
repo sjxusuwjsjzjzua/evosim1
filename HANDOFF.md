@@ -388,37 +388,24 @@ generations). In the older engine that took 85–200 generations.
 
 ## Running now
 
-- `results/v1-Z-small-1M`: 10 seeds, small world, 1M ticks. Do predator worlds
-  and carnivore species hold for ~1000 generations, or collapse?
-- `results/v1-AA-base`, `-rich` (`pR` 0.024), `-patchy` (`fertNoise` 1): 10 seeds
-  each, 400k ticks, engine before the audit fixes. Does `clump` rise with
-  richer or patchier forage? (Expected no, given the correction above.)
-- `results/v1-AB-base`, `-gut2` (`gutCap` 2), `-gut1slow` (`gutCap` 1, `gutDig`
-  0.08): 10 seeds each, 400k ticks, current engine. Expected: fewer kills per
-  predator with a stomach; if dilution now pays, `preyClump` above 1 in the
-  predator worlds.
-- Locally: the seed-42 evolved start with and without a stomach, 2 seeds,
-  100k ticks.
+Nothing. Local batches run 4 at a time with `scratchpad/V/go2.sh` (a frozen
+copy of the build, so editing `evosim.html` mid-batch is safe); a 400k-tick
+small world takes ~10 minutes on one core.
 
 ## Next
 
-1. Herding: predators do not fill up, so a group gives no dilution (above).
-   A stomach (`gutCap`, off by default) was added to test that. Probed from the
-   seed-42 evolved start (30k ticks, `satiety.js` in the session scratchpad):
-   only 10–17% of kills were made with the stomach over half full at `gutCap`
-   0.25–2, against 23–30% with reserves over half full without one, and the
-   gap between a predator's kills did not lengthen (median 21–31 ticks either
-   way). A kill digests in a few ticks at `gutDig` 0.15, faster than the next
-   kill comes. Satiety would need digestion slower than grazing, which throttles
-   every grazer too. Batches from random (`results/v1-AB-base` against
-   `v1-AB-gut2`, 10 seeds each): 5 of 10 predator-dominated either way, prey
-   clump 0.67–1.17 against 0.81–1.00. `v1-AB-gut1slow` (`gutDig` 0.08) is the
-   slow end: there predation fell (regime above 30% in 1 of 10 worlds). The
-   stomach stays off. Vigilance, not a stomach, is what made groups pay (above).
-2. Speciation under sex: checked on `v1-Y-small-curve2` vs `-sexmd` (10 seeds
-   each). A cluster living mostly on meat was present in the last 10 samples of
-   4–5 of 10 clonal worlds and 1 of 10 sexual ones. Sex with incompatibility
-   does not split niches more readily. Most predator-dominated worlds of either
-   kind do their killing inside plant-gutted clusters.
-3. Time to predators: 100–300 generations. Anything that shortens it without
-   writing in a diet helps the phone.
+1. **Giant worlds.** With plant height, 4 of 12 worlds (and 6–7 of 10 by 1M
+   ticks) end as giants: size 7–11, 100–350 animals, little predation. Only
+   giants reach a tall canopy, and bulk keeps predators off. A cost of height
+   for plants beyond `pStatCost`, or a benefit of small size that does not
+   exist yet (hiding, manoeuvre), are candidates. Growth time
+   (`growExp` 0.75) was tried and made it worse.
+2. **Herding.** Vigilance made grouping pay (prey clump 1.17 against 0.90 in
+   predator worlds), but active steering toward others evolved in 1 of 12
+   worlds; mostly prey bolt when neighbours bolt. Longer runs, or the sexual
+   worlds (a mate must be in range), may show more.
+3. **Speciation** is real in sexual worlds (0% interbreeding between a meat
+   cluster and grazer clusters). With plant height, check whether browsers and
+   grazers split into species too.
+4. **Phone time.** Predators arrive in 20–130k ticks; the page runs ~200–600
+   ticks/s. The evolved start covers the wait.
