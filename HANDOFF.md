@@ -449,6 +449,15 @@ clumping rises there, this is the mechanism.
 Dropping `meatFloor` to 0.1 in the diagnostic did not cut the biting within
 30k ticks (still 20–34 hits per 1000 from plant-eaters): the evolved strike
 urges persist; the factorial from random brains is the real test.
+From random brains over 400k ticks (`runs/floor1`, seeds 1001–1012, paired
+with `v1-AL-current24` by `tools/paired.py`): prey clump unchanged (0.929
+against 0.932), carnivore clusters 3 against 6 (p 0.25), and the grazers'
+strike urges unchanged (0.39 against 0.37 on contact). So grazers do not bite
+for the meat. Either killing a neighbour pays as interference (it frees
+forage) or the urge drifts because a strike is cheap (`atkCost` 0.004 x
+mass^0.75). A 5x strike cost is being tested (`runs/atk20`).
+`eMeat` 5 (24 paired seeds): meat share 0.22 against 0.27 (p 0.064), nothing
+else moved.
 
 **Herding under growing plants is the main open question.** Tried and null:
 stronger head-down (0.9), handling time after a kill (20, 60), strike
