@@ -75,6 +75,8 @@ picks up where it was next time you open it. **world → new world** starts over
   and the view moves on to its killer or a relative; its relatives get white
   rings.
 - **drag** pans, **pinch** or the mouse wheel zooms.
+- a faint **tail** behind an animal shows which way it is moving and how fast;
+  when a world's grazers share a bearing the tails line up.
 - a **blue ring** round an animal means it is calling. Every animal has a voice
   that costs energy and ears that work while it eats; what a call means, if
   anything, is up to evolution.

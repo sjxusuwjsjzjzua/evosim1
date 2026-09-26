@@ -1387,6 +1387,15 @@ function drawAnimalsAt(offX, offY, near){
     var r = Math.max(1.2, Sim.radius(S.cm[c])*cam.z);
     ctx.fillStyle = '#8a3328'; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
   }
+  // tails behind moving animals, longer the faster they go: one path, drawn under the bodies
+  ctx.beginPath();
+  for (var t = 0; t < S.hi; t++){
+    if (!S.alive[t] || S.sp[t] <= 0.05) continue;
+    var tq = place(S.x[t], S.y[t], offX, offY, near); if (!tq) continue;
+    var tl = Math.max(1.6, Sim.radius(S.mass[t])*cam.z) + Math.min(14, S.sp[t]*cam.z*5);
+    ctx.moveTo(tq[0], tq[1]); ctx.lineTo(tq[0] - Math.cos(S.hd[t])*tl, tq[1] - Math.sin(S.hd[t])*tl);
+  }
+  ctx.strokeStyle = 'rgba(230,240,220,.35)'; ctx.lineWidth = 1.2; ctx.stroke();
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
     var q = place(S.x[i], S.y[i], offX, offY, near); if (!q) continue;
@@ -1720,6 +1729,7 @@ function buildDrawer(){
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; grazers can tell which way they face and in most test worlds learned to go with it.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
+  h += '<p class="note">A faint tail shows which way an animal is moving and how fast. When the grazers of a world evolve a shared bearing, their tails line up.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
   h += '<p class="note">Colour: diet shows each animal\'s gut, green for plants to red for meat. kin shows its heritable colour, which is how relatives recognise each other. action shows what it is doing now. Tap an animal to follow it. Nothing here tells an animal what to eat or whom to attack: its brain is in its genome and evolves.</p>';
   d.innerHTML = h;
