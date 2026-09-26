@@ -751,8 +751,12 @@ core, so local batches beat Actions for anything under ~20 worlds.
    armed (weapon 0.17–0.25) and high-detox (0.87–0.98), with short sight (3.1–3.6)
    and attention turned away from kin and weapons. The other is unarmed
    (0.02–0.08), lower-detox (0.63–0.66) and sharper-eyed (5.2–5.6), and attends
-   to kin. Mean plant defence fell from 0.28 to 0.09 over the run, so what keeps
-   the high-detox species is not known. Partial isolation between grazer
+   to kin. A replay (scratchpad `niche.js`) shows a replacement, not two
+   niches. The low-detox species was 5% of grazers at 240k and 1% at 280k,
+   then grew to 68% by 400k as mean plant defence fell from 0.26 to 0.09.
+   What the two ate barely differs: defence 0.12 against 0.10, height 0.78
+   against 0.58 of reach. A cheaper species that could not interbreed with
+   the old one took over once detox stopped paying. Partial isolation between grazer
    clusters (19–25%) in s2006.
    Earlier: speciation is real in sexual worlds (0% interbreeding between a meat
    cluster and grazer clusters). With plant height, check whether browsers and
