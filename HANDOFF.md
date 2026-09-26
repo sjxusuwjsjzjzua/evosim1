@@ -401,6 +401,7 @@ carnivore clusters in 9, one giant world.
 | `hazard` 0.0003 | 12 | 8 | 4 / 0 (predation continues in them) |
 | `packHunt` 1 | 11 | 7 | 6 / 0 |
 | `fibre` 0.6 | 8 | 6 | 7 / 0 (populations 160–700) |
+| `sizeMax` 24 | 8 | 3 | 5 / 0 (size 6–7, well under the new cap) |
 
 `browseGrown` (plant height grows with the plant and does not shrink when
 grazed; seedlings are short and grazeable) removed both body-size traps at
