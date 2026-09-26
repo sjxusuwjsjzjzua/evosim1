@@ -105,7 +105,6 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
-  give: 1,              // 1 = the give output works: energy passes to the attended animal in reach
   giveRate: 0.1,        // energy passed per tick x mass^0.75, at most half the giver's reserves
   giveEff: 0.8,         // share of it the receiver gets
   compass: 1,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
@@ -792,7 +791,7 @@ function think(i){
   // argmax, then a softmax over exclusive acts) both let selection bury the
   // meat-eating output because firing it with no corpse in reach cost a meal.
   S.want[i] = (chance(S.out[o+2]) ? 1 : 0) | (chance(S.out[o+3]) ? 2 : 0)
-            | (chance(S.out[o+4]) ? 4 : 0) | (CFG.give && chance(S.out[o+6]) ? 8 : 0);
+            | (chance(S.out[o+4]) ? 4 : 0) | (chance(S.out[o+6]) ? 8 : 0);
 }
 
 // Eating, for a share t of one tick. Each returns the share of the tick it used

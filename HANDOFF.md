@@ -748,24 +748,29 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Feeding (`give`, new, on pending the test): a seventh brain output. When its
-urge fires and the attended animal is in reach, the animal passes it energy
-from its reserves (`giveRate` 0.1 x mass^0.75 per tick, at most half its
-reserves; the receiver gets `giveEff` 0.8 of it). The mouth is busy for that
-tick. Nothing says whom to feed. Logged: `gives`, `eG` (energy received as
-gifts), `eGkin` (to look-alikes, colour distance < 0.3), `eGjuv` (to
-juveniles), and `kinNear` (share of close neighbours, within 3, that are
-look-alikes: the kin share a gift to whoever is nearby gets by chance).
-`v1-AX-give1` against `v1-AX-give0`, 24 paired seeds.
-Expectation: random founders give at random and pay for it, so giving is
-selected down in most worlds. Where young are born beside their parents it
-may persist, aimed at kin and juveniles (kin selection). Score: gift energy
-as a share of all intake in the last half, and its kin and juvenile shares
-against the first 20k ticks.
-Local preview (`runs/give1`, 4 seeds, before `kinNear` existed): giving is
-selected down, from 2.1–4.4% of intake in the first 20k ticks to 0.3–1.0% in
-the last half. The kin share of what remains rose in two worlds (86 → 97%,
-49 → 99%) and fell or held in two; the juvenile share held at 52–61%.
+**Feeding** (2026-09-26): a seventh brain output, `give`. When its urge fires
+and the attended animal is in reach, the animal passes it energy from its
+reserves (`giveRate` 0.1 x mass^0.75 per tick, at most half its reserves; the
+receiver gets `giveEff` 0.8). The mouth is busy for that tick. Logged:
+`gives`, `eG`, `eGkin` (to look-alikes), `eGjuv` (to juveniles) and `kinNear`
+(the share of close neighbours that are look-alikes, the null for `eGkin`).
+`tools/give.py` scores it.
+
+Result (`v1-AX-give1` against `v1-AX-give0`, 24 paired seeds): nothing
+changed (predator worlds 15 against 15, carnivore clusters 9 against 9, all
+else p > 0.3). Giving is selected down, from 1.3–6.0% of intake in the first
+20k ticks to a median 0.55% in the last half (5 of 24 above 1%, max 1.8%).
+What remains is not aimed. Its kin share tracks `kinNear` (e.g. 97 against 94,
+82 against 83, 88 against 97), and its juvenile share (44–69%) looks like the
+juveniles nearby. No parental feeding. The action stays available, and the
+switch is gone.
+
+**Sparing kin does not pay a meat-eater** (scratchpad `spare.js`; at 200k
+ticks the meat-eaters of seeds 1001, 1006, 1013 and 1020 are split in half,
+and one half never strikes a look-alike meat-eater, inherited). The sparing
+half was gone within 60k ticks in 4 of 4 worlds (0 against 6, 42, 38, 71). The
+same rule sparing all look-alikes, prey included, also lost 4 of 4. Young of
+their own kind are food worth taking, which is why cannibalism persists.
 
 **Meat-eaters eat their own young** (2026-09-26). Log counters `killsMeat`
 (kills whose victim lived mostly on meat) and `killsMeatByMeat` (the killer did
