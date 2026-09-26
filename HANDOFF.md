@@ -403,6 +403,11 @@ carnivore clusters in 9, one giant world.
 | `fibre` 0.6 | 8 | 6 | 7 / 0 (populations 160–700) |
 | `sizeMax` 24 | 8 | 3 | 5 / 0 (size 6–7, well under the new cap) |
 
+Fresh seeds 801–812 (`v1-AH-base-rep` against `v1-AH-grown-rep`): predator-
+dominated 9 against 9, carnivore clusters 4 against 8, giant worlds 7 against 0.
+Over 24 seeds, `browseGrown` gives 21 predator worlds against 19 and 0 giant
+worlds against 8, with no dwarf worlds either way. It becomes the default.
+
 `browseGrown` (plant height grows with the plant and does not shrink when
 grazed; seedlings are short and grazeable) removed both body-size traps at
 400k. The lunge was far too harsh: in a bootstrap population everyone looks
