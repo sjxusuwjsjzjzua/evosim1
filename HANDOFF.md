@@ -729,6 +729,14 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Who kills meat-eaters? New log counters `killsMeat` (kills whose victim lived
+mostly on meat) and `killsMeatByMeat` (the killer did too). `runs/trophic`,
+local, seeds 1001, 1006, 1013, 1020 (worlds with 1–2 carnivore clusters in
+`v1-AU-c1`). Expectation: most meat-eater deaths by killing come from
+plant-eaters biting on contact, as for grazers. A third trophic level would
+show as a steady share of kills by meat-eaters of meat-eaters, with the
+killers larger than the victims.
+
 Heading sense (`seeHeading`, new, on by default pending the test):
 `crowdHeading`, the mean heading of the moving animals in view relative to the
 animal's own (NI 36). Without it an animal could not see which way others

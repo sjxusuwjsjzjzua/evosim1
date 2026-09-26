@@ -358,7 +358,7 @@ function init(patch){
 }
 
 function newCounters(){
-  return {eP: 0, eC: 0, eK: 0, kills: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
+  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
           plantEaten: 0, meatEaten: 0, reseeds: 0};
 }
 
@@ -885,7 +885,7 @@ function updateAnimal(i){
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
-        S.c.kills++; S.kills[i]++;
+        S.c.kills++; S.kills[i]++; if (S.lM[tj] > S.lP[tj]){ S.c.killsMeat++; if (S.lM[i] > S.lP[i]) S.c.killsMeatByMeat++; }   // the victim lived mostly on meat; so did the killer
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
@@ -1118,7 +1118,7 @@ function sample(){
     adultMeatShare: meatShareN ? +(meatShareSum/meatShareN).toFixed(4) : 0,
     deadMeatHist: dhist,
     acts: act, meanGen: n ? +(gens/n).toFixed(1) : 0,
-    kills: C.kills, attacks: C.attacks, births: C.births,
+    kills: C.kills, killsMeat: C.killsMeat, killsMeatByMeat: C.killsMeatByMeat, attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
