@@ -24,6 +24,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/genomes.js` | brain probes of a `--dump`, split at diet 0.3. |
 | `tools/batch.sh` | local batch, 4 worlds at a time, on a frozen copy of the build: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>` → `runs/<label>/`. |
 | `tools/voice.js`, `tools/herd.js` | brain probes of a dump: what calls mean; whether grazers steer toward look-alikes, everyone, or calls. |
+| `tools/colour.js` | does colour mean anything in a `--dump`: how well prey colour predicts armour, and how hunters' strike urge depends on the target's colour. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
