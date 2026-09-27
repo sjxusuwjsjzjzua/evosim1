@@ -802,6 +802,14 @@ may change. A fruit sense for animals comes only if this shows fruit matters.
 
 See `OPS.md` (operating modes) and `ops/queue.json` (what runs next).
 
+**A lower size cap hurts predators** (`v1-BE-sizemax8`, `sizeMax` 8 against 12,
+12 paired seeds, 1M ticks). Expected: fewer giant-grazer escapes. Wrong: predators
+persisted in 6 of 12 against 9, with 11 exits against 6 and predator-dominated
+worlds 5 against 10 (p 0.062). The cap binds hunters, who must outsize their
+prey, more than it stops grazers outgrowing them. `sizeMax` stays 12. Both arms
+show a rare re-entry into the predator state after an exit (2 and 1), so a
+second origin is possible, only rare.
+
 **The added inputs cost nothing** (`v1-BD-lean`, build e784265 with 30 senses and
 6 outputs, sexual, against `v1-BC-s1c0`, the current build with the compass
 off; 12 paired seeds, 1M ticks): predators persisted in 9 of 12 in both, meat

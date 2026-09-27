@@ -8,9 +8,10 @@
    "baseline": "v1-BC-s1c0",
    "expect": "giant-grazer escapes (grazers outgrowing hunters) become rarer: fewer exits, persistence at least the baseline 9 of 12",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:08",
-   "dispatched_at": "2026-09-27 07:09"
+   "dispatched_at": "2026-09-27 07:09",
+   "scored_at": "2026-09-27 08:29"
   },
   {
    "label": "v1-BE-mutsd12",
