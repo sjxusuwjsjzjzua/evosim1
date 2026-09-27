@@ -829,7 +829,8 @@ meat share at 200k read 0 in all four; that was an artefact, a sample taken
 right after the engine's own had reset the counters. At 60k the same worlds
 had meat 18–27%.) Probe (scratchpad `learnprobe.js`, 60k ticks): learned
 weights move the attack urge on contact both ways (0.33 → 0.23, 0.60 → 0.66,
-0.04 → 0.48): learning does not steadily train hunting out. Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
+0.04 → 0.48, 0.90 → 0.87): learning does not steadily train hunting out. All
+four worlds had meat at 18–27% by 60k. Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
 
 **Smell** (`smell`, new, 0 until tested; NI 50). Animals give off scent in
 three channels (0.25 + 0.75 x colour tag, x mass^0.75), corpses a fourth; it
