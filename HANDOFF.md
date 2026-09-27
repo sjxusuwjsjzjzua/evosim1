@@ -812,6 +812,21 @@ unchanged (meat 18.3% against 18.0%, predator-dominated 14 against 16,
 persisting 15 against 17). Prey clump more with fruit (0.87 against 0.80, 18
 of 24, p 0.023), likely gathering at fruiting plants. Carnivore clusters 8
 against 4 (p 0.39). Fruit stays off by default while the gene declines.
+Carrying test (local, seeds 1101–1102, 300k ticks): the fruit gene follows the
+same path with carrying (0.19 → 0.11–0.14) as without (0.18–0.21 →
+0.09–0.15). Carrying buys a plant nothing: grazing opens ground everywhere,
+so wind seed finds room nearby and distance gains nothing. New physics `jc`
+(Janzen–Connell, off by default): a seed takes root with chance 1 − `jc` x
+(share of its 8 neighbours that are plants of its own kind, plant genes
+within 0.15). Specialised enemies near parents are the usual reason
+dispersal pays in nature. Log: `plantDiv` (mean sd of the four plant genes).
+Local test: `runs/fruitjc` (`jc` 0.8) and `runs/fruitjcnodisp` (`jc` 0.8,
+no carrying). Expectation: with carrying the fruit gene holds or rises;
+without carrying it falls; plant diversity rises under `jc`.
+
+`mutSd` 0.16 (`v1-BH-mutsd16`, 12 paired seeds, 1M ticks): predators persisted
+in 5 of 12 against 9, predator-dominated 4 against 10 (p 0.11), meat 13.4%
+against 19.3%. Mutation load costs the specialists most.
 Fruit-fed prey may support more predators (meat share up), and plant cover
 may change. A fruit sense for animals comes only if this shows fruit matters.
 
