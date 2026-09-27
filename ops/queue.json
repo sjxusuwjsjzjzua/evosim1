@@ -166,6 +166,66 @@
    "dispatched_at": "2026-09-27 10:49"
   },
   {
+   "label": "v1-BJ-fjc",
+   "seeds": "1101-1112",
+   "ticks": 400000,
+   "set": "fruit=1,jc=0.8",
+   "baseline": "v1-BJ-fjcnd",
+   "expect": "fruit gene holds or rises (up in most worlds); carried seed a large share; plant diversity up",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 11:22",
+   "dispatched_at": "2026-09-27 11:22"
+  },
+  {
+   "label": "v1-BJ-fjcnd",
+   "seeds": "1101-1112",
+   "ticks": 400000,
+   "set": "fruit=1,jc=0.8,gutTicks=0",
+   "baseline": "",
+   "expect": "no carrying: fruit gene falls",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 11:22",
+   "dispatched_at": "2026-09-27 11:22"
+  },
+  {
+   "label": "v1-BJ-f",
+   "seeds": "1101-1112",
+   "ticks": 400000,
+   "set": "fruit=1",
+   "baseline": "v1-BJ-fjcnd",
+   "expect": "fruit without jc: gene falls as before",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 11:22",
+   "dispatched_at": "2026-09-27 11:22"
+  },
+  {
+   "label": "v1-BJ-jc",
+   "seeds": "1101-1112",
+   "ticks": 400000,
+   "set": "jc=0.8",
+   "baseline": "v1-BJ-base",
+   "expect": "jc alone: plant diversity up; animal effects small",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 11:22",
+   "dispatched_at": "2026-09-27 11:22"
+  },
+  {
+   "label": "v1-BJ-base",
+   "seeds": "1101-1112",
+   "ticks": 400000,
+   "set": "",
+   "baseline": "",
+   "expect": "baseline for the fruit and jc arms on this build",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 11:22",
+   "dispatched_at": "2026-09-27 11:22"
+  },
+  {
    "label": "v1-EG-base-1161",
    "seeds": "1161-1172",
    "ticks": 1000000,

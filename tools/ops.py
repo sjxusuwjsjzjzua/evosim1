@@ -81,6 +81,8 @@ def main():
             sh('bash tools/fetch-results.sh %s' % e['label'])
             txt = '### %s (%s)\n\n`%s`, seeds %s, %d ticks. Expected: %s\n\n- %s\n' % (
                 e['label'], now(), e['set'] or 'defaults', e['seeds'], e['ticks'], e['expect'], summary(e['label']))
+            fr = sh('python3 tools/fruit.py runs/%s/s????.json' % e['label']).strip().splitlines()
+            if fr and fr[-1].startswith('mean:') and 'fruit=1' in e['set']: txt += '- fruit: %s\n' % fr[-1][6:]
             b = e.get('baseline')
             if b:
                 if not os.path.isdir('runs/' + b): sh('bash tools/fetch-results.sh %s' % b)
