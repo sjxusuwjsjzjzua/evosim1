@@ -838,6 +838,16 @@ do what it was for. Next:
 `fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
 `-fjcnd02`, 24 seeds.
 
+**Seed carrying selects for fruit** (`v1-BK-fjc02` against `-fjcnd02`, `fruit` 1,
+`jc` 0.8, `fruitPerSeed` 0.2, 24 paired seeds, 400k ticks). The fruit gene was
+higher with carrying in 20 of 24 pairs (+0.061, sign test p 0.0015): 0.200 →
+0.148 with carrying, 0.184 → 0.087 without. It rose again late in some worlds
+(s1101: 0.24 → 0.13 → 0.20) and ended above its start in 3 of 24. Carried
+seed made up 17% of new plants, fruit 28% of animals' plant energy. Animals
+carrying seed now select for plants that feed them: a mutualism that no
+rule states. A 2x2 at 1M ticks (carrying x `jc`, `v1-BL-*`, 24 seeds each)
+tests where the gene settles and whether `jc` matters.
+
 `v1-BI-3Mb` (12 more seeds at 3M ticks, defaults): 14 exits, 5 re-entries;
 predators persisted in 2 of 12. Over 3M ticks predators come and go.
 

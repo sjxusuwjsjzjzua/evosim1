@@ -227,3 +227,30 @@
 
 - worlds 12, meat 22.6%, kill 17.6%, carnSp>0 in 3, preyCl 0.96
 
+### v1-BK-fjc02 (2026-09-27 13:10)
+
+`fruit=1,jc=0.8,fruitPerSeed=0.2`, seeds 1101-1124, 400000 ticks. Expected: with 2.5x the seeds per fruit, carrying pays: fruit gene higher than without carrying in most pairs and holding or rising
+
+- worlds 24, meat 26.7%, kill 22.1%, carnSp>0 in 12, preyCl 0.94
+- fruit: gene 0.200 -> 0.148 (up in 3 of 24), div 0.157, fruit 28.2%, carried 17.0%
+- baseline v1-BK-fjcnd02: worlds 24, meat 26.6%, kill 21.6%, carnSp>0 in 10, preyCl 1.01
+    pred   baseline 20  arm 23   (+4 / -1)  McNemar p 0.375
+    carn   baseline 10  arm 12   (+8 / -6)  McNemar p 0.791
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.266  arm 0.267   mean diff +0.001  sign test 12+/12-  p 1.000
+    preyCl baseline 1.009  arm 0.940   mean diff -0.069  sign test 7+/17-  p 0.064
+    predCl baseline 1.902  arm 1.733   mean diff -0.169  sign test 15+/9-  p 0.307
+    diet   baseline 0.097  arm 0.107   mean diff +0.010  sign test 14+/10-  p 0.541
+    polar  baseline 0.029  arm 0.028   mean diff -0.001  sign test 13+/11-  p 0.839
+    align  baseline -0.008  arm -0.003   mean diff +0.005  sign test 15+/9-  p 0.307
+    preySp baseline 0.264  arm 0.287   mean diff +0.023  sign test 12+/12-  p 1.000
+    predSp baseline 0.518  arm 0.501   mean diff -0.016  sign test 10+/14-  p 0.541
+
+### v1-BK-fjcnd02 (2026-09-27 13:11)
+
+`fruit=1,jc=0.8,fruitPerSeed=0.2,gutTicks=0`, seeds 1101-1124, 400000 ticks. Expected: no carrying: fruit gene falls
+
+- worlds 24, meat 26.6%, kill 21.6%, carnSp>0 in 10, preyCl 1.01
+- fruit: gene 0.184 -> 0.087 (up in 0 of 24), div 0.146, fruit 21.1%, carried 0.0%
+

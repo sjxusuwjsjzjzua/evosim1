@@ -242,9 +242,10 @@
    "baseline": "v1-BK-fjcnd02",
    "expect": "with 2.5x the seeds per fruit, carrying pays: fruit gene higher than without carrying in most pairs and holding or rising",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 12:24",
-   "dispatched_at": "2026-09-27 12:24"
+   "dispatched_at": "2026-09-27 12:24",
+   "scored_at": "2026-09-27 13:11"
   },
   {
    "label": "v1-BK-fjcnd02",
@@ -254,9 +255,54 @@
    "baseline": "",
    "expect": "no carrying: fruit gene falls",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 12:24",
-   "dispatched_at": "2026-09-27 12:24"
+   "dispatched_at": "2026-09-27 12:24",
+   "scored_at": "2026-09-27 13:11"
+  },
+  {
+   "label": "v1-BL-fc",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "fruit=1,fruitPerSeed=0.2",
+   "baseline": "v1-BL-fnc",
+   "expect": "carrying without jc: fruit gene above no-carrying at 1M, settling or rising",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 13:11"
+  },
+  {
+   "label": "v1-BL-fnc",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "fruit=1,fruitPerSeed=0.2,gutTicks=0",
+   "baseline": "",
+   "expect": "no carrying, no jc: fruit gene falls",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 13:11"
+  },
+  {
+   "label": "v1-BL-fjc",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "fruit=1,jc=0.8,fruitPerSeed=0.2",
+   "baseline": "v1-BL-fjnc",
+   "expect": "carrying with jc: as without jc (jc did not matter at 400k)",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 13:11"
+  },
+  {
+   "label": "v1-BL-fjnc",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "fruit=1,jc=0.8,fruitPerSeed=0.2,gutTicks=0",
+   "baseline": "",
+   "expect": "no carrying, jc: fruit gene falls",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 13:11"
   },
   {
    "label": "v1-EG-base-1161",
