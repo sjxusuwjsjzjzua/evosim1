@@ -849,6 +849,11 @@ turnover** (2026-09-27):
   `v1-EG-base-1113`, `-1125`): 23 of 36 (64%). The first 12 (9 of 12) were a
   lucky draw.
 
+**A bigger world does not keep predators longer** (`v1-BG-grid96`, 96 x 96
+against 64 x 64, 12 paired seeds, 1M ticks): predator-dominated 7 against 7,
+persisting 9 of 12, meat 17.6% against 15.8%; nothing significant. Pooled
+persistence of the default build at 1M ticks: 47 of 72 (65%).
+
 **A lower size cap hurts predators** (`v1-BE-sizemax8`, `sizeMax` 8 against 12,
 12 paired seeds, 1M ticks). Expected: fewer giant-grazer escapes. Wrong: predators
 persisted in 6 of 12 against 9, with 11 exits against 6 and predator-dominated

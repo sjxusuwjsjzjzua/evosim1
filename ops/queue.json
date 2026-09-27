@@ -99,9 +99,10 @@
    "baseline": "v1-BF-fruit0",
    "expect": "a bigger world holds more predators and more refuges: persistence above the 64-grid baseline, fewer exits",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 09:28",
-   "dispatched_at": "2026-09-27 09:28"
+   "dispatched_at": "2026-09-27 09:28",
+   "scored_at": "2026-09-27 11:27"
   },
   {
    "label": "v1-BH-mutsd12b",

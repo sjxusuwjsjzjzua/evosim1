@@ -124,3 +124,22 @@
 
 - worlds 12, meat 13.9%, kill 9.6%, carnSp>0 in 0, preyCl 0.79, persisting (predK >= 64% of run after bootstrap) 7, exits 10, re-entries 2
 
+### v1-BG-grid96 (2026-09-27 11:27)
+
+`gridN=96`, seeds 1101-1112, 1000000 ticks. Expected: a bigger world holds more predators and more refuges: persistence above the 64-grid baseline, fewer exits
+
+- worlds 12, meat 17.6%, kill 14.0%, carnSp>0 in 2, preyCl 0.78, persisting (predK >= 64% of run after bootstrap) 9, exits 7, re-entries 2
+- baseline v1-BF-fruit0: worlds 24, meat 18.0%, kill 13.5%, carnSp>0 in 4, preyCl 0.80, persisting (predK >= 64% of run after bootstrap) 17, exits 20, re-entries 8
+    pred   baseline  7  arm  7   (+3 / -3)  McNemar p 1.000
+    carn   baseline  2  arm  2   (+2 / -2)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.158  arm 0.176   mean diff +0.018  sign test 7+/5-  p 0.774
+    preyCl baseline 0.771  arm 0.784   mean diff +0.012  sign test 7+/5-  p 0.774
+    predCl baseline 3.061  arm 3.957   mean diff +0.896  sign test 7+/5-  p 0.774
+    diet   baseline 0.085  arm 0.080   mean diff -0.006  sign test 3+/9-  p 0.146
+    polar  baseline 0.035  arm 0.024   mean diff -0.011  sign test 1+/11-  p 0.006
+    align  baseline -0.001  arm 0.048   mean diff +0.049  sign test 9+/3-  p 0.146
+    preySp baseline 0.279  arm 0.285   mean diff +0.006  sign test 4+/8-  p 0.388
+    predSp baseline 0.446  arm 0.554   mean diff +0.107  sign test 7+/5-  p 0.774
+
