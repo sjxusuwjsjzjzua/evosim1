@@ -37,7 +37,7 @@ Read `OPS.md` first (the operating mode and the experiment queue), then
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
-| `.github/workflows/sim.yml` | the same on GitHub Actions, one seed per job; every log of a dispatch lands on one branch, `results/<label>`. Dispatch with ref = the working branch. |
+| `.github/workflows/sim.yml` | the same on GitHub Actions, up to 4 seeds per job side by side (`per_job`); every log of a dispatch lands on one branch, `results/<label>`. Dispatch with ref = the working branch. |
 | `HANDOFF.md` | current state and next steps. |
 | `MINING.md` | analysis of 476 run logs (2026-09-26): what predicts predator worlds, how they end. |
 | `SURVEY.md` | what other artificial-life systems made emerge and by which physics; ranked engine changes. Some claims are from memory and marked so. |
@@ -52,14 +52,14 @@ Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell
 reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
-and a neural network (42 senses, 8 hidden,
+and a neural network (50 senses, 8 hidden,
 9 outputs: turn, throttle, eat, meat preference, attack, call, give, and two memory outputs fed back as inputs). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is
 in reach (the attended one). Diet is one axis with a concave trade-off (`dietCurve` 2, `meatFloor` 0.4): plant yield x (1 - diet^2),
 meat yield x (0.4 + 0.6 (1 - (1 - diet)^2)). A corpse carries its flesh plus the reserves the animal died
 with. Attention picks which neighbour the animal senses and strikes; its weights
-are genes. An animal that ate last tick senses animals over only 30% of its range (`headDown`). A call is heard by every animal in range, heads down or not; it costs energy and means whatever evolution makes it mean. Juveniles are slow. Reproduction is sexual by default (`sex` 1: a breeder recombines with an acceptable
+are genes. An animal that ate last tick senses animals over only 30% of its range (`headDown`). A call is heard by every animal in range, heads down or not; it costs energy and means whatever evolution makes it mean. Two options under test: `smell` (scent from animals, by colour tag, and from corpses, spreading and fading on a grid; two nostrils read it) and `nutrients` (a closed nutrient loop: soil → plants → animals → dung and corpses → soil). Juveniles are slow. Reproduction is sexual by default (`sex` 1: a breeder recombines with an acceptable
 mate in sense range, else clones; `mateDist` 0.1 makes genomes too far apart unable to breed, so clusters become species; `sex` 0 clones). Founders have a cheap ancestral body and a random brain and keep
 arriving until a population establishes. See `HANDOFF.md` for why each piece is
 there.

@@ -358,3 +358,30 @@
 
 - worlds 12, meat 20.4%, kill 16.4%, carnSp>0 in 4, preyCl 0.90, persisting (predK >= 64% of run after bootstrap) 11, exits 4, re-entries 2
 
+### v1-BO-see1 (2026-09-27 21:09)
+
+`seeFruit=1`, seeds 1101-1124, 1000000 ticks. Expected: grazers turn toward fruit; fruit share of energy up; fruit gene higher; predators unchanged
+
+- worlds 24, meat 21.4%, kill 17.1%, carnSp>0 in 9, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 20, exits 13, re-entries 5
+- fruit: gene 0.195 -> 0.308 (up in 12 of 24), div 0.176, fruit 26.5%, carried 34.5%
+- baseline v1-BO-see0: worlds 24, meat 16.3%, kill 12.3%, carnSp>0 in 4, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 19, exits 12, re-entries 9
+    pred   baseline 14  arm 19   (+9 / -4)  McNemar p 0.267
+    carn   baseline  4  arm  9   (+7 / -2)  McNemar p 0.180
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  3   (+3 / -0)  McNemar p 0.250
+    meat   baseline 0.163  arm 0.214   mean diff +0.051  sign test 17+/7-  p 0.064
+    preyCl baseline 0.860  arm 0.889   mean diff +0.030  sign test 15+/9-  p 0.307
+    predCl baseline 3.482  arm 2.849   mean diff -0.634  sign test 11+/13-  p 0.839
+    diet   baseline 0.087  arm 0.098   mean diff +0.012  sign test 14+/10-  p 0.541
+    polar  baseline 0.031  arm 0.031   mean diff +0.000  sign test 13+/11-  p 0.839
+    align  baseline 0.008  arm 0.010   mean diff +0.003  sign test 16+/8-  p 0.152
+    preySp baseline 0.307  arm 0.329   mean diff +0.022  sign test 14+/10-  p 0.541
+    predSp baseline 0.437  arm 0.511   mean diff +0.074  sign test 14+/10-  p 0.541
+
+### v1-BO-see0 (2026-09-27 21:09)
+
+`seeFruit=0`, seeds 1101-1124, 1000000 ticks. Expected: baseline on the fruit-sense build
+
+- worlds 24, meat 16.3%, kill 12.3%, carnSp>0 in 4, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 19, exits 12, re-entries 9
+- fruit: gene 0.199 -> 0.436 (up in 21 of 24), div 0.210, fruit 27.3%, carried 46.9%
+

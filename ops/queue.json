@@ -398,9 +398,10 @@
    "baseline": "v1-BO-see0",
    "expect": "grazers turn toward fruit; fruit share of energy up; fruit gene higher; predators unchanged",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 17:46",
-   "dispatched_at": "2026-09-27 17:46"
+   "dispatched_at": "2026-09-27 17:46",
+   "scored_at": "2026-09-27 21:09"
   },
   {
    "label": "v1-BO-see0",
@@ -410,9 +411,10 @@
    "baseline": "",
    "expect": "baseline on the fruit-sense build",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 17:46",
-   "dispatched_at": "2026-09-27 17:46"
+   "dispatched_at": "2026-09-27 17:46",
+   "scored_at": "2026-09-27 21:09"
   },
   {
    "label": "v1-BP-3Mdefault",
@@ -540,6 +542,30 @@
    "status": "dispatched",
    "added_at": "2026-09-27 21:04",
    "dispatched_at": "2026-09-27 21:05"
+  },
+  {
+   "label": "v1-SM-base",
+   "seeds": "1325-1348",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "baseline for v1-SM-on (the NI 50 build)",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:08",
+   "dispatched_at": "2026-09-27 21:08"
+  },
+  {
+   "label": "v1-SM-on",
+   "seeds": "1325-1348",
+   "ticks": 1000000,
+   "set": "smell=1",
+   "baseline": "v1-SM-base",
+   "expect": "smell at 1M, 24 paired seeds. Expect: kill share and meat share up a few points (carrion and prey scent lead hunters to food), prey clumping up if prey use scent to keep together or to avoid hunters, predator persistence at least as often as base. A null here means smell is not worth its 8 inputs.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:08",
+   "dispatched_at": "2026-09-27 21:08"
   }
  ]
 }

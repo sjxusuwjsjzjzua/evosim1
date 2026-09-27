@@ -784,18 +784,23 @@ Rules from here:
 
 ## Running now
 
-**Fruit senses** (`seeFruit`, new, on pending the test; NI 42): fruit ahead-left,
-ahead-right and underfoot. First a diagnostic (scratchpad `fruitseek.js`):
-at 150k ticks grazers are split in half, and one half gets +3 x (fruit right
-minus left) on its turn and slows where fruit is, inherited. The seekers won
-11 of 12 worlds and got more fruit energy per head in 9. In unsteered
-controls the same half won 6 of 8, a bias in the split. In the two controls
-where it lost (0 against 3423, 6 against 1773), steering turned the result
-into a win (2816 against 0, 1823 against 0). Seeking fruit pays. Paired test
-at 1M ticks: `v1-BO-see1` against `v1-BO-see0`, 24 seeds. Expectation:
-grazers evolve to turn toward fruit (`tools/herd.js` now has a fruit probe),
-fruit's share of their energy rises, and plants, now sought out, keep more
-fruit (gene higher than without the senses).
+**Nutrient loop** (`nutrients`, new, 0 until tested). Plant growth draws on
+the soil of its cell (x soil/(soil + `nHalf`), never more than it holds);
+what an animal eats goes into its body; beyond `nBody` x mass it passes as
+dung (`dungRate` of the surplus per tick) where it walks; corpses (as they
+rot), rotting fruit, dieback and displaced plants return to the soil, which
+seeps slowly (`soilDiff`). Total nutrient is conserved to 1e-14. At 100k
+ticks (seeds 3, 4): soil patchy (CV 0.7–1.2), plant mass and animals about
+30% lower, meat share lower. Paired test at 1M: `v1-NU-on` and `v1-NU-rich`
+(`soil0` 12) against `v1-NU-base`, seeds 1301–1324. Expectation in
+`ops/queue.json`.
+
+**Smell** (`smell`, new, 0 until tested; NI 50). Animals give off scent in
+three channels (0.25 + 0.75 x colour tag, x mass^0.75), corpses a fourth; it
+spreads and fades on the spatial-hash grid (about 20 ticks). Two nostrils,
+ahead-left and ahead-right, read each channel's level and which side is
+stronger. It works with the head down and at night, which sight does not.
+Paired test: `v1-SM-on` against `v1-SM-base`, seeds 1325–1348.
 
 **Fruit** (`fruit`, new, 0 by default until tested). Plants have a fourth gene,
 fruit (initial values 0–0.5). A plant turns `fruitRate` x fruit x biomass into
@@ -968,6 +973,23 @@ is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
 
 ## Recent results (2026-09-26/27, newest first)
+
+**Owner's direction (2026-09-27).** Keep the shape of the app: plants and
+animals stay separate kingdoms, bodies stay one template with gene dials.
+Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
+Lifetime learning only if cheap (the brain is about 25% of run time).
+
+**Fruit senses work as behaviour, not for the plants** (`v1-BO-see1` against
+`v1-BO-see0`, 24 seeds, 1M). Grazers evolve to turn toward fruit in 17 of 24
+worlds (`tools/herd.js` fruit probe, mean +0.40 against -0.09 where the senses
+read 0). But fruit's share of plant-eaters' energy is unchanged (26.5% against
+27.3%), and the fruit gene rises less (0.31 against 0.44 at 1M; higher without
+the senses in 17 of 24, p 0.064), with less seed carried (34.5% against
+46.9%, n.s.). Meat share 21.4% against 16.3% (p 0.064), carnivore clusters in
+9 worlds against 4. Predators persisted in 20 against 19. Seeing fruit stays
+on: it is a sense animals have, and fruit-seeking now evolves. Plants being
+sought out does not pay them more; a guess, untested: seekers feed in full
+fruiting cells and drop seed where cells are full.
 
 **Memory** (2026-09-27): two more brain outputs whose values (tanh) come back
 as inputs at the next think, 0 at birth (NI 39, NO 9). Until then the brain
