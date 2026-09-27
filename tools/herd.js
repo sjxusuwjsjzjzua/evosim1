@@ -5,6 +5,7 @@
 //   kin     toward the centre of look-alikes (kinDir)
 //   crowd   toward the centre of everyone in view (crowdDir)
 //   call    toward the loudest call (heardDir)
+//   fruit   toward fruit (fruit ahead-right against the same ahead-left; 0 in builds without fruit senses)
 // Older dumps are remapped to the current senses (their new inputs read 0).
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'evosim.html'), 'utf8').match(/<script id="engine">([\s\S]*?)<\/script>/)[1];
@@ -29,8 +30,10 @@ for (const f of process.argv.slice(2)){
   const d = JSON.parse(fs.readFileSync(f));
   const gs = d.NG === Sim.NG ? d.genomes : d.genomes.map(g => Array.from(Sim.remapGenome(g, d.NI || 22, d.NO || 5)));
   const grp = gs.filter(g => g[3] < 0.3); if (!grp.length) continue;
-  let kin = 0, crowd = 0, call = 0;
-  for (const g of grp){ kin += toward(g, 'kinDir'); crowd += toward(g, 'crowdDir'); call += toward(g, 'heardDir', [['heard', 0.8]]); }
+  let kin = 0, crowd = 0, call = 0, fruit = 0;
+  const hasF = ix('fruitR') >= 0;
+  const fr = g => { const r = base(), l = base(); r[ix('fruitR')] = 0.5; l[ix('fruitL')] = 0.5; return brain(g, r) - brain(g, l); };
+  for (const g of grp){ kin += toward(g, 'kinDir'); crowd += toward(g, 'crowdDir'); call += toward(g, 'heardDir', [['heard', 0.8]]); if (hasF) fruit += fr(g); }
   const n = grp.length;
-  console.log(path.basename(f).padEnd(24), 'grazers', String(n).padStart(3), ' kin', (kin/n).toFixed(3), ' crowd', (crowd/n).toFixed(3), ' call', (call/n).toFixed(3));
+  console.log(path.basename(f).padEnd(24), 'grazers', String(n).padStart(3), ' kin', (kin/n).toFixed(3), ' crowd', (crowd/n).toFixed(3), ' call', (call/n).toFixed(3), ' fruit', (fruit/n).toFixed(3));
 }

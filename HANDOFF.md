@@ -784,6 +784,19 @@ Rules from here:
 
 ## Running now
 
+**Fruit senses** (`seeFruit`, new, on pending the test; NI 42): fruit ahead-left,
+ahead-right and underfoot. First a diagnostic (scratchpad `fruitseek.js`):
+at 150k ticks grazers are split in half, and one half gets +3 x (fruit right
+minus left) on its turn and slows where fruit is, inherited. The seekers won
+11 of 12 worlds and got more fruit energy per head in 9. In unsteered
+controls the same half won 6 of 8, a bias in the split. In the two controls
+where it lost (0 against 3423, 6 against 1773), steering turned the result
+into a win (2816 against 0, 1823 against 0). Seeking fruit pays. Paired test
+at 1M ticks: `v1-BO-see1` against `v1-BO-see0`, 24 seeds. Expectation:
+grazers evolve to turn toward fruit (`tools/herd.js` now has a fruit probe),
+fruit's share of their energy rises, and plants, now sought out, keep more
+fruit (gene higher than without the senses).
+
 **Fruit** (`fruit`, new, 0 by default until tested). Plants have a fourth gene,
 fruit (initial values 0–0.5). A plant turns `fruitRate` x fruit x biomass into
 fruit per tick, up to `fruitMax` of its capacity. Fruit rots (`fruitRot`

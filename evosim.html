@@ -146,6 +146,7 @@ var CFG_DEFAULT = {
                         // 0.08 without carrying; predators persist as without fruit (19 of 24 against 17)
   jc: 0,                // seedlings fail near their own kind (specialised enemies build up round a parent):
                         // a seed takes root with chance 1 - jc x (share of the 8 neighbours that are plants of its own kind)
+  seeFruit: 1,          // animals sense fruit ahead-left, ahead-right and underfoot
   fruitRate: 0.002,     // biomass turned into fruit per tick, x fruit gene x biomass
   fruitMax: 0.5,        // fruit a cell can hold, as a share of its capacity
   fruitRot: 0.005,      // share of the fruit that rots per tick
@@ -263,11 +264,11 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 39, NH = 8, NO = 9;
+var NI = 42, NH = 8, NO = 9;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading','light','mem1','mem2'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading','light','mem1','mem2','fruitL','fruitR','fruitHere'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call','give','mem1','mem2'];
 
 var CFG, S;   // config and state
@@ -711,6 +712,11 @@ function sense(i){
   IN[6] = S.pB[cellAt(x + Math.cos(h+0.7)*look, y + Math.sin(h+0.7)*look)]*kmax;
   var here = cellAt(x, y);
   IN[7] = S.pB[here]*kmax;
+  // fruit ahead-left, ahead-right and underfoot (read 0 with seeFruit off)
+  var sf = CFG.seeFruit*kmax*4;
+  IN[39] = sf*S.pF[cellAt(x + Math.cos(h-0.7)*look, y + Math.sin(h-0.7)*look)];
+  IN[40] = sf*S.pF[cellAt(x + Math.cos(h+0.7)*look, y + Math.sin(h+0.7)*look)];
+  IN[41] = sf*S.pF[here];
   IN[8] = S.pB[here] > 0 ? S.pDef[here] : 0;
   if (nearA >= 0){
     var ax = wrap(S.x[nearA]-x), ay = wrap(S.y[nearA]-y), og = nearA*NG;
