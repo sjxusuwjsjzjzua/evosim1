@@ -784,18 +784,25 @@ Rules from here:
 
 ## Running now
 
-Rule 3 of the self-audit: do the added inputs cost anything? `v1-BD-lean`
-runs the build before them (e784265: 30 senses, 6 outputs, no give, memory,
-colour, heading, light or compass) with `sex` 1 and `mateDist` 0.1, 12 seeds
-(1101–1112), 1M ticks. It pairs with `v1-BC-s1c0` (current build, compass
-off). Expectation: no difference in predator persistence (9 of 12 current).
-If the lean build persists clearly more often, prune the null inputs. The
-workflow now takes `build_ref` to run an older commit's `evosim.html`.
+See `OPS.md` (operating modes) and `ops/queue.json` (what runs next).
 
-Also running: the predator regrowth diagnostic (scratchpad `regrow.js`,
-seeds 1109, 1102, 1105, 1111). Each is replayed to 1M ticks, then run 150k
-ticks as is, with 60 evolved meat-eaters injected, and with 60 random-brain
-founders injected.
+**The added inputs cost nothing** (`v1-BD-lean`, build e784265 with 30 senses and
+6 outputs, sexual, against `v1-BC-s1c0`, the current build with the compass
+off; 12 paired seeds, 1M ticks): predators persisted in 9 of 12 in both, meat
+21.9% against 19.3%, nothing significant. The null inputs stay.
+
+**After a collapse the ecology still supports predators; evolution cannot find
+them again** (scratchpad `regrow.js`). Worlds that lost their predators are
+replayed to 1M ticks and run 150k more three ways. Seeds 1105 and 1109:
+- as is: meat 6.3% and 7.8%;
+- 60 evolved meat-eaters injected: meat 26.4% and 30.7%, with 1 and 2
+  carnivore clusters;
+- 60 random-brain founders injected: meat 6.5% and 9.1%.
+
+So the barrier is re-origination. At the start of a world, predation arises
+from a diverse random population. After a collapse the grazers are one kind,
+and the steps from grazer to hunter (diet, weapon, size, strike urge
+together) are not taken.
 
 Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
