@@ -30,6 +30,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/give.py` | feeding (the give output): gift share of intake, and how much goes to look-alikes and juveniles, early against late. |
 | `tools/daynight.py` | daily rhythm (`dayTicks`): prey and predator speed at night against day, and the night share of kills. |
 | `tools/timeline.py` | a world's history at a glance: meat share, carnivore clusters, streaming and body sizes per window. |
+| `tools/memory.js` | what memory does in a `--dump`: whether a scare lingers into the next step, and whether memory runs a clock of its own. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
