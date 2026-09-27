@@ -793,11 +793,11 @@ off; 12 paired seeds, 1M ticks): predators persisted in 9 of 12 in both, meat
 
 **After a collapse the ecology still supports predators; evolution cannot find
 them again** (scratchpad `regrow.js`). Worlds that lost their predators are
-replayed to 1M ticks and run 150k more three ways. Seeds 1105 and 1109:
-- as is: meat 6.3% and 7.8%;
-- 60 evolved meat-eaters injected: meat 26.4% and 30.7%, with 1 and 2
-  carnivore clusters;
-- 60 random-brain founders injected: meat 6.5% and 9.1%.
+replayed to 1M ticks and run 150k more three ways. Seeds 1102, 1105, 1109,
+1111, 4 of 4 alike:
+- as is: meat 4.8–10.3%;
+- 60 evolved meat-eaters injected: meat 22.4–33.9%, 1–2 carnivore clusters;
+- 60 random-brain founders injected: meat 5.9–10.9%, no cluster.
 
 So the barrier is re-origination. At the start of a world, predation arises
 from a diverse random population. After a collapse the grazers are one kind,
