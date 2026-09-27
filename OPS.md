@@ -35,9 +35,10 @@ python3 tools/ops.py evergreen 60      # top up with standing replication runs
 Dispatch is one `actions_run_trigger` call per entry (ref = the working
 branch, workflow `sim.yml`), with the inputs `next` prints.
 
-**Saturation rule, all modes:** keep at least 40 jobs dispatched and not yet
-landed (20 running and a queue behind them), and at least 60 pending jobs in
-`ops/queue.json`. If designed work runs short, `evergreen` adds standing runs:
+**Saturation rule, all modes:** keep at least 80 jobs dispatched and not yet
+landed, and at least 60 pending jobs in `ops/queue.json`. Forty was too few:
+on 2026-09-27 48 jobs in flight all finished between two hourly check-ins and
+the runners sat idle. If designed work runs short, `evergreen` adds standing runs:
 the default build at 1M ticks on fresh 12-seed blocks. They build up the
 sample on the core outcome (predator persistence) and are never wasted.
 
