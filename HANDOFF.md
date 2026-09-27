@@ -45,7 +45,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 1, `mateDist` 0.1 by default (2026-09-26). A breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`), else clones; crossover keeps each neuron's wiring whole | against clonal over 24 paired seeds (`v1-AP-sex`): predator-dominated 20 against 20, carnivore clusters 10 against 12, nothing significant. In 13 of 24 the meat-eaters are a separate species (at most 5% of cross pairs could breed), and in 7 some grazer clusters are isolated from each other. Without `mateDist` sexual worlds fall behind (below) |
-| compass | `compass` 1: an animal senses its own heading in world terms | with it prey populations evolve a shared bearing and travel together (24 paired worlds: prey clumping 1.22 against 0.84, predation unchanged); without it no genome can encode a direction |
+| compass | `compass` 0 by default; with 1 an animal senses its own heading in world terms | with it prey populations evolve a shared bearing and travel together (prey clumping 1.22 against 0.84 at 400k ticks), but over 1M ticks predators persist in 10 of 24 worlds against 20 without it (p 0.013) |
 | give | `give` 1: when the give urge fires and the attended animal is in reach, `giveRate` x mass^0.75 of reserves passes to it (the receiver gets `giveEff` 0.8); the mouth is busy for the tick | the one way to pass energy on after birth; under test (below) |
 | seasons | `seasonAmp` (0 by default) makes plant growth rise and fall over `yearTicks`; `seasonWave` 1 makes the season travel along x | a global season makes giant worlds (18 of 24); a travelling one far fewer (7 of 24), and with the compass most worlds stream with it |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
@@ -787,6 +787,26 @@ Current build, clonal (`sex` 0) with the compass, same seeds, 1M ticks
 (`runs/s0c1-local`): predators held in one of four (s1101: 940 thousand ticks,
 19% meat). s1102 never entered the predator state, and s1103 and s1104 left it
 (5–7% meat late). So clonal reproduction alone does not bring persistence back.
+
+**Result of the 2x2** (12 seeds each, 1M ticks; "persisting" = at least 600
+thousand ticks in the predator state):
+
+| arm | persisting | exits | meat | 
+|---|---|---|---|
+| sexual, compass (`v1-BC-s1c1`) | 4 of 12 | 11 | 14.9% |
+| clonal, compass (`-s0c1`) | 6 of 12 | 7 | 17.2% |
+| sexual, no compass (`-s1c0`) | 9 of 12 | 6 | 19.3% |
+| clonal, no compass (`-s0c0`) | 11 of 12 | 3 | 22.5% |
+
+Paired by seed, pooled over reproduction: without the compass predators
+persist in 20 of 24 against 10 (+12/−2, McNemar p 0.013). Predator-state time
+is higher in 16 of 20 changed pairs (p 0.012). Reproduction's effect is not
+significant (+5/−3 and +2/−0). Streaming prey starve predation over the long
+run, even though at 400k ticks the compass arms showed no loss. **The compass
+is now off by default** and is a toggle in the page's world drawer. Sexual
+reproduction stays the default. The evolved start is now `v1-BC-s1c0` seed
+1104 (sexual, no compass, 1M ticks): founded into 8 worlds (4 quantised as the
+page stores it), the predators held in 8 (meat 20–34%, 1–2 carnivore clusters).
 
 Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
 moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
