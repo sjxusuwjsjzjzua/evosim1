@@ -239,8 +239,9 @@
    "baseline": "v1-BK-fjcnd02",
    "expect": "with 2.5x the seeds per fruit, carrying pays: fruit gene higher than without carrying in most pairs and holding or rising",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 12:24"
+   "status": "dispatched",
+   "added_at": "2026-09-27 12:24",
+   "dispatched_at": "2026-09-27 12:24"
   },
   {
    "label": "v1-BK-fjcnd02",
@@ -250,8 +251,9 @@
    "baseline": "",
    "expect": "no carrying: fruit gene falls",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 12:24"
+   "status": "dispatched",
+   "added_at": "2026-09-27 12:24",
+   "dispatched_at": "2026-09-27 12:24"
   },
   {
    "label": "v1-EG-base-1161",
