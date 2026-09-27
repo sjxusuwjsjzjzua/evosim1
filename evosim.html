@@ -833,7 +833,7 @@ function eatPlant(i, c, t, slow, m75, diet){
       if (fb > 0){
         S.pF[c] -= fb; got = fb*fv; MOUTH[1] = Math.max(0, MOUTH[1] - got); used = fb/fr; t -= used;
         S.lP[i] += got; S.c.eP += got; S.c.eF += got;
-        if (S.gutT[i] <= 0 && S.pB[c] > 0){
+        if (CFG.gutTicks > 0 && S.gutT[i] <= 0 && S.pB[c] > 0){
           S.gutT[i] = CFG.gutTicks; var gg = i*4;
           S.gutG[gg] = S.pStat[c]; S.gutG[gg+1] = S.pDef[c]; S.gutG[gg+2] = S.pDisp[c]; S.gutG[gg+3] = S.pFruit[c];
         }
