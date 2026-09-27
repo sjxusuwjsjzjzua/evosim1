@@ -63,9 +63,11 @@ Browser check (Chromium and Playwright are preinstalled):
   become a separate species in about half of worlds; plant-eaters sometimes
   split into small grazers and large browsers that feed at different plant
   heights.
-- With a compass, prey populations evolve a shared bearing and stream across
-  the world together; predators travel with the stream. There is no local
-  flocking and no herding by seeking company.
+- With the compass on (off by default), prey populations evolve a shared
+  bearing and stream across the world together, and predators travel with
+  the stream. Over 1M ticks this starves predation: predators persist in 10
+  of 24 worlds with it against 20 without. There is no local flocking and no
+  herding by seeking company.
 - Meat-eaters that die by killing are killed by other meat-eaters, mostly
   as juveniles of the killer's own kind.
 - Colour, heading and feeding are available to evolution. None yet produced
@@ -748,6 +750,13 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
+is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
+core, so local batches beat Actions for anything under ~20 worlds.
+
+## Recent results (2026-09-26/27, newest first)
+
 **Memory** (2026-09-27): two more brain outputs whose values (tanh) come back
 as inputs at the next think, 0 at birth (NI 39, NO 9). Until then the brain
 was purely feedforward.
@@ -1016,10 +1025,7 @@ telling species apart. The senses stay, the switch is gone.
 Sexual is now the default (result in the table at the top). The colour and
 season arms below were dispatched before the switch and run clonal; they
 are paired within themselves. The evolved start keeps its predators with sex
-on (4 of 4 worlds, meat 26–34% at 60k ticks against 34–40% clonal). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
-runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
-is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
-core, so local batches beat Actions for anything under ~20 worlds.
+on (4 of 4 worlds, meat 26–34% at 60k ticks against 34–40% clonal).
 
 ## Next
 
