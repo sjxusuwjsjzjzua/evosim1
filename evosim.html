@@ -141,6 +141,17 @@ var CFG_DEFAULT = {
   pDispMax: 8,          // longest seed throw beyond the first cell, at dispersal 1
   pDispCost: 0.15,      // share of growth rate given up at dispersal 1
   pMutSd: 0.05,
+  fruit: 1,             // plants may turn biomass into fruit (their fourth gene sets how much). With animals
+                        // carrying the seed, the fruit gene rises over 1M ticks (0.19 -> 0.25) and falls to
+                        // 0.08 without carrying; predators persist as without fruit (19 of 24 against 17)
+  jc: 0,                // seedlings fail near their own kind (specialised enemies build up round a parent):
+                        // a seed takes root with chance 1 - jc x (share of the 8 neighbours that are plants of its own kind)
+  fruitRate: 0.002,     // biomass turned into fruit per tick, x fruit gene x biomass
+  fruitMax: 0.5,        // fruit a cell can hold, as a share of its capacity
+  fruitRot: 0.005,      // share of the fruit that rots per tick
+  fruitValue: 3,        // energy per unit of fruit against a unit of leaf; no defence, hangs in reach
+  gutTicks: 200,        // an animal that eats fruit drops its seeds this many ticks later, where it is then
+  fruitPerSeed: 0.2,    // fruit eaten per batch of seeds swallowed; a gut holds up to 4 batches
   plantEvery: 2,        // plants update every N ticks (dt = N)
 
   // ---- animals: bodies ----
@@ -324,6 +335,7 @@ function init(patch){
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
     pK: new Float32Array(nc), pRate: new Float32Array(nc),   // cached from the genome
     pSeed: new Float32Array(nc), pH: new Float32Array(nc),   // accumulated seed pressure; a seed flies at 1
+    pFruit: new Float32Array(nc), pF: new Float32Array(nc),   // fruit gene, fruit on the cell
     // animals, structure of arrays
     n: 0, alive: new Uint8Array(M), free: new Int32Array(M), nFree: 0, hi: 0,
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
@@ -331,6 +343,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
+    gutT: new Float32Array(M*4), gutG: new Float32Array(M*16), gutAcc: new Float32Array(M),   // up to 4 seed batches in the gut: ticks left, the plant's four genes; fruit eaten toward the next batch
     call: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
@@ -352,7 +365,7 @@ function init(patch){
   // founding flora: random genomes scattered over a third of the cells
   for (var p = 0; p < nc; p++){
     if (rng() < 0.33){
-      S.pStat[p] = rng(); S.pDef[p] = rng()*0.5; S.pDisp[p] = rng();
+      S.pStat[p] = rng(); S.pDef[p] = rng()*0.5; S.pDisp[p] = rng(); S.pFruit[p] = rng()*0.5;
       S.pB[p] = CFG.pKmin*rng();
     }
     cachePlant(p);
@@ -362,7 +375,7 @@ function init(patch){
 }
 
 function newCounters(){
-  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, gives: 0, eG: 0, eGkin: 0, eGjuv: 0, killsNight: 0, mvPd: 0, mvPn: 0, nPd: 0, nPn: 0, mvMd: 0, mvMn: 0, nMd: 0, nMn: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
+  return {eP: 0, eF: 0, seedsWind: 0, seedsAnimal: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, gives: 0, eG: 0, eGkin: 0, eGjuv: 0, killsNight: 0, mvPd: 0, mvPn: 0, nPd: 0, nPn: 0, mvMd: 0, mvMn: 0, nMd: 0, nMn: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
           plantEaten: 0, meatEaten: 0, reseeds: 0};
 }
 
@@ -389,6 +402,12 @@ function updatePlants(){
     B += S.pRate[c]*season*B*(1 - B/K)*dt;
     if (B < 0.01){ S.pB[c] = 0; continue; }
     if (CFG.browseGrown){ var hg = CFG.browse*S.pStat[c]*B/K; if (hg > S.pH[c]) S.pH[c] = hg; }   // a trunk: grows, never shrinks
+    // fruit: biomass turned into food for animals, seeds inside; it rots if nobody eats it
+    if (S.pF[c] > 0) S.pF[c] *= 1 - CFG.fruitRot*dt;
+    if (CFG.fruit && S.pFruit[c] > 0 && S.pF[c] < CFG.fruitMax*K){
+      var fp = Math.min(CFG.fruitRate*S.pFruit[c]*B*dt, CFG.fruitMax*K - S.pF[c]);
+      B -= fp; S.pF[c] += fp;
+    }
     // seeding: a full cell throws seed; it lands only where there is room
     var full = B/K;
     if (full <= 0.5){ S.pB[c] = B; continue; }
@@ -402,18 +421,41 @@ function updatePlants(){
       var tx = ((cx + Math.round(Math.cos(th)*dist)) % n + n) % n;
       var ty = ((cy + Math.round(Math.sin(th)*dist)) % n + n) % n;
       var t = ty*n + tx;
-      if (t !== c && S.pB[t] < CFG.pTakeover){
+      if (t !== c && S.pB[t] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(t, S.pStat[c], S.pDef[c], S.pDisp[c], S.pFruit[c]))){
         B -= CFG.pSeedB;
         S.pB[t] = CFG.pSeedB;
         S.pStat[t] = mutP(S.pStat[c], sd);
         S.pDef[t]  = mutP(S.pDef[c], sd);
         S.pDisp[t] = mutP(S.pDisp[c], sd);
-        S.pSeed[t] = 0; S.pH[t] = 0;
+        S.pFruit[t] = mutP(S.pFruit[c], sd);
+        S.pSeed[t] = 0; S.pH[t] = 0; S.pF[t] = 0; S.c.seedsWind++;
         cachePlant(t);
       }
     }
     S.pB[c] = B;
   }
+}
+// the share of a cell's 8 neighbours that are plants of the seed's own kind (plant genes within 0.15)
+function kinNeighbours(t, st, de, di, fr){
+  var n = CFG.gridN, tx = t % n, ty = (t/n)|0, k = 0;
+  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+    if (!dx && !dy) continue;
+    var u = ((ty+dy+n) % n)*n + (tx+dx+n) % n;
+    if (S.pB[u] <= 0) continue;
+    var a = S.pStat[u]-st, b = S.pDef[u]-de, c = S.pDisp[u]-di, d = S.pFruit[u]-fr;
+    if (a*a + b*b + c*c + d*d < 0.0225) k++;
+  }
+  return k/8;
+}
+// plant genetic diversity: the mean standard deviation of the four plant genes over occupied cells
+function plantDiversity(){
+  var nc = CFG.gridN*CFG.gridN, n = 0, m = [0,0,0,0], q = [0,0,0,0];
+  for (var c = 0; c < nc; c++){ if (S.pB[c] <= 0) continue; n++;
+    var v = [S.pStat[c], S.pDef[c], S.pDisp[c], S.pFruit[c]];
+    for (var k = 0; k < 4; k++){ m[k] += v[k]; q[k] += v[k]*v[k]; } }
+  if (!n) return 0;
+  var sd = 0; for (var k2 = 0; k2 < 4; k2++) sd += Math.sqrt(Math.max(0, q[k2]/n - (m[k2]/n)*(m[k2]/n)));
+  return +(sd/4).toFixed(4);
 }
 function mutP(v, sd){ return rng() < 0.3 ? clamp(v + gauss()*sd, 0, 1) : v; }
 
@@ -477,7 +519,7 @@ function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
   S.tgt[i] = -1; S.tgtId[i] = -1; S.call[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
-  S.id[i] = S.nextId++;
+  S.id[i] = S.nextId++; S.gutT[i*4] = S.gutT[i*4+1] = S.gutT[i*4+2] = S.gutT[i*4+3] = 0; S.gutAcc[i] = 0;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
 function copyGenome(dst, src){
@@ -809,6 +851,35 @@ function think(i){
 var MOUTH = new Float64Array(2);   // [0] gain, [1] room. In an array: a closure variable holding a double is boxed on every write
 function eatPlant(i, c, t, slow, m75, diet){
   MOUTH[0] = 0;
+  // fruit first: dense, undefended, within anyone's reach; its seeds are swallowed with it
+  var used = 0, got = 0;
+  if (S.pF[c] > 0 && t > 0){
+    var fv = CFG.ePlant*CFG.fruitValue*(1 - Math.pow(diet, CFG.dietCurve)), fr = CFG.graze*m75*slow;
+    if (fr > 0 && fv > 1e-6){
+      var fb = Math.min(S.pF[c], fr*t, MOUTH[1]/fv);
+      if (fb > 0){
+        S.pF[c] -= fb; got = fb*fv; MOUTH[1] = Math.max(0, MOUTH[1] - got); used = fb/fr; t -= used;
+        S.lP[i] += got; S.c.eP += got; S.c.eF += got;
+        if (CFG.gutTicks > 0 && S.pB[c] > 0){
+          S.gutAcc[i] += fb;
+          while (S.gutAcc[i] >= CFG.fruitPerSeed){
+            S.gutAcc[i] -= CFG.fruitPerSeed;
+            for (var sl = 0; sl < 4; sl++) if (S.gutT[i*4+sl] <= 0){
+              S.gutT[i*4+sl] = CFG.gutTicks; var gg = (i*4+sl)*4;
+              S.gutG[gg] = S.pStat[c]; S.gutG[gg+1] = S.pDef[c]; S.gutG[gg+2] = S.pDisp[c]; S.gutG[gg+3] = S.pFruit[c];
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  var r0 = eatLeaf(i, c, t, slow, m75, diet);
+  MOUTH[0] += got;
+  return used + r0;
+}
+function eatLeaf(i, c, t, slow, m75, diet){
+  MOUTH[0] = 0;
   var B = S.pB[c], G = S.genome, g = i*NG, floor = CFG.pRoot;
   if (CFG.browse > 0){   // the part of a tall plant above this animal's reach is out of reach
     var H = CFG.browseGrown ? S.pH[c] : CFG.browse*S.pStat[c], reach = Math.cbrt(S.mass[i]);
@@ -920,6 +991,16 @@ function updateAnimal(i){
     }
   }
 
+  // seeds swallowed with fruit come out here, and take root if the ground is open
+  for (var sl2 = 0; sl2 < 4; sl2++) if (S.gutT[i*4+sl2] > 0 && --S.gutT[i*4+sl2] <= 0){
+    var dc = cellAt(S.x[i], S.y[i]);
+    var gg2 = (i*4+sl2)*4, sd2 = CFG.pMutSd;
+    if (S.pB[dc] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(dc, S.gutG[gg2], S.gutG[gg2+1], S.gutG[gg2+2], S.gutG[gg2+3]))){
+      S.pB[dc] = CFG.pSeedB; S.pStat[dc] = mutP(S.gutG[gg2], sd2); S.pDef[dc] = mutP(S.gutG[gg2+1], sd2);
+      S.pDisp[dc] = mutP(S.gutG[gg2+2], sd2); S.pFruit[dc] = mutP(S.gutG[gg2+3], sd2);
+      S.pSeed[dc] = 0; S.pH[dc] = 0; S.pF[dc] = 0; cachePlant(dc); S.c.seedsAnimal++;
+    }
+  }
   // ---- metabolism
   var R = G[g+G_SENSE]/10, w = G[g+G_WEAPON], dt = G[g+G_DETOX];
   var V = G[g+G_SPEED];
@@ -1096,9 +1177,10 @@ function sample(){
       if (ms > 0.5) pred++;
     }
   }
+  var sfr = 0, sfF = 0;
   var pb = 0, pcells = 0, sd = 0, ss = 0, sp = 0, nc = CFG.gridN*CFG.gridN;
   for (var c = 0; c < nc; c++){
-    if (S.pB[c] > 0){ pb += S.pB[c]; pcells++; sd += S.pDef[c]; ss += S.pStat[c]; sp += S.pDisp[c]; }
+    if (S.pB[c] > 0){ pb += S.pB[c]; pcells++; sd += S.pDef[c]; ss += S.pStat[c]; sp += S.pDisp[c]; sfr += S.pFruit[c]; sfF += S.pF[c]; }
   }
   var mean = {};
   for (var b = 0; b < NB; b++) mean[BODY[b][0]] = n ? +(sums[b]/n).toFixed(4) : 0;
@@ -1139,6 +1221,7 @@ function sample(){
     t: S.tick, animals: n, corpses: S.cN, plantMass: +pb.toFixed(1), plantCells: pcells,
     plantDef: pcells ? +(sd/pcells).toFixed(4) : 0, plantStat: pcells ? +(ss/pcells).toFixed(4) : 0,
     plantDisp: pcells ? +(sp/pcells).toFixed(4) : 0,
+    plantDiv: plantDiversity(), plantFruit: pcells ? +(sfr/pcells).toFixed(4) : 0, fruitMass: +sfF.toFixed(1), eF: +C.eF.toFixed(1), seedsWind: C.seedsWind, seedsAnimal: C.seedsAnimal,
     genes: mean, dietHist: dh,
     meatShare: eAll > 0 ? +((C.eC + C.eK)/eAll).toFixed(4) : 0,
     killShare: eAll > 0 ? +(C.eK/eAll).toFixed(4) : 0,
@@ -1257,7 +1340,7 @@ function snapshot(){
     rng: [RS[0], RS[1], RS[2], RS[3]], n: n, animals: A, genomes: b64enc(gb),
     ints: b64enc(new Uint8Array(ints.buffer)),
     size: f32(Float32Array.from(idx, function(i3){ return S.genome[i3*NG+G_SIZE]; })),   // exact: adulthood is 0.98 x size
-    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed), H: f32(S.pH)},
+    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed), H: f32(S.pH), fruit: f32(S.pFruit), F: f32(S.pF)},
     corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad),
               k: b64enc(new Uint8Array(new Int32Array(Array.prototype.slice.call(S.cKiller, 0, c)).buffer))},
     log: S.log.slice(-200)
@@ -1272,7 +1355,7 @@ function restore(w){
   S.alive.fill(0); S.n = 0; S.nFree = 0; S.hi = 0; S.cN = 0;
   var P = w.plants;
   S.pB.set(unf32(P.B)); S.pStat.set(unf32(P.stat)); S.pDef.set(unf32(P.def)); S.pDisp.set(unf32(P.disp));
-  S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed)); if (P.H) S.pH.set(unf32(P.H));
+  S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed)); if (P.H) S.pH.set(unf32(P.H)); if (P.fruit){ S.pFruit.set(unf32(P.fruit)); S.pF.set(unf32(P.F)); }
   for (var c = 0; c < S.pB.length; c++) cachePlant(c);
   var n = w.n, F = {}, sizes = w.size ? unf32(w.size) : null, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
   AFIELDS.forEach(function(f){ F[f] = w.animals[f] ? unf32(w.animals[f]) : new Float32Array(w.n); });
@@ -1396,6 +1479,8 @@ function drawPlants(){
       d[o]   = 18 + 40*v*df + 20*v;
       d[o+1] = 30 + 150*v*(1 - 0.5*df);
       d[o+2] = 20 + 90*v*df;
+      var fr = S.pF[c] > 0 ? Math.min(1, S.pF[c]/(0.1*S.pK[c]))*0.75 : 0;   // fruit: a warm blush
+      if (fr > 0){ d[o] += (235 - d[o])*fr; d[o+1] += (95 - d[o+1])*fr; d[o+2] += (120 - d[o+2])*fr; }
     } else { d[o] = 26 + 14*f; d[o+1] = 22 + 10*f; d[o+2] = 18; }
     d[o+3] = 255;
   }
@@ -1430,7 +1515,7 @@ function legend(){
   if (colourMode === 0) h = '<span>diet: plant gut <i class="grad" style="background:linear-gradient(90deg,' + dietColour(0) + ',' + dietColour(0.5) + ',' + dietColour(1) + ')"></i> meat gut</span>';
   else if (colourMode === 1) h = '<span>kin: a heritable colour, so a shared colour means close relatives</span>';
   else h = ['idle', 'grazing', 'eating meat', 'attacking', 'feeding another'].map(function(a, k){ return '<span><i style="background:' + ACT_COL[k] + '"></i>' + a + '</span>'; }).join('');
-  h += '<span><i style="background:#8a3328"></i>corpse</span><span><i style="background:none;border:1.5px solid #6fa3c4;width:11px;height:11px;border-radius:6px"></i>calling</span>';
+  h += '<span><i style="background:#e05f78"></i>fruit</span><span><i style="background:#8a3328"></i>corpse</span><span><i style="background:none;border:1.5px solid #6fa3c4;width:11px;height:11px;border-radius:6px"></i>calling</span>';
   $('legend').innerHTML = h;
 }
 function drawAnimals(){
@@ -1786,6 +1871,7 @@ function buildDrawer(){
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
   });
   h += '<div class="row"><label>seasons move</label><button id="wS">still</button><button id="wT">travelling</button></div>';
+  h += '<div class="row"><label>fruit</label><button id="fOff">off</button><button id="fOn">on</button></div>';
   h += '<div class="row"><label>compass</label><button id="cOff">off</button><button id="cOn">on</button></div>';
   h += '<div class="row"><label>day and night</label><button id="dOff">off</button><button id="dOn">on</button></div>';
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
@@ -1797,6 +1883,7 @@ function buildDrawer(){
   h += '<p class="note">Sexual is the default. In about half of test worlds meat-eaters became a separate species that cannot interbreed with the grazers, and in some the grazers split too. Clonal worlds get predators as often, but a species there is only a cluster of look-alikes.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; with the compass on, most test worlds learned to go with it.</p>';
+  h += '<p class="note">Fruit (pink on the map): every plant has a gene for how much of its growth it turns into fruit. Fruit is rich food, and an animal that eats it drops the seeds wherever it is a while later. Nothing tells plants to fruit or animals to carry seed; in test worlds the fruit gene rose where animals carried seed and fell where they could not.</p>';
   h += '<p class="note">Compass: with it on, every animal can tell which way it faces. Within a few hundred generations a world\'s grazers share a bearing and stream across the world together, with the meat-eaters following. Over a million ticks predators die out far more often with it on (in 14 of 24 test worlds against 4), so it is off by default.</p>';
   h += '<p class="note">Day and night: at night eyes see animals and corpses over a third of their range (ears are unaffected), and every animal can sense how light it is. Fewer kills happen at night; in test worlds no daily rhythm evolved.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
@@ -1820,6 +1907,10 @@ function buildDrawer(){
   $('rC').classList.toggle('on', !sexual); $('rS').classList.toggle('on', sexual);
   $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; fresh(); newWorld(); buildDrawer(); };
   $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; fresh(); newWorld(); buildDrawer(); };
+  var fo = !!Sim.CFG.fruit;
+  $('fOff').classList.toggle('on', !fo); $('fOn').classList.toggle('on', fo);
+  $('fOff').onclick = function(){ Sim.CFG.fruit = 0; patch.fruit = 0; buildDrawer(); };
+  $('fOn').onclick = function(){ Sim.CFG.fruit = 1; patch.fruit = 1; buildDrawer(); };
   var cp = !!Sim.CFG.compass;
   $('cOff').classList.toggle('on', !cp); $('cOn').classList.toggle('on', cp);
   $('cOff').onclick = function(){ Sim.CFG.compass = 0; patch.compass = 0; buildDrawer(); };
@@ -1876,7 +1967,7 @@ function resumeWorld(){
   try {
     var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
     if (w && Sim.restore(w)){
-      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks', 'compass'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks', 'compass', 'fruit'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
       resumedFrom = Sim.S.tick; afterLoad(); return true;
     }
   } catch (e) {}

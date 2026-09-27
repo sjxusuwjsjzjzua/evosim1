@@ -748,9 +748,187 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
   and `browseGrown` (plant height grows with the plant, seedlings are short):
   `results/v1-AF-vigilShare`, `-browseGrown`.
 
+## Self-audit, 2026-09-27: converging or looping?
+
+Since 2026-09-26: 139 commits, 26 engine commits, 42 result branches.
+- **Converging in knowledge.** A long list of nulls now rests on paired
+  tests and hand-built diagnostics (herding, flocking, aimed feeding, kin
+  sparing, rhythms, freezing, warning colours).
+- **Looping in method.** The same move repeated seven times: add a
+  sense or action, run 24 paired seeds, get a null, keep it "as information".
+  Only the compass came with a diagnostic first (`east.js`); no other
+  addition changed behaviour.
+- **Genome bloat.** The brain went from 30 senses and 6 outputs (NG 485) to
+  39 and 9 (NG 752), mostly weights with no shown function. Every change to
+  the layout moved the baseline (AL, AS, AU, AV, AX, AZ).
+- **Wrong horizon.** Defaults were changed on 400k-tick evidence (compass
+  on) and reversed after 1M-tick runs showed the compass halved predator
+  persistence. The core outcome, predators that persist, was never
+  measured at 1M before a default changed. Over the day it went 10 of 10
+  (old build) → 4 of 12 (then-current) → 9 of 12 (now). There is no net gain on
+  it, and it was nearly lost.
+- **Real gains.** Sexual species and a browser/grazer niche split, the
+  cannibalism finding, the diagnosis of long-run collapse (giant grazers,
+  streaming), streaming as an option, and the tooling (paired tests, nulls
+  such as `kinNear`).
+
+Rules from here:
+1. No new sense or action without a hand-built diagnostic first showing
+   that the behaviour it would enable pays.
+2. A default changes only after 1M-tick paired runs that include predator
+   persistence, not just 400k.
+3. Test whether the added null inputs cost anything (lean build against
+   current at 1M). Prune them if they cost, or if nothing needs them.
+4. Stay on the open core problem, predators that never come back after a
+   collapse, until it is understood.
+
 ## Running now
 
-Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+**Fruit** (`fruit`, new, 0 by default until tested). Plants have a fourth gene,
+fruit (initial values 0–0.5). A plant turns `fruitRate` x fruit x biomass into
+fruit per tick, up to `fruitMax` of its capacity. Fruit rots (`fruitRot`
+0.005 per tick), is worth `fruitValue` 3 times a leaf to the same gut, ignores
+plant defence and height, and is eaten before leaves. An animal that eats fruit
+swallows the plant's seeds (its four genes) and drops them `gutTicks` 200
+later wherever it is; they take root if the ground is open. Nothing says
+who eats fruit or where seeds go. Log: `plantFruit` (mean gene), `fruitMass`,
+`eF` (energy from fruit), `seedsWind`, `seedsAnimal`. First look (seed 1,
+80k ticks): the fruit gene drifts from 0.25 to 0.13, fruit is about half the
+plant energy animals take, and 4–20% of new plants come from animal-carried
+seeds. Paired test at 1M ticks, 24 seeds: `v1-BF-fruit1` against `-fruit0`.
+Expectation: the gene settles low but above 0 where animal dispersal pays.
+Within the fruit arm (`v1-BF-fruit1`, 24 seeds, 1M ticks; the paired baseline
+is still running): the fruit gene fell in 24 of 24 worlds, from about 0.18
+early to a mean of 0.10 in the last half (0.03–0.17). Fruit gave animals 5–42%
+of their plant energy. Animals carried 3–49% of new plants (mean 24%). So fruit
+is eaten and seeds travel, but fruiting costs plants more than it returns.
+Likely reasons: one seed load per 200 ticks however much fruit an animal eats,
+and open ground is plentiful near the parent, so distance buys little. Local
+test (`runs/fruitdisp` against `runs/fruitnodisp`, `gutTicks` 0 turns carrying
+off): if the gene falls as fast without carrying, carrying currently buys
+nothing.
+Paired result (`v1-BF-fruit1` against `-fruit0`, 24 seeds, 1M ticks): predation
+unchanged (meat 18.3% against 18.0%, predator-dominated 14 against 16,
+persisting 15 against 17). Prey clump more with fruit (0.87 against 0.80, 18
+of 24, p 0.023), likely gathering at fruiting plants. Carnivore clusters 8
+against 4 (p 0.39). Fruit stays off by default while the gene declines.
+Carrying test (local, seeds 1101–1102, 300k ticks): the fruit gene follows the
+same path with carrying (0.19 → 0.11–0.14) as without (0.18–0.21 →
+0.09–0.15). Carrying buys a plant nothing: grazing opens ground everywhere,
+so wind seed finds room nearby and distance gains nothing. New physics `jc`
+(Janzen–Connell, off by default): a seed takes root with chance 1 − `jc` x
+(share of its 8 neighbours that are plants of its own kind, plant genes
+within 0.15). Specialised enemies near parents are the usual reason
+dispersal pays in nature. Log: `plantDiv` (mean sd of the four plant genes).
+Local test: `runs/fruitjc` (`jc` 0.8) and `runs/fruitjcnodisp` (`jc` 0.8,
+no carrying). Expectation: with carrying the fruit gene holds or rises;
+without carrying it falls; plant diversity rises under `jc`.
+
+Fruit and jc on Actions (12 seeds, 400k ticks). With carrying (`v1-BJ-fjc`) the
+fruit gene went 0.197 → 0.130; without carrying (`-fjcnd`) 0.182 → 0.085. It was
+higher with carrying in 9 of 12 pairs (+0.045, p 0.15) but fell in every world.
+Carried seed made up 10% of new plants and fruit 29% of animals' plant energy.
+Carrying now helps a little, not enough to pay for the fruit. Fruit without `jc`
+(`v1-BJ-f`, carrying on) also ends at 0.130, so `jc` is not what helps. The
+comparison with the no-carrying arm mixes `jc` and carrying, so carrying's
+share is not isolated. `jc` alone (`v1-BJ-jc` against `-base`): plant
+diversity 0.185 against 0.171 (7 of 12 higher, p 0.77), plant mass 14.5k
+against 20.8k (p 0.15), predator-dominated 5 against 9 (p 0.29). It does not
+do what it was for. Next:
+`fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
+`-fjcnd02`, 24 seeds.
+
+**Fruit is on by default** (2026-09-27, `fruit` 1, `fruitPerSeed` 0.2, `jc` 0). At
+1M ticks (`v1-BL-fc` against `-fnc`, 24 paired seeds, no `jc`), the fruit gene
+went 0.194 → 0.250 with carrying and ended higher than it started in 11 of 24
+worlds. Without carrying it went 0.184 → 0.075, higher in none. Carried seed
+made up 30% of new plants, and fruit 29% of animals' plant energy. Against
+no fruit at all (`v1-BF-fruit0`, same seeds, bit-identical build with fruit
+off), predators persisted in 19 of 24 against 17, predator-dominated 20 against
+16, and meat 20.8% against 18.0%; nothing significant, nothing worse. `jc`
+is not needed. Fruit shows on the page as a pink blush on plant cells, with
+a legend entry and an on/off in the world drawer.
+
+**Seed carrying selects for fruit** (`v1-BK-fjc02` against `-fjcnd02`, `fruit` 1,
+`jc` 0.8, `fruitPerSeed` 0.2, 24 paired seeds, 400k ticks). The fruit gene was
+higher with carrying in 20 of 24 pairs (+0.061, sign test p 0.0015): 0.200 →
+0.148 with carrying, 0.184 → 0.087 without. It rose again late in some worlds
+(s1101: 0.24 → 0.13 → 0.20) and ended above its start in 3 of 24. Carried
+seed made up 17% of new plants, fruit 28% of animals' plant energy. Animals
+carrying seed now select for plants that feed them: a mutualism that no
+rule states. A 2x2 at 1M ticks (carrying x `jc`, `v1-BL-*`, 24 seeds each)
+tests where the gene settles and whether `jc` matters.
+
+`v1-BI-3Mb` (12 more seeds at 3M ticks, defaults): 14 exits, 5 re-entries;
+predators persisted in 2 of 12. Over 3M ticks predators come and go.
+
+`mutSd` 0.16 (`v1-BH-mutsd16`, 12 paired seeds, 1M ticks): predators persisted
+in 5 of 12 against 9, predator-dominated 4 against 10 (p 0.11), meat 13.4%
+against 19.3%. Mutation load costs the specialists most.
+Fruit-fed prey may support more predators (meat share up), and plant cover
+may change. A fruit sense for animals comes only if this shows fruit matters.
+
+See `OPS.md` (operating modes) and `ops/queue.json` (what runs next).
+
+**Predators do come back, given time; bigger mutation steps raise the
+turnover** (2026-09-27):
+- `v1-BE-3M`, 12 seeds (1201–1212) at 3M ticks, defaults: 14 exits from the
+  predator state and 7 re-entries after an exit. Predators persisted in 6 of
+  12 for at least 64% of the run. A second origin is rare over 1M ticks and
+  real over 3M. The valley (`valley.js`) is crossed, slowly.
+- `v1-BE-mutsd12` (`mutSd` 0.12 against 0.08, 12 paired seeds, 1M ticks): 6
+  re-entries against 1 and 12 exits against 6. **Not replicated**
+  (`v1-BH-mutsd12b`, seeds 1113–1124: 1 re-entry against 4, 8 exits against
+  11, persistence 7 against 6). Treat as noise. Persistence is unchanged (9 of
+  12 in both), with predator clumping higher (2.71 against 1.88, p 0.039).
+  Bigger mutation steps cross the valley more often, and they also lose
+  predators more often.
+- The default's persistence, pooled over 36 worlds at 1M ticks (`v1-BC-s1c0`,
+  `v1-EG-base-1113`, `-1125`): 23 of 36 (64%). The first 12 (9 of 12) were a
+  lucky draw.
+
+**A bigger world does not keep predators longer** (`v1-BG-grid96`, 96 x 96
+against 64 x 64, 12 paired seeds, 1M ticks): predator-dominated 7 against 7,
+persisting 9 of 12, meat 17.6% against 15.8%; nothing significant. Pooled
+persistence of the default build at 1M ticks: 47 of 72 (65%).
+
+**A lower size cap hurts predators** (`v1-BE-sizemax8`, `sizeMax` 8 against 12,
+12 paired seeds, 1M ticks). Expected: fewer giant-grazer escapes. Wrong: predators
+persisted in 6 of 12 against 9, with 11 exits against 6 and predator-dominated
+worlds 5 against 10 (p 0.062). The cap binds hunters, who must outsize their
+prey, more than it stops grazers outgrowing them. `sizeMax` stays 12. Both arms
+show a rare re-entry into the predator state after an exit (2 and 1), so a
+second origin is possible, only rare.
+
+**The added inputs cost nothing** (`v1-BD-lean`, build e784265 with 30 senses and
+6 outputs, sexual, against `v1-BC-s1c0`, the current build with the compass
+off; 12 paired seeds, 1M ticks): predators persisted in 9 of 12 in both, meat
+21.9% against 19.3%, nothing significant. The null inputs stay.
+
+**After a collapse the ecology still supports predators; evolution cannot find
+them again** (scratchpad `regrow.js`). Worlds that lost their predators are
+replayed to 1M ticks and run 150k more three ways. Seeds 1102, 1105, 1109,
+1111, 4 of 4 alike:
+- as is: meat 4.8–10.3%;
+- 60 evolved meat-eaters injected: meat 22.4–33.9%, 1–2 carnivore clusters;
+- 60 random-brain founders injected: meat 5.9–10.9%, no cluster.
+
+Which step is missing (scratchpad `valley.js`, same four collapsed worlds on
+the pre-fruit build, 60 injected animals each, 150k ticks). Resident grazers
+given only the hunters' mean diet reached 5–13% meat. Diet plus weapon, armour
+and size reached 5–19%. A hunter's brain in a grazer's body reached 5–11%.
+A hunter's whole body (all 17 genes) with a grazer's brain reached 5–18%.
+Whole hunters reached 20–34%, with carnivore clusters. Neither the body nor
+the brain founds a predator line alone; they have to change together, a
+valley that single mutations do not cross. At a world's start, the random
+founders are diverse enough to cross it at once.
+
+So the barrier is re-origination. At the start of a world, predation arises
+from a diverse random population. After a collapse the grazers are one kind,
+and the steps from grazer to hunter (diet, weapon, size, strike urge
+together) are not taken.
+
+Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
