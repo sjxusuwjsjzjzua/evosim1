@@ -748,6 +748,15 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Memory (`memory`, new, on pending the test): two more brain outputs whose
+values (tanh) come back as inputs at the next think, 0 at birth (NI 39, NO 9).
+Until now the brain was purely feedforward: no animal could keep fleeing once
+a threat left view, keep a clock, or hold a heading without a compass.
+`v1-BB-mem1` against `v1-BB-mem0` (inputs read 0), 24 paired seeds.
+Expectation: little change at the world level. A knockout in evolved worlds
+(cut the memory weights in half the population) tells whether any lineage
+has come to depend on it.
+
 Long worlds, `v1-BA-long`: 12 seeds (1101–1112), 1.6M ticks, current defaults.
 Expectation: predators hold in most (exits about 0.1–0.2 per 100k predator
 ticks, as measured before). Streaming stays; carnivore species persist or
