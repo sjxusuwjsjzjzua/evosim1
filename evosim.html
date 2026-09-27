@@ -107,7 +107,6 @@ var CFG_DEFAULT = {
   yearTicks: 6000,
   giveRate: 0.1,        // energy passed per tick x mass^0.75, at most half the giver's reserves
   giveEff: 0.8,         // share of it the receiver gets
-  memory: 1,            // 1 = two brain outputs are fed back as inputs at the next think (a short memory)
   compass: 1,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
                         // or magnetic compass would; 0 = those inputs read 0. With it prey
                         // populations evolve a shared bearing and travel together (24 paired
@@ -772,7 +771,7 @@ function think(i){
   sense(i);
   var G = S.genome, g = i*NG, o = i*NO;
   // memory: two outputs from the last think come back as inputs (0 at birth)
-  IN[37] = CFG.memory ? tanh32(S.out[o+7], 1) : 0; IN[38] = CFG.memory ? tanh32(S.out[o+8], 1) : 0;
+  IN[37] = tanh32(S.out[o+7], 1); IN[38] = tanh32(S.out[o+8], 1);
   if (NH === 8 && NO === 9) brain89(G, g, S.out, o);
   else {
     for (var h = 0; h < NH; h++){

@@ -748,20 +748,23 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Memory (`memory`, new, on pending the test): two more brain outputs whose
-values (tanh) come back as inputs at the next think, 0 at birth (NI 39, NO 9).
-Until now the brain was purely feedforward: no animal could keep fleeing once
-a threat left view, keep a clock, or hold a heading without a compass.
-`v1-BB-mem1` against `v1-BB-mem0` (inputs read 0), 24 paired seeds.
-Expectation: little change at the world level. A knockout in evolved worlds
-(cut the memory weights in half the population) tells whether any lineage
-has come to depend on it.
+**Memory** (2026-09-27): two more brain outputs whose values (tanh) come back
+as inputs at the next think, 0 at birth (NI 39, NO 9). Until then the brain
+was purely feedforward.
 Knockout (scratchpad `memko.js`, current defaults, seeds 1001, 1004, 1006,
 1013; at 200k ticks half of all animals lose the weights from their memory
 inputs, inherited, lines followed through the mother): the cut lines were
 nearly or entirely gone within 60k ticks in 3 of 4 worlds (7 against 673, 0
 against 888, 0 against 1207). They won in one (517 against 29). By 200k ticks
 most worlds' brains lean on their memory.
+Paired test (`v1-BB-mem1` against `v1-BB-mem0`, inputs read 0, 24 seeds):
+nothing significant at the world level. Prey clumping 1.195 against 1.121
+(p 0.064); predator worlds 19 against 16. `tools/memory.js` shows selection
+acting on it. The memory units' own drift from step to step with nothing
+happening ("clock") is 0.161 in grazers against 0.283 where the weights are
+unselected: evolved brains hold a steadier state rather than a rhythm. A scare
+lingers into the next step about equally in both (0.140 against 0.147). The
+switch is removed (always on).
 
 **Long worlds lose their predators** (`v1-BA-long`, 12 seeds 1101–1112, 1.6M
 ticks, defaults of the time: sexual, compass, colour and heading senses,
