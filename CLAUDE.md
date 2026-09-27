@@ -33,6 +33,7 @@ Read `OPS.md` first (the operating mode and the experiment queue), then
 | `tools/timeline.py` | a world's history at a glance: meat share, carnivore clusters, streaming and body sizes per window. |
 | `tools/memory.js` | what memory does in a `--dump`: whether a scare lingers into the next step, and whether memory runs a clock of its own. |
 | `OPS.md`, `ops/queue.json`, `ops/log.md`, `tools/ops.py` | how work keeps running: token modes, the queue of planned runs, the results log, and the queue bookkeeping (status, next, mark, digest, wait, evergreen). |
+| `tools/fruit.py` | fruit and plants: fruit gene early against late, plant diversity, fruit share of plant energy, share of new plants from animal-carried seed. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |

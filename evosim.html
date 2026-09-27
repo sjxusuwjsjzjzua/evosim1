@@ -149,6 +149,7 @@ var CFG_DEFAULT = {
   fruitRot: 0.005,      // share of the fruit that rots per tick
   fruitValue: 3,        // energy per unit of fruit against a unit of leaf; no defence, hangs in reach
   gutTicks: 200,        // an animal that eats fruit drops its seeds this many ticks later, where it is then
+  fruitPerSeed: 0.5,    // fruit eaten per batch of seeds swallowed; a gut holds up to 4 batches
   plantEvery: 2,        // plants update every N ticks (dt = N)
 
   // ---- animals: bodies ----
@@ -340,7 +341,7 @@ function init(patch){
     hurt: new Float32Array(M), out: new Float32Array(M*NO), id: new Int32Array(M), rad: new Float32Array(M),
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
-    gutT: new Float32Array(M), gutG: new Float32Array(M*4),   // seeds in the gut: ticks left, the plant's four genes
+    gutT: new Float32Array(M*4), gutG: new Float32Array(M*16), gutAcc: new Float32Array(M),   // up to 4 seed batches in the gut: ticks left, the plant's four genes; fruit eaten toward the next batch
     call: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
@@ -516,7 +517,7 @@ function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
   S.tgt[i] = -1; S.tgtId[i] = -1; S.call[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
-  S.id[i] = S.nextId++; S.gutT[i] = 0;
+  S.id[i] = S.nextId++; S.gutT[i*4] = S.gutT[i*4+1] = S.gutT[i*4+2] = S.gutT[i*4+3] = 0; S.gutAcc[i] = 0;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
 function copyGenome(dst, src){
@@ -857,9 +858,16 @@ function eatPlant(i, c, t, slow, m75, diet){
       if (fb > 0){
         S.pF[c] -= fb; got = fb*fv; MOUTH[1] = Math.max(0, MOUTH[1] - got); used = fb/fr; t -= used;
         S.lP[i] += got; S.c.eP += got; S.c.eF += got;
-        if (CFG.gutTicks > 0 && S.gutT[i] <= 0 && S.pB[c] > 0){
-          S.gutT[i] = CFG.gutTicks; var gg = i*4;
-          S.gutG[gg] = S.pStat[c]; S.gutG[gg+1] = S.pDef[c]; S.gutG[gg+2] = S.pDisp[c]; S.gutG[gg+3] = S.pFruit[c];
+        if (CFG.gutTicks > 0 && S.pB[c] > 0){
+          S.gutAcc[i] += fb;
+          while (S.gutAcc[i] >= CFG.fruitPerSeed){
+            S.gutAcc[i] -= CFG.fruitPerSeed;
+            for (var sl = 0; sl < 4; sl++) if (S.gutT[i*4+sl] <= 0){
+              S.gutT[i*4+sl] = CFG.gutTicks; var gg = (i*4+sl)*4;
+              S.gutG[gg] = S.pStat[c]; S.gutG[gg+1] = S.pDef[c]; S.gutG[gg+2] = S.pDisp[c]; S.gutG[gg+3] = S.pFruit[c];
+              break;
+            }
+          }
         }
       }
     }
@@ -982,9 +990,9 @@ function updateAnimal(i){
   }
 
   // seeds swallowed with fruit come out here, and take root if the ground is open
-  if (S.gutT[i] > 0 && --S.gutT[i] <= 0){
+  for (var sl2 = 0; sl2 < 4; sl2++) if (S.gutT[i*4+sl2] > 0 && --S.gutT[i*4+sl2] <= 0){
     var dc = cellAt(S.x[i], S.y[i]);
-    var gg2 = i*4, sd2 = CFG.pMutSd;
+    var gg2 = (i*4+sl2)*4, sd2 = CFG.pMutSd;
     if (S.pB[dc] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(dc, S.gutG[gg2], S.gutG[gg2+1], S.gutG[gg2+2], S.gutG[gg2+3]))){
       S.pB[dc] = CFG.pSeedB; S.pStat[dc] = mutP(S.gutG[gg2], sd2); S.pDef[dc] = mutP(S.gutG[gg2+1], sd2);
       S.pDisp[dc] = mutP(S.gutG[gg2+2], sd2); S.pFruit[dc] = mutP(S.gutG[gg2+3], sd2);
