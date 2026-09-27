@@ -254,3 +254,30 @@
 - worlds 24, meat 26.6%, kill 21.6%, carnSp>0 in 10, preyCl 1.01
 - fruit: gene 0.184 -> 0.087 (up in 0 of 24), div 0.146, fruit 21.1%, carried 0.0%
 
+### v1-BL-fc (2026-09-27 15:22)
+
+`fruit=1,fruitPerSeed=0.2`, seeds 1101-1124, 1000000 ticks. Expected: carrying without jc: fruit gene above no-carrying at 1M, settling or rising
+
+- worlds 24, meat 20.8%, kill 16.2%, carnSp>0 in 3, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 19, exits 13, re-entries 3
+- fruit: gene 0.194 -> 0.250 (up in 11 of 24), div 0.181, fruit 28.9%, carried 29.8%
+- baseline v1-BL-fnc: worlds 24, meat 18.8%, kill 14.4%, carnSp>0 in 5, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 15, exits 10, re-entries 5
+    pred   baseline 13  arm 20   (+11 / -4)  McNemar p 0.118
+    carn   baseline  5  arm  3   (+2 / -4)  McNemar p 0.688
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  1   (+1 / -0)  McNemar p 1.000
+    meat   baseline 0.188  arm 0.208   mean diff +0.020  sign test 14+/10-  p 0.541
+    preyCl baseline 0.831  arm 0.862   mean diff +0.031  sign test 12+/12-  p 1.000
+    predCl baseline 3.578  arm 2.497   mean diff -1.081  sign test 10+/14-  p 0.541
+    diet   baseline 0.092  arm 0.102   mean diff +0.010  sign test 11+/13-  p 0.839
+    polar  baseline 0.033  arm 0.032   mean diff -0.001  sign test 12+/12-  p 1.000
+    align  baseline 0.013  arm 0.013   mean diff +0.000  sign test 12+/12-  p 1.000
+    preySp baseline 0.324  arm 0.344   mean diff +0.020  sign test 15+/9-  p 0.307
+    predSp baseline 0.484  arm 0.530   mean diff +0.046  sign test 12+/12-  p 1.000
+
+### v1-BL-fnc (2026-09-27 15:23)
+
+`fruit=1,fruitPerSeed=0.2,gutTicks=0`, seeds 1101-1124, 1000000 ticks. Expected: no carrying, no jc: fruit gene falls
+
+- worlds 24, meat 18.8%, kill 14.4%, carnSp>0 in 5, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 15, exits 10, re-entries 5
+- fruit: gene 0.184 -> 0.075 (up in 0 of 24), div 0.160, fruit 17.1%, carried 0.0%
+

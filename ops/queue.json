@@ -268,9 +268,10 @@
    "baseline": "v1-BL-fnc",
    "expect": "carrying without jc: fruit gene above no-carrying at 1M, settling or rising",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 13:11",
-   "dispatched_at": "2026-09-27 13:12"
+   "dispatched_at": "2026-09-27 13:12",
+   "scored_at": "2026-09-27 15:23"
   },
   {
    "label": "v1-BL-fnc",
@@ -280,9 +281,10 @@
    "baseline": "",
    "expect": "no carrying, no jc: fruit gene falls",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 13:11",
-   "dispatched_at": "2026-09-27 13:12"
+   "dispatched_at": "2026-09-27 13:12",
+   "scored_at": "2026-09-27 15:23"
   },
   {
    "label": "v1-BL-fjc",

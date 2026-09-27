@@ -838,6 +838,17 @@ do what it was for. Next:
 `fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
 `-fjcnd02`, 24 seeds.
 
+**Fruit is on by default** (2026-09-27, `fruit` 1, `fruitPerSeed` 0.2, `jc` 0). At
+1M ticks (`v1-BL-fc` against `-fnc`, 24 paired seeds, no `jc`), the fruit gene
+went 0.194 → 0.250 with carrying and ended higher than it started in 11 of 24
+worlds. Without carrying it went 0.184 → 0.075, higher in none. Carried seed
+made up 30% of new plants, and fruit 29% of animals' plant energy. Against
+no fruit at all (`v1-BF-fruit0`, same seeds, bit-identical build with fruit
+off), predators persisted in 19 of 24 against 17, predator-dominated 20 against
+16, and meat 20.8% against 18.0%; nothing significant, nothing worse. `jc`
+is not needed. Fruit shows on the page as a pink blush on plant cells, with
+a legend entry and an on/off in the world drawer.
+
 **Seed carrying selects for fruit** (`v1-BK-fjc02` against `-fjcnd02`, `fruit` 1,
 `jc` 0.8, `fruitPerSeed` 0.2, 24 paired seeds, 400k ticks). The fruit gene was
 higher with carrying in 20 of 24 pairs (+0.061, sign test p 0.0015): 0.200 →

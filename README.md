@@ -49,6 +49,13 @@ What evolves, without being written in:
   different directions. The meat-eaters travel with the herd rather than
   against it. With the travelling season on, most worlds go the way the
   season goes;
+- **fruit and seed-carrying animals**: every plant has a gene for how much of
+  its growth it turns into fruit (pink on the map), and an animal that eats
+  fruit drops the seeds wherever it is a while later. Nothing tells plants to
+  fruit or animals to carry seed. Where animals carry seed the fruit gene
+  rises (0.19 → 0.25 over a million ticks, and up to a third of new plants
+  grow from carried seed); where they cannot, it falls away. A partnership
+  between plants and animals that no rule sets up;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.

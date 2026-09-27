@@ -141,7 +141,9 @@ var CFG_DEFAULT = {
   pDispMax: 8,          // longest seed throw beyond the first cell, at dispersal 1
   pDispCost: 0.15,      // share of growth rate given up at dispersal 1
   pMutSd: 0.05,
-  fruit: 0,             // 1 = plants may turn biomass into fruit (their fourth gene sets how much); under test
+  fruit: 1,             // plants may turn biomass into fruit (their fourth gene sets how much). With animals
+                        // carrying the seed, the fruit gene rises over 1M ticks (0.19 -> 0.25) and falls to
+                        // 0.08 without carrying; predators persist as without fruit (19 of 24 against 17)
   jc: 0,                // seedlings fail near their own kind (specialised enemies build up round a parent):
                         // a seed takes root with chance 1 - jc x (share of the 8 neighbours that are plants of its own kind)
   fruitRate: 0.002,     // biomass turned into fruit per tick, x fruit gene x biomass
@@ -149,7 +151,7 @@ var CFG_DEFAULT = {
   fruitRot: 0.005,      // share of the fruit that rots per tick
   fruitValue: 3,        // energy per unit of fruit against a unit of leaf; no defence, hangs in reach
   gutTicks: 200,        // an animal that eats fruit drops its seeds this many ticks later, where it is then
-  fruitPerSeed: 0.5,    // fruit eaten per batch of seeds swallowed; a gut holds up to 4 batches
+  fruitPerSeed: 0.2,    // fruit eaten per batch of seeds swallowed; a gut holds up to 4 batches
   plantEvery: 2,        // plants update every N ticks (dt = N)
 
   // ---- animals: bodies ----
@@ -1477,6 +1479,8 @@ function drawPlants(){
       d[o]   = 18 + 40*v*df + 20*v;
       d[o+1] = 30 + 150*v*(1 - 0.5*df);
       d[o+2] = 20 + 90*v*df;
+      var fr = S.pF[c] > 0 ? Math.min(1, S.pF[c]/(0.1*S.pK[c]))*0.75 : 0;   // fruit: a warm blush
+      if (fr > 0){ d[o] += (235 - d[o])*fr; d[o+1] += (95 - d[o+1])*fr; d[o+2] += (120 - d[o+2])*fr; }
     } else { d[o] = 26 + 14*f; d[o+1] = 22 + 10*f; d[o+2] = 18; }
     d[o+3] = 255;
   }
@@ -1511,7 +1515,7 @@ function legend(){
   if (colourMode === 0) h = '<span>diet: plant gut <i class="grad" style="background:linear-gradient(90deg,' + dietColour(0) + ',' + dietColour(0.5) + ',' + dietColour(1) + ')"></i> meat gut</span>';
   else if (colourMode === 1) h = '<span>kin: a heritable colour, so a shared colour means close relatives</span>';
   else h = ['idle', 'grazing', 'eating meat', 'attacking', 'feeding another'].map(function(a, k){ return '<span><i style="background:' + ACT_COL[k] + '"></i>' + a + '</span>'; }).join('');
-  h += '<span><i style="background:#8a3328"></i>corpse</span><span><i style="background:none;border:1.5px solid #6fa3c4;width:11px;height:11px;border-radius:6px"></i>calling</span>';
+  h += '<span><i style="background:#e05f78"></i>fruit</span><span><i style="background:#8a3328"></i>corpse</span><span><i style="background:none;border:1.5px solid #6fa3c4;width:11px;height:11px;border-radius:6px"></i>calling</span>';
   $('legend').innerHTML = h;
 }
 function drawAnimals(){
@@ -1867,6 +1871,7 @@ function buildDrawer(){
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
   });
   h += '<div class="row"><label>seasons move</label><button id="wS">still</button><button id="wT">travelling</button></div>';
+  h += '<div class="row"><label>fruit</label><button id="fOff">off</button><button id="fOn">on</button></div>';
   h += '<div class="row"><label>compass</label><button id="cOff">off</button><button id="cOn">on</button></div>';
   h += '<div class="row"><label>day and night</label><button id="dOff">off</button><button id="dOn">on</button></div>';
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
@@ -1878,6 +1883,7 @@ function buildDrawer(){
   h += '<p class="note">Sexual is the default. In about half of test worlds meat-eaters became a separate species that cannot interbreed with the grazers, and in some the grazers split too. Clonal worlds get predators as often, but a species there is only a cluster of look-alikes.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; with the compass on, most test worlds learned to go with it.</p>';
+  h += '<p class="note">Fruit (pink on the map): every plant has a gene for how much of its growth it turns into fruit. Fruit is rich food, and an animal that eats it drops the seeds wherever it is a while later. Nothing tells plants to fruit or animals to carry seed; in test worlds the fruit gene rose where animals carried seed and fell where they could not.</p>';
   h += '<p class="note">Compass: with it on, every animal can tell which way it faces. Within a few hundred generations a world\'s grazers share a bearing and stream across the world together, with the meat-eaters following. Over a million ticks predators die out far more often with it on (in 14 of 24 test worlds against 4), so it is off by default.</p>';
   h += '<p class="note">Day and night: at night eyes see animals and corpses over a third of their range (ears are unaffected), and every animal can sense how light it is. Fewer kills happen at night; in test worlds no daily rhythm evolved.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
@@ -1901,6 +1907,10 @@ function buildDrawer(){
   $('rC').classList.toggle('on', !sexual); $('rS').classList.toggle('on', sexual);
   $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; fresh(); newWorld(); buildDrawer(); };
   $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; fresh(); newWorld(); buildDrawer(); };
+  var fo = !!Sim.CFG.fruit;
+  $('fOff').classList.toggle('on', !fo); $('fOn').classList.toggle('on', fo);
+  $('fOff').onclick = function(){ Sim.CFG.fruit = 0; patch.fruit = 0; buildDrawer(); };
+  $('fOn').onclick = function(){ Sim.CFG.fruit = 1; patch.fruit = 1; buildDrawer(); };
   var cp = !!Sim.CFG.compass;
   $('cOff').classList.toggle('on', !cp); $('cOn').classList.toggle('on', cp);
   $('cOff').onclick = function(){ Sim.CFG.compass = 0; patch.compass = 0; buildDrawer(); };
@@ -1957,7 +1967,7 @@ function resumeWorld(){
   try {
     var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
     if (w && Sim.restore(w)){
-      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks', 'compass'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks', 'compass', 'fruit'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
       resumedFrom = Sim.S.tick; afterLoad(); return true;
     }
   } catch (e) {}

@@ -78,11 +78,11 @@ finish and are digested on resume.
 The goal: an evolution simulator of plants and animals in which every behaviour
 emerges. Questions are ranked by how much they move that goal.
 
-1. **Plants as evolving partners, not just food.** Plants have three genes and
-   spread by wind. Physics that lets plants evolve fruit (energy offered to
-   animals, with seeds carried off in their guts) would let frugivory, animal
-   seed dispersal and plant–animal mutualism emerge. None of it would be
-   written in.
+1. **Plants as evolving partners, not just food.** Done in part: fruit is on
+   by default, and animal seed-carrying selects for it (the fruit gene rises).
+   Next: can animals sense fruit? Frugivores that seek it out, and plants
+   that compete for them, need a way to see it (audit rule 1: a diagnostic
+   first).
 2. **Open-ended evolution.** After a collapse predators never re-evolve. The
    ecology still supports injected hunters, so the barrier is evolutionary
    (`regrow.js`, 4 of 4). Which step is missing: scratchpad `valley.js`,

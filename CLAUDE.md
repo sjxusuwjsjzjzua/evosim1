@@ -47,8 +47,8 @@ Read `OPS.md` first (the operating mode and the experiment queue), then
 
 ## How the engine works, in one paragraph
 
-Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell has biomass and three genes
-(stature, defence, dispersal), grows logistically, keeps an ungrazeable root
+Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell has biomass and four genes
+(stature, defence, dispersal, fruit: fruit is rich food whose seeds animals carry off in their guts), grows logistically, keeps an ungrazeable root
 reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
