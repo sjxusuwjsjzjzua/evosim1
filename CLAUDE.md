@@ -10,7 +10,8 @@ count.** Changing physics (what food is worth, what a body costs, what a bite
 does, what an animal can sense) is allowed. Writing in a behaviour, a diet, a
 target or a population cap is not.
 
-Read `HANDOFF.md` first: current state, what is known, what is next.
+Read `OPS.md` first (the operating mode and the experiment queue), then
+`HANDOFF.md`: current state, what is known, what is next.
 
 ## Files
 
@@ -31,6 +32,7 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/daynight.py` | daily rhythm (`dayTicks`): prey and predator speed at night against day, and the night share of kills. |
 | `tools/timeline.py` | a world's history at a glance: meat share, carnivore clusters, streaming and body sizes per window. |
 | `tools/memory.js` | what memory does in a `--dump`: whether a scare lingers into the next step, and whether memory runs a clock of its own. |
+| `OPS.md`, `ops/queue.json`, `ops/log.md`, `tools/ops.py` | how work keeps running: token modes, the queue of planned runs, the results log, and the queue bookkeeping (status, next, mark, digest, wait, evergreen). |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
