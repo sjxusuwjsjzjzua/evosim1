@@ -756,6 +756,12 @@ a threat left view, keep a clock, or hold a heading without a compass.
 Expectation: little change at the world level. A knockout in evolved worlds
 (cut the memory weights in half the population) tells whether any lineage
 has come to depend on it.
+Knockout (scratchpad `memko.js`, current defaults, seeds 1001, 1004, 1006,
+1013; at 200k ticks half of all animals lose the weights from their memory
+inputs, inherited, lines followed through the mother): the cut lines were
+nearly or entirely gone within 60k ticks in 3 of 4 worlds (7 against 673, 0
+against 888, 0 against 1207). They won in one (517 against 29). By 200k ticks
+most worlds' brains lean on their memory.
 
 Long worlds, `v1-BA-long`: 12 seeds (1101–1112), 1.6M ticks, current defaults.
 Expectation: predators hold in most (exits about 0.1–0.2 per 100k predator
