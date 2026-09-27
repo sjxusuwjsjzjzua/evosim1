@@ -98,7 +98,8 @@ def main():
     elif a[0] == 'wait':
         while True:
             sh('git fetch -q origin')
-            done = [e['label'] for e in E if e['status'] == 'dispatched' and landed(e['label'])]
+            ready = lambda e: landed(e['label']) and (not e.get('baseline') or landed(e['baseline']) or os.path.isdir('runs/' + e['baseline']))
+            done = [e['label'] for e in E if e['status'] == 'dispatched' and ready(e)]
             if done: print('landed:', ' '.join(done)); return
             if not any(e['status'] == 'dispatched' for e in E): print('nothing in flight'); return
             time.sleep(300)
