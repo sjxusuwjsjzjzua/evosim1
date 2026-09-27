@@ -784,6 +784,22 @@ Rules from here:
 
 ## Running now
 
+**Fruit** (`fruit`, new, 0 by default until tested). Plants have a fourth gene,
+fruit (initial values 0–0.5). A plant turns `fruitRate` x fruit x biomass into
+fruit per tick, up to `fruitMax` of its capacity. Fruit rots (`fruitRot`
+0.005 per tick), is worth `fruitValue` 3 times a leaf to the same gut, ignores
+plant defence and height, and is eaten before leaves. An animal that eats fruit
+swallows the plant's seeds (its four genes) and drops them `gutTicks` 200
+later wherever it is; they take root if the ground is open. Nothing says
+who eats fruit or where seeds go. Log: `plantFruit` (mean gene), `fruitMass`,
+`eF` (energy from fruit), `seedsWind`, `seedsAnimal`. First look (seed 1,
+80k ticks): the fruit gene drifts from 0.25 to 0.13, fruit is about half the
+plant energy animals take, and 4–20% of new plants come from animal-carried
+seeds. Paired test at 1M ticks, 24 seeds: `v1-BF-fruit1` against `-fruit0`.
+Expectation: the gene settles low but above 0 where animal dispersal pays.
+Fruit-fed prey may support more predators (meat share up), and plant cover
+may change. A fruit sense for animals comes only if this shows fruit matters.
+
 See `OPS.md` (operating modes) and `ops/queue.json` (what runs next).
 
 **The added inputs cost nothing** (`v1-BD-lean`, build e784265 with 30 senses and
