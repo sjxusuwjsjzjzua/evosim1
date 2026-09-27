@@ -142,6 +142,8 @@ var CFG_DEFAULT = {
   pDispCost: 0.15,      // share of growth rate given up at dispersal 1
   pMutSd: 0.05,
   fruit: 0,             // 1 = plants may turn biomass into fruit (their fourth gene sets how much); under test
+  jc: 0,                // seedlings fail near their own kind (specialised enemies build up round a parent):
+                        // a seed takes root with chance 1 - jc x (share of the 8 neighbours that are plants of its own kind)
   fruitRate: 0.002,     // biomass turned into fruit per tick, x fruit gene x biomass
   fruitMax: 0.5,        // fruit a cell can hold, as a share of its capacity
   fruitRot: 0.005,      // share of the fruit that rots per tick
@@ -416,7 +418,7 @@ function updatePlants(){
       var tx = ((cx + Math.round(Math.cos(th)*dist)) % n + n) % n;
       var ty = ((cy + Math.round(Math.sin(th)*dist)) % n + n) % n;
       var t = ty*n + tx;
-      if (t !== c && S.pB[t] < CFG.pTakeover){
+      if (t !== c && S.pB[t] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(t, S.pStat[c], S.pDef[c], S.pDisp[c], S.pFruit[c]))){
         B -= CFG.pSeedB;
         S.pB[t] = CFG.pSeedB;
         S.pStat[t] = mutP(S.pStat[c], sd);
@@ -429,6 +431,28 @@ function updatePlants(){
     }
     S.pB[c] = B;
   }
+}
+// the share of a cell's 8 neighbours that are plants of the seed's own kind (plant genes within 0.15)
+function kinNeighbours(t, st, de, di, fr){
+  var n = CFG.gridN, tx = t % n, ty = (t/n)|0, k = 0;
+  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+    if (!dx && !dy) continue;
+    var u = ((ty+dy+n) % n)*n + (tx+dx+n) % n;
+    if (S.pB[u] <= 0) continue;
+    var a = S.pStat[u]-st, b = S.pDef[u]-de, c = S.pDisp[u]-di, d = S.pFruit[u]-fr;
+    if (a*a + b*b + c*c + d*d < 0.0225) k++;
+  }
+  return k/8;
+}
+// plant genetic diversity: the mean standard deviation of the four plant genes over occupied cells
+function plantDiversity(){
+  var nc = CFG.gridN*CFG.gridN, n = 0, m = [0,0,0,0], q = [0,0,0,0];
+  for (var c = 0; c < nc; c++){ if (S.pB[c] <= 0) continue; n++;
+    var v = [S.pStat[c], S.pDef[c], S.pDisp[c], S.pFruit[c]];
+    for (var k = 0; k < 4; k++){ m[k] += v[k]; q[k] += v[k]*v[k]; } }
+  if (!n) return 0;
+  var sd = 0; for (var k2 = 0; k2 < 4; k2++) sd += Math.sqrt(Math.max(0, q[k2]/n - (m[k2]/n)*(m[k2]/n)));
+  return +(sd/4).toFixed(4);
 }
 function mutP(v, sd){ return rng() < 0.3 ? clamp(v + gauss()*sd, 0, 1) : v; }
 
@@ -960,8 +984,8 @@ function updateAnimal(i){
   // seeds swallowed with fruit come out here, and take root if the ground is open
   if (S.gutT[i] > 0 && --S.gutT[i] <= 0){
     var dc = cellAt(S.x[i], S.y[i]);
-    if (S.pB[dc] < CFG.pTakeover){
-      var gg2 = i*4, sd2 = CFG.pMutSd;
+    var gg2 = i*4, sd2 = CFG.pMutSd;
+    if (S.pB[dc] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(dc, S.gutG[gg2], S.gutG[gg2+1], S.gutG[gg2+2], S.gutG[gg2+3]))){
       S.pB[dc] = CFG.pSeedB; S.pStat[dc] = mutP(S.gutG[gg2], sd2); S.pDef[dc] = mutP(S.gutG[gg2+1], sd2);
       S.pDisp[dc] = mutP(S.gutG[gg2+2], sd2); S.pFruit[dc] = mutP(S.gutG[gg2+3], sd2);
       S.pSeed[dc] = 0; S.pH[dc] = 0; S.pF[dc] = 0; cachePlant(dc); S.c.seedsAnimal++;
@@ -1187,7 +1211,7 @@ function sample(){
     t: S.tick, animals: n, corpses: S.cN, plantMass: +pb.toFixed(1), plantCells: pcells,
     plantDef: pcells ? +(sd/pcells).toFixed(4) : 0, plantStat: pcells ? +(ss/pcells).toFixed(4) : 0,
     plantDisp: pcells ? +(sp/pcells).toFixed(4) : 0,
-    plantFruit: pcells ? +(sfr/pcells).toFixed(4) : 0, fruitMass: +sfF.toFixed(1), eF: +C.eF.toFixed(1), seedsWind: C.seedsWind, seedsAnimal: C.seedsAnimal,
+    plantDiv: plantDiversity(), plantFruit: pcells ? +(sfr/pcells).toFixed(4) : 0, fruitMass: +sfF.toFixed(1), eF: +C.eF.toFixed(1), seedsWind: C.seedsWind, seedsAnimal: C.seedsAnimal,
     genes: mean, dietHist: dh,
     meatShare: eAll > 0 ? +((C.eC + C.eK)/eAll).toFixed(4) : 0,
     killShare: eAll > 0 ? +(C.eK/eAll).toFixed(4) : 0,

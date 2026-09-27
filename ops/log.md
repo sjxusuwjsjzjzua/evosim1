@@ -99,3 +99,22 @@
     preySp baseline 0.257  arm 0.281   mean diff +0.024  sign test 8+/4-  p 0.388
     predSp baseline 0.416  arm 0.483   mean diff +0.067  sign test 8+/4-  p 0.388
 
+### v1-BH-mutsd16 (2026-09-27 11:04)
+
+`mutSd=0.16`, seeds 1101-1112, 1000000 ticks. Expected: dose: still more turnover (re-entries and exits) than 0.12; persistence may fall
+
+- worlds 12, meat 13.4%, kill 8.5%, carnSp>0 in 1, preyCl 0.81, persisting (predK >= 64% of run after bootstrap) 5, exits 9, re-entries 2
+- baseline v1-BC-s1c0: worlds 12, meat 19.3%, kill 15.3%, carnSp>0 in 2, preyCl 0.77, persisting (predK >= 64% of run after bootstrap) 9, exits 6, re-entries 1
+    pred   baseline 10  arm  4   (+2 / -8)  McNemar p 0.109
+    carn   baseline  2  arm  1   (+1 / -2)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.193  arm 0.134   mean diff -0.059  sign test 4+/8-  p 0.388
+    preyCl baseline 0.772  arm 0.813   mean diff +0.040  sign test 6+/6-  p 1.000
+    predCl baseline 1.875  arm 4.613   mean diff +2.738  sign test 9+/3-  p 0.146
+    diet   baseline 0.091  arm 0.089   mean diff -0.002  sign test 5+/7-  p 0.774
+    polar  baseline 0.037  arm 0.034   mean diff -0.003  sign test 3+/9-  p 0.146
+    align  baseline 0.022  arm -0.007   mean diff -0.028  sign test 3+/9-  p 0.146
+    preySp baseline 0.284  arm 0.278   mean diff -0.006  sign test 7+/5-  p 0.774
+    predSp baseline 0.478  arm 0.392   mean diff -0.086  sign test 5+/7-  p 0.774
+

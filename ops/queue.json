@@ -124,9 +124,10 @@
    "baseline": "v1-BC-s1c0",
    "expect": "dose: still more turnover (re-entries and exits) than 0.12; persistence may fall",
    "build_ref": "1ba0e47",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 09:37",
-   "dispatched_at": "2026-09-27 09:37"
+   "dispatched_at": "2026-09-27 09:37",
+   "scored_at": "2026-09-27 11:05"
   },
   {
    "label": "v1-EG-base-1137",
