@@ -67,7 +67,8 @@ result is recorded (see the self-audit in `HANDOFF.md`).
 ## Changing mode
 
 When the owner names a mode, edit the "Current mode" line above, commit, and
-set the Routine's schedule (mode 1: `0 */2 * * *`; modes 5 and 10:
+set the Routine's schedule (`update_trigger`, id `trig_01AFPVT5d29ZrjBYy7DxiEAo`,
+"evosim ops heartbeat") (mode 1: `0 */2 * * *`; modes 5 and 10:
 `0 * * * *`). "Pause" disables the Routine and stops dispatching; running jobs
 finish and are digested on resume.
 
