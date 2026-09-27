@@ -141,6 +141,18 @@
    "dispatched_at": "2026-09-27 09:37"
   },
   {
+   "label": "v1-BI-3Mb",
+   "seeds": "1213-1224",
+   "ticks": 3000000,
+   "set": "",
+   "baseline": "",
+   "expect": "default build over 3M ticks: exits and re-entries both several per 12 worlds (v1-BE-3M: 14 and 7); species turnover",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 10:49",
+   "dispatched_at": "2026-09-27 10:49"
+  },
+  {
    "label": "v1-EG-base-1149",
    "seeds": "1149-1160",
    "ticks": 1000000,
@@ -148,8 +160,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:09"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:09",
+   "dispatched_at": "2026-09-27 10:49"
   },
   {
    "label": "v1-EG-base-1161",
@@ -194,6 +207,17 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-27 09:37"
+  },
+  {
+   "label": "v1-EG-base-1209",
+   "seeds": "1209-1220",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 10:49"
   }
  ]
 }
