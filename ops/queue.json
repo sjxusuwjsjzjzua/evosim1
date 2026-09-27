@@ -8,8 +8,9 @@
    "baseline": "v1-BC-s1c0",
    "expect": "giant-grazer escapes (grazers outgrowing hunters) become rarer: fewer exits, persistence at least the baseline 9 of 12",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:08"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:08",
+   "dispatched_at": "2026-09-27 07:09"
   },
   {
    "label": "v1-BE-mutsd12",
@@ -19,8 +20,9 @@
    "baseline": "v1-BC-s1c0",
    "expect": "bigger mutation steps help a grazer line cross to hunting again: re-entries after an exit above 0 in some worlds (baseline: 0)",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:08"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:08",
+   "dispatched_at": "2026-09-27 07:09"
   },
   {
    "label": "v1-BE-3M",
@@ -30,8 +32,9 @@
    "baseline": "",
    "expect": "over 3M ticks: does any world re-evolve predators after a collapse (re-entries > 0)? Expected rare or none",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:08"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:08",
+   "dispatched_at": "2026-09-27 07:09"
   },
   {
    "label": "v1-EG-base-1113",
@@ -41,8 +44,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:08"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:08",
+   "dispatched_at": "2026-09-27 07:09"
   },
   {
    "label": "v1-EG-base-1125",
@@ -52,8 +56,64 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:08",
+   "dispatched_at": "2026-09-27 07:09"
+  },
+  {
+   "label": "v1-EG-base-1137",
+   "seeds": "1137-1148",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
    "status": "pending",
-   "added_at": "2026-09-27 07:08"
+   "added_at": "2026-09-27 07:09"
+  },
+  {
+   "label": "v1-EG-base-1149",
+   "seeds": "1149-1160",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 07:09"
+  },
+  {
+   "label": "v1-EG-base-1161",
+   "seeds": "1161-1172",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 07:09"
+  },
+  {
+   "label": "v1-EG-base-1173",
+   "seeds": "1173-1184",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 07:09"
+  },
+  {
+   "label": "v1-EG-base-1185",
+   "seeds": "1185-1196",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 07:09"
   }
  ]
 }
