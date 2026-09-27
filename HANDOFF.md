@@ -45,7 +45,7 @@ Browser check (Chromium and Playwright are preinstalled):
 | plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 1, `mateDist` 0.1 by default (2026-09-26). A breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`), else clones; crossover keeps each neuron's wiring whole | against clonal over 24 paired seeds (`v1-AP-sex`): predator-dominated 20 against 20, carnivore clusters 10 against 12, nothing significant. In 13 of 24 the meat-eaters are a separate species (at most 5% of cross pairs could breed), and in 7 some grazer clusters are isolated from each other. Without `mateDist` sexual worlds fall behind (below) |
-| compass | `compass` 1: an animal senses its own heading in world terms | with it prey populations evolve a shared bearing and travel together (24 paired worlds: prey clumping 1.22 against 0.84, predation unchanged); without it no genome can encode a direction |
+| compass | `compass` 0 by default; with 1 an animal senses its own heading in world terms | with it prey populations evolve a shared bearing and travel together (prey clumping 1.22 against 0.84 at 400k ticks), but over 1M ticks predators persist in 10 of 24 worlds against 20 without it (p 0.013) |
 | give | `give` 1: when the give urge fires and the attended animal is in reach, `giveRate` x mass^0.75 of reserves passes to it (the receiver gets `giveEff` 0.8); the mouth is busy for the tick | the one way to pass energy on after birth; under test (below) |
 | seasons | `seasonAmp` (0 by default) makes plant growth rise and fall over `yearTicks`; `seasonWave` 1 makes the season travel along x | a global season makes giant worlds (18 of 24); a travelling one far fewer (7 of 24), and with the compass most worlds stream with it |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
@@ -63,9 +63,11 @@ Browser check (Chromium and Playwright are preinstalled):
   become a separate species in about half of worlds; plant-eaters sometimes
   split into small grazers and large browsers that feed at different plant
   heights.
-- With a compass, prey populations evolve a shared bearing and stream across
-  the world together; predators travel with the stream. There is no local
-  flocking and no herding by seeking company.
+- With the compass on (off by default), prey populations evolve a shared
+  bearing and stream across the world together, and predators travel with
+  the stream. Over 1M ticks this starves predation: predators persist in 10
+  of 24 worlds with it against 20 without. There is no local flocking and no
+  herding by seeking company.
 - Meat-eaters that die by killing are killed by other meat-eaters, mostly
   as juveniles of the killer's own kind.
 - Colour, heading and feeding are available to evolution. None yet produced
@@ -748,11 +750,72 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
-Long worlds, `v1-BA-long`: 12 seeds (1101–1112), 1.6M ticks, current defaults.
-Expectation: predators hold in most (exits about 0.1–0.2 per 100k predator
-ticks, as measured before). Streaming stays; carnivore species persist or
-turn over. The open question is whether anything that needs timing or
-coordination appears given about four times the generations.
+Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
+is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
+core, so local batches beat Actions for anything under ~20 worlds.
+
+## Recent results (2026-09-26/27, newest first)
+
+**Memory** (2026-09-27): two more brain outputs whose values (tanh) come back
+as inputs at the next think, 0 at birth (NI 39, NO 9). Until then the brain
+was purely feedforward.
+Knockout (scratchpad `memko.js`, current defaults, seeds 1001, 1004, 1006,
+1013; at 200k ticks half of all animals lose the weights from their memory
+inputs, inherited, lines followed through the mother): the cut lines were
+nearly or entirely gone within 60k ticks in 3 of 4 worlds (7 against 673, 0
+against 888, 0 against 1207). They won in one (517 against 29). By 200k ticks
+most worlds' brains lean on their memory.
+Paired test (`v1-BB-mem1` against `v1-BB-mem0`, inputs read 0, 24 seeds):
+nothing significant at the world level. Prey clumping 1.195 against 1.121
+(p 0.064); predator worlds 19 against 16. `tools/memory.js` shows selection
+acting on it. The memory units' own drift from step to step with nothing
+happening ("clock") is 0.161 in grazers against 0.283 where the weights are
+unselected: evolved brains hold a steadier state rather than a rhythm. A scare
+lingers into the next step about equally in both (0.140 against 0.147). The
+switch is removed (always on).
+
+**Long worlds lose their predators** (`v1-BA-long`, 12 seeds 1101–1112, 1.6M
+ticks, defaults of the time: sexual, compass, colour and heading senses,
+give; no memory). Every world had a predator phase early: meat 12–36% of
+intake in the first 200k ticks, carnivore clusters in 7 of 12. Then 9 of 12
+left the predator state (predK 95–731 thousand ticks) and settled at 5–12%
+meat with no carnivore cluster. Three held to the end (s1102, s1106, s1110;
+18–27% meat), with carnivore clusters coming and going. Grazers shrank to
+size 0.3–1.6. Streaming held in most worlds (`polar` 0.4–0.9). The expectation
+(predators hold, as 10 of 10 did to 1M under the older clonal, compass-free
+build) was wrong. A 2x2 at 1M ticks on the current build tests which of
+today's defaults is responsible: `v1-BC-s1c1` (sex, compass), `-s0c1`,
+`-s1c0`, `-s0c0`, 12 seeds each (1101–1112).
+Control, the build before those defaults (merged PR #27: clonal, no compass,
+30 senses) on seeds 1101–1104, 1M ticks (`runs/oldbuild-long`, local): predators
+held in all four (624–940 thousand ticks in the predator state, 0–2 exits,
+meat 17–25% over the last half). The current defaults on the same seeds kept
+them in one of four (s1102).
+Current build, clonal (`sex` 0) with the compass, same seeds, 1M ticks
+(`runs/s0c1-local`): predators held in one of four (s1101: 940 thousand ticks,
+19% meat). s1102 never entered the predator state, and s1103 and s1104 left it
+(5–7% meat late). So clonal reproduction alone does not bring persistence back.
+
+**Result of the 2x2** (12 seeds each, 1M ticks; "persisting" = at least 600
+thousand ticks in the predator state):
+
+| arm | persisting | exits | meat | 
+|---|---|---|---|
+| sexual, compass (`v1-BC-s1c1`) | 4 of 12 | 11 | 14.9% |
+| clonal, compass (`-s0c1`) | 6 of 12 | 7 | 17.2% |
+| sexual, no compass (`-s1c0`) | 9 of 12 | 6 | 19.3% |
+| clonal, no compass (`-s0c0`) | 11 of 12 | 3 | 22.5% |
+
+Paired by seed, pooled over reproduction: without the compass predators
+persist in 20 of 24 against 10 (+12/−2, McNemar p 0.013). Predator-state time
+is higher in 16 of 20 changed pairs (p 0.012). Reproduction's effect is not
+significant (+5/−3 and +2/−0). Streaming prey starve predation over the long
+run, even though at 400k ticks the compass arms showed no loss. **The compass
+is now off by default** and is a toggle in the page's world drawer. Sexual
+reproduction stays the default. The evolved start is now `v1-BC-s1c0` seed
+1104 (sexual, no compass, 1M ticks): founded into 8 worlds (4 quantised as the
+page stores it), the predators held in 8 (meat 20–34%, 1–2 carnivore clusters).
 
 Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
 moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
@@ -962,56 +1025,60 @@ telling species apart. The senses stay, the switch is gone.
 Sexual is now the default (result in the table at the top). The colour and
 season arms below were dispatched before the switch and run clonal; they
 are paired within themselves. The evolved start keeps its predators with sex
-on (4 of 4 worlds, meat 26–34% at 60k ticks against 34–40% clonal). Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
-runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
-is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
-core, so local batches beat Actions for anything under ~20 worlds.
+on (4 of 4 worlds, meat 26–34% at 60k ticks against 34–40% clonal).
+
+**Speciation: browsers and grazers.** In the 24 sexual worlds of `v1-AP-sex`,
+`tools/gsplit.py` finds plant-eater clusters that cannot interbreed (at
+most 5% of cross pairs) in 7. In 4 of them (s1002, s1020, s1022, s1023) the
+split is by body size: small grazers (size 0.3–0.9) against large browsers
+(2.4–4.8). The large ones breed only at higher reserves (reproT 0.6–0.7
+against 0.3–0.4) and give each young more (childE 0.45–0.5 against
+0.25). Replays on the build they ran on (scratchpad `browse.js`,
+300–400k): in s1020 the large species (mass about 2.7) feeds on plants
+0.61–0.69 tall, 30–36% of its feeding on plants taller than a small grazer
+reaches (12–13% of plant cells). The small one (mass about 0.3) feeds on
+plants 0.11–0.21 tall, 1–6% of it above its reach. That is niche
+partitioning by plant height. In s1023 plant height swings widely (27–57%
+of cells tall) and both species use tall cells; the large one leans
+taller in 4 of 6 samples. In the other three
+(s1001, s1012, s1016) the split is mainly in attention genes and colour.
+Earlier: sexual worlds on the current physics (`runs/sexH`, seeds
+2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
+now prints size and speed): a meat-eating species that cannot breed with any
+grazer cluster (0% of cross pairs) in 7 of 8 worlds. The eighth has no
+meat-eaters. This was about a third before plant height. Plant-eaters split
+by body size in none. In s2007 the grazers split into two species (0–1% cross
+pairs, by body distance alone; colour tags would allow all of them). One is
+armed (weapon 0.17–0.25) and high-detox (0.87–0.98), with short sight (3.1–3.6)
+and attention turned away from kin and weapons. The other is unarmed
+(0.02–0.08), lower-detox (0.63–0.66) and sharper-eyed (5.2–5.6), and attends
+to kin. A replay (scratchpad `niche.js`) shows a replacement, not two
+niches. The low-detox species was 5% of grazers at 240k and 1% at 280k,
+then grew to 68% by 400k as mean plant defence fell from 0.26 to 0.09.
+What the two ate barely differs: defence 0.12 against 0.10, height 0.78
+against 0.58 of reach. A cheaper species that could not interbreed with
+the old one took over once detox stopped paying. Partial isolation between grazer
+clusters (19–25%) in s2006.
+Earlier: speciation is real in sexual worlds (0% interbreeding between a meat
+cluster and grazer clusters). With plant height, check whether browsers and
+grazers split into species too.
 
 ## Next
 
-1. **Giant worlds: solved** by `browseGrown` (above). Over 1M ticks every
-   test world stayed predatory.
-2. **Herding: out of reach in this physics** (factorial and diagnostics
-   above). Energy, strike cost, chew time, meat floor and size cap all left
-   prey clumping at ~0.9. Hand-built herders lose even with free vision. Prey
-   do bolt when neighbours bolt, and some turn toward kin, but no world forms
-   lasting groups. What might change it: prey that are much denser than
-   their sense range (a smaller world per animal), or predators that cannot
-   kill again while the group is still near.
-3. **Speciation: browsers and grazers.** In the 24 sexual worlds of `v1-AP-sex`,
-   `tools/gsplit.py` finds plant-eater clusters that cannot interbreed (at
-   most 5% of cross pairs) in 7. In 4 of them (s1002, s1020, s1022, s1023) the
-   split is by body size: small grazers (size 0.3–0.9) against large browsers
-   (2.4–4.8). The large ones breed only at higher reserves (reproT 0.6–0.7
-   against 0.3–0.4) and give each young more (childE 0.45–0.5 against
-   0.25). Replays on the build they ran on (scratchpad `browse.js`,
-   300–400k): in s1020 the large species (mass about 2.7) feeds on plants
-   0.61–0.69 tall, 30–36% of its feeding on plants taller than a small grazer
-   reaches (12–13% of plant cells). The small one (mass about 0.3) feeds on
-   plants 0.11–0.21 tall, 1–6% of it above its reach. That is niche
-   partitioning by plant height. In s1023 plant height swings widely (27–57%
-   of cells tall) and both species use tall cells; the large one leans
-   taller in 4 of 6 samples. In the other three
-   (s1001, s1012, s1016) the split is mainly in attention genes and colour.
-   Earlier: sexual worlds on the current physics (`runs/sexH`, seeds
-   2001–2008, `sex` 1, `mateDist` 0.1, 400k ticks; `tools/isolation.py`, which
-   now prints size and speed): a meat-eating species that cannot breed with any
-   grazer cluster (0% of cross pairs) in 7 of 8 worlds. The eighth has no
-   meat-eaters. This was about a third before plant height. Plant-eaters split
-   by body size in none. In s2007 the grazers split into two species (0–1% cross
-   pairs, by body distance alone; colour tags would allow all of them). One is
-   armed (weapon 0.17–0.25) and high-detox (0.87–0.98), with short sight (3.1–3.6)
-   and attention turned away from kin and weapons. The other is unarmed
-   (0.02–0.08), lower-detox (0.63–0.66) and sharper-eyed (5.2–5.6), and attends
-   to kin. A replay (scratchpad `niche.js`) shows a replacement, not two
-   niches. The low-detox species was 5% of grazers at 240k and 1% at 280k,
-   then grew to 68% by 400k as mean plant defence fell from 0.26 to 0.09.
-   What the two ate barely differs: defence 0.12 against 0.10, height 0.78
-   against 0.58 of reach. A cheaper species that could not interbreed with
-   the old one took over once detox stopped paying. Partial isolation between grazer
-   clusters (19–25%) in s2006.
-   Earlier: speciation is real in sexual worlds (0% interbreeding between a meat
-   cluster and grazer clusters). With plant height, check whether browsers and
-   grazers split into species too.
+1. **Predators after a collapse never come back.** With the defaults, 9 of 12
+   worlds keep predators for most of a million ticks. The exits seen are a
+   giant-grazer escape (s1109: grazers 0.4 → 5.2 in 50k ticks) and
+   streaming (compass on). After an exit no world has re-evolved predators
+   within the run, although from random brains they appear within
+   20–130k ticks. Worth finding out what blocks the second origin.
+2. **Streaming with predators.** With the compass on, prey stream and
+   predation starves over the long run. Is there physics under which
+   predators keep up with a stream (e.g. what a moving prey is worth, or
+   how far a hunter can see ahead)?
+3. **Settled, null in this physics** (each paired over 24 seeds): herding
+   by seeking company, flocking by alignment, aimed feeding (the give
+   output), sparing kin, daily rhythms, freezing and ambush, warning
+   colours. Each needs a benefit from neighbours or from timing that this
+   physics does not give.
 4. **Phone time.** Predators arrive in 20–130k ticks; the page runs ~200–600
    ticks/s. The evolved start covers the wait.

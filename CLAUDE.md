@@ -29,6 +29,8 @@ Read `HANDOFF.md` first: current state, what is known, what is next.
 | `tools/gsplit.py` | which body genes separate plant-eater clusters that cannot interbreed. |
 | `tools/give.py` | feeding (the give output): gift share of intake, and how much goes to look-alikes and juveniles, early against late. |
 | `tools/daynight.py` | daily rhythm (`dayTicks`): prey and predator speed at night against day, and the night share of kills. |
+| `tools/timeline.py` | a world's history at a glance: meat share, carnivore clusters, streaming and body sizes per window. |
+| `tools/memory.js` | what memory does in a `--dump`: whether a scare lingers into the next step, and whether memory runs a clock of its own. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |
 | `tools/embed-genomes.py` | embeds a `--dump` as the page's evolved start. Run from the repo root. |
 | `README.md` | for people opening the page. |
@@ -47,8 +49,8 @@ Plants are a grid of cells (64x64 in the page, 96x96 headless); an occupied cell
 reserve, grows up to 2 x stature tall as it grows (never shrinking when grazed; an animal reaches mass^(1/3) and cannot crop what is above its reach), and throws seed into cells grazed below a threshold. Animals are agents
 with 17 body genes (size, speed, sense, diet, weapon, armour, detox, three
 life-history genes, three colour tags, mate tolerance, three attention weights)
-and a neural network (37 senses, 8 hidden,
-7 outputs: turn, throttle, eat, meat preference, attack, call, give). Each mouth output is a
+and a neural network (39 senses, 8 hidden,
+9 outputs: turn, throttle, eat, meat preference, attack, call, give, and two memory outputs fed back as inputs). Each mouth output is a
 probability. Eating takes whatever food is in reach and the preference only
 matters when both plant and corpse are; a strike only happens when an animal is
 in reach (the attended one). Diet is one axis with a concave trade-off (`dietCurve` 2, `meatFloor` 0.4): plant yield x (1 - diet^2),

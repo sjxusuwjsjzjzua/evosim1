@@ -33,8 +33,8 @@ What evolves, without being written in:
   some worlds grazers call when a big armed stranger comes close;
 - **company**: meat-eaters move in loose groups; in some worlds grazers follow
   their own kind and avoid strangers. Prey do not seek each other out: in
-  this physics steering toward company costs more than it saves. They end up
-  together anyway by travelling the same way (below);
+  this physics steering toward company costs more than it saves. With the
+  compass on they end up together anyway by travelling the same way (below);
 - **speciation**: in 13 of 24 test worlds the meat-eaters became a species
   that cannot breed with any grazer, and in 7 grazer lineages stopped
   interbreeding with each other. In 4 of those the split is small grazers
@@ -42,8 +42,8 @@ What evolves, without being written in:
   plants. In another test
   world a new grazer species with little detox arose once the plants had
   lost their defences, and it was replacing the old one;
-- **streaming herds**: every animal can tell which way it is facing, as with a
-  sun compass. Within a few hundred generations a world's grazers share a
+- **streaming herds** (compass on, in the world drawer): every animal can
+  tell which way it is facing, as with a sun compass. Within a few hundred generations a world's grazers share a
   bearing and travel together across the (wrapping) world, keeping off ground
   already grazed. Nothing tells them which way to go; different worlds pick
   different directions. The meat-eaters travel with the herd rather than
@@ -54,9 +54,10 @@ What evolves, without being written in:
   a small grazer's reach, and bodies grow to reach them.
 
 Not every world gets there: in about one world in four predators never take
-hold. Once predators are there they tend to stay: in ten test worlds run for a
-million ticks, most still had them at the end, and none collapsed into worlds
-of dwarf or giant grazers.
+hold. Once predators are there they tend to stay: in 12 test worlds run for a
+million ticks with the default settings, 9 kept them for most of the run
+(11 of 12 with clonal reproduction). Streaming herds change that: with the
+compass on, predators died out in 14 of 24.
 
 Predators usually need one to three hundred generations to appear. On a phone
 that can take a while; **world → evolved start** founds a world from an evolved
@@ -88,7 +89,8 @@ picks up where it was next time you open it. **world → new world** starts over
   that costs energy and ears that work while it eats; what a call means, if
   anything, is up to evolution.
 - **world**: species measured live, physics sliders, world size and
-  reproduction (clonal or sexual; each starts a new world), new world, same
+  reproduction (clonal or sexual; each starts a new world), day and night,
+  whether the seasons travel, new world, same
   seed, evolved start, save the log.
 - **predators** in the top bar counts adults that got most of their lifetime
   energy from meat.
