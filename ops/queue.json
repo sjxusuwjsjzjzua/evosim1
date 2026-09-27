@@ -450,9 +450,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 10:49",
-   "dispatched_at": "2026-09-27 19:39"
+   "dispatched_at": "2026-09-27 19:39",
+   "scored_at": "2026-09-27 22:26"
   },
   {
    "label": "v1-NU-base",

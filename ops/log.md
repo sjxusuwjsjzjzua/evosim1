@@ -399,3 +399,10 @@
 - worlds 12, meat 14.3%, kill 10.5%, carnSp>0 in 1, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 8, exits 15, re-entries 12
 - fruit: gene 0.199 -> 0.712 (up in 12 of 12), div 0.200, fruit 35.2%, carried 72.4%
 
+### v1-EG-base-1209 (2026-09-27 22:26)
+
+`defaults`, seeds 1209-1220, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 18.2%, kill 13.9%, carnSp>0 in 4, preyCl 0.87, persisting (predK >= 64% of run after bootstrap) 9, exits 7, re-entries 3
+- fruit: gene 0.200 -> 0.339 (up in 9 of 12), div 0.189, fruit 25.6%, carried 37.3%
+
