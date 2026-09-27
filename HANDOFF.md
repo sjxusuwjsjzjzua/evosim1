@@ -823,6 +823,14 @@ replayed to 1M ticks and run 150k more three ways. Seeds 1102, 1105, 1109,
 - 60 evolved meat-eaters injected: meat 22.4–33.9%, 1–2 carnivore clusters;
 - 60 random-brain founders injected: meat 5.9–10.9%, no cluster.
 
+Which step is missing (scratchpad `valley.js`, same four collapsed worlds on
+the pre-fruit build, 60 injected animals each, 150k ticks). Resident grazers
+given only the hunters' mean diet reached 5–13% meat. Diet plus weapon, armour
+and size reached 5–19%. A hunter's brain in a grazer's body reached 5–11%.
+Whole hunters reached 20–34%, with carnivore clusters. No part alone founds a
+predator line, so body and brain have to change together: a valley that
+single mutations do not cross.
+
 So the barrier is re-origination. At the start of a world, predation arises
 from a diverse random population. After a collapse the grazers are one kind,
 and the steps from grazer to hunter (diet, weapon, size, strike urge
