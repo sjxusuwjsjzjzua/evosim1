@@ -357,8 +357,9 @@
    "baseline": "",
    "expect": "the fruit build's default at 1M: persistence about 2/3 or better; fruit gene rising",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 16:48"
+   "status": "dispatched",
+   "added_at": "2026-09-27 16:48",
+   "dispatched_at": "2026-09-27 16:48"
   },
   {
    "label": "v1-BN-jc",
@@ -368,8 +369,9 @@
    "baseline": "v1-BN-default",
    "expect": "jc raises the fruit gene and plant diversity (replicating +0.10 and +0.02); predators unchanged",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 16:48"
+   "status": "dispatched",
+   "added_at": "2026-09-27 16:48",
+   "dispatched_at": "2026-09-27 16:48"
   },
   {
    "label": "v1-EG-base-1185",
@@ -379,8 +381,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:09"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:09",
+   "dispatched_at": "2026-09-27 16:48"
   },
   {
    "label": "v1-EG-base-1197",
@@ -425,6 +428,17 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-27 15:26"
+  },
+  {
+   "label": "v1-EG-base-1245",
+   "seeds": "1245-1256",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 16:48"
   }
  ]
 }
