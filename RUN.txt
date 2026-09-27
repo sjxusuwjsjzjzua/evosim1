@@ -1,0 +1,6 @@
+label=v1-BD-lean
+seeds=1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112
+ticks=1000000
+set=gridN=64,sex=1,mateDist=0.1
+cfg=
+sha=9c9a2cb30fa16cd03f0388673caa78ec7a26dc76
