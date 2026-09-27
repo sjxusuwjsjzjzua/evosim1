@@ -763,11 +763,18 @@ nearly or entirely gone within 60k ticks in 3 of 4 worlds (7 against 673, 0
 against 888, 0 against 1207). They won in one (517 against 29). By 200k ticks
 most worlds' brains lean on their memory.
 
-Long worlds, `v1-BA-long`: 12 seeds (1101–1112), 1.6M ticks, current defaults.
-Expectation: predators hold in most (exits about 0.1–0.2 per 100k predator
-ticks, as measured before). Streaming stays; carnivore species persist or
-turn over. The open question is whether anything that needs timing or
-coordination appears given about four times the generations.
+**Long worlds lose their predators** (`v1-BA-long`, 12 seeds 1101–1112, 1.6M
+ticks, defaults of the time: sexual, compass, colour and heading senses,
+give; no memory). Every world had a predator phase early: meat 12–36% of
+intake in the first 200k ticks, carnivore clusters in 7 of 12. Then 9 of 12
+left the predator state (predK 95–731 thousand ticks) and settled at 5–12%
+meat with no carnivore cluster. Three held to the end (s1102, s1106, s1110;
+18–27% meat), with carnivore clusters coming and going. Grazers shrank to
+size 0.3–1.6. Streaming held in most worlds (`polar` 0.4–0.9). The expectation
+(predators hold, as 10 of 10 did to 1M under the older clonal, compass-free
+build) was wrong. A 2x2 at 1M ticks on the current build tests which of
+today's defaults is responsible: `v1-BC-s1c1` (sex, compass), `-s0c1`,
+`-s1c0`, `-s0c0`, 12 seeds each (1101–1112).
 
 Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
 moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
