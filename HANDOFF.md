@@ -795,6 +795,21 @@ ticks (seeds 3, 4): soil patchy (CV 0.7–1.2), plant mass and animals about
 (`soil0` 12) against `v1-NU-base`, seeds 1301–1324. Expectation in
 `ops/queue.json`.
 
+**Lifetime learning** (`learn`, new, 0 until tested; NI 51, NO 10; the owner
+asked for the full version). Every brain weight moves by `learnRate` x m x
+(its input's activity) x (its output's activity) at the previous think; m is
+the brain's own tenth output (tanh), a neuromodulator, so when, which way and
+how much to learn is genetic. A new sense, felt (the change in reserves since
+the last think), gives it something to learn from. For the four mouth urges
+an output's activity is the act minus its odds. Animals start from their
+genome's weights; nothing learned is inherited or saved; founders start with
+m silent. Cost: 1.7-2x run time per world (the update is bound by memory
+writes; learnStep 35% of time against 13% for the forward pass). Log:
+`learnM` (mean |m|, logged in every world: with learning off the output
+drives nothing, so its drift is the null), `learnDev`, `learnMoved`.
+Diagnostic: scratchpad `learnko.js` (at 200k ticks half of all lines lose m,
+inherited). Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
+
 **Smell** (`smell`, new, 0 until tested; NI 50). Animals give off scent in
 three channels (0.25 + 0.75 x colour tag, x mass^0.75), corpses a fourth; it
 spreads and fades on the spatial-hash grid (about 20 ticks). Two nostrils,

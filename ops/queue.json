@@ -611,6 +611,30 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-27 21:11"
+  },
+  {
+   "label": "v1-LE-base",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "baseline for v1-LE-on (the NI 51 / NO 10 build, learning off)",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:32",
+   "dispatched_at": "2026-09-27 21:32"
+  },
+  {
+   "label": "v1-LE-on",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "learn=1",
+   "baseline": "v1-LE-base",
+   "expect": "lifetime learning at 1M, 24 paired seeds. Expect: learnM above the base arm's drift of the same (unused) output if selection favours learning; weights of adults moved from their genome (learnMoved over 0.1); behaviour: kill share and meat share up a few points (hunters improve with practice), bootstrap somewhat slower; predator persistence within 4 worlds of base. A learnM at or below drift means evolution switches learning off.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:32",
+   "dispatched_at": "2026-09-27 21:32"
   }
  ]
 }

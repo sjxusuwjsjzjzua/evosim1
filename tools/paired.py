@@ -36,7 +36,8 @@ def world(f):
         'pred': sum(1 for r in post if r['meatShare'] > 0.15) / max(1, len(post)) > 0.5,
         'carn': any(sp['meat'] > 0.5 and sp['n'] >= 10 for sp in L[-1]['species']),
         'giant': size >= 5, 'dwarf': size <= 0.35,
-        'meat': sum(r['eC'] + r['eK'] for r in half) / eA,
+        'meat': sum(r['eC'] + r['eK'] for r in half) / eA, 'kill': sum(r['eK'] for r in half) / eA,
+        'animals': m('animals'), 'learnM': m('learnM'), 'soilCV': m('soilCV'),
         'preyCl': m('clumpPrey'), 'predCl': m('clumpPred'), 'polar': m('polar'), 'align': m('align'), 'preySp': m('preySp'), 'predSp': m('predSp'),
         'diet': sum(r['genes']['diet'] for r in half) / len(half),
     }
@@ -59,10 +60,11 @@ for arm_dir in sys.argv[2:]:
         b = sum(base[s][k] for s in seeds); a = sum(arm[s][k] for s in seeds)
         up = sum(1 for s in seeds if arm[s][k] and not base[s][k]); down = sum(1 for s in seeds if base[s][k] and not arm[s][k])
         print('  %-6s baseline %2d  arm %2d   (+%d / -%d)  McNemar p %.3f' % (k, b, a, up, down, binom_p(up, up + down)))
-    for k in ('meat', 'preyCl', 'predCl', 'diet', 'polar', 'align', 'preySp', 'predSp'):
+    for k in ('meat', 'kill', 'animals', 'preyCl', 'predCl', 'diet', 'polar', 'align', 'preySp', 'predSp', 'learnM', 'soilCV'):
         if any(base[s][k] is None or arm[s][k] is None for s in seeds):
             print('  %-6s not logged in one of the batches' % k); continue
+        fmt = '%.0f' if k == 'animals' else '%.3f'
         diffs = [arm[s][k] - base[s][k] for s in seeds]
         pos = sum(1 for x in diffs if x > 0); neg = sum(1 for x in diffs if x < 0)
-        print('  %-6s baseline %.3f  arm %.3f   mean diff %+.3f  sign test %d+/%d-  p %.3f' % (
+        print(('  %-6s baseline ' + fmt + '  arm ' + fmt + '   mean diff %+.3f  sign test %d+/%d-  p %.3f') % (
             k, sum(base[s][k] for s in seeds) / n, sum(arm[s][k] for s in seeds) / n, sum(diffs) / n, pos, neg, binom_p(pos, pos + neg)))
