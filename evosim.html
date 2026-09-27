@@ -144,8 +144,6 @@ var CFG_DEFAULT = {
   fruit: 1,             // plants may turn biomass into fruit (their fourth gene sets how much). With animals
                         // carrying the seed, the fruit gene rises over 1M ticks (0.19 -> 0.25) and falls to
                         // 0.08 without carrying; predators persist as without fruit (19 of 24 against 17)
-  jc: 0,                // seedlings fail near their own kind (specialised enemies build up round a parent):
-                        // a seed takes root with chance 1 - jc x (share of the 8 neighbours that are plants of its own kind)
   seeFruit: 1,          // animals sense fruit ahead-left, ahead-right and underfoot
   fruitRate: 0.002,     // biomass turned into fruit per tick, x fruit gene x biomass
   fruitMax: 0.5,        // fruit a cell can hold, as a share of its capacity
@@ -422,7 +420,7 @@ function updatePlants(){
       var tx = ((cx + Math.round(Math.cos(th)*dist)) % n + n) % n;
       var ty = ((cy + Math.round(Math.sin(th)*dist)) % n + n) % n;
       var t = ty*n + tx;
-      if (t !== c && S.pB[t] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(t, S.pStat[c], S.pDef[c], S.pDisp[c], S.pFruit[c]))){
+      if (t !== c && S.pB[t] < CFG.pTakeover){
         B -= CFG.pSeedB;
         S.pB[t] = CFG.pSeedB;
         S.pStat[t] = mutP(S.pStat[c], sd);
@@ -435,18 +433,6 @@ function updatePlants(){
     }
     S.pB[c] = B;
   }
-}
-// the share of a cell's 8 neighbours that are plants of the seed's own kind (plant genes within 0.15)
-function kinNeighbours(t, st, de, di, fr){
-  var n = CFG.gridN, tx = t % n, ty = (t/n)|0, k = 0;
-  for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
-    if (!dx && !dy) continue;
-    var u = ((ty+dy+n) % n)*n + (tx+dx+n) % n;
-    if (S.pB[u] <= 0) continue;
-    var a = S.pStat[u]-st, b = S.pDef[u]-de, c = S.pDisp[u]-di, d = S.pFruit[u]-fr;
-    if (a*a + b*b + c*c + d*d < 0.0225) k++;
-  }
-  return k/8;
 }
 // plant genetic diversity: the mean standard deviation of the four plant genes over occupied cells
 function plantDiversity(){
@@ -1001,7 +987,7 @@ function updateAnimal(i){
   for (var sl2 = 0; sl2 < 4; sl2++) if (S.gutT[i*4+sl2] > 0 && --S.gutT[i*4+sl2] <= 0){
     var dc = cellAt(S.x[i], S.y[i]);
     var gg2 = (i*4+sl2)*4, sd2 = CFG.pMutSd;
-    if (S.pB[dc] < CFG.pTakeover && (CFG.jc <= 0 || rng() >= CFG.jc*kinNeighbours(dc, S.gutG[gg2], S.gutG[gg2+1], S.gutG[gg2+2], S.gutG[gg2+3]))){
+    if (S.pB[dc] < CFG.pTakeover){
       S.pB[dc] = CFG.pSeedB; S.pStat[dc] = mutP(S.gutG[gg2], sd2); S.pDef[dc] = mutP(S.gutG[gg2+1], sd2);
       S.pDisp[dc] = mutP(S.gutG[gg2+2], sd2); S.pFruit[dc] = mutP(S.gutG[gg2+3], sd2);
       S.pSeed[dc] = 0; S.pH[dc] = 0; S.pF[dc] = 0; cachePlant(dc); S.c.seedsAnimal++;

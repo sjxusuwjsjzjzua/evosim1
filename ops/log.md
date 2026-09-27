@@ -333,3 +333,28 @@
 
 - worlds 24, meat 17.8%, kill 13.7%, carnSp>0 in 5, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 17, exits 19, re-entries 14
 
+### v1-BN-jc (2026-09-27 19:38)
+
+`jc=0.8`, seeds 1125-1148, 1000000 ticks. Expected: jc raises the fruit gene and plant diversity (replicating +0.10 and +0.02); predators unchanged
+
+- worlds 24, meat 20.6%, kill 16.4%, carnSp>0 in 3, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 19, exits 11, re-entries 6
+- baseline v1-BN-default: worlds 24, meat 17.8%, kill 13.7%, carnSp>0 in 5, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 17, exits 19, re-entries 14
+    pred   baseline 13  arm 18   (+8 / -3)  McNemar p 0.227
+    carn   baseline  5  arm  3   (+3 / -5)  McNemar p 0.727
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  2  arm  0   (+0 / -2)  McNemar p 0.500
+    meat   baseline 0.178  arm 0.206   mean diff +0.027  sign test 15+/9-  p 0.307
+    preyCl baseline 0.854  arm 0.853   mean diff -0.001  sign test 12+/12-  p 1.000
+    predCl baseline 3.168  arm 2.803   mean diff -0.365  sign test 9+/15-  p 0.307
+    diet   baseline 0.090  arm 0.095   mean diff +0.006  sign test 15+/9-  p 0.307
+    polar  baseline 0.032  arm 0.030   mean diff -0.002  sign test 10+/14-  p 0.541
+    align  baseline 0.009  arm 0.017   mean diff +0.008  sign test 13+/11-  p 0.839
+    preySp baseline 0.321  arm 0.318   mean diff -0.002  sign test 15+/9-  p 0.307
+    predSp baseline 0.467  arm 0.510   mean diff +0.044  sign test 15+/9-  p 0.307
+
+### v1-EG-base-1185 (2026-09-27 19:38)
+
+`defaults`, seeds 1185-1196, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 20.4%, kill 16.4%, carnSp>0 in 4, preyCl 0.90, persisting (predK >= 64% of run after bootstrap) 11, exits 4, re-entries 2
+

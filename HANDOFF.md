@@ -877,7 +877,10 @@ went 0.200 → 0.348 (up in 17 of 24), carried seed 37.5%, plant diversity 0.203
 against 0.156 without carrying. Against carrying without `jc` (`v1-BL-fc`), paired:
 fruit gene +0.099 (16 of 24, p 0.15), diversity +0.022 (15 of 24, p 0.31),
 predator-dominated 16 against 20 (p 0.34). Not significant, so `jc` stays off.
-24 more seeds (`v1-BN-*`, 1125–1148) are running. The first evergreen block on
+Replication on 24 more seeds (`v1-BN-jc` against `-default`, 1125–1148): the fruit
+gene was lower with `jc` (−0.09, 8 of 24). Pooled over 48 pairs: fruit gene
++0.006 (24 of 48), diversity +0.016 (p 0.47), meat +0.013. Null, so `jc` was
+pruned (bit-identical at 0). The plant diversity log stays. The first evergreen block on
 the fruit build (`v1-EG-base-1161`) kept predators in 11 of 12 worlds.
 
 **Seed carrying selects for fruit** (`v1-BK-fjc02` against `-fjcnd02`, `fruit` 1,
