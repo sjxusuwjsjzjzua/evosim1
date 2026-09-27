@@ -748,6 +748,40 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
   and `browseGrown` (plant height grows with the plant, seedlings are short):
   `results/v1-AF-vigilShare`, `-browseGrown`.
 
+## Self-audit, 2026-09-27: converging or looping?
+
+Since 2026-09-26: 139 commits, 26 engine commits, 42 result branches.
+- **Converging in knowledge.** A long list of nulls now rests on paired
+  tests and hand-built diagnostics (herding, flocking, aimed feeding, kin
+  sparing, rhythms, freezing, warning colours).
+- **Looping in method.** The same move repeated seven times: add a
+  sense or action, run 24 paired seeds, get a null, keep it "as information".
+  Only the compass came with a diagnostic first (`east.js`); no other
+  addition changed behaviour.
+- **Genome bloat.** The brain went from 30 senses and 6 outputs (NG 485) to
+  39 and 9 (NG 752), mostly weights with no shown function. Every change to
+  the layout moved the baseline (AL, AS, AU, AV, AX, AZ).
+- **Wrong horizon.** Defaults were changed on 400k-tick evidence (compass
+  on) and reversed after 1M-tick runs showed the compass halved predator
+  persistence. The core outcome, predators that persist, was never
+  measured at 1M before a default changed. Over the day it went 10 of 10
+  (old build) → 4 of 12 (then-current) → 9 of 12 (now). There is no net gain on
+  it, and it was nearly lost.
+- **Real gains.** Sexual species and a browser/grazer niche split, the
+  cannibalism finding, the diagnosis of long-run collapse (giant grazers,
+  streaming), streaming as an option, and the tooling (paired tests, nulls
+  such as `kinNear`).
+
+Rules from here:
+1. No new sense or action without a hand-built diagnostic first showing
+   that the behaviour it would enable pays.
+2. A default changes only after 1M-tick paired runs that include predator
+   persistence, not just 400k.
+3. Test whether the added null inputs cost anything (lean build against
+   current at 1M). Prune them if they cost, or if nothing needs them.
+4. Stay on the open core problem, predators that never come back after a
+   collapse, until it is understood.
+
 ## Running now
 
 Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
