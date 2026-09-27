@@ -82,7 +82,11 @@ there.
 
 ## Autonomy
 
-The owner has handed the project over and asked for continuous iteration without
-check-ins. Change physics or mechanism, run it, commit, push, and merge finished
-work to `main`. Stop and ask only for something with no rollback (deleting
-result branches, rewriting `main`'s history).
+The owner has handed the project over with full rein and no limits: the goal is an
+evolution simulator of plants and animals in which every behaviour emerges and
+none is written in. Nothing is sacred: physics, mechanisms, tooling, these rules
+and the ones in `OPS.md` can all be rewritten when they stand in the way of that
+goal. Work continuously without check-ins at the token mode set in `OPS.md`:
+change, run, commit, push, and merge to `main`. The self-audit rules in
+`HANDOFF.md` stay because they keep the work from looping, not because they
+limit it; replace them if something better does that job.

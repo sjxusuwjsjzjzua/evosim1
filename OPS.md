@@ -72,10 +72,20 @@ set the Routine's schedule (`update_trigger`, id `trig_01AFPVT5d29ZrjBYy7DxiEAo`
 `0 * * * *`). "Pause" disables the Routine and stops dispatching; running jobs
 finish and are digested on resume.
 
-## Open questions, in order (the designed part of the queue)
+## The goal, and the questions that serve it, in order
 
-1. Why predators never come back after a collapse (re-origination), and
-   whether any physics lets a second origin happen: `v1-BE-mutsd12`, `v1-BE-3M`.
-2. The giant-grazer escape: `v1-BE-sizemax8`.
-3. The predator persistence rate of the default build, from growing samples:
+The goal: an evolution simulator of plants and animals in which every behaviour
+emerges. Questions are ranked by how much they move that goal.
+
+1. **Plants as evolving partners, not just food.** Plants have three genes and
+   spread by wind. Physics that lets plants evolve fruit (energy offered to
+   animals, with seeds carried off in their guts) would let frugivory, animal
+   seed dispersal and plant–animal mutualism emerge. None of it would be
+   written in.
+2. **Open-ended evolution.** After a collapse predators never re-evolve. The
+   ecology still supports injected hunters, so the barrier is evolutionary
+   (`regrow.js`, 4 of 4). Which step is missing: scratchpad `valley.js`,
+   `v1-BE-mutsd12`, `v1-BE-3M`.
+3. **The giant-grazer escape**: `v1-BE-sizemax8`.
+4. **Predator persistence of the default build**, from growing samples:
    `v1-EG-base-*`.
