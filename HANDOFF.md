@@ -849,6 +849,14 @@ off), predators persisted in 19 of 24 against 17, predator-dominated 20 against
 is not needed. Fruit shows on the page as a pink blush on plant cells, with
 a legend entry and an on/off in the world drawer.
 
+With `jc` 0.8 at 1M ticks (`v1-BL-fjc` against `-fjnc`, 24 seeds) the fruit gene
+went 0.200 → 0.348 (up in 17 of 24), carried seed 37.5%, plant diversity 0.203
+against 0.156 without carrying. Against carrying without `jc` (`v1-BL-fc`), paired:
+fruit gene +0.099 (16 of 24, p 0.15), diversity +0.022 (15 of 24, p 0.31),
+predator-dominated 16 against 20 (p 0.34). Not significant, so `jc` stays off.
+24 more seeds (`v1-BN-*`, 1125–1148) are running. The first evergreen block on
+the fruit build (`v1-EG-base-1161`) kept predators in 11 of 12 worlds.
+
 **Seed carrying selects for fruit** (`v1-BK-fjc02` against `-fjcnd02`, `fruit` 1,
 `jc` 0.8, `fruitPerSeed` 0.2, 24 paired seeds, 400k ticks). The fruit gene was
 higher with carrying in 20 of 24 pairs (+0.061, sign test p 0.0015): 0.200 →

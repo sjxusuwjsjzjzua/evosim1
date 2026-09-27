@@ -281,3 +281,36 @@
 - worlds 24, meat 18.8%, kill 14.4%, carnSp>0 in 5, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 15, exits 10, re-entries 5
 - fruit: gene 0.184 -> 0.075 (up in 0 of 24), div 0.160, fruit 17.1%, carried 0.0%
 
+### v1-BL-fjc (2026-09-27 16:47)
+
+`fruit=1,jc=0.8,fruitPerSeed=0.2`, seeds 1101-1124, 1000000 ticks. Expected: carrying with jc: as without jc (jc did not matter at 400k)
+
+- worlds 24, meat 20.4%, kill 16.3%, carnSp>0 in 5, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 19, exits 12, re-entries 8
+- fruit: gene 0.200 -> 0.348 (up in 17 of 24), div 0.203, fruit 31.8%, carried 37.5%
+- baseline v1-BL-fjnc: worlds 24, meat 21.2%, kill 17.0%, carnSp>0 in 6, preyCl 0.84, persisting (predK >= 64% of run after bootstrap) 19, exits 9, re-entries 3
+    pred   baseline 17  arm 16   (+3 / -4)  McNemar p 1.000
+    carn   baseline  6  arm  5   (+4 / -5)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.212  arm 0.204   mean diff -0.008  sign test 11+/13-  p 0.839
+    preyCl baseline 0.840  arm 0.854   mean diff +0.014  sign test 14+/10-  p 0.541
+    predCl baseline 2.719  arm 3.482   mean diff +0.764  sign test 13+/11-  p 0.839
+    diet   baseline 0.094  arm 0.104   mean diff +0.009  sign test 14+/10-  p 0.541
+    polar  baseline 0.032  arm 0.031   mean diff -0.002  sign test 11+/13-  p 0.839
+    align  baseline 0.010  arm 0.008   mean diff -0.002  sign test 8+/16-  p 0.152
+    preySp baseline 0.303  arm 0.336   mean diff +0.033  sign test 16+/8-  p 0.152
+    predSp baseline 0.517  arm 0.495   mean diff -0.022  sign test 13+/11-  p 0.839
+
+### v1-BL-fjnc (2026-09-27 16:47)
+
+`fruit=1,jc=0.8,fruitPerSeed=0.2,gutTicks=0`, seeds 1101-1124, 1000000 ticks. Expected: no carrying, jc: fruit gene falls
+
+- worlds 24, meat 21.2%, kill 17.0%, carnSp>0 in 6, preyCl 0.84, persisting (predK >= 64% of run after bootstrap) 19, exits 9, re-entries 3
+- fruit: gene 0.184 -> 0.070 (up in 0 of 24), div 0.156, fruit 15.2%, carried 0.0%
+
+### v1-EG-base-1161 (2026-09-27 16:47)
+
+`defaults`, seeds 1161-1172, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 21.5%, kill 17.6%, carnSp>0 in 4, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 11, exits 2, re-entries 0
+
