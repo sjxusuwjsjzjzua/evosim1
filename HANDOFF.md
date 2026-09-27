@@ -851,6 +851,16 @@ do what it was for. Next:
 `fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
 `-fjcnd02`, 24 seeds.
 
+**Over 3M ticks the mutualism deepens** (`v1-BM-fruit3M`, 12 seeds, fruit with
+carrying). The fruit gene climbed from 0.196 to 0.680 (up in 11 of 12 worlds).
+Carried seed grew 69.5% of new plants, so most plant reproduction runs
+through animal guts. Fruit was 35% of the animals' plant energy, and plant
+diversity 0.198. Predators: 18 exits, 12 re-entries, persisting in 7 of 12.
+The no-fruit 3M worlds on the same seeds (`v1-BE-3M`, older build) had 14 and 7,
+and 6 of 12: more comebacks with fruit, suggestive only. The fruit build's
+predator persistence at 1M ticks, pooled (`v1-BN-default`, `v1-EG-base-1161`,
+`-1173`): 37 of 48 (77%), against 47 of 72 (65%) before fruit.
+
 **Fruit is on by default** (2026-09-27, `fruit` 1, `fruitPerSeed` 0.2, `jc` 0). At
 1M ticks (`v1-BL-fc` against `-fnc`, 24 paired seeds, no `jc`), the fruit gene
 went 0.194 → 0.250 with carrying and ended higher than it started in 11 of 24

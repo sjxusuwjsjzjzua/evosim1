@@ -314,3 +314,22 @@
 
 - worlds 12, meat 21.5%, kill 17.6%, carnSp>0 in 4, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 11, exits 2, re-entries 0
 
+### v1-BM-fruit3M (2026-09-27 18:24)
+
+`fruit=1,fruitPerSeed=0.2`, seeds 1201-1212, 3000000 ticks. Expected: over 3M ticks with carrying the fruit gene levels off above 0 or climbs; carried seed a steady share
+
+- worlds 12, meat 13.3%, kill 9.4%, carnSp>0 in 2, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 7, exits 18, re-entries 12
+- fruit: gene 0.196 -> 0.680 (up in 11 of 12), div 0.198, fruit 34.7%, carried 69.5%
+
+### v1-EG-base-1173 (2026-09-27 18:24)
+
+`defaults`, seeds 1173-1184, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 17.6%, kill 13.4%, carnSp>0 in 4, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 9, exits 7, re-entries 6
+
+### v1-BN-default (2026-09-27 18:24)
+
+`defaults`, seeds 1125-1148, 1000000 ticks. Expected: the fruit build's default at 1M: persistence about 2/3 or better; fruit gene rising
+
+- worlds 24, meat 17.8%, kill 13.7%, carnSp>0 in 5, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 17, exits 19, re-entries 14
+
