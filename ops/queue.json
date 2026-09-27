@@ -386,6 +386,30 @@
    "dispatched_at": "2026-09-27 16:48"
   },
   {
+   "label": "v1-BO-see1",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "seeFruit=1",
+   "baseline": "v1-BO-see0",
+   "expect": "grazers turn toward fruit; fruit share of energy up; fruit gene higher; predators unchanged",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 17:46",
+   "dispatched_at": "2026-09-27 17:46"
+  },
+  {
+   "label": "v1-BO-see0",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "seeFruit=0",
+   "baseline": "",
+   "expect": "baseline on the fruit-sense build",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 17:46",
+   "dispatched_at": "2026-09-27 17:46"
+  },
+  {
    "label": "v1-EG-base-1197",
    "seeds": "1197-1208",
    "ticks": 1000000,
