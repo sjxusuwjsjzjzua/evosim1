@@ -54,9 +54,10 @@ What evolves, without being written in:
   a small grazer's reach, and bodies grow to reach them.
 
 Not every world gets there: in about one world in four predators never take
-hold. Once predators are there they tend to stay: in 12 test worlds run for a
-million ticks with the default settings, 9 kept them for most of the run
-(11 of 12 with clonal reproduction). Streaming herds change that: with the
+hold. Once there, predators usually stay: in 36 test worlds run for a
+million ticks with the default settings, 23 kept them for most of the run.
+When they do die out they can evolve again, though rarely: 12 worlds run for
+three million ticks saw 7 comebacks. Streaming herds change that: with the
 compass on, predators died out in 14 of 24.
 
 Predators usually need one to three hundred generations to appear. On a phone

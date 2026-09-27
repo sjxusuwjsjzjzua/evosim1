@@ -76,6 +76,8 @@ def main():
         sh('git fetch -q origin'); lines = []
         for e in E:
             if e['status'] != 'dispatched' or not landed(e['label']): continue
+            b = e.get('baseline')
+            if b and not landed(b) and not os.path.isdir('runs/' + b): continue   # score when its baseline has landed too
             sh('bash tools/fetch-results.sh %s' % e['label'])
             txt = '### %s (%s)\n\n`%s`, seeds %s, %d ticks. Expected: %s\n\n- %s\n' % (
                 e['label'], now(), e['set'] or 'defaults', e['seeds'], e['ticks'], e['expect'], summary(e['label']))

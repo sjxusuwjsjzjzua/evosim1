@@ -802,6 +802,21 @@ may change. A fruit sense for animals comes only if this shows fruit matters.
 
 See `OPS.md` (operating modes) and `ops/queue.json` (what runs next).
 
+**Predators do come back, given time; bigger mutation steps raise the
+turnover** (2026-09-27):
+- `v1-BE-3M`, 12 seeds (1201–1212) at 3M ticks, defaults: 14 exits from the
+  predator state and 7 re-entries after an exit. Predators persisted in 6 of
+  12 for at least 64% of the run. A second origin is rare over 1M ticks and
+  real over 3M. The valley (`valley.js`) is crossed, slowly.
+- `v1-BE-mutsd12` (`mutSd` 0.12 against 0.08, 12 paired seeds, 1M ticks): 6
+  re-entries against 1 and 12 exits against 6. Persistence is unchanged (9 of
+  12 in both), with predator clumping higher (2.71 against 1.88, p 0.039).
+  Bigger mutation steps cross the valley more often, and they also lose
+  predators more often.
+- The default's persistence, pooled over 36 worlds at 1M ticks (`v1-BC-s1c0`,
+  `v1-EG-base-1113`, `-1125`): 23 of 36 (64%). The first 12 (9 of 12) were a
+  lucky draw.
+
 **A lower size cap hurts predators** (`v1-BE-sizemax8`, `sizeMax` 8 against 12,
 12 paired seeds, 1M ticks). Expected: fewer giant-grazer escapes. Wrong: predators
 persisted in 6 of 12 against 9, with 11 exits against 6 and predator-dominated

@@ -21,9 +21,10 @@
    "baseline": "v1-BC-s1c0",
    "expect": "bigger mutation steps help a grazer line cross to hunting again: re-entries after an exit above 0 in some worlds (baseline: 0)",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:08",
-   "dispatched_at": "2026-09-27 07:09"
+   "dispatched_at": "2026-09-27 07:09",
+   "scored_at": "2026-09-27 09:36"
   },
   {
    "label": "v1-BE-3M",
@@ -33,9 +34,10 @@
    "baseline": "",
    "expect": "over 3M ticks: does any world re-evolve predators after a collapse (re-entries > 0)? Expected rare or none",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:08",
-   "dispatched_at": "2026-09-27 07:09"
+   "dispatched_at": "2026-09-27 07:09",
+   "scored_at": "2026-09-27 09:36"
   },
   {
    "label": "v1-EG-base-1113",
@@ -45,9 +47,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:08",
-   "dispatched_at": "2026-09-27 07:09"
+   "dispatched_at": "2026-09-27 07:09",
+   "scored_at": "2026-09-27 09:36"
   },
   {
    "label": "v1-EG-base-1125",
@@ -57,9 +60,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:08",
-   "dispatched_at": "2026-09-27 07:09"
+   "dispatched_at": "2026-09-27 07:09",
+   "scored_at": "2026-09-27 09:36"
   },
   {
    "label": "v1-BF-fruit1",
@@ -71,7 +75,8 @@
    "build_ref": "",
    "status": "dispatched",
    "added_at": "2026-09-27 07:22",
-   "dispatched_at": "2026-09-27 07:22"
+   "dispatched_at": "2026-09-27 09:37",
+   "scored_at": "2026-09-27 09:36"
   },
   {
    "label": "v1-BF-fruit0",
