@@ -748,6 +748,12 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
 
 ## Running now
 
+Long worlds, `v1-BA-long`: 12 seeds (1101–1112), 1.6M ticks, current defaults.
+Expectation: predators hold in most (exits about 0.1–0.2 per 100k predator
+ticks, as measured before). Streaming stays; carnivore species persist or
+turn over. The open question is whether anything that needs timing or
+coordination appears given about four times the generations.
+
 Motion catches the eye (`stillHide`, new, 0 = off): an animal moving slower
 than 0.05 is seen over (1 − `stillHide`) of anyone's range. The same rule
 hides a freezing prey and an ambushing hunter. New log fields `preySp` and
