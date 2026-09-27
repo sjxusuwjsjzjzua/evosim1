@@ -112,7 +112,6 @@ var CFG_DEFAULT = {
                         // populations evolve a shared bearing and travel together (24 paired
                         // worlds: prey clumping 1.22 against 0.84, predation unchanged)
   dayTicks: 0,          // ticks per day and night; 0 = always day
-  stillHide: 0,         // an animal moving slower than 0.05 is seen over (1 - stillHide) of anyone's range: motion catches the eye
   nightSight: 0.3,      // at full dark, animals and corpses are seen over this share of the sense range
   seasonWave: 0,        // 1 = the season travels along x, one wavelength per world width per year:
                         // a band of fast growth moving at world/yearTicks per tick
@@ -620,7 +619,6 @@ function sense(i){
   // eyes need light: at night animals and corpses are seen over nightSight of the range (ears are unaffected)
   var sight = CFG.dayTicks > 0 ? CFG.nightSight + (1 - CFG.nightSight)*S.light : 1;
   RA2 *= sight*sight; nearCd *= sight*sight;
-  var RA2h = RA2*(1 - CFG.stillHide)*(1 - CFG.stillHide);   // an animal keeping still is seen over less of the range
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -639,7 +637,7 @@ function sense(i){
         if (d2 >= R2) continue;
         var lv = CL[j]*(1 - d2*invR2);   // ears work with the head down
         if (lv > heard){ heard = lv; hx = ex; hy = ey; }
-        if (d2 >= (SPD[j] < 0.05 ? RA2h : RA2)) continue;
+        if (d2 >= RA2) continue;
         crowd++; cxs += ex; cys += ey; spd += SPD[j]; if (SPD[j] >= 0.05){ hcs += Math.cos(HD[j]); hsn += Math.sin(HD[j]); }
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         // look-alikes (colour tag within 0.3, size within 2x) pull the kin direction, weighted by likeness

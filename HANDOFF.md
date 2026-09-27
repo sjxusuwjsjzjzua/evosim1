@@ -754,15 +754,16 @@ ticks, as measured before). Streaming stays; carnivore species persist or
 turn over. The open question is whether anything that needs timing or
 coordination appears given about four times the generations.
 
-Motion catches the eye (`stillHide`, new, 0 = off): an animal moving slower
-than 0.05 is seen over (1 − `stillHide`) of anyone's range. The same rule
-hides a freezing prey and an ambushing hunter. New log fields `preySp` and
-`predSp` (mean speeds). `v1-AZ-still5` (`stillHide` 0.5) against
-`v1-AY-noday` (the same build in effect: `stillHide` 0 is bit-identical), 24
-paired seeds. Expectation: prey mean speed falls (freezing pays), and in
-some worlds predators slow too (waiting pays). Kill share may fall. Probe:
-prey throttle when a big armed animal is in view (`tools/genomes.js`
-throttleSeesBigArmed) against baseline.
+Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
+moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
+the same rule could hide a freezing prey or an ambushing hunter. `v1-AZ-still5`
+against `v1-AZ-still0`, 24 paired seeds: nothing significant. Prey mean speed
+0.281 against 0.271, predators 0.382 against 0.372; predator worlds 16 against
+13, carnivore clusters 5 against 9 (p 0.34). Grazers' resting throttle was
+lower (0.20 against 0.33, lower in 16 of 24, p 0.15). On seeing a big armed
+animal they still speed up (0.61) and freeze in none. Streaming prey have to
+move to eat, so stillness costs them more than it hides. The switch is
+removed; its absence is bit-identical to 0.
 
 Day and night (`dayTicks`, new, 0 = off): light follows a sine over `dayTicks`
 ticks. At full dark animals and corpses are seen over `nightSight` (0.3) of the
