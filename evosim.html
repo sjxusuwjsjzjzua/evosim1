@@ -1783,6 +1783,7 @@ function buildDrawer(){
          '" step="' + s[4] + '"><span id="v_' + s[0] + '"></span></div>';
   });
   h += '<div class="row"><label>seasons move</label><button id="wS">still</button><button id="wT">travelling</button></div>';
+  h += '<div class="row"><label>day and night</label><button id="dOff">off</button><button id="dOn">on</button></div>';
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
   h += '<div class="row"><label>reproduction</label><button id="rC">clonal</button><button id="rS">sexual</button></div>';
   h += '<div class="row"><button id="bNew">new world</button><button id="bSeed">same seed</button><button id="bLog">save log</button></div>';
@@ -1792,6 +1793,7 @@ function buildDrawer(){
   h += '<p class="note">Sexual is the default. In about half of test worlds meat-eaters became a separate species that cannot interbreed with the grazers, and in some the grazers split too. Clonal worlds get predators as often, but a species there is only a cluster of look-alikes.</p>';
   h += '<p class="note">Small is the default: it runs about twice as fast, and predators evolved at least as often in test worlds as in the medium one. Predators usually need one to three hundred generations to appear, and only some worlds get them.</p>';
   h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; grazers can tell which way they face and in most test worlds learned to go with it.</p>';
+  h += '<p class="note">Day and night: at night eyes see animals and corpses over a third of their range (ears are unaffected), and every animal can sense how light it is. Fewer kills happen at night; in test worlds no daily rhythm evolved.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A faint tail shows which way an animal is moving and how fast. When the grazers of a world evolve a shared bearing, their tails line up.</p>';
   h += '<p class="note">A blue ring means an animal is calling; the ring grows with loudness. Calls cost energy and nothing says what they mean.</p>';
@@ -1813,6 +1815,10 @@ function buildDrawer(){
   $('rC').classList.toggle('on', !sexual); $('rS').classList.toggle('on', sexual);
   $('rC').onclick = function(){ if (!sexual || !discardOK()) return; patch.sex = 0; fresh(); newWorld(); buildDrawer(); };
   $('rS').onclick = function(){ if (sexual || !discardOK()) return; patch.sex = 1; fresh(); newWorld(); buildDrawer(); };
+  var dn = Sim.CFG.dayTicks > 0;
+  $('dOff').classList.toggle('on', !dn); $('dOn').classList.toggle('on', dn);
+  $('dOff').onclick = function(){ Sim.CFG.dayTicks = 0; patch.dayTicks = 0; buildDrawer(); };
+  $('dOn').onclick = function(){ Sim.CFG.dayTicks = 1000; patch.dayTicks = 1000; buildDrawer(); };
   var wave = !!Sim.CFG.seasonWave;
   $('wS').classList.toggle('on', !wave); $('wT').classList.toggle('on', wave);
   $('wS').onclick = function(){ Sim.CFG.seasonWave = 0; patch.seasonWave = 0; buildDrawer(); };
@@ -1845,6 +1851,7 @@ function frame(ts){
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = '#0b1014'; ctx.fillRect(0, 0, innerWidth, innerHeight);
   drawPlants(); drawAnimals();
+  if (Sim.CFG.dayTicks > 0 && Sim.S.light < 1){ ctx.fillStyle = 'rgba(4,8,28,' + (0.55*(1 - Sim.S.light)).toFixed(3) + ')'; ctx.fillRect(view.x, view.y, view.w, view.h); }   // night
   if (ts - lastHud > 250){ hud(); drawGraph(); card(); lastHud = ts; }
   requestAnimationFrame(frame);
 }
@@ -1860,7 +1867,7 @@ function resumeWorld(){
   try {
     var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
     if (w && Sim.restore(w)){
-      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
       resumedFrom = Sim.S.tick; afterLoad(); return true;
     }
   } catch (e) {}

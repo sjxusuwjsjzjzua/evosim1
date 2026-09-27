@@ -88,7 +88,8 @@ picks up where it was next time you open it. **world → new world** starts over
   that costs energy and ears that work while it eats; what a call means, if
   anything, is up to evolution.
 - **world**: species measured live, physics sliders, world size and
-  reproduction (clonal or sexual; each starts a new world), new world, same
+  reproduction (clonal or sexual; each starts a new world), day and night,
+  whether the seasons travel, new world, same
   seed, evolved start, save the log.
 - **predators** in the top bar counts adults that got most of their lifetime
   energy from meat.
