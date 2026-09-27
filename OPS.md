@@ -1,9 +1,9 @@
 # Operations: how the work keeps running
 
-**Current mode: 5** (set by the owner; change only on their word). Paused: no.
+**Current mode: 2** (set by the owner; change only on their word). Paused: no.
 
 The owner wants work to continue in the background without input, at a token
-budget they set on a scale of 1 to 10. This file is what every session and every
+budget they set: mode 1 (low), 2 (value) or 3 (burn). This file is what every session and every
 scheduled wake-up reads first.
 
 ## Resources
@@ -51,7 +51,7 @@ sample on the core outcome (predator persistence) and are never wasted.
 
 ## Modes
 
-| | 1: low | 5: value | 10: burn |
+| | 1: low | 2: value | 3: burn |
 |---|---|---|---|
 | heartbeat | every 2 hours | hourly | hourly, and the session keeps working between wakes |
 | per wake-up | `digest`; `status`; dispatch to saturation; `evergreen` if short; restart `wait`. Nothing else. | as 1, then read each landed result against its expectation, record it in `HANDOFF.md` in a few lines, design the next arms for the open question, merge when a result settles something | as 5, with several open questions in parallel |
@@ -60,7 +60,7 @@ sample on the core outcome (predator persistence) and are never wasted.
 | writing | the log line `digest` writes; one commit per wake at most | concise HANDOFF entries, PR and merge per settled result | fuller write-ups, reviews of own work, subagents for parallel analysis where they save wall-clock time |
 | rough cost per wake | a few thousand tokens | tens of thousands | as much as the work needs |
 
-Burn mode buys depth and parallelism, not a faster version of the
+Mode 3 (burn) buys depth and parallelism, not a faster version of the
 add-a-switch loop. Every experiment still states its expectation, and every
 result is recorded (see the self-audit in `HANDOFF.md`).
 
@@ -68,7 +68,7 @@ result is recorded (see the self-audit in `HANDOFF.md`).
 
 When the owner names a mode, edit the "Current mode" line above, commit, and
 set the Routine's schedule (`update_trigger`, id `trig_01AFPVT5d29ZrjBYy7DxiEAo`,
-"evosim ops heartbeat") (mode 1: `0 */2 * * *`; modes 5 and 10:
+"evosim ops heartbeat") (mode 1: `0 */2 * * *`; modes 2 and 3:
 `0 * * * *`). "Pause" disables the Routine and stops dispatching; running jobs
 finish and are digested on resume.
 
