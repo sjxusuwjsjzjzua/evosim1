@@ -764,6 +764,7 @@ lower (0.20 against 0.33, lower in 16 of 24, p 0.15). On seeing a big armed
 animal they still speed up (0.61) and freeze in none. Streaming prey have to
 move to eat, so stillness costs them more than it hides. The switch is
 removed; its absence is bit-identical to 0.
+`v1-AZ-still0` is the baseline for the current build (37 senses, 7 outputs).
 
 Day and night (`dayTicks`, new, 0 = off): light follows a sine over `dayTicks`
 ticks. At full dark animals and corpses are seen over `nightSight` (0.3) of the
@@ -801,7 +802,7 @@ else p > 0.3). Giving is selected down, from 1.3–6.0% of intake in the first
 What remains is not aimed. Its kin share tracks `kinNear` (e.g. 97 against 94,
 82 against 83, 88 against 97), and its juvenile share (44–69%) looks like the
 juveniles nearby. No parental feeding. The action stays available, and the
-switch is gone. `v1-AX-give1` is the baseline for the current build.
+switch is gone.
 
 **Sparing kin does not pay a meat-eater** (scratchpad `spare.js`; at 200k
 ticks the meat-eaters of seeds 1001, 1006, 1013 and 1020 are split in half,
