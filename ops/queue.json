@@ -413,6 +413,18 @@
    "dispatched_at": "2026-09-27 17:46"
   },
   {
+   "label": "v1-BP-3Mdefault",
+   "seeds": "1213-1224",
+   "ticks": 3000000,
+   "set": "",
+   "baseline": "",
+   "expect": "current default (fruit, fruit senses) over 3M ticks: fruit gene climbs as in v1-BM-fruit3M; predator comebacks; grazers turn toward fruit late",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 19:10",
+   "dispatched_at": "2026-09-27 19:10"
+  },
+  {
    "label": "v1-EG-base-1197",
    "seeds": "1197-1208",
    "ticks": 1000000,
