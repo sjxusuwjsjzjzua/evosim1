@@ -103,6 +103,30 @@
    "dispatched_at": "2026-09-27 09:28"
   },
   {
+   "label": "v1-BH-mutsd12b",
+   "seeds": "1113-1124",
+   "ticks": 1000000,
+   "set": "mutSd=0.12",
+   "baseline": "v1-EG-base-1113",
+   "expect": "replicates v1-BE-mutsd12: more re-entries and more exits than baseline, persistence unchanged",
+   "build_ref": "1ba0e47",
+   "status": "dispatched",
+   "added_at": "2026-09-27 09:37",
+   "dispatched_at": "2026-09-27 09:37"
+  },
+  {
+   "label": "v1-BH-mutsd16",
+   "seeds": "1101-1112",
+   "ticks": 1000000,
+   "set": "mutSd=0.16",
+   "baseline": "v1-BC-s1c0",
+   "expect": "dose: still more turnover (re-entries and exits) than 0.12; persistence may fall",
+   "build_ref": "1ba0e47",
+   "status": "dispatched",
+   "added_at": "2026-09-27 09:37",
+   "dispatched_at": "2026-09-27 09:37"
+  },
+  {
    "label": "v1-EG-base-1137",
    "seeds": "1137-1148",
    "ticks": 1000000,
@@ -110,8 +134,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:09"
+   "status": "dispatched",
+   "added_at": "2026-09-27 07:09",
+   "dispatched_at": "2026-09-27 09:37"
   },
   {
    "label": "v1-EG-base-1149",
@@ -156,6 +181,17 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-27 07:09"
+  },
+  {
+   "label": "v1-EG-base-1197",
+   "seeds": "1197-1208",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 09:37"
   }
  ]
 }
