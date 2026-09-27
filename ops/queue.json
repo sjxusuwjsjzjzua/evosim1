@@ -203,9 +203,10 @@
    "baseline": "v1-BJ-fjcnd",
    "expect": "fruit without jc: gene falls as before",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 11:22",
-   "dispatched_at": "2026-09-27 11:22"
+   "dispatched_at": "2026-09-27 11:22",
+   "scored_at": "2026-09-27 12:55"
   },
   {
    "label": "v1-BJ-jc",
@@ -215,9 +216,10 @@
    "baseline": "v1-BJ-base",
    "expect": "jc alone: plant diversity up; animal effects small",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 11:22",
-   "dispatched_at": "2026-09-27 11:22"
+   "dispatched_at": "2026-09-27 11:22",
+   "scored_at": "2026-09-27 12:55"
   },
   {
    "label": "v1-BJ-base",
@@ -227,9 +229,10 @@
    "baseline": "",
    "expect": "baseline for the fruit and jc arms on this build",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 11:22",
-   "dispatched_at": "2026-09-27 11:22"
+   "dispatched_at": "2026-09-27 11:22",
+   "scored_at": "2026-09-27 12:55"
   },
   {
    "label": "v1-BK-fjc02",

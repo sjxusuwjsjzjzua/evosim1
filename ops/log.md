@@ -182,3 +182,48 @@
 - worlds 12, meat 27.3%, kill 22.3%, carnSp>0 in 5, preyCl 1.01
 - fruit: gene 0.182 -> 0.085 (up in 0 of 12), div 0.147, fruit 20.1%, carried 0.0%
 
+### v1-BJ-f (2026-09-27 12:55)
+
+`fruit=1`, seeds 1101-1112, 400000 ticks. Expected: fruit without jc: gene falls as before
+
+- worlds 12, meat 26.2%, kill 21.4%, carnSp>0 in 6, preyCl 0.91
+- fruit: gene 0.200 -> 0.130 (up in 0 of 12), div 0.157, fruit 28.7%, carried 10.7%
+- baseline v1-BJ-fjcnd: worlds 12, meat 27.3%, kill 22.3%, carnSp>0 in 5, preyCl 1.01
+    pred   baseline 10  arm 10   (+1 / -1)  McNemar p 1.000
+    carn   baseline  5  arm  6   (+3 / -2)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.273  arm 0.262   mean diff -0.010  sign test 5+/7-  p 0.774
+    preyCl baseline 1.013  arm 0.912   mean diff -0.101  sign test 5+/7-  p 0.774
+    predCl baseline 1.886  arm 1.404   mean diff -0.482  sign test 7+/5-  p 0.774
+    diet   baseline 0.095  arm 0.095   mean diff -0.000  sign test 8+/4-  p 0.388
+    polar  baseline 0.028  arm 0.028   mean diff -0.001  sign test 5+/7-  p 0.774
+    align  baseline -0.004  arm -0.004   mean diff -0.000  sign test 4+/8-  p 0.388
+    preySp baseline 0.241  arm 0.309   mean diff +0.068  sign test 10+/2-  p 0.039
+    predSp baseline 0.506  arm 0.583   mean diff +0.077  sign test 9+/3-  p 0.146
+
+### v1-BJ-jc (2026-09-27 12:55)
+
+`jc=0.8`, seeds 1101-1112, 400000 ticks. Expected: jc alone: plant diversity up; animal effects small
+
+- worlds 12, meat 17.7%, kill 12.8%, carnSp>0 in 4, preyCl 0.86
+- baseline v1-BJ-base: worlds 12, meat 22.6%, kill 17.6%, carnSp>0 in 3, preyCl 0.96
+    pred   baseline  9  arm  5   (+2 / -6)  McNemar p 0.289
+    carn   baseline  3  arm  4   (+4 / -3)  McNemar p 1.000
+    giant  baseline  1  arm  0   (+0 / -1)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.226  arm 0.177   mean diff -0.049  sign test 5+/7-  p 0.774
+    preyCl baseline 0.962  arm 0.857   mean diff -0.106  sign test 3+/9-  p 0.146
+    predCl baseline 2.142  arm 1.342   mean diff -0.800  sign test 5+/7-  p 0.774
+    diet   baseline 0.090  arm 0.097   mean diff +0.007  sign test 6+/6-  p 1.000
+    polar  baseline 0.034  arm 0.042   mean diff +0.008  sign test 7+/5-  p 0.774
+    align  baseline -0.009  arm 0.007   mean diff +0.016  sign test 8+/4-  p 0.388
+    preySp baseline 0.226  arm 0.287   mean diff +0.061  sign test 10+/2-  p 0.039
+    predSp baseline 0.439  arm 0.416   mean diff -0.023  sign test 5+/7-  p 0.774
+
+### v1-BJ-base (2026-09-27 12:55)
+
+`defaults`, seeds 1101-1112, 400000 ticks. Expected: baseline for the fruit and jc arms on this build
+
+- worlds 12, meat 22.6%, kill 17.6%, carnSp>0 in 3, preyCl 0.96
+

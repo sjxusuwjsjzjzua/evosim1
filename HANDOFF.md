@@ -828,7 +828,13 @@ Fruit and jc on Actions (12 seeds, 400k ticks). With carrying (`v1-BJ-fjc`) the
 fruit gene went 0.197 → 0.130; without carrying (`-fjcnd`) 0.182 → 0.085. It was
 higher with carrying in 9 of 12 pairs (+0.045, p 0.15) but fell in every world.
 Carried seed made up 10% of new plants and fruit 29% of animals' plant energy.
-Carrying now helps a little, not enough to pay for the fruit. Next:
+Carrying now helps a little, not enough to pay for the fruit. Fruit without `jc`
+(`v1-BJ-f`, carrying on) also ends at 0.130, so `jc` is not what helps. The
+comparison with the no-carrying arm mixes `jc` and carrying, so carrying's
+share is not isolated. `jc` alone (`v1-BJ-jc` against `-base`): plant
+diversity 0.185 against 0.171 (7 of 12 higher, p 0.77), plant mass 14.5k
+against 20.8k (p 0.15), predator-dominated 5 against 9 (p 0.29). It does not
+do what it was for. Next:
 `fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
 `-fjcnd02`, 24 seeds.
 
