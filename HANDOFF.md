@@ -797,6 +797,16 @@ who eats fruit or where seeds go. Log: `plantFruit` (mean gene), `fruitMass`,
 plant energy animals take, and 4–20% of new plants come from animal-carried
 seeds. Paired test at 1M ticks, 24 seeds: `v1-BF-fruit1` against `-fruit0`.
 Expectation: the gene settles low but above 0 where animal dispersal pays.
+Within the fruit arm (`v1-BF-fruit1`, 24 seeds, 1M ticks; the paired baseline
+is still running): the fruit gene fell in 24 of 24 worlds, from about 0.18
+early to a mean of 0.10 in the last half (0.03–0.17). Fruit gave animals 5–42%
+of their plant energy. Animals carried 3–49% of new plants (mean 24%). So fruit
+is eaten and seeds travel, but fruiting costs plants more than it returns.
+Likely reasons: one seed load per 200 ticks however much fruit an animal eats,
+and open ground is plentiful near the parent, so distance buys little. Local
+test (`runs/fruitdisp` against `runs/fruitnodisp`, `gutTicks` 0 turns carrying
+off): if the gene falls as fast without carrying, carrying currently buys
+nothing.
 Fruit-fed prey may support more predators (meat share up), and plant cover
 may change. A fruit sense for animals comes only if this shows fruit matters.
 
