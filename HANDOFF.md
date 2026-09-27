@@ -807,6 +807,11 @@ and open ground is plentiful near the parent, so distance buys little. Local
 test (`runs/fruitdisp` against `runs/fruitnodisp`, `gutTicks` 0 turns carrying
 off): if the gene falls as fast without carrying, carrying currently buys
 nothing.
+Paired result (`v1-BF-fruit1` against `-fruit0`, 24 seeds, 1M ticks): predation
+unchanged (meat 18.3% against 18.0%, predator-dominated 14 against 16,
+persisting 15 against 17). Prey clump more with fruit (0.87 against 0.80, 18
+of 24, p 0.023), likely gathering at fruiting plants. Carnivore clusters 8
+against 4 (p 0.39). Fruit stays off by default while the gene declines.
 Fruit-fed prey may support more predators (meat share up), and plant cover
 may change. A fruit sense for animals comes only if this shows fruit matters.
 
@@ -819,7 +824,9 @@ turnover** (2026-09-27):
   12 for at least 64% of the run. A second origin is rare over 1M ticks and
   real over 3M. The valley (`valley.js`) is crossed, slowly.
 - `v1-BE-mutsd12` (`mutSd` 0.12 against 0.08, 12 paired seeds, 1M ticks): 6
-  re-entries against 1 and 12 exits against 6. Persistence is unchanged (9 of
+  re-entries against 1 and 12 exits against 6. **Not replicated**
+  (`v1-BH-mutsd12b`, seeds 1113–1124: 1 re-entry against 4, 8 exits against
+  11, persistence 7 against 6). Treat as noise. Persistence is unchanged (9 of
   12 in both), with predator clumping higher (2.71 against 1.88, p 0.039).
   Bigger mutation steps cross the valley more often, and they also lose
   predators more often.

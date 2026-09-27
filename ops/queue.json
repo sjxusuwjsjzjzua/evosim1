@@ -73,10 +73,10 @@
    "baseline": "v1-BF-fruit0",
    "expect": "fruit gene settles low but above 0; animal-carried seeds a steady share; meat share and predator persistence at least baseline",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:22",
    "dispatched_at": "2026-09-27 09:37",
-   "scored_at": "2026-09-27 09:36"
+   "scored_at": "2026-09-27 10:48"
   },
   {
    "label": "v1-BF-fruit0",
@@ -86,9 +86,10 @@
    "baseline": "",
    "expect": "baseline for fruit on this build",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 07:22",
-   "dispatched_at": "2026-09-27 07:22"
+   "dispatched_at": "2026-09-27 07:22",
+   "scored_at": "2026-09-27 10:48"
   },
   {
    "label": "v1-BG-grid96",
@@ -110,9 +111,10 @@
    "baseline": "v1-EG-base-1113",
    "expect": "replicates v1-BE-mutsd12: more re-entries and more exits than baseline, persistence unchanged",
    "build_ref": "1ba0e47",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 09:37",
-   "dispatched_at": "2026-09-27 09:37"
+   "dispatched_at": "2026-09-27 09:37",
+   "scored_at": "2026-09-27 10:48"
   },
   {
    "label": "v1-BH-mutsd16",
