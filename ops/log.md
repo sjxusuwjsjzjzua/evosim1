@@ -392,3 +392,10 @@
 - worlds 12, meat 22.1%, kill 17.9%, carnSp>0 in 4, preyCl 0.87, persisting (predK >= 64% of run after bootstrap) 9, exits 7, re-entries 2
 - fruit: gene 0.198 -> 0.350 (up in 6 of 12), div 0.183, fruit 29.8%, carried 39.3%
 
+### v1-BP-3Mdefault (2026-09-27 22:16)
+
+`defaults`, seeds 1213-1224, 3000000 ticks. Expected: current default (fruit, fruit senses) over 3M ticks: fruit gene climbs as in v1-BM-fruit3M; predator comebacks; grazers turn toward fruit late
+
+- worlds 12, meat 14.3%, kill 10.5%, carnSp>0 in 1, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 8, exits 15, re-entries 12
+- fruit: gene 0.199 -> 0.712 (up in 12 of 12), div 0.200, fruit 35.2%, carried 72.4%
+

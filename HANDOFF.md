@@ -997,6 +997,14 @@ animals stay separate kingdoms, bodies stay one template with gene dials.
 Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
 Lifetime learning only if cheap (the brain is about 25% of run time).
 
+**The default over 3M ticks** (`v1-BP-3Mdefault`, seeds 1213–1224, fruit and
+fruit senses on). The fruit gene climbs 0.20 → 0.71, up in all 12 worlds, and
+72% of new plants grow from animal-carried seed: over 3M the mutualism takes
+over whether or not animals see fruit. Grazers steer toward fruit in 6 of 12
+(mean +0.46). Predators persist through 8 of 12 runs; 15 exits and 12
+re-entries across the 12, so over 3M predators come and go rather than
+vanish. Meat share 14.3%, carnivore clusters at the end in 1.
+
 **Fruit senses work as behaviour, not for the plants** (`v1-BO-see1` against
 `v1-BO-see0`, 24 seeds, 1M). Grazers evolve to turn toward fruit in 17 of 24
 worlds (`tools/herd.js` fruit probe, mean +0.40 against -0.09 where the senses
