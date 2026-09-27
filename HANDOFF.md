@@ -770,6 +770,14 @@ rhythm: prey slower at night than by day (resting, hidden by the dark), or
 predators active at night if calls and short sight suffice. Score: prey and
 predator night/day speed ratios and the night share of kills, against the
 first 20k ticks.
+Result (24 paired seeds): nothing changed at the world level (predator worlds
+13 against 13, meat 0.183 against 0.185, prey clumping 1.145 against 1.146).
+No rhythm evolved. Prey speed at night over by day was 0.95 in the first 20k
+ticks and 0.97 in the last half, lower later in 12 of 24. Three worlds sit
+below 0.8, as they did from the start. Fewer kills happen at night (37% in the
+last half, under half in 19 of 24; 43% at the start), which is the short
+night sight at work, not evolved timing. `dayTicks` stays available, off by
+default.
 
 **Feeding** (2026-09-26): a seventh brain output, `give`. When its urge fires
 and the attended animal is in reach, the animal passes it energy from its
