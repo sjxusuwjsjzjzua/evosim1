@@ -23,7 +23,7 @@ What evolves, without being written in:
   up when a big armed animal comes into view;
 - **cannibalism**: meat-eaters that die by killing are nearly all killed by
   other meat-eaters, and the victims are mostly juveniles of the killer's
-  own kind;
+  own kind. A meat-eater that spares its own kind is outbred;
 - **arms races**: armour against weapons, speed against speed, herbivore detox
   against plant defence;
 - **vigilance and alarm**: an animal eating has its eyes on the food, so prey

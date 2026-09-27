@@ -105,10 +105,14 @@ var CFG_DEFAULT = {
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
+  giveRate: 0.1,        // energy passed per tick x mass^0.75, at most half the giver's reserves
+  giveEff: 0.8,         // share of it the receiver gets
   compass: 1,           // 1 = an animal senses its own heading in world terms (compassX/Y), as a sun
                         // or magnetic compass would; 0 = those inputs read 0. With it prey
                         // populations evolve a shared bearing and travel together (24 paired
                         // worlds: prey clumping 1.22 against 0.84, predation unchanged)
+  dayTicks: 0,          // ticks per day and night; 0 = always day
+  nightSight: 0.3,      // at full dark, animals and corpses are seen over this share of the sense range
   seasonWave: 0,        // 1 = the season travels along x, one wavelength per world width per year:
                         // a band of fast growth moving at world/yearTicks per tick
 
@@ -247,12 +251,12 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 36, NH = 8, NO = 6;
+var NI = 37, NH = 8, NO = 7;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
-  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading'];
-var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call'];
+  'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading','light'];
+var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call','give'];
 
 var CFG, S;   // config and state
 
@@ -313,7 +317,7 @@ function init(patch){
   seedRng(CFG.seed*2654435761 + 12345); gCache = null;
   var n = CFG.gridN, nc = n*n, M = CFG.maxA;
   S = {
-    tick: 0, world: n*CFG.cellSize, established: false,
+    tick: 0, light: 1, world: n*CFG.cellSize, established: false,
     // plants
     pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
@@ -357,7 +361,7 @@ function init(patch){
 }
 
 function newCounters(){
-  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
+  return {eP: 0, eC: 0, eK: 0, kills: 0, killsMeat: 0, killsMeatByMeat: 0, gives: 0, eG: 0, eGkin: 0, eGjuv: 0, killsNight: 0, mvPd: 0, mvPn: 0, nPd: 0, nPn: 0, mvMd: 0, mvMn: 0, nMd: 0, nMn: 0, attacks: 0, births: 0, dStarve: 0, dAge: 0, dKill: 0,
           plantEaten: 0, meatEaten: 0, reseeds: 0};
 }
 
@@ -612,6 +616,9 @@ function sense(i){
   var kxs = 0, kys = 0, cxs = 0, cys = 0, alarm = 0, alx = 0, aly = 0, spd = 0, SPD = S.sp, CL = S.call, heard = 0, hx = 0, hy = 0, invR2 = 1/R2;
   // eyes on the food: an animal that ate last tick sees animals over (1 - headDown) of its range
   var down = S.act[i] === 1 || S.act[i] === 2 ? Math.min(1, CFG.headDown) : 0, RA2 = R2*(1 - down)*(1 - down);
+  // eyes need light: at night animals and corpses are seen over nightSight of the range (ears are unaffected)
+  var sight = CFG.dayTicks > 0 ? CFG.nightSight + (1 - CFG.nightSight)*S.light : 1;
+  RA2 *= sight*sight; nearCd *= sight*sight;
   var aS = G[g+G_ATT], aK = G[g+G_ATT+1], aW = G[g+G_ATT+2], bestSal = -1e9, invR = 1/R, mi = S.mass[i];
   var t0 = G[g+G_TAG], t1 = G[g+G_TAG+1], t2 = G[g+G_TAG+2];
   var AH = S.aHead, AN = S.aNext, AL = S.alive, AX = S.x, AY = S.y, HU = S.hurt, MA = S.mass, CH = S.cHead, CN = S.cNext, CX = S.cx, CY = S.cy, CM = S.cm;
@@ -698,6 +705,7 @@ function sense(i){
   IN[28] = heard > 0 && (hx || hy) ? angDiff(Math.atan2(hy, hx), h)/Math.PI : 0;
   IN[29] = kxs || kys ? angDiff(Math.atan2(kys, kxs), h)/Math.PI : 0;   // toward the centre of look-alikes in view
   IN[33] = CFG.compass*Math.cos(h); IN[34] = CFG.compass*Math.sin(h);   // which way it is facing, in world terms
+  IN[36] = S.light;   // how light it is
   IN[35] = hcs || hsn ? angDiff(Math.atan2(hsn, hcs), h)/Math.PI : 0;   // which way the moving animals in view are going, relative to its own heading
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
@@ -735,9 +743,9 @@ function chance(x){
 }
 function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if (d < -Math.PI) d += 2*Math.PI; return d; }
 
-// The brain for NH 8, NO 6: the same sums in the same order as the generic loops
+// The brain for NH 8, NO 7: the same sums in the same order as the generic loops
 // in think(), computed side by side so the adds do not wait on each other.
-function brain85(G, g, OUT, o){
+function brain87(G, g, OUT, o){
   var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, k, v, w = g + W1;
   for (k = 0; k < NI; k++, w++){
     v = IN[k];
@@ -746,23 +754,23 @@ function brain85(G, g, OUT, o){
   }
   HID[0] = tanh32(s0, 1); HID[1] = tanh32(s1, 1); HID[2] = tanh32(s2, 1); HID[3] = tanh32(s3, 1);
   HID[4] = tanh32(s4, 1); HID[5] = tanh32(s5, 1); HID[6] = tanh32(s6, 1); HID[7] = tanh32(s7, 1);
-  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, h;
+  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, h;
   w = g + W2;
   for (h = 0; h < 8; h++, w++){
     v = HID[h];
-    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v;
+    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v; t6 += G[w+48]*v;
   }
   w = g + WD;
   for (k = 0; k < NI; k++, w++){
     v = IN[k];
-    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v;
+    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v; t6 += G[w+6*NI]*v;
   }
-  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5;
+  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5; OUT[o+6] = t6;
 }
 function think(i){
   sense(i);
   var G = S.genome, g = i*NG, o = i*NO;
-  if (NH === 8 && NO === 6) brain85(G, g, S.out, o);
+  if (NH === 8 && NO === 7) brain87(G, g, S.out, o);
   else {
     for (var h = 0; h < NH; h++){
       var s = 0, w = g + W1 + h*NI;
@@ -789,7 +797,7 @@ function think(i){
   // argmax, then a softmax over exclusive acts) both let selection bury the
   // meat-eating output because firing it with no corpse in reach cost a meal.
   S.want[i] = (chance(S.out[o+2]) ? 1 : 0) | (chance(S.out[o+3]) ? 2 : 0)
-            | (chance(S.out[o+4]) ? 4 : 0);
+            | (chance(S.out[o+4]) ? 4 : 0) | (chance(S.out[o+6]) ? 8 : 0);
 }
 
 // Eating, for a share t of one tick. Each returns the share of the tick it used
@@ -846,6 +854,7 @@ function updateAnimal(i){
   S.hd[i] = hd;
   S.sp[i] += clamp(want - S.sp[i], -CFG.accel*vmax, CFG.accel*vmax);
   var sp = S.sp[i];
+  if (CFG.dayTicks > 0){ var CD = S.c, nt = S.light < 0.5; if (S.lM[i] > S.lP[i]){ if (nt){ CD.mvMn += sp; CD.nMn++; } else { CD.mvMd += sp; CD.nMd++; } } else { if (nt){ CD.mvPn += sp; CD.nPn++; } else { CD.mvPd += sp; CD.nPd++; } } }
   var W = S.world, nx = S.x[i] + Math.cos(hd)*sp, ny = S.y[i] + Math.sin(hd)*sp;
   if (nx < 0) nx += W; else if (nx >= W) nx -= W;
   if (ny < 0) ny += W; else if (ny >= W) ny -= W;
@@ -858,6 +867,22 @@ function updateAnimal(i){
   // tick, not all of it.
   var want = S.want[i], act = 0, tj = -1;
   if (want & 4){ tj = attendedInReach(i); if (tj >= 0) act = 3; }
+  // feeding another: the attended animal, if it is in reach, gets energy from this
+  // one's reserves (a share lost in the passing). The mouth is busy for the tick.
+  if (act === 0 && (want & 8)){
+    var gj = attendedInReach(i);
+    if (gj >= 0){
+      var room = CFG.eCap*S.mass[gj] - S.E[gj];
+      var gv = Math.min(CFG.giveRate*m75, 0.5*S.E[i], room/CFG.giveEff);
+      if (gv > 0){
+        S.E[i] -= gv; S.E[gj] += gv*CFG.giveEff; act = 4;
+        var C4 = S.c; C4.gives++; C4.eG += gv*CFG.giveEff;
+        var tq = 0; for (var q4 = 0; q4 < 3; q4++){ var dq4 = S.genome[g+G_TAG+q4] - S.genome[gj*NG+G_TAG+q4]; tq += dq4*dq4; }
+        if (Math.sqrt(tq/3) < 0.3) C4.eGkin += gv*CFG.giveEff;
+        if (S.mass[gj] < 0.98*S.genome[gj*NG+G_SIZE]) C4.eGjuv += gv*CFG.giveEff;
+      }
+    }
+  }
   var slow = 1 - CFG.eatMoveSlow*sp/Math.max(0.01, vmax);   // eating on the move is slow
   if (act === 0 && (want & 1)){
     MOUTH[1] = Math.max(0, Emax - S.E[i]);   // room left in the reserves
@@ -884,7 +909,7 @@ function updateAnimal(i){
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
-        S.c.kills++; S.kills[i]++; if (S.lM[tj] > S.lP[tj]){ S.c.killsMeat++; if (S.lM[i] > S.lP[i]) S.c.killsMeatByMeat++; }   // the victim lived mostly on meat; so did the killer
+        S.c.kills++; S.kills[i]++; if (S.light < 0.5) S.c.killsNight++; if (S.lM[tj] > S.lP[tj]){ S.c.killsMeat++; if (S.lM[i] > S.lP[i]) S.c.killsMeatByMeat++; }   // the victim lived mostly on meat; so did the killer
         var before = S.cN;
         die(tj, 2);
         if (S.cN > before) S.cKiller[S.cN-1] = S.id[i];
@@ -973,6 +998,7 @@ function attendedInReach(i){
 
 function step(){
   S.tick++;
+  S.light = CFG.dayTicks > 0 ? 0.5 + 0.5*Math.sin(2*Math.PI*S.tick/CFG.dayTicks) : 1;
   if (S.tick % CFG.plantEvery === 0) updatePlants();
   buildHashes();
   var ph = S.tick % CFG.think;
@@ -1050,7 +1076,7 @@ function clumping(preyOnly){   // preyOnly: 1 = animals living mostly on plants,
 }
 function sample(){
   var G = S.genome, n = 0, sums = new Float64Array(NB), dh = new Array(10).fill(0);
-  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0], gens = 0, calls = 0;
+  var pred = 0, adults = 0, meatShareSum = 0, meatShareN = 0, act = [0,0,0,0,0], gens = 0, calls = 0;
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
     n++;
@@ -1117,12 +1143,36 @@ function sample(){
     adultMeatShare: meatShareN ? +(meatShareSum/meatShareN).toFixed(4) : 0,
     deadMeatHist: dhist,
     acts: act, meanGen: n ? +(gens/n).toFixed(1) : 0,
-    kills: C.kills, killsMeat: C.killsMeat, killsMeatByMeat: C.killsMeatByMeat, attacks: C.attacks, births: C.births,
+    kills: C.kills, killsMeat: C.killsMeat, killsMeatByMeat: C.killsMeatByMeat,
+    gives: C.gives, eG: +C.eG.toFixed(1), eGkin: +C.eGkin.toFixed(1), eGjuv: +C.eGjuv.toFixed(1), attacks: C.attacks, births: C.births,
     dStarve: C.dStarve, dAge: C.dAge, dKill: C.dKill, reseeds: C.reseeds,
     eP: +C.eP.toFixed(1), eC: +C.eC.toFixed(1), eK: +C.eK.toFixed(1),
     species: spc, clump: clump, clumpPrey: clumpPrey, clumpPred: clumpPred, call: n ? +(calls/n).toFixed(4) : 0, establishedAt: S.establishedAt || 0
   };
+  var sPy = 0, nPy = 0, sPd = 0, nPd = 0;
+  for (var u4 = 0; u4 < S.hi; u4++) if (S.alive[u4]){ if (S.lM[u4] > S.lP[u4]){ sPd += S.sp[u4]; nPd++; } else { sPy += S.sp[u4]; nPy++; } }
+  row.preySp = nPy ? +(sPy/nPy).toFixed(4) : 0; row.predSp = nPd ? +(sPd/nPd).toFixed(4) : 0;
   row.polar = pn ? +(Math.sqrt(pcx*pcx + pcy*pcy)/pn).toFixed(3) : 0; row.align = alN ? +(alS/alN).toFixed(3) : 0;
+  // the share of close neighbours (within 3) that are look-alikes (colour distance under
+  // 0.3): the null for how often a gift or a bite lands on kin by chance
+  var knA = 0, knN = 0;
+  for (var u3 = 0; u3 < S.hi; u3 += 3){
+    if (!S.alive[u3]) continue;
+    var x3 = S.x[u3], y3 = S.y[u3], b3x = (x3*inv6)|0, b3y = (y3*inv6)|0;
+    for (var dy3 = -1; dy3 <= 1; dy3++){
+      var r3 = ((b3y+dy3) % bN6 + bN6) % bN6;
+      for (var dx3 = -1; dx3 <= 1; dx3++){
+        for (var v3 = S.aHead[r3*bN6 + ((b3x+dx3) % bN6 + bN6) % bN6]; v3 >= 0; v3 = S.aNext[v3]){
+          if (v3 === u3 || !S.alive[v3]) continue;
+          var ex3 = wrap(S.x[v3]-x3), ey3 = wrap(S.y[v3]-y3);
+          if (ex3*ex3 + ey3*ey3 >= 9) continue;
+          var t3 = 0; for (var q3 = 0; q3 < 3; q3++){ var d3 = S.genome[u3*NG+G_TAG+q3] - S.genome[v3*NG+G_TAG+q3]; t3 += d3*d3; }
+          knN++; if (Math.sqrt(t3/3) < 0.3) knA++;
+        }
+      }
+    }
+  }
+  row.kinNear = knN ? +(knA/knN).toFixed(3) : 0;
   // meat-eaters on the move: their shared heading, and how it lies against the prey's
   // (1 = the same way, -1 = head-on)
   var qcx = 0, qcy = 0, qn = 0;
@@ -1130,6 +1180,11 @@ function sample(){
   var qm = Math.sqrt(qcx*qcx + qcy*qcy), pm = Math.sqrt(pcx*pcx + pcy*pcy);
   row.polarPred = qn ? +(qm/qn).toFixed(3) : 0;
   row.predVsPrey = qm > 0 && pm > 0 ? +((qcx*pcx + qcy*pcy)/(qm*pm)).toFixed(3) : 0;
+  if (CFG.dayTicks > 0){   // day against night: kills, and how fast prey and meat-eaters move
+    row.killsNight = C.killsNight;
+    row.preySpDay = C.nPd ? +(C.mvPd/C.nPd).toFixed(4) : 0; row.preySpNight = C.nPn ? +(C.mvPn/C.nPn).toFixed(4) : 0;
+    row.predSpDay = C.nMd ? +(C.mvMd/C.nMd).toFixed(4) : 0; row.predSpNight = C.nMn ? +(C.mvMn/C.nMn).toFixed(4) : 0;
+  }
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
   S.log.push(row);
   S.c = newCounters();
@@ -1366,12 +1421,12 @@ function dietColourOf(d){
 var DIET_COL = []; for (var dc = 0; dc <= 32; dc++) DIET_COL.push(dietColourOf(dc/32));
 function dietColour(d){ return DIET_COL[Math.max(0, Math.min(32, Math.round(d*32)))]; }
 // grazing is pale, not leaf green, so a grazer stands out against the plants it eats
-var ACT_COL = ['#7d8a92', '#f2efc8', '#f0a040', '#ff3b30'];
+var ACT_COL = ['#7d8a92', '#f2efc8', '#f0a040', '#ff3b30', '#b48cff'];
 function legend(){
   var h;
   if (colourMode === 0) h = '<span>diet: plant gut <i class="grad" style="background:linear-gradient(90deg,' + dietColour(0) + ',' + dietColour(0.5) + ',' + dietColour(1) + ')"></i> meat gut</span>';
   else if (colourMode === 1) h = '<span>kin: a heritable colour, so a shared colour means close relatives</span>';
-  else h = ['idle', 'grazing', 'eating meat', 'attacking'].map(function(a, k){ return '<span><i style="background:' + ACT_COL[k] + '"></i>' + a + '</span>'; }).join('');
+  else h = ['idle', 'grazing', 'eating meat', 'attacking', 'feeding another'].map(function(a, k){ return '<span><i style="background:' + ACT_COL[k] + '"></i>' + a + '</span>'; }).join('');
   h += '<span><i style="background:#8a3328"></i>corpse</span><span><i style="background:none;border:1.5px solid #6fa3c4;width:11px;height:11px;border-radius:6px"></i>calling</span>';
   $('legend').innerHTML = h;
 }
@@ -1653,7 +1708,7 @@ function card(){
   if (deathNote && performance.now() < deathNote.until) h += '<div class="note2">' + deathNote.text + '</div>';
   h += '<div><b>#' + S.id[i] + '</b> <span class="dim">gen</span> ' + S.gen[i] + ' <span class="dim">age</span> ' + (S.age[i]|0) + '/' + (S.maxAge[i]|0) +
        ' <span class="dim">kills</span> ' + S.kills[i] + '</div>';
-  h += '<div>' + ['idle', 'grazing', 'eating meat', 'attacking'][S.act[i]] + ' · energy ' + (S.E[i]/(Sim.CFG.eCap*S.mass[i])*100).toFixed(0) + '% · ' +
+  h += '<div>' + ['idle', 'grazing', 'eating meat', 'attacking', 'feeding another'][S.act[i]] + ' · energy ' + (S.E[i]/(Sim.CFG.eCap*S.mass[i])*100).toFixed(0) + '% · ' +
        (tot > 0 ? (100*S.lM[i]/tot).toFixed(0) + '% of its food was meat' : 'has not eaten yet') + '</div>';
   h += '<div class="genes">';
   [0,1,2,3,4,5,6,7,8,12].forEach(function(k){

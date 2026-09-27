@@ -38,13 +38,16 @@ Browser check (Chromium and Playwright are preinstalled):
 | roots | grazing cannot take a cell below `pRoot`; seeds take over cells grazed below `pTakeover` | efficient grazers otherwise ate the flora to extinction |
 | animal body | 17 genes: size, speed, sense, diet, weapon, armour, detox, reproT, childE, 3 colour tags, birthSize, choosy, 3 attention weights | sense, weapon, detox and speed have quadratic upkeep; armour costs linearly and slows; tags, attention and life-history genes are free |
 | fixed cost | `upFixed` 0.003 per animal per tick regardless of size | 0.010 gave an interior body size but 0 predator worlds in 20 at 600k ticks; at 0.003 small fast breeders evolve predation, and predation holds size off the floor |
-| brain | 30 senses → 8 hidden (tanh) → 6 outputs (turn, throttle, eat, meat preference, attack, call), plus direct input→output weights | the genome is the behaviour |
-| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view, the loudest call in range and its direction, direction to the centre of look-alikes in view (kinDir) | facts about the world, not advice |
+| brain | 36 senses → 8 hidden (tanh) → 7 outputs (turn, throttle, eat, meat preference, attack, call, give), plus direct input→output weights | the genome is the behaviour |
+| senses | energy, health, hurt, plant ahead-left/centre/right, plant here, plant defence here, the attended animal (direction, distance, relative size, kinship by colour tag, its weapon), nearest corpse (direction, distance), crowding, noise, corpse in reach, attended animal in reach, direction to the centre of the animals in sense range, alarm (the strongest hurt among neighbours) and its direction, stomach fill (0 without `gutCap`), mean speed of the animals in view, the loudest call in range and its direction, direction to the centre of look-alikes in view (kinDir), the attended animal's colour tag (animalR/G/B), its own heading in world terms (compassX/Y), the mean heading of the moving animals in view (crowdHeading). Input 25 (was stomach fill) always reads 0 | facts about the world, not advice |
 | attention | the 'animal' senses and any strike go to the neighbour with the highest salience = closeness + attSize x relative size + attKin x kinship + attWeapon x its weapon, weights evolvable | the nearest animal was usually a sibling, so a would-be hunter could not single out prey |
 | vigilance | an animal that ate last tick senses animals over (1 − `headDown`) = 30% of its range | without it, grouping never paid; with it prey group where predators are (below) |
 | plant height | a plant stands `browse` (2) x stature tall; an animal reaches mass^(1/3) and cannot crop the share of the cell's capacity above its reach | without it worlds fell into dwarf grazers on a lawn (16 of 40); with it carnivore specialists evolve in 8 of 12 worlds against 3, though 4 of 12 go giant (below) |
 | juveniles | top speed x (mass / adult size)^0.5 while growing | with it off, killing vanished in all 6 sweep worlds (on: 2 of 6 kept killing) |
 | sex | `sex` 1, `mateDist` 0.1 by default (2026-09-26). A breeder recombines with the nearest acceptable adult in sense range (colour distance at most 1 − `choosy` for both partners, and genetic distance under `mateDist`), else clones; crossover keeps each neuron's wiring whole | against clonal over 24 paired seeds (`v1-AP-sex`): predator-dominated 20 against 20, carnivore clusters 10 against 12, nothing significant. In 13 of 24 the meat-eaters are a separate species (at most 5% of cross pairs could breed), and in 7 some grazer clusters are isolated from each other. Without `mateDist` sexual worlds fall behind (below) |
+| compass | `compass` 1: an animal senses its own heading in world terms | with it prey populations evolve a shared bearing and travel together (24 paired worlds: prey clumping 1.22 against 0.84, predation unchanged); without it no genome can encode a direction |
+| give | `give` 1: when the give urge fires and the attended animal is in reach, `giveRate` x mass^0.75 of reserves passes to it (the receiver gets `giveEff` 0.8); the mouth is busy for the tick | the one way to pass energy on after birth; under test (below) |
+| seasons | `seasonAmp` (0 by default) makes plant growth rise and fall over `yearTicks`; `seasonWave` 1 makes the season travel along x | a global season makes giant worlds (18 of 24); a travelling one far fewer (7 of 24), and with the compass most worlds stream with it |
 | mouth | three independent urges (eat, prefer meat, strike). Eat takes whatever food is in reach; preference matters only when there is a choice; a strike happens only when the attended animal is in reach | a hard argmax and then a softmax both let selection bury meat-eating, because firing it with nothing in reach cost a meal |
 | diet | one axis, concave (`dietCurve` 2): plant yield x (1 − diet²), meat yield x (0.4 + 0.6 (1 − (1 − diet)²)) | flesh is easy to digest, cellulose needs a specialised gut; the concave form made a first step toward either gut cheap and raised the predator rate (16 of 20 worlds against 11 of 20) |
 | corpses | carry flesh (`eMeat` 8 per unit mass) plus the reserves the animal died with; rot slowly | a healthy kill must be worth more than a starved carcass |
@@ -52,7 +55,23 @@ Browser check (Chromium and Playwright are preinstalled):
 | persistence | `Sim.snapshot()` / `Sim.restore()`; once past bootstrap the page autosaves to localStorage every minute and when hidden, and resumes on load | reaching predators takes hours on a phone; genomes are stored at one byte per gene |
 | bootstrap | founders get a cheap ancestral body with spread, a random diet and a completely random brain; they keep arriving while the population is under 200 until one has once reached 400 | fully random bodies rarely survived and bootstrap took 40–65k ticks; now 12–33k |
 
-## What is known (2026-09-25)
+## What is known (2026-09-26, current build)
+
+- Predators dominate in about 3 of 4 worlds and a carnivore cluster forms in
+  about a third (72 sexual worlds pooled).
+- Sexual reproduction with incompatibility is the default. The meat-eaters
+  become a separate species in about half of worlds; plant-eaters sometimes
+  split into small grazers and large browsers that feed at different plant
+  heights.
+- With a compass, prey populations evolve a shared bearing and stream across
+  the world together; predators travel with the stream. There is no local
+  flocking and no herding by seeking company.
+- Meat-eaters that die by killing are killed by other meat-eaters, mostly
+  as juveniles of the killer's own kind.
+- Colour, heading and feeding are available to evolution. None yet produced
+  warning colours, flocking or aimed feeding.
+
+## What was known (2026-09-25)
 
 - **Grazing evolves from random brains** in every seed, in about 10–20k ticks.
 - **Plant defence responds to grazing** (drifts from 0.24 to 0.02–0.45 depending on
@@ -728,6 +747,69 @@ ranked changes are now switches, being tested on Actions (seeds 401–412):
   `results/v1-AF-vigilShare`, `-browseGrown`.
 
 ## Running now
+
+Long worlds, `v1-BA-long`: 12 seeds (1101–1112), 1.6M ticks, current defaults.
+Expectation: predators hold in most (exits about 0.1–0.2 per 100k predator
+ticks, as measured before). Streaming stays; carnivore species persist or
+turn over. The open question is whether anything that needs timing or
+coordination appears given about four times the generations.
+
+Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
+moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
+the same rule could hide a freezing prey or an ambushing hunter. `v1-AZ-still5`
+against `v1-AZ-still0`, 24 paired seeds: nothing significant. Prey mean speed
+0.281 against 0.271, predators 0.382 against 0.372; predator worlds 16 against
+13, carnivore clusters 5 against 9 (p 0.34). Grazers' resting throttle was
+lower (0.20 against 0.33, lower in 16 of 24, p 0.15). On seeing a big armed
+animal they still speed up (0.61) and freeze in none. Streaming prey have to
+move to eat, so stillness costs them more than it hides. The switch is
+removed; its absence is bit-identical to 0.
+`v1-AZ-still0` is the baseline for the current build (37 senses, 7 outputs).
+
+Day and night (`dayTicks`, new, 0 = off): light follows a sine over `dayTicks`
+ticks. At full dark animals and corpses are seen over `nightSight` (0.3) of the
+sense range, while ears and the plant senses are unaffected. New sense `light`
+(NI 37). Logged per row when on: `killsNight`, and mean speed of prey and of
+meat-eaters by day and by night (`preySpDay`, `preySpNight`, `predSpDay`,
+`predSpNight`). `v1-AY-day` (`dayTicks` 400, several days per lifetime)
+against `v1-AY-noday` (0), 24 paired seeds on the same build. Expectation:
+kills fall at night at first (hunters hunt by sight). Some worlds evolve a
+rhythm: prey slower at night than by day (resting, hidden by the dark), or
+predators active at night if calls and short sight suffice. Score: prey and
+predator night/day speed ratios and the night share of kills, against the
+first 20k ticks.
+Result (24 paired seeds): nothing changed at the world level (predator worlds
+13 against 13, meat 0.183 against 0.185, prey clumping 1.145 against 1.146).
+No rhythm evolved. Prey speed at night over by day was 0.95 in the first 20k
+ticks and 0.97 in the last half, lower later in 12 of 24. Three worlds sit
+below 0.8, as they did from the start. Fewer kills happen at night (37% in the
+last half, under half in 19 of 24; 43% at the start), which is the short
+night sight at work, not evolved timing. `dayTicks` stays available, off by
+default.
+
+**Feeding** (2026-09-26): a seventh brain output, `give`. When its urge fires
+and the attended animal is in reach, the animal passes it energy from its
+reserves (`giveRate` 0.1 x mass^0.75 per tick, at most half its reserves; the
+receiver gets `giveEff` 0.8). The mouth is busy for that tick. Logged:
+`gives`, `eG`, `eGkin` (to look-alikes), `eGjuv` (to juveniles) and `kinNear`
+(the share of close neighbours that are look-alikes, the null for `eGkin`).
+`tools/give.py` scores it.
+
+Result (`v1-AX-give1` against `v1-AX-give0`, 24 paired seeds): nothing
+changed (predator worlds 15 against 15, carnivore clusters 9 against 9, all
+else p > 0.3). Giving is selected down, from 1.3–6.0% of intake in the first
+20k ticks to a median 0.55% in the last half (5 of 24 above 1%, max 1.8%).
+What remains is not aimed. Its kin share tracks `kinNear` (e.g. 97 against 94,
+82 against 83, 88 against 97), and its juvenile share (44–69%) looks like the
+juveniles nearby. No parental feeding. The action stays available, and the
+switch is gone.
+
+**Sparing kin does not pay a meat-eater** (scratchpad `spare.js`; at 200k
+ticks the meat-eaters of seeds 1001, 1006, 1013 and 1020 are split in half,
+and one half never strikes a look-alike meat-eater, inherited). The sparing
+half was gone within 60k ticks in 4 of 4 worlds (0 against 6, 42, 38, 71). The
+same rule sparing all look-alikes, prey included, also lost 4 of 4. Young of
+their own kind are food worth taking, which is why cannibalism persists.
 
 **Meat-eaters eat their own young** (2026-09-26). Log counters `killsMeat`
 (kills whose victim lived mostly on meat) and `killsMeatByMeat` (the killer did
