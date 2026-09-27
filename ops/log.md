@@ -143,3 +143,42 @@
     preySp baseline 0.279  arm 0.285   mean diff +0.006  sign test 4+/8-  p 0.388
     predSp baseline 0.446  arm 0.554   mean diff +0.107  sign test 7+/5-  p 0.774
 
+### v1-BI-3Mb (2026-09-27 12:23)
+
+`defaults`, seeds 1213-1224, 3000000 ticks. Expected: default build over 3M ticks: exits and re-entries both several per 12 worlds (v1-BE-3M: 14 and 7); species turnover
+
+- worlds 12, meat 10.3%, kill 5.5%, carnSp>0 in 1, preyCl 0.80, persisting (predK >= 64% of run after bootstrap) 2, exits 14, re-entries 5
+
+### v1-EG-base-1149 (2026-09-27 12:23)
+
+`defaults`, seeds 1149-1160, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 19.3%, kill 14.9%, carnSp>0 in 4, preyCl 0.81, persisting (predK >= 64% of run after bootstrap) 8, exits 11, re-entries 7
+
+### v1-BJ-fjc (2026-09-27 12:23)
+
+`fruit=1,jc=0.8`, seeds 1101-1112, 400000 ticks. Expected: fruit gene holds or rises (up in most worlds); carried seed a large share; plant diversity up
+
+- worlds 12, meat 24.7%, kill 20.0%, carnSp>0 in 6, preyCl 0.91
+- fruit: gene 0.197 -> 0.130 (up in 0 of 12), div 0.157, fruit 28.8%, carried 10.0%
+- baseline v1-BJ-fjcnd: worlds 12, meat 27.3%, kill 22.3%, carnSp>0 in 5, preyCl 1.01
+    pred   baseline 10  arm 10   (+2 / -2)  McNemar p 1.000
+    carn   baseline  5  arm  6   (+3 / -2)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.273  arm 0.247   mean diff -0.026  sign test 8+/4-  p 0.388
+    preyCl baseline 1.013  arm 0.913   mean diff -0.099  sign test 4+/8-  p 0.388
+    predCl baseline 1.886  arm 1.502   mean diff -0.384  sign test 5+/7-  p 0.774
+    diet   baseline 0.095  arm 0.097   mean diff +0.001  sign test 8+/4-  p 0.388
+    polar  baseline 0.028  arm 0.030   mean diff +0.002  sign test 6+/6-  p 1.000
+    align  baseline -0.004  arm 0.007   mean diff +0.011  sign test 8+/4-  p 0.388
+    preySp baseline 0.241  arm 0.326   mean diff +0.085  sign test 9+/3-  p 0.146
+    predSp baseline 0.506  arm 0.569   mean diff +0.062  sign test 9+/3-  p 0.146
+
+### v1-BJ-fjcnd (2026-09-27 12:23)
+
+`fruit=1,jc=0.8,gutTicks=0`, seeds 1101-1112, 400000 ticks. Expected: no carrying: fruit gene falls
+
+- worlds 12, meat 27.3%, kill 22.3%, carnSp>0 in 5, preyCl 1.01
+- fruit: gene 0.182 -> 0.085 (up in 0 of 12), div 0.147, fruit 20.1%, carried 0.0%
+

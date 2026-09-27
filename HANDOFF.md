@@ -824,6 +824,17 @@ Local test: `runs/fruitjc` (`jc` 0.8) and `runs/fruitjcnodisp` (`jc` 0.8,
 no carrying). Expectation: with carrying the fruit gene holds or rises;
 without carrying it falls; plant diversity rises under `jc`.
 
+Fruit and jc on Actions (12 seeds, 400k ticks). With carrying (`v1-BJ-fjc`) the
+fruit gene went 0.197 → 0.130; without carrying (`-fjcnd`) 0.182 → 0.085. It was
+higher with carrying in 9 of 12 pairs (+0.045, p 0.15) but fell in every world.
+Carried seed made up 10% of new plants and fruit 29% of animals' plant energy.
+Carrying now helps a little, not enough to pay for the fruit. Next:
+`fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
+`-fjcnd02`, 24 seeds.
+
+`v1-BI-3Mb` (12 more seeds at 3M ticks, defaults): 14 exits, 5 re-entries;
+predators persisted in 2 of 12. Over 3M ticks predators come and go.
+
 `mutSd` 0.16 (`v1-BH-mutsd16`, 12 paired seeds, 1M ticks): predators persisted
 in 5 of 12 against 9, predator-dominated 4 against 10 (p 0.11), meat 13.4%
 against 19.3%. Mutation load costs the specialists most.
