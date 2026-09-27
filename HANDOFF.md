@@ -784,7 +784,20 @@ Rules from here:
 
 ## Running now
 
-Nothing. Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+Rule 3 of the self-audit: do the added inputs cost anything? `v1-BD-lean`
+runs the build before them (e784265: 30 senses, 6 outputs, no give, memory,
+colour, heading, light or compass) with `sex` 1 and `mateDist` 0.1, 12 seeds
+(1101–1112), 1M ticks. It pairs with `v1-BC-s1c0` (current build, compass
+off). Expectation: no difference in predator persistence (9 of 12 current).
+If the lean build persists clearly more often, prune the null inputs. The
+workflow now takes `build_ref` to run an older commit's `evosim.html`.
+
+Also running: the predator regrowth diagnostic (scratchpad `regrow.js`,
+seeds 1109, 1102, 1105, 1111). Each is replayed to 1M ticks, then run 150k
+ticks as is, with 60 evolved meat-eaters injected, and with 60 random-brain
+founders injected.
+
+Local batches: Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.

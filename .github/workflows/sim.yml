@@ -20,6 +20,9 @@ on:
       cfg:
         description: 'Path to a CFG patch JSON in the repo (optional)'
         required: false
+      build_ref:
+        description: 'Optional commit: run the evosim.html of that commit instead of this one'
+        required: false
       label:
         description: 'Label; results land on branch results/<label>'
         default: 'run'
@@ -44,12 +47,15 @@ jobs:
         seed: ${{ fromJson(needs.setup.outputs.seeds) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: |
           mkdir -p out
           ARGS=""
+          if [ -n "${{ inputs.build_ref }}" ]; then git show ${{ inputs.build_ref }}:evosim.html > build.html; ARGS="$ARGS --build build.html"; fi
           [ -n "${{ inputs.set }}" ] && ARGS="$ARGS --set ${{ inputs.set }}"
           [ -n "${{ inputs.cfg }}" ] && ARGS="$ARGS --cfg ${{ inputs.cfg }}"
           timeout 330m node run.js --seed ${{ matrix.seed }} --ticks ${{ inputs.ticks }} --every 20000 \
