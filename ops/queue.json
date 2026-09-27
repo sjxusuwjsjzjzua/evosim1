@@ -309,6 +309,18 @@
    "dispatched_at": "2026-09-27 13:12"
   },
   {
+   "label": "v1-BM-fruit3M",
+   "seeds": "1201-1212",
+   "ticks": 3000000,
+   "set": "fruit=1,fruitPerSeed=0.2",
+   "baseline": "",
+   "expect": "over 3M ticks with carrying the fruit gene levels off above 0 or climbs; carried seed a steady share",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 15:10",
+   "dispatched_at": "2026-09-27 15:10"
+  },
+  {
    "label": "v1-EG-base-1161",
    "seeds": "1161-1172",
    "ticks": 1000000,
