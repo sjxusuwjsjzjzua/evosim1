@@ -161,6 +161,8 @@ var CFG_DEFAULT = {
   nBody: 2,             // nutrient an animal's body holds per unit mass
   dungRate: 0.05,       // share of the surplus beyond that passed each tick
   soilDiff: 0.002,      // share of a cell's soil that seeps to its four neighbours per plant update
+  resprout: 0,          // with the nutrient loop: growth x (biomass + resprout x pRoot), so a plant
+                        // grazed to its roots regrows from them as fast as the soil lets it
   smell: 0,             // 1: animals smell. Every animal gives off scent in three channels, 0.25 +
                         // 0.75 x its colour tag, x mass^0.75; corpses give off a fourth (carrion).
                         // Scent spreads and fades on a coarse grid. Two nostrils ahead-left and
@@ -437,7 +439,7 @@ function updatePlants(){
     var K = S.pK[c];
     if (wave) season = SW[c % n];
     if (nut){   // growth takes nutrient from the soil; dieback (above capacity) returns it
-      var gr = S.pRate[c]*season*B*(1 - B/K)*dt, so = SO[c];
+      var gr = S.pRate[c]*season*(B + CFG.resprout*CFG.pRoot)*(1 - B/K)*dt, so = SO[c];
       if (gr > 0){ gr *= so/(so + nh); if (gr > so) gr = so; }
       SO[c] = so - gr; B += gr;
       if (B < 0.01){ SO[c] += B; S.pB[c] = 0; continue; }
