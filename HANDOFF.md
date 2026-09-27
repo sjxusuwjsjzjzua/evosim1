@@ -803,7 +803,10 @@ how much to learn is genetic. A new sense, felt (the change in reserves since
 the last think), gives it something to learn from. For the four mouth urges
 an output's activity is the act minus its odds. Animals start from their
 genome's weights; nothing learned is inherited or saved; founders start with
-m silent. Cost: 1.7-2x run time per world (the update is bound by memory
+m silent. `tools/heredity.js` checks it: over 47,514 births in a learning world
+(parents had moved 71% of their weights) every clone's brain genes equal the
+parent's genome exactly, no sexual birth took a gene from learned weights, and
+after scrambling every living brain the next births' genomes did not move. Cost: 1.7-2x run time per world (the update is bound by memory
 writes; learnStep 35% of time against 13% for the forward pass). Log:
 `learnM` (mean |m|, logged in every world: with learning off the output
 drives nothing, so its drift is the null), `learnDev`, `learnMoved`.
