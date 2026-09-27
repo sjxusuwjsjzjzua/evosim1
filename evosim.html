@@ -152,6 +152,15 @@ var CFG_DEFAULT = {
   gutTicks: 200,        // an animal that eats fruit drops its seeds this many ticks later, where it is then
   fruitPerSeed: 0.2,    // fruit eaten per batch of seeds swallowed; a gut holds up to 4 batches
   plantEvery: 2,        // plants update every N ticks (dt = N)
+  nutrients: 0,         // 1: a closed nutrient loop. Plant growth draws on the soil of its cell;
+                        // what an animal eats goes into its body; what its body cannot hold
+                        // it passes as dung where it walks; corpses, rotting fruit and dying
+                        // plants return to the soil. The total never changes.
+  soil0: 6,             // nutrient in a cell's soil at the start, x fertility
+  nHalf: 1,             // plant growth x soil/(soil + nHalf), and never more than the soil holds
+  nBody: 2,             // nutrient an animal's body holds per unit mass
+  dungRate: 0.05,       // share of the surplus beyond that passed each tick
+  soilDiff: 0.002,      // share of a cell's soil that seeps to its four neighbours per plant update
 
   // ---- animals: bodies ----
   maxA: 12000,
@@ -330,11 +339,12 @@ function init(patch){
   S = {
     tick: 0, light: 1, world: n*CFG.cellSize, established: false,
     // plants
-    pB: new Float32Array(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
+    pB: new (CFG.nutrients ? Float64Array : Float32Array)(nc), pStat: new Float32Array(nc), pDef: new Float32Array(nc),
     pDisp: new Float32Array(nc), fert: new Float32Array(nc),
     pK: new Float32Array(nc), pRate: new Float32Array(nc),   // cached from the genome
     pSeed: new Float32Array(nc), pH: new Float32Array(nc),   // accumulated seed pressure; a seed flies at 1
-    pFruit: new Float32Array(nc), pF: new Float32Array(nc),   // fruit gene, fruit on the cell
+    pFruit: new Float32Array(nc), pF: new (CFG.nutrients ? Float64Array : Float32Array)(nc),   // fruit gene, fruit on the cell
+    soil: new Float64Array(nc), soilTmp: new Float64Array(nc), nuTotal: 0,   // the nutrient loop
     // animals, structure of arrays
     n: 0, alive: new Uint8Array(M), free: new Int32Array(M), nFree: 0, hi: 0,
     x: new Float32Array(M), y: new Float32Array(M), hd: new Float32Array(M), sp: new Float32Array(M),
@@ -343,10 +353,10 @@ function init(patch){
     m75: new Float32Array(M), maxAge: new Float32Array(M), vmax: new Float64Array(M), turn: new Float32Array(M), thr: new Float32Array(M),
     gen: new Int32Array(M), lP: new Float32Array(M), lM: new Float32Array(M), kills: new Int32Array(M),
     gutT: new Float32Array(M*4), gutG: new Float32Array(M*16), gutAcc: new Float32Array(M),   // up to 4 seed batches in the gut: ticks left, the plant's four genes; fruit eaten toward the next batch
-    call: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
+    nu: new Float64Array(M), call: new Float32Array(M), act: new Uint8Array(M), want: new Uint8Array(M), tgt: new Int32Array(M), tgtId: new Int32Array(M), genome: new Float32Array(M*NG), nextId: 1,
     // corpses
     cMax: M, cN: 0, cx: new Float32Array(M), cy: new Float32Array(M), cm: new Float32Array(M),
-    cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M),
+    cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M), cNu: new Float64Array(M),
     // spatial hashes
     bSize: 8, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
     // counters since last sample
@@ -369,6 +379,7 @@ function init(patch){
     }
     cachePlant(p);
   }
+  if (CFG.nutrients){ for (var s0 = 0; s0 < nc; s0++) S.soil[s0] = CFG.soil0*S.fert[s0]; S.nuTotal = nutrientTotal(); }
   for (var a = 0; a < CFG.founders; a++) spawnRandom();
   return S;
 }
@@ -392,17 +403,24 @@ function updatePlants(){
   var wave = CFG.seasonAmp > 0 && CFG.seasonWave;
   if (wave && SW.length < n) SW = new Float64Array(n);
   if (wave) for (var col = 0; col < n; col++) SW[col] = 1 + CFG.seasonAmp*Math.sin(2*Math.PI*(S.tick/CFG.yearTicks - col/n));
-  var sd = CFG.pMutSd;
+  var sd = CFG.pMutSd, nut = CFG.nutrients, SO = S.soil, nh = CFG.nHalf;
   for (var c = 0; c < nc; c++){
     var B = S.pB[c];
     if (B <= 0) continue;
     var K = S.pK[c];
     if (wave) season = SW[c % n];
+    if (nut){   // growth takes nutrient from the soil; dieback (above capacity) returns it
+      var gr = S.pRate[c]*season*B*(1 - B/K)*dt, so = SO[c];
+      if (gr > 0){ gr *= so/(so + nh); if (gr > so) gr = so; }
+      SO[c] = so - gr; B += gr;
+      if (B < 0.01){ SO[c] += B; S.pB[c] = 0; continue; }
+    } else {
     B += S.pRate[c]*season*B*(1 - B/K)*dt;
     if (B < 0.01){ S.pB[c] = 0; continue; }
+    }
     if (CFG.browseGrown){ var hg = CFG.browse*S.pStat[c]*B/K; if (hg > S.pH[c]) S.pH[c] = hg; }   // a trunk: grows, never shrinks
     // fruit: biomass turned into food for animals, seeds inside; it rots if nobody eats it
-    if (S.pF[c] > 0) S.pF[c] *= 1 - CFG.fruitRot*dt;
+    if (S.pF[c] > 0){ if (nut){ var rot = S.pF[c]*CFG.fruitRot*dt; S.pF[c] -= rot; SO[c] += rot; } else S.pF[c] *= 1 - CFG.fruitRot*dt; }
     if (CFG.fruit && S.pFruit[c] > 0 && S.pF[c] < CFG.fruitMax*K){
       var fp = Math.min(CFG.fruitRate*S.pFruit[c]*B*dt, CFG.fruitMax*K - S.pF[c]);
       B -= fp; S.pF[c] += fp;
@@ -422,6 +440,7 @@ function updatePlants(){
       var t = ty*n + tx;
       if (t !== c && S.pB[t] < CFG.pTakeover){
         B -= CFG.pSeedB;
+        if (nut) SO[t] += S.pB[t] + S.pF[t];   // what stood there goes back to the soil
         S.pB[t] = CFG.pSeedB;
         S.pStat[t] = mutP(S.pStat[c], sd);
         S.pDef[t]  = mutP(S.pDef[c], sd);
@@ -433,6 +452,25 @@ function updatePlants(){
     }
     S.pB[c] = B;
   }
+  if (nut && CFG.soilDiff > 0){   // nutrients seep slowly through the soil
+    var T = S.soilTmp, D = CFG.soilDiff, D4 = D*0.25;
+    for (var y = 0; y < n; y++){
+      var up = ((y + n - 1) % n)*n, dn = ((y + 1) % n)*n, row = y*n;
+      for (var x = 0; x < n; x++){
+        var l = x === 0 ? n - 1 : x - 1, r = x === n - 1 ? 0 : x + 1;
+        T[row+x] = SO[row+x]*(1 - D) + D4*(SO[row+l] + SO[row+r] + SO[up+x] + SO[dn+x]);
+      }
+    }
+    S.soil = T; S.soilTmp = SO;
+  }
+}
+// all the nutrient in the world: soil, plants, fruit, animals, corpses
+function nutrientTotal(){
+  var t = 0, nc = CFG.gridN*CFG.gridN;
+  for (var c = 0; c < nc; c++) t += S.soil[c] + S.pB[c] + S.pF[c];
+  for (var i = 0; i < S.hi; i++) if (S.alive[i]) t += S.nu[i];
+  for (var k = 0; k < S.cN; k++) t += S.cNu[k];
+  return t;
 }
 // plant genetic diversity: the mean standard deviation of the four plant genes over occupied cells
 function plantDiversity(){
@@ -506,7 +544,7 @@ function setupBody(i, x, y, mass, gen){
   S.x[i] = x; S.y[i] = y; S.hd[i] = rng()*2*Math.PI - Math.PI; S.sp[i] = 0;
   S.mass[i] = mass; bodyCache(i); S.hp[i] = CFG.hpPerMass*mass; S.turn[i] = 0; S.thr[i] = 0; S.age[i] = 0; S.hurt[i] = 0;
   S.tgt[i] = -1; S.tgtId[i] = -1; S.call[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
-  S.id[i] = S.nextId++; S.gutT[i*4] = S.gutT[i*4+1] = S.gutT[i*4+2] = S.gutT[i*4+3] = 0; S.gutAcc[i] = 0;
+  S.id[i] = S.nextId++; S.nu[i] = 0; S.gutT[i*4] = S.gutT[i*4+1] = S.gutT[i*4+2] = S.gutT[i*4+3] = 0; S.gutAcc[i] = 0;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
 }
 function copyGenome(dst, src){
@@ -589,12 +627,15 @@ function die(i, cause){
     S.cx[c] = S.x[i]; S.cy[c] = S.y[i]; S.cm[c] = S.mass[i]; S.crad[c] = S.rad[i];
     S.cE[c] = S.mass[i]*CFG.eMeat + Math.max(0, S.E[i]);
     S.cKiller[c] = 0;   // a kill sets this to the killer's id right after
-  }
+    S.cNu[c] = S.nu[i];
+  } else if (CFG.nutrients) S.soil[cellAt(S.x[i], S.y[i])] += S.nu[i];
+  S.nu[i] = 0;
   S.alive[i] = 0; S.n--; S.free[S.nFree++] = i;
 }
 function removeCorpse(c){
+  if (CFG.nutrients) S.soil[cellAt(S.cx[c], S.cy[c])] += S.cNu[c];
   var l = --S.cN;
-  if (c !== l){ S.cx[c] = S.cx[l]; S.cy[c] = S.cy[l]; S.cm[c] = S.cm[l]; S.cKiller[c] = S.cKiller[l]; S.crad[c] = S.crad[l]; S.cE[c] = S.cE[l]; }
+  if (c !== l){ S.cx[c] = S.cx[l]; S.cy[c] = S.cy[l]; S.cm[c] = S.cm[l]; S.cKiller[c] = S.cKiller[l]; S.crad[c] = S.crad[l]; S.cE[c] = S.cE[l]; S.cNu[c] = S.cNu[l]; }
 }
 
 function buildHashes(){
@@ -850,7 +891,7 @@ function eatPlant(i, c, t, slow, m75, diet){
     if (fr > 0 && fv > 1e-6){
       var fb = Math.min(S.pF[c], fr*t, MOUTH[1]/fv);
       if (fb > 0){
-        S.pF[c] -= fb; got = fb*fv; MOUTH[1] = Math.max(0, MOUTH[1] - got); used = fb/fr; t -= used;
+        S.pF[c] -= fb; S.nu[i] += fb; got = fb*fv; MOUTH[1] = Math.max(0, MOUTH[1] - got); used = fb/fr; t -= used;
         S.lP[i] += got; S.c.eP += got; S.c.eF += got;
         if (CFG.gutTicks > 0 && S.pB[c] > 0){
           S.gutAcc[i] += fb;
@@ -883,7 +924,7 @@ function eatLeaf(i, c, t, slow, m75, diet){
   if (rate <= 0) return 0;
   var bite = Math.min(B - floor, rate*t);
   if (val > 1e-6) bite = Math.min(bite, MOUTH[1]/val);
-  S.pB[c] = B - bite;
+  S.pB[c] = B - bite; S.nu[i] += bite;
   MOUTH[0] = bite*val; MOUTH[1] = Math.max(0, MOUTH[1] - MOUTH[0]);
   S.lP[i] += MOUTH[0]; S.c.eP += MOUTH[0]; S.c.plantEaten += bite;
   return bite/rate;
@@ -897,6 +938,7 @@ function eatMeat(i, cc, t, slow, m75, diet){
   if (rate <= 0) return 0;
   var chew = Math.min(S.cm[cc], rate*t);
   if (mv > 1e-6) chew = Math.min(chew, MOUTH[1]/mv);
+  var nuq = S.cNu[cc]*chew/S.cm[cc]; S.cNu[cc] -= nuq; S.nu[i] += nuq;
   S.cm[cc] -= chew; S.cE[cc] -= chew*dens;
   MOUTH[0] = chew*mv; MOUTH[1] = Math.max(0, MOUTH[1] - MOUTH[0]);
   S.lM[i] += MOUTH[0]; S.c.meatEaten += chew;
@@ -988,6 +1030,10 @@ function updateAnimal(i){
     var dc = cellAt(S.x[i], S.y[i]);
     var gg2 = (i*4+sl2)*4, sd2 = CFG.pMutSd;
     if (S.pB[dc] < CFG.pTakeover){
+      if (CFG.nutrients){   // the seedling is built from what the ground there holds
+        var pool = S.soil[dc] + S.pB[dc] + S.pF[dc], nb = Math.min(CFG.pSeedB, pool);
+        S.soil[dc] = pool - nb; S.pB[dc] = nb;
+      } else
       S.pB[dc] = CFG.pSeedB; S.pStat[dc] = mutP(S.gutG[gg2], sd2); S.pDef[dc] = mutP(S.gutG[gg2+1], sd2);
       S.pDisp[dc] = mutP(S.gutG[gg2+2], sd2); S.pFruit[dc] = mutP(S.gutG[gg2+3], sd2);
       S.pSeed[dc] = 0; S.pH[dc] = 0; S.pF[dc] = 0; cachePlant(dc); S.c.seedsAnimal++;
@@ -1003,6 +1049,10 @@ function updateAnimal(i){
 
   S.E[i] -= up;
   S.age[i]++;
+  if (CFG.nutrients){   // what the body cannot hold passes as dung, where the animal is now
+    var sur = S.nu[i] - CFG.nBody*mass;
+    if (sur > 0){ var dg = sur*CFG.dungRate; S.nu[i] -= dg; S.soil[cellAt(S.x[i], S.y[i])] += dg; }
+  }
   var hpMax = CFG.hpPerMass*mass;
   if (S.hp[i] < hpMax) S.hp[i] = Math.min(hpMax, S.hp[i] + CFG.heal*hpMax);
   if (S.E[i] <= 0){ die(i, 0); return; }
@@ -1028,6 +1078,7 @@ function updateAnimal(i){
         var mk = Math.min(m0, 0.9*G[k*NG+G_SIZE]), gk = Math.min(give, CFG.eCap*mk);   // no newborn above its own adult size
         setupBody(k, S.x[i], S.y[i], mk, S.gen[i]+1);
         S.E[k] = gk; S.E[i] -= mk*CFG.cBuild + gk;
+        var nk = Math.min(S.nu[i], CFG.nBody*mk); S.nu[i] -= nk; S.nu[k] = nk;
         S.c.births++;
       }
     }
@@ -1087,6 +1138,7 @@ function step(){
   // corpses rot; the mass goes back to the soil as nothing in particular
   for (var c = S.cN - 1; c >= 0; c--){
     S.cm[c] -= S.cm[c]*CFG.corpseDecay; S.cE[c] -= S.cE[c]*CFG.corpseDecay;
+    if (CFG.nutrients){ var rn = S.cNu[c]*CFG.corpseDecay; S.cNu[c] -= rn; S.soil[cellAt(S.cx[c], S.cy[c])] += rn; }
     if (S.cm[c] < 0.02) removeCorpse(c);
   }
   if (!S.established && S.n >= 2*CFG.reseedFloor){ S.established = true; S.establishedAt = S.tick; }
@@ -1264,6 +1316,16 @@ function sample(){
     row.predSpDay = C.nMd ? +(C.mvMd/C.nMd).toFixed(4) : 0; row.predSpNight = C.nMn ? +(C.mvMn/C.nMn).toFixed(4) : 0;
   }
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
+  if (CFG.nutrients){   // where the nutrient is, and how unevenly the soil holds it
+    var nS = 0, nS2 = 0, nPl = 0, nA = 0, nCo = 0;
+    for (var c5 = 0; c5 < nc; c5++){ nS += S.soil[c5]; nS2 += S.soil[c5]*S.soil[c5]; nPl += S.pB[c5] + S.pF[c5]; }
+    for (var i5 = 0; i5 < S.hi; i5++) if (S.alive[i5]) nA += S.nu[i5];
+    for (var k5 = 0; k5 < S.cN; k5++) nCo += S.cNu[k5];
+    var tot5 = nS + nPl + nA + nCo, ms5 = nS/nc;
+    row.nuSoil = +(nS/tot5).toFixed(4); row.nuPlant = +(nPl/tot5).toFixed(4); row.nuAnimal = +(nA/tot5).toFixed(4); row.nuCorpse = +(nCo/tot5).toFixed(4);
+    row.soilCV = ms5 > 0 ? +(Math.sqrt(Math.max(0, nS2/nc - ms5*ms5))/ms5).toFixed(3) : 0;
+    row.nuDrift = S.nuTotal > 0 ? +((tot5 - S.nuTotal)/S.nuTotal).toExponential(2) : 0;
+  }
   S.log.push(row);
   S.c = newCounters();
   return row;
@@ -1301,7 +1363,7 @@ function b64dec(str){
 }
 function f32(arr){ return b64enc(new Uint8Array(new Float32Array(arr).buffer)); }
 function unf32(str){ return new Float32Array(b64dec(str).buffer); }
-var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','call'];
+var AFIELDS = ['x','y','hd','sp','E','mass','hp','age','hurt','lP','lM','turn','thr','call','nu'];
 function geneLo(k){ return k < NB ? BODY[k][1] : -CFG.wMax; }
 function geneHi(k){ return k < NB ? BODY[k][2] : CFG.wMax; }
 function geneLog(k){ return k < NB && BODY[k][3]; }
@@ -1332,8 +1394,8 @@ function snapshot(){
     rng: [RS[0], RS[1], RS[2], RS[3]], n: n, animals: A, genomes: b64enc(gb),
     ints: b64enc(new Uint8Array(ints.buffer)),
     size: f32(Float32Array.from(idx, function(i3){ return S.genome[i3*NG+G_SIZE]; })),   // exact: adulthood is 0.98 x size
-    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed), H: f32(S.pH), fruit: f32(S.pFruit), F: f32(S.pF)},
-    corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad),
+    plants: {B: f32(S.pB), stat: f32(S.pStat), def: f32(S.pDef), disp: f32(S.pDisp), fert: f32(S.fert), seed: f32(S.pSeed), H: f32(S.pH), fruit: f32(S.pFruit), F: f32(S.pF), soil: f32(S.soil)},
+    corpses: {n: c, x: sl(S.cx), y: sl(S.cy), m: sl(S.cm), E: sl(S.cE), r: sl(S.crad), nu: sl(S.cNu),
               k: b64enc(new Uint8Array(new Int32Array(Array.prototype.slice.call(S.cKiller, 0, c)).buffer))},
     log: S.log.slice(-200)
   };
@@ -1348,6 +1410,7 @@ function restore(w){
   var P = w.plants;
   S.pB.set(unf32(P.B)); S.pStat.set(unf32(P.stat)); S.pDef.set(unf32(P.def)); S.pDisp.set(unf32(P.disp));
   S.fert.set(unf32(P.fert)); S.pSeed.set(unf32(P.seed)); if (P.H) S.pH.set(unf32(P.H)); if (P.fruit){ S.pFruit.set(unf32(P.fruit)); S.pF.set(unf32(P.F)); }
+  if (P.soil) S.soil.set(unf32(P.soil));
   for (var c = 0; c < S.pB.length; c++) cachePlant(c);
   var n = w.n, F = {}, sizes = w.size ? unf32(w.size) : null, gb = b64dec(w.genomes), ints = new Int32Array(b64dec(w.ints).buffer);
   AFIELDS.forEach(function(f){ F[f] = w.animals[f] ? unf32(w.animals[f]) : new Float32Array(w.n); });
@@ -1367,8 +1430,10 @@ function restore(w){
   }
   var C = w.corpses, cx = unf32(C.x), cy = unf32(C.y), cm = unf32(C.m), cE = unf32(C.E), cr = unf32(C.r),
       ck = new Int32Array(b64dec(C.k).buffer);
-  for (var j = 0; j < C.n; j++){ S.cx[j] = cx[j]; S.cy[j] = cy[j]; S.cm[j] = cm[j]; S.cE[j] = cE[j]; S.crad[j] = cr[j]; S.cKiller[j] = ck[j]; }
+  var cnu = C.nu ? unf32(C.nu) : null;
+  for (var j = 0; j < C.n; j++){ S.cx[j] = cx[j]; S.cy[j] = cy[j]; S.cm[j] = cm[j]; S.cE[j] = cE[j]; S.crad[j] = cr[j]; S.cKiller[j] = ck[j]; S.cNu[j] = cnu ? cnu[j] : 0; }
   S.cN = C.n;
+  if (CFG.nutrients) S.nuTotal = nutrientTotal();
   S.tick = w.tick; S.established = w.established; S.establishedAt = w.establishedAt; S.nextId = w.nextId;
   RS[0] = w.rng[0]; RS[1] = w.rng[1]; RS[2] = w.rng[2]; RS[3] = w.rng[3]; gCache = w.gCache != null ? w.gCache : null;
   S.log = w.log || []; S.c = newCounters();
