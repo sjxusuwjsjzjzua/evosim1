@@ -778,6 +778,11 @@ size 0.3–1.6. Streaming held in most worlds (`polar` 0.4–0.9). The expectati
 build) was wrong. A 2x2 at 1M ticks on the current build tests which of
 today's defaults is responsible: `v1-BC-s1c1` (sex, compass), `-s0c1`,
 `-s1c0`, `-s0c0`, 12 seeds each (1101–1112).
+Control, the build before those defaults (merged PR #27: clonal, no compass,
+30 senses) on seeds 1101–1104, 1M ticks (`runs/oldbuild-long`, local): predators
+held in all four (624–940 thousand ticks in the predator state, 0–2 exits,
+meat 17–25% over the last half). The current defaults on the same seeds kept
+them in one of four (s1102).
 
 Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
 moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
