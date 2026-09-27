@@ -783,6 +783,10 @@ Control, the build before those defaults (merged PR #27: clonal, no compass,
 held in all four (624–940 thousand ticks in the predator state, 0–2 exits,
 meat 17–25% over the last half). The current defaults on the same seeds kept
 them in one of four (s1102).
+Current build, clonal (`sex` 0) with the compass, same seeds, 1M ticks
+(`runs/s0c1-local`): predators held in one of four (s1101: 940 thousand ticks,
+19% meat). s1102 never entered the predator state, and s1103 and s1104 left it
+(5–7% meat late). So clonal reproduction alone does not bring persistence back.
 
 Motion catches the eye (`stillHide`, tested 2026-09-27, pruned): an animal
 moving slower than 0.05 was seen over (1 − `stillHide`) of anyone's range, so
