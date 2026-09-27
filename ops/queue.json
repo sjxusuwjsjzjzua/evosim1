@@ -738,6 +738,30 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-27 23:43"
+  },
+  {
+   "label": "v1-NU-s24",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=24",
+   "baseline": "v1-LE-base",
+   "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 23:55",
+   "dispatched_at": "2026-09-27 23:55"
+  },
+  {
+   "label": "v1-NU-s48",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=48",
+   "baseline": "v1-LE-base",
+   "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 23:55",
+   "dispatched_at": "2026-09-27 23:55"
   }
  ]
 }

@@ -794,6 +794,13 @@ where they eat and drop it as dung where they graze, so it piles up in grazed
 cells (soil about 6 against 1–2 under full plants; seed 1301 at 150k), where
 plants regrow slowly however rich the soil, because growth is logistic from
 the biomass left. The rest of the map runs dry. Off by default.
+Two fixes tried locally (seed 1301, mean over 100–200k; base: plant mass
+16420, animals 1553, meat 25%): loop 4341 / 421 / 16%; dung passed over
+~200 ticks (`dungRate` 0.005) 3967 / 610 / 7%; regrowth from the roots
+(`resprout` 1) 3352 / 683 / 12%. Soil still holds 75–81%: getting nutrient
+back into plants needs a large soil pool at any dung pattern, and at `soil0`
+6 that pool starves them. Next: abundant nutrient, limiting only locally
+(`v1-NU-s24`, `v1-NU-s48`, paired with `v1-LE-base`).
 
 **Nutrient loop** (`nutrients`, new, 0 until tested). Plant growth draws on
 the soil of its cell (x soil/(soil + `nHalf`), never more than it holds);
