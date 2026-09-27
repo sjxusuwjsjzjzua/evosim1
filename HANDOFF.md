@@ -784,6 +784,17 @@ Rules from here:
 
 ## Running now
 
+**Nutrient loop: predators lost** (`v1-NU-*`, 24 paired seeds, 1M). With it on
+(`soil0` 6) predator worlds 7 against 19 (p < 0.001), persisting 8 against
+17, animals 796 against 1006 (p < 0.001), prey clump less (0.69 against
+0.83). Rich soil (`soil0` 12): 11 against 19 (p 0.077). The fruit gene rose
+in all 24 worlds with the loop (0.43). Why: 80% of the nutrient ends in the
+soil and 17% in plants (plant mass a third of base). Animals carry it from
+where they eat and drop it as dung where they graze, so it piles up in grazed
+cells (soil about 6 against 1–2 under full plants; seed 1301 at 150k), where
+plants regrow slowly however rich the soil, because growth is logistic from
+the biomass left. The rest of the map runs dry. Off by default.
+
 **Nutrient loop** (`nutrients`, new, 0 until tested). Plant growth draws on
 the soil of its cell (x soil/(soil + `nHalf`), never more than it holds);
 what an animal eats goes into its body; beyond `nBody` x mass it passes as
@@ -810,8 +821,15 @@ after scrambling every living brain the next births' genomes did not move. Cost:
 writes; learnStep 35% of time against 13% for the forward pass). Log:
 `learnM` (mean |m|, logged in every world: with learning off the output
 drives nothing, so its drift is the null), `learnDev`, `learnMoved`.
-Diagnostic: scratchpad `learnko.js` (at 200k ticks half of all lines lose m,
-inherited). Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
+Knockout (scratchpad `learnko.js`, seeds 1001, 1004, 1006, 1013: at 200k
+ticks half of all lines lose m, inherited; lines at +80k, without against
+with learning): 613 against 14, 780 against 14, 38 against 309, 408 against
+925. Mixed: learning lost two worlds outright and won two. (The script's
+meat share at 200k read 0 in all four; that was an artefact, a sample taken
+right after the engine's own had reset the counters. At 60k the same worlds
+had meat 18–27%.) Probe (scratchpad `learnprobe.js`, 60k ticks): learned
+weights move the attack urge on contact both ways (0.33 → 0.23, 0.60 → 0.66,
+0.04 → 0.48): learning does not steadily train hunting out. Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
 
 **Smell** (`smell`, new, 0 until tested; NI 50). Animals give off scent in
 three channels (0.25 + 0.75 x colour tag, x mass^0.75), corpses a fourth; it

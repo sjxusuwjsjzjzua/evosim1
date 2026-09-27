@@ -463,9 +463,10 @@
    "baseline": "",
    "expect": "nutrient loop at 1M, 24 paired seeds. Expect: with it on, plant mass and animals 20-40% lower, soilCV above 0.5 throughout (dung and carcass patches), meat share a few points lower; predator persistence within 4 worlds of base either way (no strong prior). Rich soil (soil0 12) sits between.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:04",
-   "dispatched_at": "2026-09-27 21:05"
+   "dispatched_at": "2026-09-27 21:05",
+   "scored_at": "2026-09-27 23:37"
   },
   {
    "label": "v1-NU-on",
@@ -475,9 +476,10 @@
    "baseline": "v1-NU-base",
    "expect": "nutrient loop at 1M, 24 paired seeds. Expect: with it on, plant mass and animals 20-40% lower, soilCV above 0.5 throughout (dung and carcass patches), meat share a few points lower; predator persistence within 4 worlds of base either way (no strong prior). Rich soil (soil0 12) sits between.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:04",
-   "dispatched_at": "2026-09-27 21:05"
+   "dispatched_at": "2026-09-27 21:05",
+   "scored_at": "2026-09-27 23:37"
   },
   {
    "label": "v1-NU-rich",
@@ -487,9 +489,10 @@
    "baseline": "v1-NU-base",
    "expect": "nutrient loop at 1M, 24 paired seeds. Expect: with it on, plant mass and animals 20-40% lower, soilCV above 0.5 throughout (dung and carcass patches), meat share a few points lower; predator persistence within 4 worlds of base either way (no strong prior). Rich soil (soil0 12) sits between.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:04",
-   "dispatched_at": "2026-09-27 21:05"
+   "dispatched_at": "2026-09-27 21:05",
+   "scored_at": "2026-09-27 23:37"
   },
   {
    "label": "v1-SM-base",
