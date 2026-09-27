@@ -170,6 +170,15 @@ var CFG_DEFAULT = {
   carrionEmit: 4,       // carrion scent per tick x corpse mass
   smellDecay: 0.05,     // share of scent that fades per tick: it lasts about 20 ticks
   smellDiff: 0.2,       // share of a grid cell's scent that spreads to its neighbours per update
+  learn: 0,             // 1: brains learn in a lifetime. Every weight changes by learnRate x m x
+                        // (its input's activity) x (its output's activity) at the last think, where m
+                        // is the brain's own tenth output (tanh), a neuromodulator: the genome decides
+                        // when, which way and how much to learn, from any sense, including the new
+                        // one, the change in its own reserves since the last think (felt). Each
+                        // animal starts from its genome's weights; nothing learned is inherited. For
+                        // the mouth's four urges the output's activity is what it did minus the odds
+                        // it had of doing it. 0: m and felt read 0 and brains are fixed
+  learnRate: 0.05,
   smellK: 5,            // a nostril reads level/(level + smellK); about the level one animal leaves where it stands
 
   // ---- animals: bodies ----
@@ -281,13 +290,14 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 50, NH = 8, NO = 9;
+var NI = 51, NH = 8, NO = 10;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
   'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading','light','mem1','mem2','fruitL','fruitR','fruitHere',
-  'smellR','smellG','smellB','smellMeat','smellRDir','smellGDir','smellBDir','smellMeatDir'];
-var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call','give','mem1','mem2'];
+  'smellR','smellG','smellB','smellMeat','smellRDir','smellGDir','smellBDir','smellMeatDir','felt'];
+var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call','give','mem1','mem2','learn'];
+var NW = NG - NB;   // brain weights per animal, as learned (learn on)
 
 var CFG, S;   // config and state
 
@@ -371,6 +381,10 @@ function init(patch){
     // spatial hashes
     bSize: 8, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
     sm: null, smT: null,   // scent, 4 channels per spatial-hash bucket
+    // learning (learn on): each animal's own weights, and its last think's activity
+    lw: CFG.learn ? new Float32Array(M*NW) : null, pIn: CFG.learn ? new Float32Array(M*NI) : null,
+    pHid: CFG.learn ? new Float32Array(M*NH) : null, pOut: CFG.learn ? new Float32Array(M*NO) : null,
+    lrn: new Uint8Array(M), eLast: new Float32Array(M),
     // counters since last sample
     c: newCounters(), log: [], hist: []
   };
@@ -514,7 +528,7 @@ function remapGenome(src, oldNI, oldNO){
   for (h = 0; h < NH; h++) for (k = 0; k < oldNI; k++) out[W1+h*NI+k] = src[oW1+h*oldNI+k];
   for (q = 0; q < oldNO; q++) for (h = 0; h < NH; h++) out[W2+q*NH+h] = src[oW2+q*NH+h];
   for (q = 0; q < oldNO; q++) for (k = 0; k < oldNI; k++) out[WD+q*NI+k] = src[oWD+q*oldNI+k];
-  for (q = oldNO; q < NO; q++) out[WD+q*NI] = -3;   // an output the ancestors lacked starts nearly silent
+  for (q = oldNO; q < NO; q++) out[WD+q*NI] = q === 9 ? 0 : -3;   // an output the ancestors lacked starts nearly silent (learning: m = 0)
   return out;
 }
 // Founders: an ancestral body (cheap organs, some spread) with a random diet
@@ -548,6 +562,9 @@ function spawnRandom(){
     else G[g+k] = clamp(a + gauss()*0.1*(b[2]-b[1]), b[1], b[2]);
   }
   for (var w = NB; w < NG; w++) G[g+w] = gauss()*1.0;
+  // the learn output starts silent (m = 0): ancestors do not learn; mutation can change that
+  for (var h9 = 0; h9 < NH; h9++) G[g+W2+9*NH+h9] = 0;
+  for (var k9 = 0; k9 < NI; k9++) G[g+WD+9*NI+k9] = 0;
   var m = G[g+G_SIZE]*G[g+G_BIRTH]*2;
   setupBody(i, rng()*S.world, rng()*S.world, Math.min(m, G[g+G_SIZE]), 0);
   S.E[i] = CFG.eCap*S.mass[i]*0.6;
@@ -559,6 +576,8 @@ function setupBody(i, x, y, mass, gen){
   S.tgt[i] = -1; S.tgtId[i] = -1; S.call[i] = 0; S.gen[i] = gen; S.lP[i] = 0; S.lM[i] = 0; S.kills[i] = 0; S.act[i] = 0; S.want[i] = 0;
   S.id[i] = S.nextId++; S.nu[i] = 0; S.gutT[i*4] = S.gutT[i*4+1] = S.gutT[i*4+2] = S.gutT[i*4+3] = 0; S.gutAcc[i] = 0;
   for (var o = 0; o < NO; o++) S.out[i*NO+o] = 0;
+  S.lrn[i] = 0; S.eLast[i] = -1;
+  if (S.lw){ var G = S.genome, g = i*NG, l = i*NW; for (var w = 0; w < NW; w++) S.lw[l+w] = G[g+NB+w]; }
 }
 function copyGenome(dst, src){
   var G = S.genome, d = dst*NG, s = src*NG;
@@ -843,9 +862,10 @@ function chance(x){
 }
 function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if (d < -Math.PI) d += 2*Math.PI; return d; }
 
-// The brain for NH 8, NO 9: the same sums in the same order as the generic loops
+// The brain for NH 8, NO 10: the same sums in the same order as the generic loops
 // in think(), computed side by side so the adds do not wait on each other.
-function brain89(G, g, OUT, o){
+// G[g + W1 ...] are the weights: the genome, or (learn on) the animal's own copy.
+function brain810(G, g, OUT, o){
   var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, k, v, w = g + W1;
   for (k = 0; k < NI; k++, w++){
     v = IN[k];
@@ -854,35 +874,75 @@ function brain89(G, g, OUT, o){
   }
   HID[0] = tanh32(s0, 1); HID[1] = tanh32(s1, 1); HID[2] = tanh32(s2, 1); HID[3] = tanh32(s3, 1);
   HID[4] = tanh32(s4, 1); HID[5] = tanh32(s5, 1); HID[6] = tanh32(s6, 1); HID[7] = tanh32(s7, 1);
-  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, h;
+  var t0 = 0, t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, h;
   w = g + W2;
   for (h = 0; h < 8; h++, w++){
     v = HID[h];
-    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v; t6 += G[w+48]*v; t7 += G[w+56]*v; t8 += G[w+64]*v;
+    t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v; t6 += G[w+48]*v; t7 += G[w+56]*v; t8 += G[w+64]*v; t9 += G[w+72]*v;
   }
   w = g + WD;
   for (k = 0; k < NI; k++, w++){
     v = IN[k];
-    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v; t6 += G[w+6*NI]*v; t7 += G[w+7*NI]*v; t8 += G[w+8*NI]*v;
+    t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v; t6 += G[w+6*NI]*v; t7 += G[w+7*NI]*v; t8 += G[w+8*NI]*v; t9 += G[w+9*NI]*v;
   }
-  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5; OUT[o+6] = t6; OUT[o+7] = t7; OUT[o+8] = t8;
+  OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5; OUT[o+6] = t6; OUT[o+7] = t7; OUT[o+8] = t8; OUT[o+9] = t9;
+}
+// Learning, after a think: every weight moves by rate x m x (activity into it) x
+// (activity out of it) at the previous think, m being this think's learn output.
+// So a brain can strengthen what it did just before it felt fed, or weaken it,
+// or anything else its genome makes of m. Then this think's activity is stored.
+function learnStep(i){
+  var o = i*NO, OUT = S.out, L = S.lw, PI = S.pIn, PH = S.pHid, PO = S.pOut;
+  var pi = i*NI, ph = i*NH, po = i*NO, l = i*NW - NB, wm = CFG.wMax, k, h, q, w, a, v;
+  var m = tanh32(OUT[o+9], 1)*CFG.learnRate;
+  if (S.lrn[i] && (m > 1e-6 || m < -1e-6)){
+    var mn = -wm, mx = wm, lim = Math.min, lam = Math.max;
+    for (h = 0; h < NH; h++){
+      a = m*PH[ph+h]; if (a === 0) continue;
+      w = l + W1 + h*NI;
+      for (k = 0; k < NI; k++) L[w+k] = lam(mn, lim(mx, L[w+k] + a*PI[pi+k]));
+    }
+    for (q = 0; q < NO - 1; q++){
+      a = m*PO[po+q]; if (a === 0) continue;
+      w = l + W2 + q*NH;
+      for (h = 0; h < NH; h++) L[w+h] = lam(mn, lim(mx, L[w+h] + a*PH[ph+h]));
+      w = l + WD + q*NI;
+      for (k = 0; k < NI; k++) L[w+k] = lam(mn, lim(mx, L[w+k] + a*PI[pi+k]));
+    }
+  }
+  for (k = 0; k < NI; k++) PI[pi+k] = IN[k];
+  for (h = 0; h < NH; h++) PH[ph+h] = HID[h];
+  // what each output did: the motor values it set, and for the four urges, the act
+  // minus its odds (0 when the act matched what was likely, +-1 when it was a surprise)
+  var wt = S.want[i];
+  PO[po] = S.turn[i]/CFG.turnMax; PO[po+1] = S.thr[i] - 0.5;
+  PO[po+2] = (wt & 1 ? 1 : 0) - sig32(OUT[o+2]); PO[po+3] = (wt & 2 ? 1 : 0) - sig32(OUT[o+3]);
+  PO[po+4] = (wt & 4 ? 1 : 0) - sig32(OUT[o+4]); PO[po+5] = S.call[i] - 0.5;
+  PO[po+6] = (wt & 8 ? 1 : 0) - sig32(OUT[o+6]);
+  PO[po+7] = tanh32(OUT[o+7], 1); PO[po+8] = tanh32(OUT[o+8], 1); PO[po+9] = 0;
+  S.lrn[i] = 1;
 }
 function think(i){
   sense(i);
   var G = S.genome, g = i*NG, o = i*NO;
   // memory: two outputs from the last think come back as inputs (0 at birth)
   IN[37] = tanh32(S.out[o+7], 1); IN[38] = tanh32(S.out[o+8], 1);
-  if (NH === 8 && NO === 9) brain89(G, g, S.out, o);
+  // felt: the change in its own reserves since the last think, per unit metabolic size
+  if (CFG.learn){ IN[50] = S.eLast[i] >= 0 ? tanh32((S.E[i] - S.eLast[i])/(0.1*S.m75[i]), 1) : 0; S.eLast[i] = S.E[i]; }
+  else IN[50] = 0;
+  var WG = G;
+  if (S.lw){ WG = S.lw; g = i*NW - NB; }
+  if (NH === 8 && NO === 10) brain810(WG, g, S.out, o);
   else {
     for (var h = 0; h < NH; h++){
       var s = 0, w = g + W1 + h*NI;
-      for (var k = 0; k < NI; k++) s += G[w+k]*IN[k];
+      for (var k = 0; k < NI; k++) s += WG[w+k]*IN[k];
       HID[h] = tanh32(s, 1);
     }
     for (var q = 0; q < NO; q++){
       var t = 0, w2 = g + W2 + q*NH, wd = g + WD + q*NI;
-      for (var h2 = 0; h2 < NH; h2++) t += G[w2+h2]*HID[h2];
-      for (var k2 = 0; k2 < NI; k2++) t += G[wd+k2]*IN[k2];
+      for (var h2 = 0; h2 < NH; h2++) t += WG[w2+h2]*HID[h2];
+      for (var k2 = 0; k2 < NI; k2++) t += WG[wd+k2]*IN[k2];
       S.out[o+q] = t;
     }
   }
@@ -900,6 +960,7 @@ function think(i){
   // meat-eating output because firing it with no corpse in reach cost a meal.
   S.want[i] = (chance(S.out[o+2]) ? 1 : 0) | (chance(S.out[o+3]) ? 2 : 0)
             | (chance(S.out[o+4]) ? 4 : 0) | (chance(S.out[o+6]) ? 8 : 0);
+  if (S.lw) learnStep(i);
 }
 
 // Eating, for a share t of one tick. Each returns the share of the tick it used
@@ -1376,6 +1437,21 @@ function sample(){
     row.predSpDay = C.nMd ? +(C.mvMd/C.nMd).toFixed(4) : 0; row.predSpNight = C.nMn ? +(C.mvMn/C.nMn).toFixed(4) : 0;
   }
   if (CFG.seasonAmp > 0 && CFG.seasonWave){ row.waveTrack = +wTrack.toFixed(3); row.waveVx = +wVx.toFixed(3); }
+  // the learn output's strength, mean |m| (with learn off the output drives nothing: its drift is the null)
+  var lm0 = 0, ln0 = 0; for (var i7 = 0; i7 < S.hi; i7++) if (S.alive[i7]){ lm0 += Math.abs(Math.tanh(S.out[i7*NO+9])); ln0++; }
+  row.learnM = ln0 ? +(lm0/ln0).toFixed(4) : 0;
+  if (S.lw){   // learning: how strongly brains modulate (mean |m|), and how far adults' weights
+               // have moved from their genome's (mean |learned - innate|, and the share of weights moved by more than 0.1)
+    var lm = 0, ln = 0, ld = 0, lb = 0, lc = 0;
+    for (var i6 = 0; i6 < S.hi; i6++){
+      if (!S.alive[i6]) continue;
+      lm += Math.abs(Math.tanh(S.out[i6*NO+9])); ln++;
+      if (i6 % 4 || S.mass[i6] < 0.9*G[i6*NG+G_SIZE]) continue;
+      for (var w6 = 0; w6 < NW; w6++){ var dv = Math.abs(S.lw[i6*NW+w6] - G[i6*NG+NB+w6]); ld += dv; if (dv > 0.1) lb++; }
+      lc += NW;
+    }
+    row.learnDev = lc ? +(ld/lc).toFixed(4) : 0; row.learnMoved = lc ? +(lb/lc).toFixed(4) : 0;
+  }
   if (CFG.nutrients){   // where the nutrient is, and how unevenly the soil holds it
     var nS = 0, nS2 = 0, nPl = 0, nA = 0, nCo = 0;
     for (var c5 = 0; c5 < nc; c5++){ nS += S.soil[c5]; nS2 += S.soil[c5]*S.soil[c5]; nPl += S.pB[c5] + S.pF[c5]; }
@@ -1487,6 +1563,8 @@ function restore(w){
     AFIELDS.forEach(function(f){ S[f][i] = F[f][k]; });
     S.id[i] = ints[k*4]; S.gen[i] = ints[k*4+1]; S.kills[i] = ints[k*4+2]; S.act[i] = ints[k*4+3];
     S.tgt[i] = -1; bodyCache(i);
+    S.lrn[i] = 0; S.eLast[i] = -1;   // learned weights are not saved: a restored animal starts again from its genome
+    if (S.lw) for (var w4 = 0; w4 < NW; w4++) S.lw[i*NW+w4] = S.genome[g+NB+w4];
   }
   var C = w.corpses, cx = unf32(C.x), cy = unf32(C.y), cm = unf32(C.m), cE = unf32(C.E), cr = unf32(C.r),
       ck = new Int32Array(b64dec(C.k).buffer);
@@ -1590,7 +1668,7 @@ function toWorld(sx, sy){ return [cam.x + (sx - view.x - view.w/2)/cam.z, cam.y 
 function drawPlants(){
   var S = Sim.S, C = Sim.CFG, n = C.gridN, d = plantImg.data, kmax = C.pKmax;
   for (var c = 0; c < n*n; c++){
-    var B = S.pB[c], o = c*4, f = S.fert[c];
+    var B = S.pB[c], o = c*4, f = C.nutrients ? Math.min(1.6, S.soil[c]/C.soil0) : S.fert[c];   // bare ground: fertility, or with the nutrient loop the soil's richness
     if (B > 0){
       var v = Math.min(1, B/kmax), df = S.pDef[c];
       d[o]   = 18 + 40*v*df + 20*v;
@@ -1990,6 +2068,9 @@ function buildDrawer(){
   h += '<div class="row"><label>seasons move</label><button id="wS">still</button><button id="wT">travelling</button></div>';
   h += '<div class="row"><label>fruit</label><button id="fOff">off</button><button id="fOn">on</button></div>';
   h += '<div class="row"><label>compass</label><button id="cOff">off</button><button id="cOn">on</button></div>';
+  h += '<div class="row"><label>smell</label><button id="mOff">off</button><button id="mOn">on</button></div>';
+  h += '<div class="row"><label>nutrient loop</label><button id="nOff">off</button><button id="nOn">on</button></div>';
+  h += '<div class="row"><label>learning</label><button id="lOff">off</button><button id="lOn">on</button></div>';
   h += '<div class="row"><label>day and night</label><button id="dOff">off</button><button id="dOn">on</button></div>';
   h += '<div class="row"><label>world size</label><button id="z64">small</button><button id="z96">medium</button><button id="z128">large</button></div>';
   h += '<div class="row"><label>reproduction</label><button id="rC">clonal</button><button id="rS">sexual</button></div>';
@@ -2002,6 +2083,7 @@ function buildDrawer(){
   h += '<p class="note">Seasons: the slider sets how much plant growth rises and falls over a year. Travelling makes the growing season sweep across the world from left to right; with the compass on, most test worlds learned to go with it.</p>';
   h += '<p class="note">Fruit (pink on the map): every plant has a gene for how much of its growth it turns into fruit. Fruit is rich food, and an animal that eats it drops the seeds wherever it is a while later. Nothing tells plants to fruit or animals to carry seed; in test worlds the fruit gene rose where animals carried seed and fell where they could not.</p>';
   h += '<p class="note">Compass: with it on, every animal can tell which way it faces. Within a few hundred generations a world\'s grazers share a bearing and stream across the world together, with the meat-eaters following. Over a million ticks predators die out far more often with it on (in 14 of 24 test worlds against 4), so it is off by default.</p>';
+  h += '<p class="note">Smell, nutrient loop and learning are under test. Smell: animals give off a scent set by their colour, corpses one of their own; it drifts and fades, and two nostrils tell which side smells stronger, with the head down or in the dark. Nutrient loop (new world): plants draw on the soil, animals carry what they eat and drop it as dung, and the dead return to the soil, so the ground (brown when bare) grows rich where animals feed and die. Learning (new world, about half the speed): brains change as they live, when and how their genes decide; nothing learned is passed on.</p>';
   h += '<p class="note">Day and night: at night eyes see animals and corpses over a third of their range (ears are unaffected), and every animal can sense how light it is. Fewer kills happen at night; in test worlds no daily rhythm evolved.</p>';
   h += '<p class="note">The world wraps round: an animal leaving one edge comes back at the other. The dashed line is the edge, and what lies beyond it is the same world again.</p>';
   h += '<p class="note">A faint tail shows which way an animal is moving and how fast. When the grazers of a world evolve a shared bearing, their tails line up.</p>';
@@ -2032,6 +2114,17 @@ function buildDrawer(){
   $('cOff').classList.toggle('on', !cp); $('cOn').classList.toggle('on', cp);
   $('cOff').onclick = function(){ Sim.CFG.compass = 0; patch.compass = 0; buildDrawer(); };
   $('cOn').onclick = function(){ Sim.CFG.compass = 1; patch.compass = 1; buildDrawer(); };
+  var sm = !!Sim.CFG.smell;
+  $('mOff').classList.toggle('on', !sm); $('mOn').classList.toggle('on', sm);
+  $('mOff').onclick = function(){ Sim.CFG.smell = 0; patch.smell = 0; buildDrawer(); };
+  $('mOn').onclick = function(){ Sim.CFG.smell = 1; patch.smell = 1; buildDrawer(); };
+  // these two set up the world differently, so they start a new one
+  [['nutrients', 'n'], ['learn', 'l']].forEach(function(t){
+    var on = !!Sim.CFG[t[0]];
+    $(t[1] + 'Off').classList.toggle('on', !on); $(t[1] + 'On').classList.toggle('on', on);
+    $(t[1] + 'Off').onclick = function(){ if (!on || !discardOK()) return; patch[t[0]] = 0; fresh(); newWorld(); buildDrawer(); };
+    $(t[1] + 'On').onclick = function(){ if (on || !discardOK()) return; patch[t[0]] = 1; fresh(); newWorld(); buildDrawer(); };
+  });
   var dn = Sim.CFG.dayTicks > 0;
   $('dOff').classList.toggle('on', !dn); $('dOn').classList.toggle('on', dn);
   $('dOff').onclick = function(){ Sim.CFG.dayTicks = 0; patch.dayTicks = 0; buildDrawer(); };
@@ -2084,7 +2177,7 @@ function resumeWorld(){
   try {
     var w = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
     if (w && Sim.restore(w)){
-      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks', 'compass', 'fruit'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
+      ['gridN', 'seed', 'sex', 'mateDist', 'seasonWave', 'dayTicks', 'compass', 'fruit', 'smell', 'nutrients', 'learn'].concat(SLIDERS.map(function(s){ return s[0]; })).forEach(function(k){ patch[k] = Sim.CFG[k]; });
       resumedFrom = Sim.S.tick; afterLoad(); return true;
     }
   } catch (e) {}
