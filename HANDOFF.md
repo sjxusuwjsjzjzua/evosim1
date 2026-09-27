@@ -797,7 +797,7 @@ seeds 1109, 1102, 1105, 1111). Each is replayed to 1M ticks, then run 150k
 ticks as is, with 60 evolved meat-eaters injected, and with 60 random-brain
 founders injected.
 
-Local batches: Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
+Local batches: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>`
 runs 4 at a time on a frozen copy of the build (editing `evosim.html` mid-batch
 is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
