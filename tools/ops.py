@@ -69,6 +69,10 @@ def main():
     elif a[0] == 'add':
         label, sd, ticks, st, base, expect = a[1:7]
         if any(e['label'] == label for e in E): sys.exit('label exists: ' + label)
+        mine = set(seeds(sd))   # a pending standing block on the same seeds would repeat worlds: drop it
+        for e in E:
+            if e['status'] == 'pending' and e['label'].startswith('v1-EG-base-') and mine & set(seeds(e['seeds'])):
+                e['status'] = 'dropped'; e['dropped_at'] = now(); print('dropped', e['label'], '(same seeds)')
         E.append({'label': label, 'seeds': sd, 'ticks': int(ticks), 'set': st, 'baseline': base,
                   'expect': expect, 'build_ref': a[7] if len(a) > 7 else '', 'status': 'pending', 'added_at': now()})
         save(q); print('added', label, len(seeds(sd)), 'jobs')

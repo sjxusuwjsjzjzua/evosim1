@@ -852,8 +852,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 01:22"
+   "status": "dropped",
+   "added_at": "2026-09-28 01:22",
+   "dropped_at": "2026-09-28 03:11"
   },
   {
    "label": "v1-EG-base-1625",
@@ -955,6 +956,29 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 02:46"
+  },
+  {
+   "label": "v1-SM-3M",
+   "seeds": "1613-1624",
+   "ticks": 3000000,
+   "set": "",
+   "baseline": "",
+   "expect": "the smell default over 3M ticks. Expect: alignment keeps rising past 1M (above 0.08 in the last third), predators come and go as in v1-BP-3Mdefault (persisting in about 8 of 12), fruit gene near 0.7.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 03:11",
+   "dispatched_at": "2026-09-28 03:11"
+  },
+  {
+   "label": "v1-EG-base-1709",
+   "seeds": "1709-1720",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 03:11"
   }
  ]
 }
