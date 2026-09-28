@@ -690,3 +690,33 @@
     predSp baseline 0.467  arm 0.512   mean diff +0.044  sign test 8+/4-  p 0.388
     learnM baseline 0.880  arm 0.901   mean diff +0.021  sign test 7+/5-  p 0.774
 
+### v1-EG-base-1553 (2026-09-28 04:45)
+
+`defaults`, seeds 1553-1564, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 17.2%, kill 12.2%, carnSp>0 in 4, preyCl 0.92, persisting (predK >= 64% of run after bootstrap) 8, exits 7, re-entries 2
+- fruit: gene 0.186 -> 0.267 (up in 8 of 12), div 0.183, fruit 25.7%, carried 37.7%
+
+### v1-NU24-1469 (2026-09-28 04:45)
+
+`nutrients=1,soil0=24`, seeds 1469-1480, 1000000 ticks. Expected: nutrient loop at soil0 24 on the smell default, paired with the standing block of the same seeds (same build). Expect as v1-NU-s24 against v1-LE-base: predator worlds within 3 of the block, plant mass within 25%, soilCV above 0.5. If so, the loop goes on by default at soil0 24.
+
+- worlds 12, meat 14.3%, kill 9.4%, carnSp>0 in 1, preyCl 0.76, persisting (predK >= 64% of run after bootstrap) 5, exits 11, re-entries 5
+- fruit: gene 0.190 -> 0.370 (up in 9 of 12), div 0.230, fruit 27.5%, carried 49.0%
+- baseline v1-EG-base-1469: worlds 12, meat 17.4%, kill 13.1%, carnSp>0 in 6, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 11, exits 5, re-entries 1
+    pred   baseline 12  arm  7   (+0 / -5)  McNemar p 0.062
+    carn   baseline  6  arm  1   (+0 / -5)  McNemar p 0.062
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  1   (+1 / -0)  McNemar p 1.000
+    meat   baseline 0.174  arm 0.143   mean diff -0.030  sign test 4+/8-  p 0.388
+    kill   baseline 0.131  arm 0.094   mean diff -0.037  sign test 2+/10-  p 0.039
+    animals baseline 985  arm 926   mean diff -59.327  sign test 3+/9-  p 0.146
+    preyCl baseline 0.889  arm 0.758   mean diff -0.130  sign test 3+/9-  p 0.146
+    predCl baseline 2.733  arm 2.860   mean diff +0.127  sign test 7+/5-  p 0.774
+    diet   baseline 0.094  arm 0.084   mean diff -0.010  sign test 4+/8-  p 0.388
+    polar  baseline 0.033  arm 0.032   mean diff -0.001  sign test 5+/7-  p 0.774
+    align  baseline 0.072  arm 0.027   mean diff -0.045  sign test 4+/8-  p 0.388
+    preySp baseline 0.335  arm 0.357   mean diff +0.022  sign test 9+/3-  p 0.146
+    predSp baseline 0.551  arm 0.514   mean diff -0.037  sign test 5+/7-  p 0.774
+    learnM baseline 0.895  arm 0.873   mean diff -0.021  sign test 4+/8-  p 0.388
+

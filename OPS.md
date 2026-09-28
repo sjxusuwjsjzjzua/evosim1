@@ -85,9 +85,11 @@ behaviour; no modular bodies or single genome for now. Questions are ranked by
 how much they move that goal.
 
 1. **Realism that unlocks behaviour.** Smell: done, on (grazing fronts,
-   alignment p < 0.001). Nutrient loop: loses predators at `soil0` 6;
-   abundant-nutrient arms `v1-NU-s24`/`s48` running. Lifetime learning (full
-   version, the owner's call): `v1-LE-on` running.
+   alignment p < 0.001); follow-up on scent lifetime (`v1-SD02-*`) and 3M
+   (`v1-SM-3M`) running. Nutrient loop: costs predators at `soil0` 6 and
+   carnivore species even with abundant nutrient (3 against 12 at `soil0` 24
+   with smell): off. Lifetime learning: stays active but costs animals and
+   speed with no gain in predation: off.
 2. **Speed.** More worlds per Actions minute (4 per job, done), then the
    engine (sense is 26% of time, the brain 25%).
 3. **Plants as partners.** Fruit-seeking evolves with fruit senses but does

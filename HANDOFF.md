@@ -1033,6 +1033,16 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
+against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
+against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
+against 995 (p 0.023), prey clumping 0.76 against 0.89 (p 0.007), predators
+persisting 11 against 19, alignment 0.043 against 0.057 (n.s.). With smell
+off (`v1-NU-s24`) the direction was the same but smaller (carnivore species 4
+against 7). Even with abundant nutrient, a closed loop costs meat-eaters:
+plant growth is a little lower everywhere, and the soil's patchiness does not
+pay it back. The loop stays an option in the drawer.
+
 **Evolved start refreshed** (2026-09-28): the page's evolved start is now
 `v1-SM-on` seed 1335 at 1M (325 genomes), the smell world with the strongest
 grazing fronts (alignment 0.18), predators throughout, meat-eaters that turn
