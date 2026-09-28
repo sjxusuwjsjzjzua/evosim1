@@ -964,3 +964,10 @@
     predSp baseline 0.469  arm 0.535   mean diff +0.067  sign test 9+/3-  p 0.146
     learnM baseline 0.881  arm 0.879   mean diff -0.002  sign test 3+/9-  p 0.146
 
+### v1-EG-base-1853 (2026-09-28 10:30)
+
+`defaults`, seeds 1853-1864, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 16.7%, kill 12.2%, carnSp>0 in 5, preyCl 0.91, persisting (predK >= 64% of run after bootstrap) 7, exits 7, re-entries 3
+- fruit: gene 0.199 -> 0.336 (up in 9 of 12), div 0.216, fruit 22.7%, carried 40.9%
+
