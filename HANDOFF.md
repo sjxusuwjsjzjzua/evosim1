@@ -1023,6 +1023,12 @@ animals stay separate kingdoms, bodies stay one template with gene dials.
 Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
 Lifetime learning only if cheap (the brain is about 25% of run time).
 
+**Engine speed, tried** (2026-09-28): in `sense`, reusing the tag distance and
+size ratio per neighbour and caching each heading's cos and sin gave
+bit-identical worlds and no measurable gain (66 s against 64 s for 40k
+ticks); V8 already folds them. Reverted. The big gain was 4 worlds per
+Actions job.
+
 **Lifetime learning: active, costly, no gain in predation** (`v1-LE-on`
 against `v1-LE-base`, seeds 1361–1384, 1M, smell off in both). Learning stays
 in use: adults' weights sit 0.27 from their genome on average and 41% have
