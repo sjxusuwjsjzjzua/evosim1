@@ -1597,8 +1597,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 13:05"
+   "status": "dispatched",
+   "added_at": "2026-09-28 13:05",
+   "dispatched_at": "2026-09-28 14:32"
   },
   {
    "label": "v1-EG-base-2189",
@@ -1608,8 +1609,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 13:05"
+   "status": "dispatched",
+   "added_at": "2026-09-28 13:05",
+   "dispatched_at": "2026-09-28 14:32"
   },
   {
    "label": "v1-EG-base-2201",
@@ -1619,8 +1621,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 13:05"
+   "status": "dispatched",
+   "added_at": "2026-09-28 13:05",
+   "dispatched_at": "2026-09-28 14:32"
   },
   {
    "label": "v1-EG-base-2213",
@@ -1688,6 +1691,39 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 14:14"
+  },
+  {
+   "label": "v1-EG-base-2273",
+   "seeds": "2273-2284",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 14:32"
+  },
+  {
+   "label": "v1-EG-base-2285",
+   "seeds": "2285-2296",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 14:32"
+  },
+  {
+   "label": "v1-EG-base-2297",
+   "seeds": "2297-2308",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 14:32"
   }
  ]
 }
