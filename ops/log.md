@@ -588,3 +588,33 @@
     predSp baseline 0.481  arm 0.492   mean diff +0.010  sign test 11+/13-  p 0.839
     learnM baseline 0.875  arm 0.877   mean diff +0.002  sign test 11+/13-  p 0.839
 
+### v1-EG-base-1457 (2026-09-28 02:45)
+
+`defaults`, seeds 1457-1468, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 19.7%, kill 14.9%, carnSp>0 in 6, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 8, exits 9, re-entries 4
+- fruit: gene 0.195 -> 0.305 (up in 7 of 12), div 0.207, fruit 21.9%, carried 40.5%
+
+### v1-NU-s48 (2026-09-28 02:45)
+
+`nutrients=1,soil0=48`, seeds 1361-1384, 1000000 ticks. Expected: nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).
+
+- worlds 24, meat 16.6%, kill 12.3%, carnSp>0 in 6, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 14, exits 16, re-entries 8
+- fruit: gene 0.197 -> 0.325 (up in 16 of 24), div 0.210, fruit 24.6%, carried 40.8%
+- baseline v1-LE-base: worlds 24, meat 18.0%, kill 13.6%, carnSp>0 in 7, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 17, exits 16, re-entries 8
+    pred   baseline 16  arm 12   (+5 / -9)  McNemar p 0.424
+    carn   baseline  7  arm  6   (+5 / -6)  McNemar p 1.000
+    giant  baseline  2  arm  0   (+0 / -2)  McNemar p 0.500
+    dwarf  baseline  2  arm  0   (+0 / -2)  McNemar p 0.500
+    meat   baseline 0.180  arm 0.166   mean diff -0.015  sign test 11+/13-  p 0.839
+    kill   baseline 0.136  arm 0.123   mean diff -0.013  sign test 10+/14-  p 0.541
+    animals baseline 1007  arm 1026   mean diff +18.404  sign test 12+/12-  p 1.000
+    preyCl baseline 0.887  arm 0.860   mean diff -0.027  sign test 11+/13-  p 0.839
+    predCl baseline 2.217  arm 3.380   mean diff +1.163  sign test 15+/9-  p 0.307
+    diet   baseline 0.087  arm 0.085   mean diff -0.002  sign test 11+/13-  p 0.839
+    polar  baseline 0.032  arm 0.030   mean diff -0.002  sign test 12+/12-  p 1.000
+    align  baseline 0.004  arm 0.014   mean diff +0.010  sign test 13+/11-  p 0.839
+    preySp baseline 0.313  arm 0.308   mean diff -0.005  sign test 12+/12-  p 1.000
+    predSp baseline 0.481  arm 0.443   mean diff -0.038  sign test 10+/14-  p 0.541
+    learnM baseline 0.875  arm 0.877   mean diff +0.002  sign test 11+/13-  p 0.839
+

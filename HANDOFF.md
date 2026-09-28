@@ -1028,7 +1028,9 @@ Lifetime learning only if cheap (the brain is about 25% of run time).
 against 16, meat 17.2% against 18.0%, animals 914 against 1007 (p 0.064),
 plant mass 10098 against 11642 (-13%). Soil patchiness (CV) 0.56: dung and
 carcass patches form. Soil holds 88% of the nutrient: it limits growth only
-where it runs low. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
+where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
+16 (p 0.42), animals 1026 against 1007, meat 16.6% against 18.0%: no
+difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
 **Engine speed, tried** (2026-09-28): in `sense`, reusing the tag distance and
