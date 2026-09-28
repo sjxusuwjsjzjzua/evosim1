@@ -1033,6 +1033,14 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Smell over 3M ticks** (`v1-SM-3M`, seeds 1613–1624). The grazing fronts
+hold but do not grow: alignment 0.047, 0.042, 0.039 in the three millions
+(best world 0.134 at the end), against 0.008, 0.000, 0.002 without smell
+(`v1-BP-3Mdefault`). Expected a rise past 0.08; it plateaus. Predators persist
+through 7 of 12 runs (8 of 12 without smell); 22 exits and 18 re-entries
+against 15 and 12, so predators come back more often (n.s. at 12 worlds).
+Fruit gene 0.20 → 0.56, 59% of new plants from carried seed.
+
 **Longer-lasting scent does not help** (`v1-SD02-1649`, `-1661`, `smellDecay`
 0.02 against 0.05, paired with the standing blocks of the same seeds, 24
 pairs). Alignment lower in both halves (0.031 against 0.053, 0.047 against
