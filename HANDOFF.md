@@ -1023,6 +1023,53 @@ animals stay separate kingdoms, bodies stay one template with gene dials.
 Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
 Lifetime learning only if cheap (the brain is about 25% of run time).
 
+**Nutrient loop with abundant nutrient is harmless** (`v1-NU-s24`, `soil0`
+24, against `v1-LE-base`, seeds 1361–1384, smell off). Predator worlds 15
+against 16, meat 17.2% against 18.0%, animals 914 against 1007 (p 0.064),
+plant mass 10098 against 11642 (-13%). Soil patchiness (CV) 0.56: dung and
+carcass patches form. Soil holds 88% of the nutrient: it limits growth only
+where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
+16 (p 0.42), animals 1026 against 1007, meat 16.6% against 18.0%: no
+difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
+paired with the standing blocks of the same seeds) before turning it on.
+
+**Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
+against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
+against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
+against 995 (p 0.023), prey clumping 0.76 against 0.89 (p 0.007), predators
+persisting 11 against 19, alignment 0.043 against 0.057 (n.s.). With smell
+off (`v1-NU-s24`) the direction was the same but smaller (carnivore species 4
+against 7). Even with abundant nutrient, a closed loop costs meat-eaters:
+plant growth is a little lower everywhere, and the soil's patchiness does not
+pay it back. The loop stays an option in the drawer.
+
+**Evolved start refreshed** (2026-09-28): the page's evolved start is now
+`v1-SM-on` seed 1335 at 1M (325 genomes), the smell world with the strongest
+grazing fronts (alignment 0.18), predators throughout, meat-eaters that turn
+toward carrion scent. Loaded in the page it shows alignment 0.12 within 2k
+ticks. The old one (seed 1104) had no smell weights.
+
+**Engine speed, tried** (2026-09-28): in `sense`, reusing the tag distance and
+size ratio per neighbour and caching each heading's cos and sin gave
+bit-identical worlds and no measurable gain (66 s against 64 s for 40k
+ticks); V8 already folds them. Reverted. The big gain was 4 worlds per
+Actions job.
+
+**Lifetime learning: active, costly, no gain in predation** (`v1-LE-on`
+against `v1-LE-base`, seeds 1361–1384, 1M, smell off in both). Learning stays
+in use: adults' weights sit 0.27 from their genome on average and 41% have
+moved by more than 0.1, the same at 100k and in the second half, in every
+world (0.37–0.44). `learnM` does not separate the arms (0.879 against 0.875):
+the unused output drifts to large values too, so it is no null. Effects: prey
+clump more (1.08 against 0.89, 21 of 24, p < 0.001), meat-eaters clump more
+(4.36 against 2.22, p 0.023), everyone moves slower (prey 0.26 against 0.31,
+p 0.007; meat-eaters 0.29 against 0.48, 23 of 24), fewer animals (818
+against 1007, p 0.007), less fruit in the diet (15% against 24%). Predator
+worlds 18 against 16, meat 18.1% against 18.0%, carnivore clusters 3 against
+7 (n.s.). Slower animals stay nearer their kin, so the clumping may come from
+the slowing, not from seeking company; untested. It costs 1.7–2x run time.
+Stays off by default.
+
 **Smell makes grazing fronts; on by default** (`v1-SM-on` against
 `v1-SM-base`, seeds 1325–1348, 1M). Moving prey neighbours head the same way:
 alignment 0.069 against 0.007, higher in 21 of 24 (p < 0.001), rising over

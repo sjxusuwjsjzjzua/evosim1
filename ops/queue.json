@@ -565,9 +565,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:42"
+   "dispatched_at": "2026-09-27 23:42",
+   "scored_at": "2026-09-28 01:21"
   },
   {
    "label": "v1-EG-base-1397",
@@ -577,9 +578,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:42"
+   "dispatched_at": "2026-09-27 23:42",
+   "scored_at": "2026-09-28 01:22"
   },
   {
    "label": "v1-EG-base-1409",
@@ -589,9 +591,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:42"
+   "dispatched_at": "2026-09-27 23:42",
+   "scored_at": "2026-09-28 01:43"
   },
   {
    "label": "v1-EG-base-1421",
@@ -601,9 +604,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:42"
+   "dispatched_at": "2026-09-27 23:42",
+   "scored_at": "2026-09-28 01:43"
   },
   {
    "label": "v1-EG-base-1433",
@@ -613,9 +617,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:42"
+   "dispatched_at": "2026-09-27 23:42",
+   "scored_at": "2026-09-28 02:19"
   },
   {
    "label": "v1-EG-base-1445",
@@ -625,9 +630,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:43"
+   "dispatched_at": "2026-09-27 23:43",
+   "scored_at": "2026-09-28 02:19"
   },
   {
    "label": "v1-LE-base",
@@ -650,9 +656,10 @@
    "baseline": "v1-LE-base",
    "expect": "lifetime learning at 1M, 24 paired seeds. Expect: learnM above the base arm's drift of the same (unused) output if selection favours learning; weights of adults moved from their genome (learnMoved over 0.1); behaviour: kill share and meat share up a few points (hunters improve with practice), bootstrap somewhat slower; predator persistence within 4 worlds of base. A learnM at or below drift means evolution switches learning off.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:32",
-   "dispatched_at": "2026-09-27 21:32"
+   "dispatched_at": "2026-09-27 21:32",
+   "scored_at": "2026-09-28 01:22"
   },
   {
    "label": "v1-EG-base-1457",
@@ -662,8 +669,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 00:41",
+   "scored_at": "2026-09-28 02:45"
   },
   {
    "label": "v1-EG-base-1469",
@@ -673,8 +682,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 00:41",
+   "scored_at": "2026-09-28 03:42"
   },
   {
    "label": "v1-EG-base-1481",
@@ -684,8 +695,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 01:22",
+   "scored_at": "2026-09-28 03:42"
   },
   {
    "label": "v1-EG-base-1493",
@@ -695,8 +708,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 01:22",
+   "scored_at": "2026-09-28 03:42"
   },
   {
    "label": "v1-EG-base-1505",
@@ -706,8 +721,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 01:22",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-EG-base-1517",
@@ -717,8 +734,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 01:22",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-EG-base-1529",
@@ -728,8 +747,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:42"
+   "status": "scored",
+   "added_at": "2026-09-27 23:42",
+   "dispatched_at": "2026-09-28 01:43",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-EG-base-1541",
@@ -739,8 +760,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 23:43"
+   "status": "scored",
+   "added_at": "2026-09-27 23:43",
+   "dispatched_at": "2026-09-28 01:43",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-NU-s24",
@@ -750,9 +773,10 @@
    "baseline": "v1-LE-base",
    "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:55",
-   "dispatched_at": "2026-09-27 23:55"
+   "dispatched_at": "2026-09-27 23:55",
+   "scored_at": "2026-09-28 02:19"
   },
   {
    "label": "v1-NU-s48",
@@ -762,9 +786,321 @@
    "baseline": "v1-LE-base",
    "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:55",
-   "dispatched_at": "2026-09-27 23:55"
+   "dispatched_at": "2026-09-27 23:55",
+   "scored_at": "2026-09-28 02:46"
+  },
+  {
+   "label": "v1-EG-base-1553",
+   "seeds": "1553-1564",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-28 00:41",
+   "dispatched_at": "2026-09-28 02:20",
+   "scored_at": "2026-09-28 04:45"
+  },
+  {
+   "label": "v1-EG-base-1565",
+   "seeds": "1565-1576",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 00:41",
+   "dispatched_at": "2026-09-28 02:20"
+  },
+  {
+   "label": "v1-EG-base-1577",
+   "seeds": "1577-1588",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 01:22",
+   "dispatched_at": "2026-09-28 02:46"
+  },
+  {
+   "label": "v1-EG-base-1589",
+   "seeds": "1589-1600",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 01:22",
+   "dispatched_at": "2026-09-28 02:46"
+  },
+  {
+   "label": "v1-EG-base-1601",
+   "seeds": "1601-1612",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 01:22",
+   "dispatched_at": "2026-09-28 02:46"
+  },
+  {
+   "label": "v1-EG-base-1613",
+   "seeds": "1613-1624",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-28 01:22",
+   "dropped_at": "2026-09-28 03:11"
+  },
+  {
+   "label": "v1-EG-base-1625",
+   "seeds": "1625-1636",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 01:43",
+   "dispatched_at": "2026-09-28 03:42"
+  },
+  {
+   "label": "v1-EG-base-1637",
+   "seeds": "1637-1648",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 01:43",
+   "dispatched_at": "2026-09-28 03:42"
+  },
+  {
+   "label": "v1-NU24-1457",
+   "seeds": "1457-1468",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=24",
+   "baseline": "v1-EG-base-1457",
+   "expect": "nutrient loop at soil0 24 on the smell default, paired with the standing block of the same seeds (same build). Expect as v1-NU-s24 against v1-LE-base: predator worlds within 3 of the block, plant mass within 25%, soilCV above 0.5. If so, the loop goes on by default at soil0 24.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-28 02:20",
+   "dispatched_at": "2026-09-28 02:20",
+   "scored_at": "2026-09-28 04:03"
+  },
+  {
+   "label": "v1-NU24-1469",
+   "seeds": "1469-1480",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=24",
+   "baseline": "v1-EG-base-1469",
+   "expect": "nutrient loop at soil0 24 on the smell default, paired with the standing block of the same seeds (same build). Expect as v1-NU-s24 against v1-LE-base: predator worlds within 3 of the block, plant mass within 25%, soilCV above 0.5. If so, the loop goes on by default at soil0 24.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-28 02:20",
+   "dispatched_at": "2026-09-28 02:20",
+   "scored_at": "2026-09-28 04:45"
+  },
+  {
+   "label": "v1-EG-base-1649",
+   "seeds": "1649-1660",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:20",
+   "dropped_at": "2026-09-28 04:04",
+   "pending_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1661",
+   "seeds": "1661-1672",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:20",
+   "dropped_at": "2026-09-28 04:04",
+   "pending_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1673",
+   "seeds": "1673-1684",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:46",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1685",
+   "seeds": "1685-1696",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:46",
+   "dispatched_at": "2026-09-28 04:46"
+  },
+  {
+   "label": "v1-EG-base-1697",
+   "seeds": "1697-1708",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:46",
+   "dispatched_at": "2026-09-28 04:46"
+  },
+  {
+   "label": "v1-SM-3M",
+   "seeds": "1613-1624",
+   "ticks": 3000000,
+   "set": "",
+   "baseline": "",
+   "expect": "the smell default over 3M ticks. Expect: alignment keeps rising past 1M (above 0.08 in the last third), predators come and go as in v1-BP-3Mdefault (persisting in about 8 of 12), fruit gene near 0.7.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 03:11",
+   "dispatched_at": "2026-09-28 03:11"
+  },
+  {
+   "label": "v1-EG-base-1709",
+   "seeds": "1709-1720",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 03:11"
+  },
+  {
+   "label": "v1-EG-base-1721",
+   "seeds": "1721-1732",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 03:42"
+  },
+  {
+   "label": "v1-EG-base-1733",
+   "seeds": "1733-1744",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 03:42"
+  },
+  {
+   "label": "v1-SD02-1649",
+   "seeds": "1649-1660",
+   "ticks": 1000000,
+   "set": "smellDecay=0.02",
+   "baseline": "v1-EG-base-1649",
+   "expect": "scent that lasts longer (smellDecay 0.02, about 50 ticks, against 0.05), paired with the standing block of the same seeds. Expect: grazers steer off older trails, so alignment rises (above the block's in 8 of 12) and prey spread further; predators within 2 of the block. If alignment falls, fresh scent carries the information and old trails are noise.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-SD02-1661",
+   "seeds": "1661-1672",
+   "ticks": 1000000,
+   "set": "smellDecay=0.02",
+   "baseline": "v1-EG-base-1661",
+   "expect": "scent that lasts longer (smellDecay 0.02, about 50 ticks, against 0.05), paired with the standing block of the same seeds. Expect: grazers steer off older trails, so alignment rises (above the block's in 8 of 12) and prey spread further; predators within 2 of the block. If alignment falls, fresh scent carries the information and old trails are noise.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1745",
+   "seeds": "1745-1756",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1757",
+   "seeds": "1757-1768",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1769",
+   "seeds": "1769-1780",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1781",
+   "seeds": "1781-1792",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:46"
+  },
+  {
+   "label": "v1-EG-base-1793",
+   "seeds": "1793-1804",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:46"
   }
  ]
 }
