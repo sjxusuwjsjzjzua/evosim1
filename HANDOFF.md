@@ -1033,6 +1033,39 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Shorter-lived scent is the default** (`v1-SD10-1841`, `-1853`, `-1985`,
+`-2021`, `smellDecay` 0.1 against 0.05, paired with standing blocks of the
+same seeds, 48 pairs): alignment 0.080 against 0.047, higher in 32 of 48
+(p 0.029); predator worlds 33 against 27, carnivore clusters 14 against 11,
+meat 17.7% against 15.5% (n.s.). With 0.02 alignment fell. Scent that fades
+in about 10 ticks marks where others are now, and grazers steer off it.
+`smellDecay` is now 0.1. A fifth pair (`v1-SD10-2129`) is running as a check.
+
+**Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
+persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
+re-entries in 24 worlds against 12 in 12 without smell (`v1-BP-3Mdefault`),
+persistence 14 of 24 against 8 of 12. Predators come back after a collapse at
+about the same rate per world (1.3 against 1.0); not a clear change.
+
+**Smell over 3M ticks** (`v1-SM-3M`, seeds 1613–1624). The grazing fronts
+hold but do not grow: alignment 0.047, 0.042, 0.039 in the three millions
+(best world 0.134 at the end), against 0.008, 0.000, 0.002 without smell
+(`v1-BP-3Mdefault`). Expected a rise past 0.08; it plateaus. Predators persist
+through 7 of 12 runs (8 of 12 without smell); 22 exits and 18 re-entries
+against 15 and 12, so predators come back more often (n.s. at 12 worlds).
+Fruit gene 0.20 → 0.56, 59% of new plants from carried seed.
+
+**Longer-lasting scent does not help** (`v1-SD02-1649`, `-1661`, `smellDecay`
+0.02 against 0.05, paired with the standing blocks of the same seeds, 24
+pairs). Alignment lower in both halves (0.031 against 0.053, 0.047 against
+0.070; 10 higher, 14 lower, n.s.), carnivore clusters 8 against 14, predator
+worlds 20 against 17, meat the same. Old trails add noise; the fresh signal
+is what grazers steer by. Shorter scent (`smellDecay` 0.1) next (`v1-SD10-*`).
+
+**Predator persistence, pooled standing blocks** (digest measure, predK at
+least 64% of the run after bootstrap, 1M ticks): before smell 144 of 192
+worlds (75%), on the smell default 111 of 144 (77%).
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925

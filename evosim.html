@@ -173,7 +173,9 @@ var CFG_DEFAULT = {
                         // the same way (alignment 0.069 against 0.007, p < 0.001); predators as often
   smellEmit: 1,         // scent per tick x mass^0.75
   carrionEmit: 4,       // carrion scent per tick x corpse mass
-  smellDecay: 0.05,     // share of scent that fades per tick: it lasts about 20 ticks
+  smellDecay: 0.1,      // share of scent that fades per tick: it lasts about 10 ticks. Over 48 paired
+                        // worlds against 0.05, neighbours aligned more (0.080 against 0.047, p 0.029),
+                        // predators as often; 0.02 (old trails) aligned less. Fresh scent is the signal
   smellDiff: 0.2,       // share of a grid cell's scent that spreads to its neighbours per update
   learn: 0,             // 1: brains learn in a lifetime. Every weight changes by learnRate x m x
                         // (its input's activity) x (its output's activity) at the last think, where m
