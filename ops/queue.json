@@ -1802,9 +1802,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 15:24",
-   "dispatched_at": "2026-09-28 17:38"
+   "dispatched_at": "2026-09-28 17:38",
+   "scored_at": "2026-09-28 20:14"
   },
   {
    "label": "v1-EG-base-2357",

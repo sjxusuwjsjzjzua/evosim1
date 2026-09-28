@@ -1033,6 +1033,14 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Fruit scent** (`smellFruit`, new, 0 until tested; NI 53). Ripe fruit gives
+off scent into a fifth channel (`fruitEmit` 3 per unit of fruit per tick);
+two nostril senses read its level and side. At 20k ticks (seed 3) fruit scent
+per bucket runs 0.3 (p10) to 3 (p90), max 10: fruiting patches smell ten
+times stronger than bare ground. Question: does sensing fruit from afar let
+seed-carrying pay the plants, which fruit sight (seeFruit) did not? Paired
+test `v1-SF-*` against standing blocks of the same seeds on this build.
+
 **Compass on the smell default** (`v1-CP-2321`, `-2333`, `compass` 1, paired
 with the standing blocks of the same seeds, 24 pairs, `smellDecay` 0.1). Prey
 stream in every world: polarisation 0.42 and 0.34 against 0.03, alignment 0.30
