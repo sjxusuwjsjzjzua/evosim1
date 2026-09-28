@@ -721,9 +721,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:42",
-   "dispatched_at": "2026-09-28 01:22"
+   "dispatched_at": "2026-09-28 01:22",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-EG-base-1517",
@@ -733,9 +734,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:42",
-   "dispatched_at": "2026-09-28 01:22"
+   "dispatched_at": "2026-09-28 01:22",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-EG-base-1529",
@@ -745,9 +747,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:42",
-   "dispatched_at": "2026-09-28 01:43"
+   "dispatched_at": "2026-09-28 01:43",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-EG-base-1541",
@@ -757,9 +760,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:43",
-   "dispatched_at": "2026-09-28 01:43"
+   "dispatched_at": "2026-09-28 01:43",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-NU-s24",
@@ -891,9 +895,10 @@
    "baseline": "v1-EG-base-1457",
    "expect": "nutrient loop at soil0 24 on the smell default, paired with the standing block of the same seeds (same build). Expect as v1-NU-s24 against v1-LE-base: predator worlds within 3 of the block, plant mass within 25%, soilCV above 0.5. If so, the loop goes on by default at soil0 24.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 02:20",
-   "dispatched_at": "2026-09-28 02:20"
+   "dispatched_at": "2026-09-28 02:20",
+   "scored_at": "2026-09-28 04:03"
   },
   {
    "label": "v1-NU24-1469",
@@ -915,8 +920,11 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 02:20"
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:20",
+   "dropped_at": "2026-09-28 04:04",
+   "pending_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
   },
   {
    "label": "v1-EG-base-1661",
@@ -926,8 +934,11 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 02:20"
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:20",
+   "dropped_at": "2026-09-28 04:04",
+   "pending_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
   },
   {
    "label": "v1-EG-base-1673",
@@ -937,8 +948,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 02:46"
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:46",
+   "dispatched_at": "2026-09-28 04:04"
   },
   {
    "label": "v1-EG-base-1685",
@@ -1006,6 +1018,63 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 03:42"
+  },
+  {
+   "label": "v1-SD02-1649",
+   "seeds": "1649-1660",
+   "ticks": 1000000,
+   "set": "smellDecay=0.02",
+   "baseline": "v1-EG-base-1649",
+   "expect": "scent that lasts longer (smellDecay 0.02, about 50 ticks, against 0.05), paired with the standing block of the same seeds. Expect: grazers steer off older trails, so alignment rises (above the block's in 8 of 12) and prey spread further; predators within 2 of the block. If alignment falls, fresh scent carries the information and old trails are noise.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-SD02-1661",
+   "seeds": "1661-1672",
+   "ticks": 1000000,
+   "set": "smellDecay=0.02",
+   "baseline": "v1-EG-base-1661",
+   "expect": "scent that lasts longer (smellDecay 0.02, about 50 ticks, against 0.05), paired with the standing block of the same seeds. Expect: grazers steer off older trails, so alignment rises (above the block's in 8 of 12) and prey spread further; predators within 2 of the block. If alignment falls, fresh scent carries the information and old trails are noise.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 04:04",
+   "dispatched_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1745",
+   "seeds": "1745-1756",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1757",
+   "seeds": "1757-1768",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:04"
+  },
+  {
+   "label": "v1-EG-base-1769",
+   "seeds": "1769-1780",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 04:04"
   }
  ]
 }
