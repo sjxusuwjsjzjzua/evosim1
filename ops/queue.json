@@ -1373,9 +1373,10 @@
    "baseline": "",
    "expect": "a second 3M block on the smell default, to firm up predator comebacks: v1-SM-3M had 18 re-entries in 12 worlds against 12 without smell (v1-BP-3Mdefault). Expect re-entries 12 or more again, alignment about 0.04 throughout.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 09:11",
-   "dispatched_at": "2026-09-28 09:11"
+   "dispatched_at": "2026-09-28 09:11",
+   "scored_at": "2026-09-28 14:30"
   },
   {
    "label": "v1-EG-base-1997",
@@ -1437,9 +1438,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 09:53",
-   "dispatched_at": "2026-09-28 12:24"
+   "dispatched_at": "2026-09-28 12:24",
+   "scored_at": "2026-09-28 14:30"
   },
   {
    "label": "v1-EG-base-2057",
@@ -1522,9 +1524,10 @@
    "baseline": "v1-EG-base-2021",
    "expect": "fourth pair for shorter-lived scent (smellDecay 0.1). Pairs so far: alignment higher in 16 of 24, predators persisting 21 against 13. Expect alignment above the block in 8 of 12; pooled 48 pairs decide the default at p < 0.05.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 11:22",
-   "dispatched_at": "2026-09-28 11:22"
+   "dispatched_at": "2026-09-28 11:22",
+   "scored_at": "2026-09-28 14:30"
   },
   {
    "label": "v1-EG-base-2117",

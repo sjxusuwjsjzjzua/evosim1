@@ -1033,11 +1033,19 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
-**Shorter-lived scent, interim** (`v1-SD10-*`, `smellDecay` 0.1 against 0.05,
-paired with standing blocks of the same seeds; 36 pairs so far): alignment
-0.088 against 0.055, higher in 24 of 36 (p 0.065); predator worlds 27 against
-22, meat 18.8% against 15.2% (n.s.). Two more pairs running before a default
-change.
+**Shorter-lived scent is the default** (`v1-SD10-1841`, `-1853`, `-1985`,
+`-2021`, `smellDecay` 0.1 against 0.05, paired with standing blocks of the
+same seeds, 48 pairs): alignment 0.080 against 0.047, higher in 32 of 48
+(p 0.029); predator worlds 33 against 27, carnivore clusters 14 against 11,
+meat 17.7% against 15.5% (n.s.). With 0.02 alignment fell. Scent that fades
+in about 10 ticks marks where others are now, and grazers steer off it.
+`smellDecay` is now 0.1. A fifth pair (`v1-SD10-2129`) is running as a check.
+
+**Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
+persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
+re-entries in 24 worlds against 12 in 12 without smell (`v1-BP-3Mdefault`),
+persistence 14 of 24 against 8 of 12. Predators come back after a collapse at
+about the same rate per world (1.3 against 1.0); not a clear change.
 
 **Smell over 3M ticks** (`v1-SM-3M`, seeds 1613–1624). The grazing fronts
 hold but do not grow: alignment 0.047, 0.042, 0.039 in the three millions
