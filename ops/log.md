@@ -813,3 +813,26 @@
 - worlds 12, meat 17.1%, kill 12.5%, carnSp>0 in 4, preyCl 0.88, persisting (predK >= 64% of run after bootstrap) 8, exits 6, re-entries 2
 - fruit: gene 0.193 -> 0.272 (up in 9 of 12), div 0.203, fruit 25.9%, carried 35.9%
 
+### v1-SD02-1661 (2026-09-28 07:21)
+
+`smellDecay=0.02`, seeds 1661-1672, 1000000 ticks. Expected: scent that lasts longer (smellDecay 0.02, about 50 ticks, against 0.05), paired with the standing block of the same seeds. Expect: grazers steer off older trails, so alignment rises (above the block's in 8 of 12) and prey spread further; predators within 2 of the block. If alignment falls, fresh scent carries the information and old trails are noise.
+
+- worlds 12, meat 20.8%, kill 16.2%, carnSp>0 in 5, preyCl 0.91, persisting (predK >= 64% of run after bootstrap) 12, exits 3, re-entries 1
+- fruit: gene 0.193 -> 0.196 (up in 4 of 12), div 0.172, fruit 24.8%, carried 25.1%
+- baseline v1-EG-base-1661: worlds 12, meat 21.6%, kill 16.6%, carnSp>0 in 8, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 11, exits 4, re-entries 3
+    pred   baseline  9  arm 10   (+2 / -1)  McNemar p 1.000
+    carn   baseline  8  arm  5   (+1 / -4)  McNemar p 0.375
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.216  arm 0.208   mean diff -0.009  sign test 6+/6-  p 1.000
+    kill   baseline 0.166  arm 0.162   mean diff -0.004  sign test 6+/6-  p 1.000
+    animals baseline 988  arm 1073   mean diff +85.034  sign test 7+/5-  p 0.774
+    preyCl baseline 0.896  arm 0.908   mean diff +0.011  sign test 6+/6-  p 1.000
+    predCl baseline 2.053  arm 2.453   mean diff +0.400  sign test 10+/2-  p 0.039
+    diet   baseline 0.102  arm 0.093   mean diff -0.009  sign test 5+/7-  p 0.774
+    polar  baseline 0.033  arm 0.031   mean diff -0.002  sign test 3+/9-  p 0.146
+    align  baseline 0.070  arm 0.047   mean diff -0.022  sign test 5+/7-  p 0.774
+    preySp baseline 0.354  arm 0.346   mean diff -0.008  sign test 7+/5-  p 0.774
+    predSp baseline 0.606  arm 0.624   mean diff +0.019  sign test 7+/5-  p 0.774
+    learnM baseline 0.896  arm 0.910   mean diff +0.014  sign test 6+/6-  p 1.000
+

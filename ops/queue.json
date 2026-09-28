@@ -1057,9 +1057,10 @@
    "baseline": "v1-EG-base-1661",
    "expect": "scent that lasts longer (smellDecay 0.02, about 50 ticks, against 0.05), paired with the standing block of the same seeds. Expect: grazers steer off older trails, so alignment rises (above the block's in 8 of 12) and prey spread further; predators within 2 of the block. If alignment falls, fresh scent carries the information and old trails are noise.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 04:04",
-   "dispatched_at": "2026-09-28 04:04"
+   "dispatched_at": "2026-09-28 04:04",
+   "scored_at": "2026-09-28 07:21"
   },
   {
    "label": "v1-EG-base-1745",
@@ -1165,8 +1166,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 05:38"
+   "status": "dispatched",
+   "added_at": "2026-09-28 05:38",
+   "dispatched_at": "2026-09-28 07:22"
   },
   {
    "label": "v1-EG-base-1853",
@@ -1176,8 +1178,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 05:38"
+   "status": "dispatched",
+   "added_at": "2026-09-28 05:38",
+   "dispatched_at": "2026-09-28 07:22"
   },
   {
    "label": "v1-EG-base-1865",
@@ -1244,6 +1247,52 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 07:11"
+  },
+  {
+   "label": "v1-SD10-1841",
+   "seeds": "1841-1852",
+   "ticks": 1000000,
+   "set": "smellDecay=0.1",
+   "baseline": "v1-EG-base-1841",
+   "expect": "shorter-lived scent (smellDecay 0.1, about 10 ticks, against 0.05), paired with the standing block of the same seeds. Longer scent (0.02) lowered alignment in both halves (0.039 against 0.062 pooled, n.s.), so fresh scent seems to carry the signal. Expect: alignment above the block's in 8 of 12 or more; predators within 2 of the block. If it also falls, 0.05 is near the best lifetime.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 07:22",
+   "dispatched_at": "2026-09-28 07:22"
+  },
+  {
+   "label": "v1-SD10-1853",
+   "seeds": "1853-1864",
+   "ticks": 1000000,
+   "set": "smellDecay=0.1",
+   "baseline": "v1-EG-base-1853",
+   "expect": "shorter-lived scent (smellDecay 0.1, about 10 ticks, against 0.05), paired with the standing block of the same seeds. Longer scent (0.02) lowered alignment in both halves (0.039 against 0.062 pooled, n.s.), so fresh scent seems to carry the signal. Expect: alignment above the block's in 8 of 12 or more; predators within 2 of the block. If it also falls, 0.05 is near the best lifetime.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 07:22",
+   "dispatched_at": "2026-09-28 07:22"
+  },
+  {
+   "label": "v1-EG-base-1937",
+   "seeds": "1937-1948",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 07:22"
+  },
+  {
+   "label": "v1-EG-base-1949",
+   "seeds": "1949-1960",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 07:22"
   }
  ]
 }

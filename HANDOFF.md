@@ -1033,6 +1033,13 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Longer-lasting scent does not help** (`v1-SD02-1649`, `-1661`, `smellDecay`
+0.02 against 0.05, paired with the standing blocks of the same seeds, 24
+pairs). Alignment lower in both halves (0.031 against 0.053, 0.047 against
+0.070; 10 higher, 14 lower, n.s.), carnivore clusters 8 against 14, predator
+worlds 20 against 17, meat the same. Old trails add noise; the fresh signal
+is what grazers steer by. Shorter scent (`smellDecay` 0.1) next (`v1-SD10-*`).
+
 **Predator persistence, pooled standing blocks** (digest measure, predK at
 least 64% of the run after bootstrap, 1M ticks): before smell 144 of 192
 worlds (75%), on the smell default 111 of 144 (77%).
