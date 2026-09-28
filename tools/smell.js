@@ -6,6 +6,7 @@
 //   own    the scent of its own colour (its own tag profile, 0.25 + 0.75 x tag, as animals give off)
 //   other  the scent of the opposite colour (1 - tag)
 //   meat   carrion
+//   fruit  ripe fruit (0 in builds without fruit scent)
 // Older dumps are remapped (their smell inputs read 0, so every probe gives 0).
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'evosim.html'), 'utf8').match(/<script id="engine">([\s\S]*?)<\/script>/)[1];
@@ -29,19 +30,20 @@ function toward(g, prof){
   return turn(g, r) - turn(g, l);
 }
 function meat(g){ const r = scene(), l = scene(); r[ix('smellMeatDir')] = 0.5; l[ix('smellMeatDir')] = -0.5; return turn(g, r) - turn(g, l); }
+function fruit(g){ if (ix('smellFruitDir') < 0) return 0; const r = scene(), l = scene(); r[ix('smellFruitDir')] = 0.5; l[ix('smellFruitDir')] = -0.5; return turn(g, r) - turn(g, l); }
 for (const f of process.argv.slice(2)){
   const d = JSON.parse(fs.readFileSync(f));
   const G = d.NG === Sim.NG ? d.genomes : d.genomes.map(g => Array.from(Sim.remapGenome(g, d.NI || 22, d.NO || 5)));
   const line = [];
   for (const [name, sel] of [['grazers', g => g[DIET] < 0.3], ['meat-eaters', g => g[DIET] >= 0.3]]){
     const A = G.filter(sel); if (A.length < 5){ line.push(`${name} ${A.length}`); continue; }
-    let own = 0, oth = 0, mt = 0;
+    let own = 0, oth = 0, mt = 0, fr = 0;
     for (const g of A){
       const t = [g[TAG], g[TAG+1], g[TAG+2]];
-      own += toward(g, t.map(v => 0.25 + 0.75*v)); oth += toward(g, t.map(v => 0.25 + 0.75*(1 - v))); mt += meat(g);
+      own += toward(g, t.map(v => 0.25 + 0.75*v)); oth += toward(g, t.map(v => 0.25 + 0.75*(1 - v))); mt += meat(g); fr += fruit(g);
     }
     const n = A.length;
-    line.push(`${name} ${n}  own ${(own/n).toFixed(3)}  other ${(oth/n).toFixed(3)}  meat ${(mt/n).toFixed(3)}`);
+    line.push(`${name} ${n}  own ${(own/n).toFixed(3)}  other ${(oth/n).toFixed(3)}  meat ${(mt/n).toFixed(3)}  fruit ${(fr/n).toFixed(3)}`);
   }
   console.log(f.split('/').slice(-2).join('/').padEnd(34), line.join('   |   '));
 }
