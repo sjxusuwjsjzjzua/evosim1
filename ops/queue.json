@@ -2010,9 +2010,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 18:24",
-   "dispatched_at": "2026-09-28 20:17"
+   "dispatched_at": "2026-09-28 20:17",
+   "scored_at": "2026-09-28 23:30"
   },
   {
    "label": "v1-EG-base-2525",
@@ -2022,9 +2023,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 19:06",
-   "dispatched_at": "2026-09-28 20:17"
+   "dispatched_at": "2026-09-28 20:17",
+   "scored_at": "2026-09-28 23:30"
   },
   {
    "label": "v1-EG-base-2537",
@@ -2106,9 +2108,10 @@
    "baseline": "v1-EG-base-2513",
    "expect": "fruit scent (smellFruit 1) on the smellDecay 0.1 default, paired with the standing block of the same seeds (NI 53 build). seeFruit alone let grazers steer to fruit but did not pay the plants (fruit gene 0.31 against 0.44). Expect: grazers turn toward fruit scent (tools/smell.js), fruit share of plant-eaters' energy up (above the block's in 8 of 12), fruit gene and carried-seed share higher; predators within 2 of the block.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 20:17",
-   "dispatched_at": "2026-09-28 20:17"
+   "dispatched_at": "2026-09-28 20:17",
+   "scored_at": "2026-09-28 23:30"
   },
   {
    "label": "v1-SF-2525",
@@ -2142,8 +2145,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 21:10"
+   "status": "dispatched",
+   "added_at": "2026-09-28 21:10",
+   "dispatched_at": "2026-09-28 23:31"
   },
   {
    "label": "v1-EG-base-2633",
@@ -2153,8 +2157,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 21:27"
+   "status": "dispatched",
+   "added_at": "2026-09-28 21:27",
+   "dispatched_at": "2026-09-28 23:31"
   },
   {
    "label": "v1-EG-base-2645",
@@ -2164,8 +2169,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 21:27"
+   "status": "dispatched",
+   "added_at": "2026-09-28 21:27",
+   "dispatched_at": "2026-09-28 23:31"
   },
   {
    "label": "v1-EG-base-2657",
@@ -2257,6 +2263,39 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 22:45"
+  },
+  {
+   "label": "v1-EG-base-2717",
+   "seeds": "2717-2728",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 23:31"
+  },
+  {
+   "label": "v1-EG-base-2729",
+   "seeds": "2729-2740",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 23:31"
+  },
+  {
+   "label": "v1-EG-base-2741",
+   "seeds": "2741-2752",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 23:31"
   }
  ]
 }

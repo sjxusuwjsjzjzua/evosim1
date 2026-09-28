@@ -1040,6 +1040,11 @@ per bucket runs 0.3 (p10) to 3 (p90), max 10: fruiting patches smell ten
 times stronger than bare ground. Question: does sensing fruit from afar let
 seed-carrying pay the plants, which fruit sight (seeFruit) did not? Paired
 test `v1-SF-*` against standing blocks of the same seeds on this build.
+First half (`v1-SF-2513`): the opposite of the expectation. Fruit gene 0.19 →
+0.10 (up in 2 of 12) against 0.33 on the same seeds, fruit's share of
+plant-eaters' energy 14% against 29%, carried seed 13% against 42%, animals
+864 against 1040. A guess, untested: the scent advertises the whole plant, so
+plant-eaters drawn to it crop its leaves too, and fruiting stops paying.
 
 **Compass on the smell default** (`v1-CP-2321`, `-2333`, `compass` 1, paired
 with the standing blocks of the same seeds, 24 pairs, `smellDecay` 0.1). Prey
