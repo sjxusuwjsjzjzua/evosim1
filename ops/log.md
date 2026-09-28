@@ -927,3 +927,40 @@
 - worlds 12, meat 18.7%, kill 13.9%, carnSp>0 in 3, preyCl 0.93, persisting (predK >= 64% of run after bootstrap) 9, exits 6, re-entries 1
 - fruit: gene 0.196 -> 0.278 (up in 7 of 12), div 0.201, fruit 29.5%, carried 33.8%
 
+### v1-EG-base-1841 (2026-09-28 10:29)
+
+`defaults`, seeds 1841-1852, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 12.9%, kill 8.3%, carnSp>0 in 1, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 6, exits 9, re-entries 3
+- fruit: gene 0.200 -> 0.312 (up in 8 of 12), div 0.225, fruit 22.6%, carried 40.7%
+
+### v1-EG-base-1865 (2026-09-28 10:29)
+
+`defaults`, seeds 1865-1876, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 18.5%, kill 14.0%, carnSp>0 in 2, preyCl 0.93, persisting (predK >= 64% of run after bootstrap) 10, exits 5, re-entries 1
+- fruit: gene 0.190 -> 0.335 (up in 8 of 12), div 0.208, fruit 26.2%, carried 41.5%
+
+### v1-SD10-1841 (2026-09-28 10:29)
+
+`smellDecay=0.1`, seeds 1841-1852, 1000000 ticks. Expected: shorter-lived scent (smellDecay 0.1, about 10 ticks, against 0.05), paired with the standing block of the same seeds. Longer scent (0.02) lowered alignment in both halves (0.039 against 0.062 pooled, n.s.), so fresh scent seems to carry the signal. Expect: alignment above the block's in 8 of 12 or more; predators within 2 of the block. If it also falls, 0.05 is near the best lifetime.
+
+- worlds 12, meat 19.1%, kill 14.1%, carnSp>0 in 3, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 10, exits 7, re-entries 4
+- fruit: gene 0.197 -> 0.305 (up in 8 of 12), div 0.199, fruit 26.2%, carried 39.9%
+- baseline v1-EG-base-1841: worlds 12, meat 12.9%, kill 8.3%, carnSp>0 in 1, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 6, exits 9, re-entries 3
+    pred   baseline  6  arm 10   (+5 / -1)  McNemar p 0.219
+    carn   baseline  1  arm  3   (+2 / -0)  McNemar p 0.500
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.129  arm 0.191   mean diff +0.062  sign test 9+/3-  p 0.146
+    kill   baseline 0.083  arm 0.141   mean diff +0.059  sign test 9+/3-  p 0.146
+    animals baseline 1084  arm 1032   mean diff -51.952  sign test 6+/6-  p 1.000
+    preyCl baseline 0.888  arm 0.863   mean diff -0.026  sign test 6+/6-  p 1.000
+    predCl baseline 3.617  arm 2.806   mean diff -0.810  sign test 5+/7-  p 0.774
+    diet   baseline 0.080  arm 0.101   mean diff +0.021  sign test 11+/1-  p 0.006
+    polar  baseline 0.031  arm 0.031   mean diff +0.001  sign test 6+/6-  p 1.000
+    align  baseline 0.054  arm 0.074   mean diff +0.019  sign test 8+/4-  p 0.388
+    preySp baseline 0.315  arm 0.344   mean diff +0.029  sign test 8+/4-  p 0.388
+    predSp baseline 0.469  arm 0.535   mean diff +0.067  sign test 9+/3-  p 0.146
+    learnM baseline 0.881  arm 0.879   mean diff -0.002  sign test 3+/9-  p 0.146
+
