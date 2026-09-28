@@ -1033,6 +1033,12 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Shorter-lived scent, interim** (`v1-SD10-*`, `smellDecay` 0.1 against 0.05,
+paired with standing blocks of the same seeds; 36 pairs so far): alignment
+0.088 against 0.055, higher in 24 of 36 (p 0.065); predator worlds 27 against
+22, meat 18.8% against 15.2% (n.s.). Two more pairs running before a default
+change.
+
 **Smell over 3M ticks** (`v1-SM-3M`, seeds 1613–1624). The grazing fronts
 hold but do not grow: alignment 0.047, 0.042, 0.039 in the three millions
 (best world 0.134 at the end), against 0.008, 0.000, 0.002 without smell
