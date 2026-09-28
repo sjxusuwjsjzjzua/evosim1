@@ -464,3 +464,10 @@
 - worlds 12, meat 21.3%, kill 17.0%, carnSp>0 in 4, preyCl 0.83, persisting (predK >= 64% of run after bootstrap) 7, exits 5, re-entries 2
 - fruit: gene 0.197 -> 0.264 (up in 6 of 12), div 0.179, fruit 30.9%, carried 30.9%
 
+### v1-LE-base (2026-09-28 00:33)
+
+`defaults`, seeds 1361-1384, 1000000 ticks. Expected: baseline for v1-LE-on (the NI 51 / NO 10 build, learning off)
+
+- worlds 24, meat 18.0%, kill 13.6%, carnSp>0 in 7, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 17, exits 16, re-entries 8
+- fruit: gene 0.192 -> 0.327 (up in 15 of 24), div 0.193, fruit 24.0%, carried 38.1%
+
