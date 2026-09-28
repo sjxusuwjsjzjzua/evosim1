@@ -502,9 +502,10 @@
    "baseline": "",
    "expect": "baseline for v1-SM-on (the NI 50 build)",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:08",
-   "dispatched_at": "2026-09-27 21:08"
+   "dispatched_at": "2026-09-27 21:08",
+   "scored_at": "2026-09-28 00:33"
   },
   {
    "label": "v1-SM-on",
