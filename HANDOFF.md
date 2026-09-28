@@ -839,7 +839,7 @@ weights move the attack urge on contact both ways (0.33 → 0.23, 0.60 → 0.66,
 0.04 → 0.48, 0.90 → 0.87): learning does not steadily train hunting out. All
 four worlds had meat at 18–27% by 60k. Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
 
-**Smell** (`smell`, new, 0 until tested; NI 50). Animals give off scent in
+**Smell** (`smell`, NI 50; on by default since the test above). Animals give off scent in
 three channels (0.25 + 0.75 x colour tag, x mass^0.75), corpses a fourth; it
 spreads and fades on the spatial-hash grid (about 20 ticks). Two nostrils,
 ahead-left and ahead-right, read each channel's level and which side is
@@ -1022,6 +1022,20 @@ core, so local batches beat Actions for anything under ~20 worlds.
 animals stay separate kingdoms, bodies stay one template with gene dials.
 Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
 Lifetime learning only if cheap (the brain is about 25% of run time).
+
+**Smell makes grazing fronts; on by default** (`v1-SM-on` against
+`v1-SM-base`, seeds 1325–1348, 1M). Moving prey neighbours head the same way:
+alignment 0.069 against 0.007, higher in 21 of 24 (p < 0.001), rising over
+the run (0.014 at 50–250k, 0.06–0.08 after 250k; best worlds 0.13–0.18).
+Prey clump more (0.93 against 0.86, p 0.064), prey and predators move faster
+(p 0.064). Predator worlds 19 against 16, meat 19.1% against 19.4%, carnivore
+clusters 2 against 5 (n.s.). Mechanism (`tools/smell.js`): grazers turn away
+from animal scent in 24 of 24 worlds (mean -1.54 of a possible -2; -0.11
+where the senses read 0), their own kind's and others' alike, so they steer
+off ground others have been on; neighbours fleeing the same trail travel
+together. Meat-eaters' response to carrion scent is mixed (toward in about
+half). The first local alignment in this engine: sight-based flocking was
+null. `smell` is now 1.
 
 **The default over 3M ticks** (`v1-BP-3Mdefault`, seeds 1213–1224, fruit and
 fruit senses on). The fruit gene climbs 0.20 → 0.71, up in all 12 worlds, and

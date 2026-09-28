@@ -478,3 +478,25 @@
 - worlds 24, meat 19.4%, kill 15.4%, carnSp>0 in 5, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 18, exits 11, re-entries 4
 - fruit: gene 0.194 -> 0.310 (up in 13 of 24), div 0.184, fruit 26.5%, carried 34.4%
 
+### v1-SM-on (2026-09-28 00:39)
+
+`smell=1`, seeds 1325-1348, 1000000 ticks. Expected: smell at 1M, 24 paired seeds. Expect: kill share and meat share up a few points (carrion and prey scent lead hunters to food), prey clumping up if prey use scent to keep together or to avoid hunters, predator persistence at least as often as base. A null here means smell is not worth its 8 inputs.
+
+- worlds 24, meat 19.1%, kill 14.6%, carnSp>0 in 2, preyCl 0.93, persisting (predK >= 64% of run after bootstrap) 19, exits 13, re-entries 2
+- fruit: gene 0.193 -> 0.242 (up in 10 of 24), div 0.180, fruit 25.1%, carried 32.0%
+- baseline v1-SM-base: worlds 24, meat 19.4%, kill 15.4%, carnSp>0 in 5, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 18, exits 11, re-entries 4
+    pred   baseline 16  arm 19   (+7 / -4)  McNemar p 0.549
+    carn   baseline  5  arm  2   (+1 / -4)  McNemar p 0.375
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  1  arm  1   (+1 / -1)  McNemar p 1.000
+    meat   baseline 0.194  arm 0.191   mean diff -0.003  sign test 13+/11-  p 0.839
+    kill   baseline 0.154  arm 0.146   mean diff -0.008  sign test 12+/12-  p 1.000
+    animals baseline 1023  arm 1089   mean diff +65.722  sign test 15+/9-  p 0.307
+    preyCl baseline 0.863  arm 0.926   mean diff +0.063  sign test 17+/7-  p 0.064
+    predCl baseline 3.519  arm 2.581   mean diff -0.937  sign test 13+/11-  p 0.839
+    diet   baseline 0.093  arm 0.090   mean diff -0.003  sign test 12+/12-  p 1.000
+    polar  baseline 0.031  arm 0.031   mean diff -0.000  sign test 13+/11-  p 0.839
+    align  baseline 0.007  arm 0.069   mean diff +0.063  sign test 21+/3-  p 0.000
+    preySp baseline 0.319  arm 0.357   mean diff +0.038  sign test 17+/7-  p 0.064
+    predSp baseline 0.481  arm 0.620   mean diff +0.139  sign test 17+/7-  p 0.064
+

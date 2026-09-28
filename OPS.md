@@ -84,11 +84,10 @@ animals as separate kingdoms, one body template); add realism that can unlock
 behaviour; no modular bodies or single genome for now. Questions are ranked by
 how much they move that goal.
 
-1. **Realism that unlocks behaviour.** Smell (`v1-SM-*`) and a closed
-   nutrient loop (`v1-NU-*`), each paired over 24 seeds at 1M; on by default
-   if they keep predators and add behaviour. Then lifetime learning, only as a
-   cheap variant (reward-modulated plasticity on the mouth outputs, a few %
-   of run time), with a diagnostic first.
+1. **Realism that unlocks behaviour.** Smell: done, on (grazing fronts,
+   alignment p < 0.001). Nutrient loop: loses predators at `soil0` 6;
+   abundant-nutrient arms `v1-NU-s24`/`s48` running. Lifetime learning (full
+   version, the owner's call): `v1-LE-on` running.
 2. **Speed.** More worlds per Actions minute (4 per job, done), then the
    engine (sense is 26% of time, the brain 25%).
 3. **Plants as partners.** Fruit-seeking evolves with fruit senses but does

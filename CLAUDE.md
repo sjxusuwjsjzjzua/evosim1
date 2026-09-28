@@ -25,6 +25,7 @@ Read `OPS.md` first (the operating mode and the experiment queue), then
 | `tools/genomes.js` | brain probes of a `--dump`, split at diet 0.3. |
 | `tools/batch.sh` | local batch, 4 worlds at a time, on a frozen copy of the build: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>` → `runs/<label>/`. |
 | `tools/voice.js`, `tools/herd.js` | brain probes of a dump: what calls mean; whether grazers steer toward look-alikes, everyone, or calls. |
+| `tools/smell.js` | what smell does in a `--dump`: whether grazers and meat-eaters turn toward or away from their own kind's scent, others' and carrion. |
 | `tools/colour.js` | does colour mean anything in a `--dump`: how well prey colour predicts armour, and how hunters' strike urge depends on the target's colour. |
 | `tools/wave.py` | migration under a travelling season (`seasonWave`): where prey sit in it and how fast they move with it. |
 | `tools/gsplit.py` | which body genes separate plant-eater clusters that cannot interbreed. |
@@ -60,7 +61,7 @@ matters when both plant and corpse are; a strike only happens when an animal is
 in reach (the attended one). Diet is one axis with a concave trade-off (`dietCurve` 2, `meatFloor` 0.4): plant yield x (1 - diet^2),
 meat yield x (0.4 + 0.6 (1 - (1 - diet)^2)). A corpse carries its flesh plus the reserves the animal died
 with. Attention picks which neighbour the animal senses and strikes; its weights
-are genes. An animal that ate last tick senses animals over only 30% of its range (`headDown`). A call is heard by every animal in range, heads down or not; it costs energy and means whatever evolution makes it mean. Three options under test: `learn` (lifetime learning: every weight changes with experience, gated by the brain's own learn output; nothing learned is inherited), `smell` (scent from animals, by colour tag, and from corpses, spreading and fading on a grid; two nostrils read it) and `nutrients` (a closed nutrient loop: soil → plants → animals → dung and corpses → soil). Juveniles are slow. Reproduction is sexual by default (`sex` 1: a breeder recombines with an acceptable
+are genes. An animal that ate last tick senses animals over only 30% of its range (`headDown`). A call is heard by every animal in range, heads down or not; it costs energy and means whatever evolution makes it mean. Animals smell (`smell` 1: scent from animals, by colour tag, and from corpses, spreading and fading on a grid; two nostrils read it; grazers use it to steer off ground others have grazed, and neighbours align). Two options under test: `learn` (lifetime learning: every weight changes with experience, gated by the brain's own learn output; nothing learned is inherited) and `nutrients` (a closed nutrient loop: soil → plants → animals → dung and corpses → soil). Juveniles are slow. Reproduction is sexual by default (`sex` 1: a breeder recombines with an acceptable
 mate in sense range, else clones; `mateDist` 0.1 makes genomes too far apart unable to breed, so clusters become species; `sex` 0 clones). Founders have a cheap ancestral body and a random brain and keep
 arriving until a population establishes. See `HANDOFF.md` for why each piece is
 there.

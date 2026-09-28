@@ -42,6 +42,11 @@ What evolves, without being written in:
   plants. In another test
   world a new grazer species with little detox arose once the plants had
   lost their defences, and it was replacing the old one;
+- **grazing fronts by smell**: every animal gives off a scent set by its
+  colour, and smells with two nostrils. Grazers evolve to steer away from
+  animal scent, off ground others have just grazed (in all 24 test worlds),
+  and neighbours end up heading the same way: moving fronts of grazers, with
+  no rule to follow anyone;
 - **streaming herds** (compass on, in the world drawer): every animal can
   tell which way it is facing, as with a sun compass. Within a few hundred generations a world's grazers share a
   bearing and travel together across the (wrapping) world, keeping off ground
