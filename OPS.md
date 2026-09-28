@@ -9,7 +9,9 @@ scheduled wake-up reads first.
 ## Resources
 
 - **GitHub Actions** (`sim.yml`): the repo is public, so minutes are unlimited.
-  About 20 jobs run at once; the rest queue. One job is one world: 400k ticks
+  About 20 jobs run at once; the rest queue. A runner has 4 cores, so one job
+  runs up to 4 worlds side by side (`per_job`, default 4): about 80 worlds at
+  once. One world: 400k ticks
   takes 10–25 minutes, 1M takes 25–60, 3M about 2–3 hours (timeout 330 minutes).
   Idle runners are the waste to avoid. On 2026-09-27 they sat idle for 5 hours.
 - **Local**: 4 cores (`tools/batch.sh`, replays, diagnostics). Local jobs and
@@ -35,8 +37,9 @@ python3 tools/ops.py evergreen 60      # top up with standing replication runs
 Dispatch is one `actions_run_trigger` call per entry (ref = the working
 branch, workflow `sim.yml`), with the inputs `next` prints.
 
-**Saturation rule, all modes:** keep at least 80 jobs dispatched and not yet
-landed, and at least 60 pending jobs in `ops/queue.json`. Forty was too few:
+**Saturation rule, all modes:** keep at least 160 worlds dispatched and not
+yet landed (two waves of 80), and at least 96 pending worlds in
+`ops/queue.json`. (`ops.py` counts worlds as "jobs".) Forty was too few:
 on 2026-09-27 48 jobs in flight all finished between two hourly check-ins and
 the runners sat idle. If designed work runs short, `evergreen` adds standing runs:
 the default build at 1M ticks on fresh 12-seed blocks. They build up the
@@ -76,17 +79,19 @@ finish and are digested on resume.
 ## The goal, and the questions that serve it, in order
 
 The goal: an evolution simulator of plants and animals in which every behaviour
-emerges. Questions are ranked by how much they move that goal.
+emerges. The owner's direction (2026-09-27): keep the app's shape (plants and
+animals as separate kingdoms, one body template); add realism that can unlock
+behaviour; no modular bodies or single genome for now. Questions are ranked by
+how much they move that goal.
 
-1. **Plants as evolving partners, not just food.** Done in part: fruit is on
-   by default, and animal seed-carrying selects for it (the fruit gene rises).
-   Next: can animals sense fruit? Frugivores that seek it out, and plants
-   that compete for them, need a way to see it (audit rule 1: a diagnostic
-   first).
-2. **Open-ended evolution.** After a collapse predators never re-evolve. The
-   ecology still supports injected hunters, so the barrier is evolutionary
-   (`regrow.js`, 4 of 4). Which step is missing: scratchpad `valley.js`,
-   `v1-BE-mutsd12`, `v1-BE-3M`.
-3. **The giant-grazer escape**: `v1-BE-sizemax8`.
-4. **Predator persistence of the default build**, from growing samples:
+1. **Realism that unlocks behaviour.** Smell: done, on (grazing fronts,
+   alignment p < 0.001). Nutrient loop: loses predators at `soil0` 6;
+   abundant-nutrient arms `v1-NU-s24`/`s48` running. Lifetime learning (full
+   version, the owner's call): `v1-LE-on` running.
+2. **Speed.** More worlds per Actions minute (4 per job, done), then the
+   engine (sense is 26% of time, the brain 25%).
+3. **Plants as partners.** Fruit-seeking evolves with fruit senses but does
+   not pay the plants more; why (where seed lands?).
+4. **Open-ended evolution.** Predators rarely re-evolve after a collapse.
+5. **Predator persistence of the default build**, from growing samples:
    `v1-EG-base-*`.

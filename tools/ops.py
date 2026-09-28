@@ -82,7 +82,7 @@ def main():
             txt = '### %s (%s)\n\n`%s`, seeds %s, %d ticks. Expected: %s\n\n- %s\n' % (
                 e['label'], now(), e['set'] or 'defaults', e['seeds'], e['ticks'], e['expect'], summary(e['label']))
             fr = sh('python3 tools/fruit.py runs/%s/s????.json' % e['label']).strip().splitlines()
-            if fr and fr[-1].startswith('mean:') and 'fruit=1' in e['set']: txt += '- fruit: %s\n' % fr[-1][6:]
+            if fr and fr[-1].startswith('mean:') and 'fruit=0' not in e['set']: txt += '- fruit: %s\n' % fr[-1][6:]
             b = e.get('baseline')
             if b:
                 if not os.path.isdir('runs/' + b): sh('bash tools/fetch-results.sh %s' % b)
@@ -108,7 +108,7 @@ def main():
     elif a[0] == 'evergreen':
         want = int(a[1]) if len(a) > 1 else 36
         pend = lambda: sum(len(seeds(e['seeds'])) for e in E if e['status'] == 'pending')
-        used = [int(s) for e in E if e['label'].startswith('v1-EG-') for s in seeds(e['seeds'])]
+        used = [int(s) for e in E for s in seeds(e['seeds']) if s.isdigit()]   # fresh seeds, never reused
         nxt = max(used + [1112]) + 1
         while pend() < want:
             lab = 'v1-EG-base-%d' % nxt

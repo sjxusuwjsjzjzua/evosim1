@@ -1,5 +1,6 @@
 name: evosim run
-# Runs evosim.html headless (run.js), one seed per job, and commits every log
+# Runs evosim.html headless (run.js), up to 4 seeds per job side by side (a runner
+# has 4 cores; one world uses one), and commits every log
 # of the dispatch to ONE branch, results/<label>. Fetch it with
 #   git fetch origin results/<label> && git show origin/results/<label>:<file>
 
@@ -23,6 +24,10 @@ on:
       build_ref:
         description: 'Optional commit: run the evosim.html of that commit instead of this one'
         required: false
+      per_job:
+        description: 'Worlds run side by side in one job (runners have 4 cores)'
+        default: '4'
+        required: false
       label:
         description: 'Label; results land on branch results/<label>'
         default: 'run'
@@ -35,7 +40,7 @@ jobs:
       seeds: ${{ steps.p.outputs.seeds }}
     steps:
       - id: p
-        run: echo "seeds=$(python3 -c "import json;print(json.dumps([s.strip() for s in '${{ inputs.seeds }}'.split(',') if s.strip()]))")" >> "$GITHUB_OUTPUT"
+        run: echo "seeds=$(python3 -c "import json;s=[x.strip() for x in '${{ inputs.seeds }}'.split(',') if x.strip()];k=max(1,int('${{ inputs.per_job }}' or 4));print(json.dumps([' '.join(s[i:i+k]) for i in range(0,len(s),k)]))")" >> "$GITHUB_OUTPUT"
 
   run:
     needs: setup
@@ -54,15 +59,20 @@ jobs:
           node-version: '22'
       - run: |
           mkdir -p out
+          echo "cores: $(nproc)"
           ARGS=""
           if [ -n "${{ inputs.build_ref }}" ]; then git show ${{ inputs.build_ref }}:evosim.html > build.html; ARGS="$ARGS --build build.html"; fi
           [ -n "${{ inputs.set }}" ] && ARGS="$ARGS --set ${{ inputs.set }}"
           [ -n "${{ inputs.cfg }}" ] && ARGS="$ARGS --cfg ${{ inputs.cfg }}"
-          timeout 330m node run.js --seed ${{ matrix.seed }} --ticks ${{ inputs.ticks }} --every 20000 \
-            --out out/s${{ matrix.seed }}.json --dump out/s${{ matrix.seed }}-genomes.json $ARGS | tee out/s${{ matrix.seed }}.txt
+          for S in ${{ matrix.seed }}; do
+            timeout 330m node run.js --seed $S --ticks ${{ inputs.ticks }} --every 20000 \
+              --out out/s$S.json --dump out/s$S-genomes.json $ARGS > out/s$S.txt 2>&1 &
+          done
+          wait
+          tail -n 3 out/*.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: s${{ matrix.seed }}
+          name: job${{ strategy.job-index }}
           path: out/
           retention-days: 7
 

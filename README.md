@@ -42,6 +42,11 @@ What evolves, without being written in:
   plants. In another test
   world a new grazer species with little detox arose once the plants had
   lost their defences, and it was replacing the old one;
+- **grazing fronts by smell**: every animal gives off a scent set by its
+  colour, and smells with two nostrils. Grazers evolve to steer away from
+  animal scent, off ground others have just grazed (in all 24 test worlds),
+  and neighbours end up heading the same way: moving fronts of grazers, with
+  no rule to follow anyone;
 - **streaming herds** (compass on, in the world drawer): every animal can
   tell which way it is facing, as with a sun compass. Within a few hundred generations a world's grazers share a
   bearing and travel together across the (wrapping) world, keeping off ground
@@ -53,16 +58,17 @@ What evolves, without being written in:
   its growth it turns into fruit (pink on the map), and an animal that eats
   fruit drops the seeds wherever it is a while later. Nothing tells plants to
   fruit or animals to carry seed. Where animals carry seed the fruit gene
-  rises (0.19 → 0.25 over a million ticks, and up to a third of new plants
-  grow from carried seed); where they cannot, it falls away. A partnership
+  rises: 0.19 → 0.25 over a million ticks and 0.19 → 0.68 over three million,
+  when seven in ten new plants grow from seed an animal carried. Where
+  animals cannot carry seed, the fruit gene falls away. A partnership
   between plants and animals that no rule sets up;
 - **trophic cascades**: where predators thin the grazers, the plants recover.
 - **trees and browsers**: plants grow tall enough to keep their leaves out of
   a small grazer's reach, and bodies grow to reach them.
 
 Not every world gets there: in about one world in four predators never take
-hold. Once there, predators usually stay: in 36 test worlds run for a
-million ticks with the default settings, 23 kept them for most of the run.
+hold. Once there, predators usually stay: in 48 test worlds run for a
+million ticks with the default settings, 37 kept them for most of the run.
 When they do die out they can evolve again, though rarely: 12 worlds run for
 three million ticks saw 7 comebacks. Streaming herds change that: with the
 compass on, predators died out in 14 of 24.

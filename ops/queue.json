@@ -294,9 +294,10 @@
    "baseline": "v1-BL-fjnc",
    "expect": "carrying with jc: as without jc (jc did not matter at 400k)",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 13:11",
-   "dispatched_at": "2026-09-27 13:12"
+   "dispatched_at": "2026-09-27 13:12",
+   "scored_at": "2026-09-27 16:47"
   },
   {
    "label": "v1-BL-fjnc",
@@ -306,9 +307,10 @@
    "baseline": "",
    "expect": "no carrying, jc: fruit gene falls",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 13:11",
-   "dispatched_at": "2026-09-27 13:12"
+   "dispatched_at": "2026-09-27 13:12",
+   "scored_at": "2026-09-27 16:47"
   },
   {
    "label": "v1-BM-fruit3M",
@@ -318,9 +320,10 @@
    "baseline": "",
    "expect": "over 3M ticks with carrying the fruit gene levels off above 0 or climbs; carried seed a steady share",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 15:10",
-   "dispatched_at": "2026-09-27 15:10"
+   "dispatched_at": "2026-09-27 15:10",
+   "scored_at": "2026-09-27 18:24"
   },
   {
    "label": "v1-EG-base-1161",
@@ -330,8 +333,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:09"
+   "status": "scored",
+   "added_at": "2026-09-27 07:09",
+   "dispatched_at": "2026-09-27 15:26",
+   "scored_at": "2026-09-27 16:47"
   },
   {
    "label": "v1-EG-base-1173",
@@ -341,8 +346,36 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:09"
+   "status": "scored",
+   "added_at": "2026-09-27 07:09",
+   "dispatched_at": "2026-09-27 15:26",
+   "scored_at": "2026-09-27 18:24"
+  },
+  {
+   "label": "v1-BN-default",
+   "seeds": "1125-1148",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "the fruit build's default at 1M: persistence about 2/3 or better; fruit gene rising",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 16:48",
+   "dispatched_at": "2026-09-27 16:48",
+   "scored_at": "2026-09-27 18:24"
+  },
+  {
+   "label": "v1-BN-jc",
+   "seeds": "1125-1148",
+   "ticks": 1000000,
+   "set": "jc=0.8",
+   "baseline": "v1-BN-default",
+   "expect": "jc raises the fruit gene and plant diversity (replicating +0.10 and +0.02); predators unchanged",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 16:48",
+   "dispatched_at": "2026-09-27 16:48",
+   "scored_at": "2026-09-27 19:38"
   },
   {
    "label": "v1-EG-base-1185",
@@ -352,8 +385,49 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 07:09"
+   "status": "scored",
+   "added_at": "2026-09-27 07:09",
+   "dispatched_at": "2026-09-27 16:48",
+   "scored_at": "2026-09-27 19:38"
+  },
+  {
+   "label": "v1-BO-see1",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "seeFruit=1",
+   "baseline": "v1-BO-see0",
+   "expect": "grazers turn toward fruit; fruit share of energy up; fruit gene higher; predators unchanged",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 17:46",
+   "dispatched_at": "2026-09-27 17:46",
+   "scored_at": "2026-09-27 21:09"
+  },
+  {
+   "label": "v1-BO-see0",
+   "seeds": "1101-1124",
+   "ticks": 1000000,
+   "set": "seeFruit=0",
+   "baseline": "",
+   "expect": "baseline on the fruit-sense build",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 17:46",
+   "dispatched_at": "2026-09-27 17:46",
+   "scored_at": "2026-09-27 21:09"
+  },
+  {
+   "label": "v1-BP-3Mdefault",
+   "seeds": "1213-1224",
+   "ticks": 3000000,
+   "set": "",
+   "baseline": "",
+   "expect": "current default (fruit, fruit senses) over 3M ticks: fruit gene climbs as in v1-BM-fruit3M; predator comebacks; grazers turn toward fruit late",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 19:10",
+   "dispatched_at": "2026-09-27 19:10",
+   "scored_at": "2026-09-27 22:16"
   },
   {
    "label": "v1-EG-base-1197",
@@ -363,8 +437,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-27 09:37"
+   "status": "scored",
+   "added_at": "2026-09-27 09:37",
+   "dispatched_at": "2026-09-27 19:39",
+   "scored_at": "2026-09-27 22:10"
   },
   {
    "label": "v1-EG-base-1209",
@@ -374,8 +450,321 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 10:49",
+   "dispatched_at": "2026-09-27 19:39",
+   "scored_at": "2026-09-27 22:26"
+  },
+  {
+   "label": "v1-NU-base",
+   "seeds": "1301-1324",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "nutrient loop at 1M, 24 paired seeds. Expect: with it on, plant mass and animals 20-40% lower, soilCV above 0.5 throughout (dung and carcass patches), meat share a few points lower; predator persistence within 4 worlds of base either way (no strong prior). Rich soil (soil0 12) sits between.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:04",
+   "dispatched_at": "2026-09-27 21:05",
+   "scored_at": "2026-09-27 23:37"
+  },
+  {
+   "label": "v1-NU-on",
+   "seeds": "1301-1324",
+   "ticks": 1000000,
+   "set": "nutrients=1",
+   "baseline": "v1-NU-base",
+   "expect": "nutrient loop at 1M, 24 paired seeds. Expect: with it on, plant mass and animals 20-40% lower, soilCV above 0.5 throughout (dung and carcass patches), meat share a few points lower; predator persistence within 4 worlds of base either way (no strong prior). Rich soil (soil0 12) sits between.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:04",
+   "dispatched_at": "2026-09-27 21:05",
+   "scored_at": "2026-09-27 23:37"
+  },
+  {
+   "label": "v1-NU-rich",
+   "seeds": "1301-1324",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=12",
+   "baseline": "v1-NU-base",
+   "expect": "nutrient loop at 1M, 24 paired seeds. Expect: with it on, plant mass and animals 20-40% lower, soilCV above 0.5 throughout (dung and carcass patches), meat share a few points lower; predator persistence within 4 worlds of base either way (no strong prior). Rich soil (soil0 12) sits between.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:04",
+   "dispatched_at": "2026-09-27 21:05",
+   "scored_at": "2026-09-27 23:37"
+  },
+  {
+   "label": "v1-SM-base",
+   "seeds": "1325-1348",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "baseline for v1-SM-on (the NI 50 build)",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:08",
+   "dispatched_at": "2026-09-27 21:08",
+   "scored_at": "2026-09-28 00:33"
+  },
+  {
+   "label": "v1-SM-on",
+   "seeds": "1325-1348",
+   "ticks": 1000000,
+   "set": "smell=1",
+   "baseline": "v1-SM-base",
+   "expect": "smell at 1M, 24 paired seeds. Expect: kill share and meat share up a few points (carrion and prey scent lead hunters to food), prey clumping up if prey use scent to keep together or to avoid hunters, predator persistence at least as often as base. A null here means smell is not worth its 8 inputs.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:08",
+   "dispatched_at": "2026-09-27 21:08",
+   "scored_at": "2026-09-28 00:39"
+  },
+  {
+   "label": "v1-EG-base-1349",
+   "seeds": "1349-1360",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 21:11",
+   "scored_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1361",
+   "seeds": "1361-1372",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-27 21:11",
+   "dropped_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1373",
+   "seeds": "1373-1384",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-27 21:11",
+   "dropped_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1385",
+   "seeds": "1385-1396",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1397",
+   "seeds": "1397-1408",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1409",
+   "seeds": "1409-1420",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1421",
+   "seeds": "1421-1432",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1433",
+   "seeds": "1433-1444",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1445",
+   "seeds": "1445-1456",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:11",
+   "dispatched_at": "2026-09-27 23:43"
+  },
+  {
+   "label": "v1-LE-base",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "baseline for v1-LE-on (the NI 51 / NO 10 build, learning off)",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-27 21:32",
+   "dispatched_at": "2026-09-27 21:32",
+   "scored_at": "2026-09-28 00:33"
+  },
+  {
+   "label": "v1-LE-on",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "learn=1",
+   "baseline": "v1-LE-base",
+   "expect": "lifetime learning at 1M, 24 paired seeds. Expect: learnM above the base arm's drift of the same (unused) output if selection favours learning; weights of adults moved from their genome (learnMoved over 0.1); behaviour: kill share and meat share up a few points (hunters improve with practice), bootstrap somewhat slower; predator persistence within 4 worlds of base. A learnM at or below drift means evolution switches learning off.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 21:32",
+   "dispatched_at": "2026-09-27 21:32"
+  },
+  {
+   "label": "v1-EG-base-1457",
+   "seeds": "1457-1468",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
    "status": "pending",
-   "added_at": "2026-09-27 10:49"
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1469",
+   "seeds": "1469-1480",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1481",
+   "seeds": "1481-1492",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1493",
+   "seeds": "1493-1504",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1505",
+   "seeds": "1505-1516",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1517",
+   "seeds": "1517-1528",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1529",
+   "seeds": "1529-1540",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:42"
+  },
+  {
+   "label": "v1-EG-base-1541",
+   "seeds": "1541-1552",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-27 23:43"
+  },
+  {
+   "label": "v1-NU-s24",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=24",
+   "baseline": "v1-LE-base",
+   "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 23:55",
+   "dispatched_at": "2026-09-27 23:55"
+  },
+  {
+   "label": "v1-NU-s48",
+   "seeds": "1361-1384",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=48",
+   "baseline": "v1-LE-base",
+   "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-27 23:55",
+   "dispatched_at": "2026-09-27 23:55"
   }
  ]
 }

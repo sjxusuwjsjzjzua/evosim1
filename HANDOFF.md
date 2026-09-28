@@ -784,6 +784,68 @@ Rules from here:
 
 ## Running now
 
+**Nutrient loop: predators lost** (`v1-NU-*`, 24 paired seeds, 1M). With it on
+(`soil0` 6) predator worlds 7 against 19 (p < 0.001), persisting 8 against
+17, animals 796 against 1006 (p < 0.001), prey clump less (0.69 against
+0.83). Rich soil (`soil0` 12): 11 against 19 (p 0.077). The fruit gene rose
+in all 24 worlds with the loop (0.43). Why: 80% of the nutrient ends in the
+soil and 17% in plants (plant mass a third of base). Animals carry it from
+where they eat and drop it as dung where they graze, so it piles up in grazed
+cells (soil about 6 against 1–2 under full plants; seed 1301 at 150k), where
+plants regrow slowly however rich the soil, because growth is logistic from
+the biomass left. The rest of the map runs dry. Off by default.
+Two fixes tried locally (seed 1301, mean over 100–200k; base: plant mass
+16420, animals 1553, meat 25%): loop 4341 / 421 / 16%; dung passed over
+~200 ticks (`dungRate` 0.005) 3967 / 610 / 7%; regrowth from the roots
+(`resprout` 1) 3352 / 683 / 12%. Soil still holds 75–81%: getting nutrient
+back into plants needs a large soil pool at any dung pattern, and at `soil0`
+6 that pool starves them. Next: abundant nutrient, limiting only locally
+(`v1-NU-s24`, `v1-NU-s48`, paired with `v1-LE-base`).
+
+**Nutrient loop** (`nutrients`, new, 0 until tested). Plant growth draws on
+the soil of its cell (x soil/(soil + `nHalf`), never more than it holds);
+what an animal eats goes into its body; beyond `nBody` x mass it passes as
+dung (`dungRate` of the surplus per tick) where it walks; corpses (as they
+rot), rotting fruit, dieback and displaced plants return to the soil, which
+seeps slowly (`soilDiff`). Total nutrient is conserved to 1e-14. At 100k
+ticks (seeds 3, 4): soil patchy (CV 0.7–1.2), plant mass and animals about
+30% lower, meat share lower. Paired test at 1M: `v1-NU-on` and `v1-NU-rich`
+(`soil0` 12) against `v1-NU-base`, seeds 1301–1324. Expectation in
+`ops/queue.json`.
+
+**Lifetime learning** (`learn`, new, 0 until tested; NI 51, NO 10; the owner
+asked for the full version). Every brain weight moves by `learnRate` x m x
+(its input's activity) x (its output's activity) at the previous think; m is
+the brain's own tenth output (tanh), a neuromodulator, so when, which way and
+how much to learn is genetic. A new sense, felt (the change in reserves since
+the last think), gives it something to learn from. For the four mouth urges
+an output's activity is the act minus its odds. Animals start from their
+genome's weights; nothing learned is inherited or saved; founders start with
+m silent. `tools/heredity.js` checks it: over 47,514 births in a learning world
+(parents had moved 71% of their weights) every clone's brain genes equal the
+parent's genome exactly, no sexual birth took a gene from learned weights, and
+after scrambling every living brain the next births' genomes did not move. Cost: 1.7-2x run time per world (the update is bound by memory
+writes; learnStep 35% of time against 13% for the forward pass). Log:
+`learnM` (mean |m|, logged in every world: with learning off the output
+drives nothing, so its drift is the null), `learnDev`, `learnMoved`.
+Knockout (scratchpad `learnko.js`, seeds 1001, 1004, 1006, 1013: at 200k
+ticks half of all lines lose m, inherited; lines at +80k, without against
+with learning): 613 against 14, 780 against 14, 38 against 309, 408 against
+925. Mixed: learning lost two worlds outright and won two. (The script's
+meat share at 200k read 0 in all four; that was an artefact, a sample taken
+right after the engine's own had reset the counters. At 60k the same worlds
+had meat 18–27%.) Probe (scratchpad `learnprobe.js`, 60k ticks): learned
+weights move the attack urge on contact both ways (0.33 → 0.23, 0.60 → 0.66,
+0.04 → 0.48, 0.90 → 0.87): learning does not steadily train hunting out. All
+four worlds had meat at 18–27% by 60k. Paired test: `v1-LE-on` against `v1-LE-base`, seeds 1361–1384.
+
+**Smell** (`smell`, NI 50; on by default since the test above). Animals give off scent in
+three channels (0.25 + 0.75 x colour tag, x mass^0.75), corpses a fourth; it
+spreads and fades on the spatial-hash grid (about 20 ticks). Two nostrils,
+ahead-left and ahead-right, read each channel's level and which side is
+stronger. It works with the head down and at night, which sight does not.
+Paired test: `v1-SM-on` against `v1-SM-base`, seeds 1325–1348.
+
 **Fruit** (`fruit`, new, 0 by default until tested). Plants have a fourth gene,
 fruit (initial values 0–0.5). A plant turns `fruitRate` x fruit x biomass into
 fruit per tick, up to `fruitMax` of its capacity. Fruit rots (`fruitRot`
@@ -838,6 +900,16 @@ do what it was for. Next:
 `fruitPerSeed` 0.2 (2.5 times the seeds per fruit), `v1-BK-fjc02` against
 `-fjcnd02`, 24 seeds.
 
+**Over 3M ticks the mutualism deepens** (`v1-BM-fruit3M`, 12 seeds, fruit with
+carrying). The fruit gene climbed from 0.196 to 0.680 (up in 11 of 12 worlds).
+Carried seed grew 69.5% of new plants, so most plant reproduction runs
+through animal guts. Fruit was 35% of the animals' plant energy, and plant
+diversity 0.198. Predators: 18 exits, 12 re-entries, persisting in 7 of 12.
+The no-fruit 3M worlds on the same seeds (`v1-BE-3M`, older build) had 14 and 7,
+and 6 of 12: more comebacks with fruit, suggestive only. The fruit build's
+predator persistence at 1M ticks, pooled (`v1-BN-default`, `v1-EG-base-1161`,
+`-1173`): 37 of 48 (77%), against 47 of 72 (65%) before fruit.
+
 **Fruit is on by default** (2026-09-27, `fruit` 1, `fruitPerSeed` 0.2, `jc` 0). At
 1M ticks (`v1-BL-fc` against `-fnc`, 24 paired seeds, no `jc`), the fruit gene
 went 0.194 → 0.250 with carrying and ended higher than it started in 11 of 24
@@ -848,6 +920,17 @@ off), predators persisted in 19 of 24 against 17, predator-dominated 20 against
 16, and meat 20.8% against 18.0%; nothing significant, nothing worse. `jc`
 is not needed. Fruit shows on the page as a pink blush on plant cells, with
 a legend entry and an on/off in the world drawer.
+
+With `jc` 0.8 at 1M ticks (`v1-BL-fjc` against `-fjnc`, 24 seeds) the fruit gene
+went 0.200 → 0.348 (up in 17 of 24), carried seed 37.5%, plant diversity 0.203
+against 0.156 without carrying. Against carrying without `jc` (`v1-BL-fc`), paired:
+fruit gene +0.099 (16 of 24, p 0.15), diversity +0.022 (15 of 24, p 0.31),
+predator-dominated 16 against 20 (p 0.34). Not significant, so `jc` stays off.
+Replication on 24 more seeds (`v1-BN-jc` against `-default`, 1125–1148): the fruit
+gene was lower with `jc` (−0.09, 8 of 24). Pooled over 48 pairs: fruit gene
++0.006 (24 of 48), diversity +0.016 (p 0.47), meat +0.013. Null, so `jc` was
+pruned (bit-identical at 0). The plant diversity log stays. The first evergreen block on
+the fruit build (`v1-EG-base-1161`) kept predators in 11 of 12 worlds.
 
 **Seed carrying selects for fruit** (`v1-BK-fjc02` against `-fjcnd02`, `fruit` 1,
 `jc` 0.8, `fruitPerSeed` 0.2, 24 paired seeds, 400k ticks). The fruit gene was
@@ -934,6 +1017,45 @@ is safe) into `runs/<label>/`; a 400k-tick small world takes ~10 minutes on one
 core, so local batches beat Actions for anything under ~20 worlds.
 
 ## Recent results (2026-09-26/27, newest first)
+
+**Owner's direction (2026-09-27).** Keep the shape of the app: plants and
+animals stay separate kingdoms, bodies stay one template with gene dials.
+Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
+Lifetime learning only if cheap (the brain is about 25% of run time).
+
+**Smell makes grazing fronts; on by default** (`v1-SM-on` against
+`v1-SM-base`, seeds 1325–1348, 1M). Moving prey neighbours head the same way:
+alignment 0.069 against 0.007, higher in 21 of 24 (p < 0.001), rising over
+the run (0.014 at 50–250k, 0.06–0.08 after 250k; best worlds 0.13–0.18).
+Prey clump more (0.93 against 0.86, p 0.064), prey and predators move faster
+(p 0.064). Predator worlds 19 against 16, meat 19.1% against 19.4%, carnivore
+clusters 2 against 5 (n.s.). Mechanism (`tools/smell.js`): grazers turn away
+from animal scent in 24 of 24 worlds (mean -1.54 of a possible -2; -0.11
+where the senses read 0), their own kind's and others' alike, so they steer
+off ground others have been on; neighbours fleeing the same trail travel
+together. Meat-eaters' response to carrion scent is mixed (toward in about
+half). The first local alignment in this engine: sight-based flocking was
+null. `smell` is now 1.
+
+**The default over 3M ticks** (`v1-BP-3Mdefault`, seeds 1213–1224, fruit and
+fruit senses on). The fruit gene climbs 0.20 → 0.71, up in all 12 worlds, and
+72% of new plants grow from animal-carried seed: over 3M the mutualism takes
+over whether or not animals see fruit. Grazers steer toward fruit in 6 of 12
+(mean +0.46). Predators persist through 8 of 12 runs; 15 exits and 12
+re-entries across the 12, so over 3M predators come and go rather than
+vanish. Meat share 14.3%, carnivore clusters at the end in 1.
+
+**Fruit senses work as behaviour, not for the plants** (`v1-BO-see1` against
+`v1-BO-see0`, 24 seeds, 1M). Grazers evolve to turn toward fruit in 17 of 24
+worlds (`tools/herd.js` fruit probe, mean +0.40 against -0.09 where the senses
+read 0). But fruit's share of plant-eaters' energy is unchanged (26.5% against
+27.3%), and the fruit gene rises less (0.31 against 0.44 at 1M; higher without
+the senses in 17 of 24, p 0.064), with less seed carried (34.5% against
+46.9%, n.s.). Meat share 21.4% against 16.3% (p 0.064), carnivore clusters in
+9 worlds against 4. Predators persisted in 20 against 19. Seeing fruit stays
+on: it is a sense animals have, and fruit-seeking now evolves. Plants being
+sought out does not pay them more; a guess, untested: seekers feed in full
+fruiting cells and drop seed where cells are full.
 
 **Memory** (2026-09-27): two more brain outputs whose values (tanh) come back
 as inputs at the next think, 0 at birth (NI 39, NO 9). Until then the brain
