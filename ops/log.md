@@ -1315,3 +1315,70 @@
 - worlds 12, meat 17.6%, kill 12.5%, carnSp>0 in 2, preyCl 0.93, persisting (predK >= 64% of run after bootstrap) 8, exits 7, re-entries 2
 - fruit: gene 0.201 -> 0.260 (up in 6 of 12), div 0.195, fruit 25.1%, carried 36.3%
 
+### v1-EG-base-2309 (2026-09-28 19:58)
+
+`defaults`, seeds 2309-2320, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 18.4%, kill 13.8%, carnSp>0 in 2, preyCl 0.90, persisting (predK >= 64% of run after bootstrap) 8, exits 9, re-entries 5
+- fruit: gene 0.189 -> 0.317 (up in 8 of 12), div 0.210, fruit 23.9%, carried 39.0%
+
+### v1-EG-base-2321 (2026-09-28 19:58)
+
+`defaults`, seeds 2321-2332, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 18.0%, kill 13.1%, carnSp>0 in 4, preyCl 0.87, persisting (predK >= 64% of run after bootstrap) 10, exits 8, re-entries 1
+- fruit: gene 0.197 -> 0.280 (up in 7 of 12), div 0.206, fruit 23.4%, carried 35.1%
+
+### v1-EG-base-2333 (2026-09-28 19:58)
+
+`defaults`, seeds 2333-2344, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 19.8%, kill 14.6%, carnSp>0 in 4, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 8, exits 9, re-entries 5
+- fruit: gene 0.193 -> 0.288 (up in 7 of 12), div 0.212, fruit 26.5%, carried 36.5%
+
+### v1-CP-2321 (2026-09-28 19:58)
+
+`compass=1`, seeds 2321-2332, 1000000 ticks. Expected: compass on the smell default (smellDecay 0.1), paired with the standing block of the same seeds. Before smell the compass cost predators (persisting 10 of 24 against 20) because prey streamed. Expect: prey still stream (polar above 0.3 in most worlds) and predators still persist less (fewer than the block in 2 blocks pooled); if smell's fronts let hunters keep up, persistence within 3 of the blocks.
+
+- worlds 12, meat 13.5%, kill 8.4%, carnSp>0 in 2, preyCl 0.91, persisting (predK >= 64% of run after bootstrap) 5, exits 10, re-entries 2
+- fruit: gene 0.197 -> 0.371 (up in 10 of 12), div 0.227, fruit 24.7%, carried 51.5%
+- baseline v1-EG-base-2321: worlds 12, meat 18.0%, kill 13.1%, carnSp>0 in 4, preyCl 0.87, persisting (predK >= 64% of run after bootstrap) 10, exits 8, re-entries 1
+    pred   baseline 10  arm  4   (+0 / -6)  McNemar p 0.031
+    carn   baseline  4  arm  2   (+1 / -3)  McNemar p 0.625
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.180  arm 0.135   mean diff -0.045  sign test 3+/9-  p 0.146
+    kill   baseline 0.131  arm 0.084   mean diff -0.047  sign test 4+/8-  p 0.388
+    animals baseline 1010  arm 976   mean diff -33.191  sign test 6+/6-  p 1.000
+    preyCl baseline 0.874  arm 0.910   mean diff +0.036  sign test 8+/4-  p 0.388
+    predCl baseline 2.790  arm 3.516   mean diff +0.726  sign test 8+/4-  p 0.388
+    diet   baseline 0.097  arm 0.082   mean diff -0.015  sign test 3+/9-  p 0.146
+    polar  baseline 0.031  arm 0.415   mean diff +0.384  sign test 12+/0-  p 0.000
+    align  baseline 0.072  arm 0.303   mean diff +0.231  sign test 10+/2-  p 0.039
+    preySp baseline 0.324  arm 0.335   mean diff +0.011  sign test 7+/5-  p 0.774
+    predSp baseline 0.520  arm 0.405   mean diff -0.115  sign test 4+/8-  p 0.388
+    learnM baseline 0.905  arm 0.902   mean diff -0.003  sign test 8+/4-  p 0.388
+
+### v1-CP-2333 (2026-09-28 19:58)
+
+`compass=1`, seeds 2333-2344, 1000000 ticks. Expected: compass on the smell default (smellDecay 0.1), paired with the standing block of the same seeds. Before smell the compass cost predators (persisting 10 of 24 against 20) because prey streamed. Expect: prey still stream (polar above 0.3 in most worlds) and predators still persist less (fewer than the block in 2 blocks pooled); if smell's fronts let hunters keep up, persistence within 3 of the blocks.
+
+- worlds 12, meat 19.0%, kill 13.1%, carnSp>0 in 3, preyCl 0.99, persisting (predK >= 64% of run after bootstrap) 8, exits 7, re-entries 2
+- fruit: gene 0.195 -> 0.227 (up in 6 of 12), div 0.186, fruit 24.7%, carried 38.9%
+- baseline v1-EG-base-2333: worlds 12, meat 19.8%, kill 14.6%, carnSp>0 in 4, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 8, exits 9, re-entries 5
+    pred   baseline  7  arm  8   (+4 / -3)  McNemar p 1.000
+    carn   baseline  4  arm  3   (+3 / -4)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.198  arm 0.190   mean diff -0.008  sign test 7+/5-  p 0.774
+    kill   baseline 0.146  arm 0.131   mean diff -0.015  sign test 6+/6-  p 1.000
+    animals baseline 971  arm 1021   mean diff +50.138  sign test 6+/6-  p 1.000
+    preyCl baseline 0.859  arm 0.987   mean diff +0.129  sign test 10+/2-  p 0.039
+    predCl baseline 3.004  arm 2.242   mean diff -0.762  sign test 5+/7-  p 0.774
+    diet   baseline 0.103  arm 0.095   mean diff -0.008  sign test 6+/6-  p 1.000
+    polar  baseline 0.032  arm 0.335   mean diff +0.303  sign test 12+/0-  p 0.000
+    align  baseline 0.070  arm 0.229   mean diff +0.159  sign test 12+/0-  p 0.000
+    preySp baseline 0.353  arm 0.380   mean diff +0.027  sign test 6+/6-  p 1.000
+    predSp baseline 0.545  arm 0.601   mean diff +0.056  sign test 8+/4-  p 0.388
+    learnM baseline 0.870  arm 0.899   mean diff +0.029  sign test 8+/4-  p 0.388
+

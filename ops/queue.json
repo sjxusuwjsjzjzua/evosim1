@@ -1763,9 +1763,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 15:24",
-   "dispatched_at": "2026-09-28 16:37"
+   "dispatched_at": "2026-09-28 16:37",
+   "scored_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2321",
@@ -1775,9 +1776,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 15:24",
-   "dispatched_at": "2026-09-28 17:12"
+   "dispatched_at": "2026-09-28 17:12",
+   "scored_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2333",
@@ -1787,9 +1789,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 15:24",
-   "dispatched_at": "2026-09-28 17:12"
+   "dispatched_at": "2026-09-28 17:12",
+   "scored_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2345",
@@ -1871,9 +1874,10 @@
    "baseline": "v1-EG-base-2321",
    "expect": "compass on the smell default (smellDecay 0.1), paired with the standing block of the same seeds. Before smell the compass cost predators (persisting 10 of 24 against 20) because prey streamed. Expect: prey still stream (polar above 0.3 in most worlds) and predators still persist less (fewer than the block in 2 blocks pooled); if smell's fronts let hunters keep up, persistence within 3 of the blocks.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 17:11",
-   "dispatched_at": "2026-09-28 17:12"
+   "dispatched_at": "2026-09-28 17:12",
+   "scored_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-CP-2333",
@@ -1883,9 +1887,10 @@
    "baseline": "v1-EG-base-2333",
    "expect": "compass on the smell default (smellDecay 0.1), paired with the standing block of the same seeds. Before smell the compass cost predators (persisting 10 of 24 against 20) because prey streamed. Expect: prey still stream (polar above 0.3 in most worlds) and predators still persist less (fewer than the block in 2 blocks pooled); if smell's fronts let hunters keep up, persistence within 3 of the blocks.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 17:11",
-   "dispatched_at": "2026-09-28 17:12"
+   "dispatched_at": "2026-09-28 17:12",
+   "scored_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2417",
@@ -1931,8 +1936,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 17:38"
+   "status": "dispatched",
+   "added_at": "2026-09-28 17:38",
+   "dispatched_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2465",
@@ -1942,8 +1948,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 17:38"
+   "status": "dispatched",
+   "added_at": "2026-09-28 17:38",
+   "dispatched_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2477",
@@ -1953,8 +1960,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 18:24"
+   "status": "dispatched",
+   "added_at": "2026-09-28 18:24",
+   "dispatched_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2489",
@@ -1964,8 +1972,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 18:24"
+   "status": "dispatched",
+   "added_at": "2026-09-28 18:24",
+   "dispatched_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2501",
@@ -1975,8 +1984,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 18:24"
+   "status": "dispatched",
+   "added_at": "2026-09-28 18:24",
+   "dispatched_at": "2026-09-28 19:58"
   },
   {
    "label": "v1-EG-base-2513",
@@ -2010,6 +2020,61 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 19:06"
+  },
+  {
+   "label": "v1-EG-base-2549",
+   "seeds": "2549-2560",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 19:58"
+  },
+  {
+   "label": "v1-EG-base-2561",
+   "seeds": "2561-2572",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 19:58"
+  },
+  {
+   "label": "v1-EG-base-2573",
+   "seeds": "2573-2584",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 19:58"
+  },
+  {
+   "label": "v1-EG-base-2585",
+   "seeds": "2585-2596",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 19:58"
+  },
+  {
+   "label": "v1-EG-base-2597",
+   "seeds": "2597-2608",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 19:58"
   }
  ]
 }

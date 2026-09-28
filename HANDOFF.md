@@ -1033,6 +1033,14 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Compass on the smell default** (`v1-CP-2321`, `-2333`, `compass` 1, paired
+with the standing blocks of the same seeds, 24 pairs, `smellDecay` 0.1). Prey
+stream in every world: polarisation 0.42 and 0.34 against 0.03, alignment 0.30
+and 0.23 against 0.07. Predators persist in 13 against 18 (pair one 5 against
+10, p 0.031 for predator worlds; pair two 8 against 8). Before smell it was 10
+against 20 of 24. The compass still costs predators, perhaps less; the
+compass stays off by default.
+
 **Shorter-lived scent is the default** (`v1-SD10-1841`, `-1853`, `-1985`,
 `-2021`, `smellDecay` 0.1 against 0.05, paired with standing blocks of the
 same seeds, 48 pairs): alignment 0.080 against 0.047, higher in 32 of 48
@@ -1044,7 +1052,8 @@ in about 10 ticks marks where others are now, and grazers steer off it.
 Watch: the first five standing blocks on the 0.1 default (seeds 2177–2236)
 kept predators in 39 of 60 (65%) against 76% on 0.05, about two standard
 errors low, though the same-seed pairs showed no cost (33 against 27). After
-nine blocks (to seed 2284): 75 of 108 (69%).
+nine blocks (to seed 2284): 75 of 108 (69%); fourteen (to seed 2344): 119
+of 168 (71%).
 
 **Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
 persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
