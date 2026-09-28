@@ -1023,6 +1023,14 @@ animals stay separate kingdoms, bodies stay one template with gene dials.
 Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
 Lifetime learning only if cheap (the brain is about 25% of run time).
 
+**Nutrient loop with abundant nutrient is harmless** (`v1-NU-s24`, `soil0`
+24, against `v1-LE-base`, seeds 1361–1384, smell off). Predator worlds 15
+against 16, meat 17.2% against 18.0%, animals 914 against 1007 (p 0.064),
+plant mass 10098 against 11642 (-13%). Soil patchiness (CV) 0.56: dung and
+carcass patches form. Soil holds 88% of the nutrient: it limits growth only
+where it runs low. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
+paired with the standing blocks of the same seeds) before turning it on.
+
 **Engine speed, tried** (2026-09-28): in `sense`, reusing the tag distance and
 size ratio per neighbour and caching each heading's cos and sin gave
 bit-identical worlds and no measurable gain (66 s against 64 s for 40k

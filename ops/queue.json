@@ -617,9 +617,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:42"
+   "dispatched_at": "2026-09-27 23:42",
+   "scored_at": "2026-09-28 02:19"
   },
   {
    "label": "v1-EG-base-1445",
@@ -629,9 +630,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 21:11",
-   "dispatched_at": "2026-09-27 23:43"
+   "dispatched_at": "2026-09-27 23:43",
+   "scored_at": "2026-09-28 02:19"
   },
   {
    "label": "v1-LE-base",
@@ -763,9 +765,10 @@
    "baseline": "v1-LE-base",
    "expect": "nutrient loop with abundant nutrient, 24 seeds paired with v1-LE-base (same build and defaults). At soil0 6 predator worlds fell 19 -> 7 because 78% of the nutrient idles in the soil and plant mass drops to a third. Expect: soil0 24 predator worlds within 3 of base and plant mass within 25%; soil0 48 same as base; soilCV above 0.5 in both (dung and carcass patches still form).",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-27 23:55",
-   "dispatched_at": "2026-09-27 23:55"
+   "dispatched_at": "2026-09-27 23:55",
+   "scored_at": "2026-09-28 02:19"
   },
   {
    "label": "v1-NU-s48",
@@ -787,8 +790,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 00:41"
+   "status": "dispatched",
+   "added_at": "2026-09-28 00:41",
+   "dispatched_at": "2026-09-28 02:20"
   },
   {
    "label": "v1-EG-base-1565",
@@ -798,8 +802,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 00:41"
+   "status": "dispatched",
+   "added_at": "2026-09-28 00:41",
+   "dispatched_at": "2026-09-28 02:20"
   },
   {
    "label": "v1-EG-base-1577",
@@ -866,6 +871,52 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 01:43"
+  },
+  {
+   "label": "v1-NU24-1457",
+   "seeds": "1457-1468",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=24",
+   "baseline": "v1-EG-base-1457",
+   "expect": "nutrient loop at soil0 24 on the smell default, paired with the standing block of the same seeds (same build). Expect as v1-NU-s24 against v1-LE-base: predator worlds within 3 of the block, plant mass within 25%, soilCV above 0.5. If so, the loop goes on by default at soil0 24.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:20",
+   "dispatched_at": "2026-09-28 02:20"
+  },
+  {
+   "label": "v1-NU24-1469",
+   "seeds": "1469-1480",
+   "ticks": 1000000,
+   "set": "nutrients=1,soil0=24",
+   "baseline": "v1-EG-base-1469",
+   "expect": "nutrient loop at soil0 24 on the smell default, paired with the standing block of the same seeds (same build). Expect as v1-NU-s24 against v1-LE-base: predator worlds within 3 of the block, plant mass within 25%, soilCV above 0.5. If so, the loop goes on by default at soil0 24.",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-28 02:20",
+   "dispatched_at": "2026-09-28 02:20"
+  },
+  {
+   "label": "v1-EG-base-1649",
+   "seeds": "1649-1660",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 02:20"
+  },
+  {
+   "label": "v1-EG-base-1661",
+   "seeds": "1661-1672",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 02:20"
   }
  ]
 }
