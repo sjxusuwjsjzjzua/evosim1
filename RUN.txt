@@ -1,0 +1,6 @@
+label=v1-NU24-1457
+seeds=1457,1458,1459,1460,1461,1462,1463,1464,1465,1466,1467,1468
+ticks=1000000
+set=gridN=64,nutrients=1,soil0=24
+cfg=
+sha=bbb8f5249d59f19fbc999c195cebc67ac96efeac
