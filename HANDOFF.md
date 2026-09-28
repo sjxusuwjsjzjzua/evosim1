@@ -1033,6 +1033,12 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Evolved start refreshed** (2026-09-28): the page's evolved start is now
+`v1-SM-on` seed 1335 at 1M (325 genomes), the smell world with the strongest
+grazing fronts (alignment 0.18), predators throughout, meat-eaters that turn
+toward carrion scent. Loaded in the page it shows alignment 0.12 within 2k
+ticks. The old one (seed 1104) had no smell weights.
+
 **Engine speed, tried** (2026-09-28): in `sense`, reusing the tag distance and
 size ratio per neighbour and caching each heading's cos and sin gave
 bit-identical worlds and no measurable gain (66 s against 64 s for 40k
