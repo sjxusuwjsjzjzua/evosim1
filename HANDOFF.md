@@ -1043,7 +1043,8 @@ in about 10 ticks marks where others are now, and grazers steer off it.
 0.073 against 0.043 (8 of 12), predators 8 against 8; over 60 pairs 40 higher.
 Watch: the first five standing blocks on the 0.1 default (seeds 2177–2236)
 kept predators in 39 of 60 (65%) against 76% on 0.05, about two standard
-errors low, though the same-seed pairs showed no cost (33 against 27).
+errors low, though the same-seed pairs showed no cost (33 against 27). After
+nine blocks (to seed 2284): 75 of 108 (69%).
 
 **Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
 persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
