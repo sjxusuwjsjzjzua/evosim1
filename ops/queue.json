@@ -1651,9 +1651,10 @@
    "baseline": "v1-EG-base-2129",
    "expect": "fifth pair for shorter-lived scent (smellDecay 0.1). 36 pairs: alignment 0.088 against 0.055, higher in 24 (p 0.065); predator worlds 27 against 22. Expect alignment above the block in 8 of 12; pooled 60 pairs decide the default at p < 0.05.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 14:14",
-   "dispatched_at": "2026-09-28 14:14"
+   "dispatched_at": "2026-09-28 14:14",
+   "scored_at": "2026-09-28 16:16"
   },
   {
    "label": "v1-EG-base-2225",
@@ -1723,8 +1724,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 14:32"
+   "status": "dispatched",
+   "added_at": "2026-09-28 14:32",
+   "dispatched_at": "2026-09-28 16:16"
   },
   {
    "label": "v1-EG-base-2297",
@@ -1802,6 +1804,17 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-28 15:55"
+  },
+  {
+   "label": "v1-EG-base-2381",
+   "seeds": "2381-2392",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-28 16:16"
   }
  ]
 }

@@ -1039,7 +1039,8 @@ same seeds, 48 pairs): alignment 0.080 against 0.047, higher in 32 of 48
 (p 0.029); predator worlds 33 against 27, carnivore clusters 14 against 11,
 meat 17.7% against 15.5% (n.s.). With 0.02 alignment fell. Scent that fades
 in about 10 ticks marks where others are now, and grazers steer off it.
-`smellDecay` is now 0.1. A fifth pair (`v1-SD10-2129`) is running as a check.
+`smellDecay` is now 0.1. The fifth pair (`v1-SD10-2129`) agreed: alignment
+0.073 against 0.043 (8 of 12), predators 8 against 8; over 60 pairs 40 higher.
 
 **Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
 persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31

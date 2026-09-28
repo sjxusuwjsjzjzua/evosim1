@@ -1187,3 +1187,26 @@
 - worlds 12, meat 18.1%, kill 13.7%, carnSp>0 in 4, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 9, exits 7, re-entries 3
 - fruit: gene 0.195 -> 0.323 (up in 7 of 12), div 0.197, fruit 22.0%, carried 39.7%
 
+### v1-SD10-2129 (2026-09-28 16:15)
+
+`smellDecay=0.1`, seeds 2129-2140, 1000000 ticks. Expected: fifth pair for shorter-lived scent (smellDecay 0.1). 36 pairs: alignment 0.088 against 0.055, higher in 24 (p 0.065); predator worlds 27 against 22. Expect alignment above the block in 8 of 12; pooled 60 pairs decide the default at p < 0.05.
+
+- worlds 12, meat 16.7%, kill 11.2%, carnSp>0 in 4, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 7, exits 10, re-entries 3
+- fruit: gene 0.199 -> 0.340 (up in 7 of 12), div 0.191, fruit 26.0%, carried 42.4%
+- baseline v1-EG-base-2129: worlds 12, meat 18.1%, kill 13.7%, carnSp>0 in 4, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 9, exits 7, re-entries 3
+    pred   baseline  8  arm  8   (+4 / -4)  McNemar p 1.000
+    carn   baseline  4  arm  4   (+3 / -3)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  2   (+2 / -0)  McNemar p 0.500
+    meat   baseline 0.181  arm 0.167   mean diff -0.014  sign test 5+/7-  p 0.774
+    kill   baseline 0.137  arm 0.112   mean diff -0.025  sign test 5+/7-  p 0.774
+    animals baseline 961  arm 989   mean diff +28.113  sign test 8+/4-  p 0.388
+    preyCl baseline 0.864  arm 0.891   mean diff +0.028  sign test 6+/6-  p 1.000
+    predCl baseline 3.039  arm 2.468   mean diff -0.570  sign test 5+/7-  p 0.774
+    diet   baseline 0.091  arm 0.101   mean diff +0.010  sign test 7+/5-  p 0.774
+    polar  baseline 0.031  arm 0.031   mean diff -0.000  sign test 5+/7-  p 0.774
+    align  baseline 0.043  arm 0.073   mean diff +0.029  sign test 8+/4-  p 0.388
+    preySp baseline 0.338  arm 0.354   mean diff +0.017  sign test 6+/6-  p 1.000
+    predSp baseline 0.502  arm 0.557   mean diff +0.055  sign test 7+/5-  p 0.774
+    learnM baseline 0.888  arm 0.851   mean diff -0.037  sign test 5+/7-  p 0.774
+
