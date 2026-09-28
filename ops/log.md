@@ -500,3 +500,40 @@
     preySp baseline 0.319  arm 0.357   mean diff +0.038  sign test 17+/7-  p 0.064
     predSp baseline 0.481  arm 0.620   mean diff +0.139  sign test 17+/7-  p 0.064
 
+### v1-EG-base-1385 (2026-09-28 01:21)
+
+`defaults`, seeds 1385-1396, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 20.2%, kill 15.9%, carnSp>0 in 4, preyCl 0.87, persisting (predK >= 64% of run after bootstrap) 11, exits 4, re-entries 1
+- fruit: gene 0.192 -> 0.321 (up in 8 of 12), div 0.185, fruit 27.2%, carried 35.6%
+
+### v1-EG-base-1397 (2026-09-28 01:21)
+
+`defaults`, seeds 1397-1408, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 19.8%, kill 15.7%, carnSp>0 in 3, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 9, exits 4, re-entries 2
+- fruit: gene 0.198 -> 0.287 (up in 6 of 12), div 0.178, fruit 23.1%, carried 33.6%
+
+### v1-LE-on (2026-09-28 01:22)
+
+`learn=1`, seeds 1361-1384, 1000000 ticks. Expected: lifetime learning at 1M, 24 paired seeds. Expect: learnM above the base arm's drift of the same (unused) output if selection favours learning; weights of adults moved from their genome (learnMoved over 0.1); behaviour: kill share and meat share up a few points (hunters improve with practice), bootstrap somewhat slower; predator persistence within 4 worlds of base. A learnM at or below drift means evolution switches learning off.
+
+- worlds 24, meat 18.1%, kill 14.9%, carnSp>0 in 3, preyCl 1.08, persisting (predK >= 64% of run after bootstrap) 19, exits 8, re-entries 7
+- fruit: gene 0.186 -> 0.371 (up in 18 of 24), div 0.202, fruit 15.2%, carried 38.3%
+- baseline v1-LE-base: worlds 24, meat 18.0%, kill 13.6%, carnSp>0 in 7, preyCl 0.89, persisting (predK >= 64% of run after bootstrap) 17, exits 16, re-entries 8
+    pred   baseline 16  arm 18   (+7 / -5)  McNemar p 0.774
+    carn   baseline  7  arm  3   (+2 / -6)  McNemar p 0.289
+    giant  baseline  2  arm  0   (+0 / -2)  McNemar p 0.500
+    dwarf  baseline  2  arm  1   (+1 / -2)  McNemar p 1.000
+    meat   baseline 0.180  arm 0.181   mean diff +0.000  sign test 13+/11-  p 0.839
+    kill   baseline 0.136  arm 0.149   mean diff +0.013  sign test 13+/11-  p 0.839
+    animals baseline 1007  arm 818   mean diff -188.934  sign test 5+/19-  p 0.007
+    preyCl baseline 0.887  arm 1.077   mean diff +0.190  sign test 21+/3-  p 0.000
+    predCl baseline 2.217  arm 4.358   mean diff +2.142  sign test 18+/6-  p 0.023
+    diet   baseline 0.087  arm 0.077   mean diff -0.010  sign test 8+/16-  p 0.152
+    polar  baseline 0.032  arm 0.036   mean diff +0.003  sign test 21+/3-  p 0.000
+    align  baseline 0.004  arm 0.017   mean diff +0.013  sign test 11+/13-  p 0.839
+    preySp baseline 0.313  arm 0.262   mean diff -0.051  sign test 5+/19-  p 0.007
+    predSp baseline 0.481  arm 0.292   mean diff -0.190  sign test 1+/23-  p 0.000
+    learnM baseline 0.875  arm 0.879   mean diff +0.004  sign test 9+/15-  p 0.307
+

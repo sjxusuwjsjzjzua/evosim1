@@ -1023,6 +1023,21 @@ animals stay separate kingdoms, bodies stay one template with gene dials.
 Add realism where it can unlock behaviour: smell, a nutrient loop, speed.
 Lifetime learning only if cheap (the brain is about 25% of run time).
 
+**Lifetime learning: active, costly, no gain in predation** (`v1-LE-on`
+against `v1-LE-base`, seeds 1361–1384, 1M, smell off in both). Learning stays
+in use: adults' weights sit 0.27 from their genome on average and 41% have
+moved by more than 0.1, the same at 100k and in the second half, in every
+world (0.37–0.44). `learnM` does not separate the arms (0.879 against 0.875):
+the unused output drifts to large values too, so it is no null. Effects: prey
+clump more (1.08 against 0.89, 21 of 24, p < 0.001), meat-eaters clump more
+(4.36 against 2.22, p 0.023), everyone moves slower (prey 0.26 against 0.31,
+p 0.007; meat-eaters 0.29 against 0.48, 23 of 24), fewer animals (818
+against 1007, p 0.007), less fruit in the diet (15% against 24%). Predator
+worlds 18 against 16, meat 18.1% against 18.0%, carnivore clusters 3 against
+7 (n.s.). Slower animals stay nearer their kin, so the clumping may come from
+the slowing, not from seeking company; untested. It costs 1.7–2x run time.
+Stays off by default.
+
 **Smell makes grazing fronts; on by default** (`v1-SM-on` against
 `v1-SM-base`, seeds 1325–1348, 1M). Moving prey neighbours head the same way:
 alignment 0.069 against 0.007, higher in 21 of 24 (p < 0.001), rising over
