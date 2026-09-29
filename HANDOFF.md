@@ -1124,6 +1124,25 @@ stays under 10% meat in all four; `meatFloor` 0.6 recovers above 15% meat in
 2 or more; `mutSd` 0.12 in at most 1. If none recovers, the valley is in the
 brain, not the reward.
 
+Result (meat share over the last 100 samples at 400k; carnivore clusters of
+10+ at meat > 0.5). All four replays matched their logs exactly.
+
+| world | as is | `meatFloor` 0.6 | `mutSd` 0.12 |
+|---|---|---|---|
+| s2184 | 6.6% | 9.8% | 10.0% (2 clusters at 150k, 300k, 350k) |
+| s2278 | 8.2% | 13.6% (16.1% at 300k) | 9.3% |
+| s2395 | 10.2% | 19.9%, still rising | 12.5% |
+| s2599 | 5.6% | 8.2% | 7.9% |
+
+As is stayed near or under 10% in all four, as expected. The floor raised
+meat in every world (+2.6 to +9.7 points) but crossed 15% at the end in only
+one, and formed no carnivore cluster anywhere, so on this evidence its meat
+is carrion eaten by plant guts, not hunting. Bigger mutation steps gave the
+only carnivore clusters, briefly, in one world. Neither lever meets the
+recovery expectation. Open: whether s2395's rise under the floor is kills.
+s2395 (floor and as is) and s2278 (floor) are running to 800k with kill
+share and predator counts (`regen/branch2.js`).
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925

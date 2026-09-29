@@ -2673,9 +2673,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 05:10",
-   "dispatched_at": "2026-09-29 07:22"
+   "dispatched_at": "2026-09-29 07:22",
+   "scored_at": "2026-09-29 09:00"
   },
   {
    "label": "v1-EG-base-3077",
@@ -2697,9 +2698,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 05:36",
-   "dispatched_at": "2026-09-29 07:28"
+   "dispatched_at": "2026-09-29 07:28",
+   "scored_at": "2026-09-29 09:00"
   },
   {
    "label": "v1-EG-base-3101",
@@ -2733,8 +2735,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 05:36"
+   "status": "dispatched",
+   "added_at": "2026-09-29 05:36",
+   "dispatched_at": "2026-09-29 09:00"
   },
   {
    "label": "v1-EG-base-3137",
@@ -2744,8 +2747,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 05:52"
+   "status": "dispatched",
+   "added_at": "2026-09-29 05:52",
+   "dispatched_at": "2026-09-29 09:00"
   },
   {
    "label": "v1-EG-base-3149",
@@ -2757,6 +2761,17 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-29 06:03"
+  },
+  {
+   "label": "v1-EG-base-3161",
+   "seeds": "3161-3172",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 09:00"
   }
  ]
 }
