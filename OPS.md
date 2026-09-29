@@ -32,7 +32,7 @@ python3 tools/ops.py next 5            # dispatch inputs for the next 5 entries
 python3 tools/ops.py mark LABEL dispatched
 python3 tools/ops.py digest            # fetch, score and log whatever has landed (ops/log.md)
 python3 tools/ops.py wait              # blocks until something lands (run in the background: it wakes the session)
-python3 tools/ops.py evergreen 60      # top up with standing replication runs
+python3 tools/ops.py evergreen 60      # standing blocks: only to re-baseline after a default changes
 ```
 
 Dispatch is one `actions_run_trigger` call per entry (ref = the working
@@ -45,9 +45,24 @@ dispatched and not landed**, queued jobs included: a queued job still takes a
 slot as soon as one frees. `python3 tools/ops.py room` prints how many worlds
 may be dispatched now; dispatch only that many, in whole 12-world blocks, and
 never cancel a run whose world jobs are done (it only waits for its collect
-step). Keep about 24 worlds pending in `ops/queue.json`. If designed work runs short, `evergreen` adds standing runs:
-the default build at 1M ticks on fresh 12-seed blocks. They build up the
-sample on the core outcome (predator persistence) and are never wasted.
+step). Keep designed work pending in `ops/queue.json`; if none is ready, leave
+the slots free (botciv uses them) rather than fill them.
+
+**Test design (program audit, 2026-09-29).** Same-seed pairing does nothing at
+1M ticks (r = 0.02 over 587 pairs), and a 24-world arm can only see a change
+of about 25 points in persistence. So:
+- score an arm against the frozen pooled baseline of the current build
+  (`ops/baseline.json`; `python3 tools/pooled.py runs/ARM...`; in the queue,
+  baseline `pooled` and a GROUP for the arm's blocks), not a fresh same-seed
+  block;
+- 96 worlds per arm, or none; the pre-registration states the smallest effect
+  the arm can detect (`pooled.py` prints it) and the arm is not dispatched if
+  that is bigger than the effect expected;
+- for predator levers the endpoint is the exit hazard per 100k predator ticks
+  (baseline 0.085), with re-formation rate and predator-state share beside it;
+  1M persistence is a descriptive line;
+- `evergreen` standing blocks only after a default changes, to re-baseline
+  (then `pooled.py freeze` with the new date).
 
 ## Wake-ups
 
@@ -62,8 +77,8 @@ sample on the core outcome (predator persistence) and are never wasted.
 | | 1: low | 2: value | 3: burn |
 |---|---|---|---|
 | heartbeat | every 2 hours | hourly | hourly, and the session keeps working between wakes |
-| per wake-up | `digest`; `status`; dispatch to saturation; `evergreen` if short; restart `wait`. Nothing else. | as 1, then read each landed result against its expectation, record it in `HANDOFF.md` in a few lines, design the next arms for the open question, merge when a result settles something | as 5, with several open questions in parallel |
-| new experiments | only from the queue and evergreen | designed each wake from the latest result; cheap local diagnostics when they settle a question faster than Actions | broad sweeps (24–48 seeds, several parameters), long runs, replays and diagnostics on all 4 local cores at all times |
+| per wake-up | `digest`; `status`; dispatch designed work up to the cap (leave slots free if none is queued); restart `wait`. Nothing else. | as 1, then read each landed result against its expectation, record it in `HANDOFF.md` in a few lines, design the next arms for the open question, merge when a result settles something | as 5, with several open questions in parallel |
+| new experiments | only from the queue | designed each wake from the latest result; cheap local diagnostics when they settle a question faster than Actions | broad sweeps (24–48 seeds, several parameters), long runs, replays and diagnostics on all 4 local cores at all times |
 | engine changes | none | when a diagnostic has shown the change should matter (audit rule 1); defaults change only on 1M-tick paired evidence (audit rule 2) | same rules, pursued faster; also speed work (more worlds per Actions minute), page improvements |
 | writing | the log line `digest` writes; one commit per wake at most | concise HANDOFF entries, PR and merge per settled result | fuller write-ups, reviews of own work, subagents for parallel analysis where they save wall-clock time |
 | rough cost per wake | a few thousand tokens | tens of thousands | as much as the work needs |

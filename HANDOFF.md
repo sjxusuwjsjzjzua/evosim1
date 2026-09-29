@@ -1255,13 +1255,35 @@ and `-3161`). Persisting 20 (`dmgExp` 1) and 21 (`dmg` 0.64) of 24 against
 19; predator worlds 17 and 19 against 17 (McNemar p 1.0, 0.75); exits 11 and
 14 against 9; meat 20.5% and 19.3% against 17.6% (p 0.84, 0.54). Stronger
 strikes carry hunters through the window around a sweep (9 of 12 against 3
-of 12) but not through a world's life: saved from one crash, they are lost
-another way or later. Defaults stay; `dmgExp` stays an option at 0.75.
+of 12). Defaults stay; `dmgExp` stays an option at 0.75. (Withdrawn: "saved
+from one crash, they are lost another way or later". The same-seed blocks
+were lucky, 9 exits where their predator time predicts 15.8. Against the
+pooled baseline the two arms together persist in 41 of 48, p 0.018 after the
+fact, a lead now tested with 96 worlds, `v1-DMP-*`; see the program audit
+below.)
 
 Where this leaves persistence (pooled standing blocks, about 3 in 4 worlds
 at 1M): every lever tried on it since the smell default (meat floor,
 mutation step, cloning, room, patches, strike strength and scaling) moves it
 by less than the block-to-block spread (6 to 11 of 12 on the same build).
+
+**Program audit, 2026-09-29** (`AUDIT-HOST-2026-09-29.md`,
+`AUDIT-AUDITOR-2026-09-29.md`, responses in `LEDGER.md`). Verdict: pivot.
+- Same-seed pairing does nothing at 1M: arm and baseline correlate at r =
+  0.02 (meat) over 587 pairs. Arms are now scored against a frozen pooled
+  baseline (`ops/baseline.json`, 1,080 worlds; `tools/pooled.py`).
+- The block spread is binomial noise at n = 12. A 24-world arm needs 22 of
+  24 persisting to reach p < 0.05; arms are now 96 worlds, with the smallest
+  detectable effect stated before dispatch.
+- Predator loss is a flat hazard after the first 100k ticks (about 0.085
+  exits per 100k predator ticks), and carnivore lines re-form at a slow
+  steady rate (about 0.04 per 100k collapsed ticks by the auditor's
+  definition, 98 cases in the standing blocks; mean wait about 2.6M ticks).
+  Re-origination is not a wall; the 4-world replays above could not have
+  seen a doubling (0.6 re-formations expected with no lever).
+- Standing blocks stop (66% of 1M worlds so far); `evergreen` only
+  re-baselines after a default changes.
+- The freed capacity goes to OPS questions 1–3 after `v1-DMP`.
 
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
@@ -1642,12 +1664,13 @@ grazers split into species too.
 
 ## Next
 
-1. **Predators after a collapse never come back.** With the defaults, 9 of 12
-   worlds keep predators for most of a million ticks. The exits seen are a
-   giant-grazer escape (s1109: grazers 0.4 → 5.2 in 50k ticks) and
-   streaming (compass on). After an exit no world has re-evolved predators
-   within the run, although from random brains they appear within
-   20–130k ticks. Worth finding out what blocks the second origin.
+1. **Predator loss and return are two slow rates.** About 7 in 10 worlds
+   keep predators for most of a million ticks. Losses come at a flat hazard
+   (about 0.085 per 100k predator ticks), often through a grazer size sweep;
+   carnivore lines re-form at about 0.04 per 100k collapsed ticks (mean wait
+   about 2.6M ticks), so 1M runs rarely show a return and 3M runs do. The
+   96-world `dmg` 0.64 arm (`v1-DMP-*`) tests whether strike strength cuts
+   the loss rate; if not, the predator program stops (program audit).
 2. **Streaming with predators.** With the compass on, prey stream and
    predation starves over the long run. Is there physics under which
    predators keep up with a stream (e.g. what a moving prey is worth, or

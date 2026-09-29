@@ -2997,9 +2997,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 12:33",
-   "dispatched_at": "2026-09-29 14:22"
+   "dispatched_at": "2026-09-29 14:22",
+   "scored_at": "2026-09-29 15:52"
   },
   {
    "label": "v1-EG-base-3293",
@@ -3045,8 +3046,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 15:15"
+   "status": "dropped",
+   "added_at": "2026-09-29 15:15",
+   "dropped_at": "2026-09-29 16:00"
   },
   {
    "label": "v1-EG-base-3341",
@@ -3056,8 +3058,107 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-29 15:15",
+   "dropped_at": "2026-09-29 16:00"
+  },
+  {
+   "label": "v1-DMP-3353",
+   "seeds": "3353-3364",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP",
+   "dispatched_at": "2026-09-29 15:54"
+  },
+  {
+   "label": "v1-DMP-3365",
+   "seeds": "3365-3376",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP",
+   "dispatched_at": "2026-09-29 15:54"
+  },
+  {
+   "label": "v1-DMP-3377",
+   "seeds": "3377-3388",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
    "status": "pending",
-   "added_at": "2026-09-29 15:15"
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3389",
+   "seeds": "3389-3400",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3401",
+   "seeds": "3401-3412",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3413",
+   "seeds": "3413-3424",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3425",
+   "seeds": "3425-3436",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3437",
+   "seeds": "3437-3448",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
   }
  ]
 }
