@@ -1285,6 +1285,17 @@ by less than the block-to-block spread (6 to 11 of 12 on the same build).
   re-baselines after a default changes.
 - The freed capacity goes to OPS questions 1–3 after `v1-DMP`.
 
+**Speed at identical output (2026-09-29).** Profile of 80k ticks (seed 7, 64
+grid): `sense` 26%, `brain810` 23%, `updateAnimal` 14%, `nearCorpse` 5%. The
+brain now skips inputs that read exactly 0 (a sum starts at +0 and never
+becomes -0, so no bit changes; state hash identical over 5k ticks from a
+40k snapshot): about 3% faster (219 → 225 ticks/s at ~1,500 animals).
+Reusing the square root and log in `sense`'s neighbour loop gave nothing
+measurable (the JIT already shared them). The spatial hash scans about 13
+candidates per think (buckets of 8 against sense ranges of 4–8). There is
+little left at identical output; larger gains need changes that move the
+frozen baseline (think less often, float32 arithmetic), not worth it now.
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925

@@ -762,11 +762,12 @@ function sense(i){
         crowd++; cxs += ex; cys += ey; spd += SPD[j]; if (SPD[j] >= 0.05){ hcs += Math.cos(HD[j]); hsn += Math.sin(HD[j]); }
         var og2 = j*NG, k0 = t0 - G[og2+G_TAG], k1 = t1 - G[og2+G_TAG+1], k2 = t2 - G[og2+G_TAG+2];
         // look-alikes (colour tag within 0.3, size within 2x) pull the kin direction, weighted by likeness
-        var kin = 1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)/0.3, szl = 1 - Math.abs(Math.log2(MA[j]/mi));
+        var tdj = Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3), lmj = Math.log2(MA[j]/mi);
+        var kin = 1 - tdj/0.3, szl = 1 - Math.abs(lmj);
         if (kin > 0 && szl > 0){ kxs += ex*kin*szl; kys += ey*kin*szl; }
         if (HU[j] > alarm){ alarm = HU[j]; alx = ex; aly = ey; }   // a neighbour under attack
-        var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(Math.log2(MA[j]/mi), -3, 3)/3
-                + aK*(1 - Math.sqrt((k0*k0 + k1*k1 + k2*k2)/3)) + aW*G[og2+G_WEAPON]/1.5;
+        var sal = 1 - Math.sqrt(d2)*invR + aS*clamp(lmj, -3, 3)/3
+                + aK*(1 - tdj) + aW*G[og2+G_WEAPON]/1.5;
         if (sal > bestSal){ bestSal = sal; nearAd = d2; nearA = j; }
       }
       for (var c = CH[b]; c >= 0; c = CN[c]){
@@ -885,10 +886,15 @@ function angDiff(a, b){ var d = a - b; if (d > Math.PI) d -= 2*Math.PI; else if 
 // The brain for NH 8, NO 10: the same sums in the same order as the generic loops
 // in think(), computed side by side so the adds do not wait on each other.
 // G[g + W1 ...] are the weights: the genome, or (learn on) the animal's own copy.
+// Inputs that read exactly 0 are skipped: a sum starts at +0 and can never become
+// -0, so adding w x 0 changes no bit, and the other terms keep their order. Many
+// senses are 0 for most animals (no neighbour, no corpse, silence, unused slots).
+var NZ = new Int32Array(NI);
 function brain810(G, g, OUT, o){
-  var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, k, v, w = g + W1;
-  for (k = 0; k < NI; k++, w++){
-    v = IN[k];
+  var s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, k, v, w, z, nz = 0;
+  for (k = 0; k < NI; k++) if (IN[k] !== 0) NZ[nz++] = k;
+  for (z = 0; z < nz; z++){
+    k = NZ[z]; v = IN[k]; w = g + W1 + k;
     s0 += G[w]*v; s1 += G[w+NI]*v; s2 += G[w+2*NI]*v; s3 += G[w+3*NI]*v;
     s4 += G[w+4*NI]*v; s5 += G[w+5*NI]*v; s6 += G[w+6*NI]*v; s7 += G[w+7*NI]*v;
   }
@@ -900,9 +906,8 @@ function brain810(G, g, OUT, o){
     v = HID[h];
     t0 += G[w]*v; t1 += G[w+8]*v; t2 += G[w+16]*v; t3 += G[w+24]*v; t4 += G[w+32]*v; t5 += G[w+40]*v; t6 += G[w+48]*v; t7 += G[w+56]*v; t8 += G[w+64]*v; t9 += G[w+72]*v;
   }
-  w = g + WD;
-  for (k = 0; k < NI; k++, w++){
-    v = IN[k];
+  for (z = 0; z < nz; z++){
+    k = NZ[z]; v = IN[k]; w = g + WD + k;
     t0 += G[w]*v; t1 += G[w+NI]*v; t2 += G[w+2*NI]*v; t3 += G[w+3*NI]*v; t4 += G[w+4*NI]*v; t5 += G[w+5*NI]*v; t6 += G[w+6*NI]*v; t7 += G[w+7*NI]*v; t8 += G[w+8*NI]*v; t9 += G[w+9*NI]*v;
   }
   OUT[o] = t0; OUT[o+1] = t1; OUT[o+2] = t2; OUT[o+3] = t3; OUT[o+4] = t4; OUT[o+5] = t5; OUT[o+6] = t6; OUT[o+7] = t7; OUT[o+8] = t8; OUT[o+9] = t9;
