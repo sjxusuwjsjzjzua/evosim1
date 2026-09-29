@@ -1114,6 +1114,79 @@ is what grazers steer by. Shorter scent (`smellDecay` 0.1) next (`v1-SD10-*`).
 least 64% of the run after bootstrap, 1M ticks): before smell 144 of 192
 worlds (75%), on the smell default 111 of 144 (77%).
 
+**Re-origination levers, replay test (running, 2026-09-29).** Four worlds on
+the smellDecay 0.1 builds that lost their predators by 1M ticks after meat
+24–31% (s2184, s2278, s2395, s2599) are replayed on their own builds to 1M
+and branched for 400k three ways: as is, `meatFloor` 0.6 (carrion pays a
+plant gut more, so scavenging can be the first step that pays alone), and
+`mutSd` 0.12 (bigger body-gene steps). Scratchpad `regen/`. Expected: as is
+stays under 10% meat in all four; `meatFloor` 0.6 recovers above 15% meat in
+2 or more; `mutSd` 0.12 in at most 1. If none recovers, the valley is in the
+brain, not the reward.
+
+Result (meat share over the last 100 samples at 400k; carnivore clusters of
+10+ at meat > 0.5). All four replays matched their logs exactly.
+
+| world | as is | `meatFloor` 0.6 | `mutSd` 0.12 |
+|---|---|---|---|
+| s2184 | 6.6% | 9.8% | 10.0% (2 clusters at 150k, 300k, 350k) |
+| s2278 | 8.2% | 13.6% (16.1% at 300k) | 9.3% |
+| s2395 | 10.2% | 19.9%, still rising | 12.5% |
+| s2599 | 5.6% | 8.2% | 7.9% |
+
+As is stayed near or under 10% in all four, as expected. The floor raised
+meat in every world (+2.6 to +9.7 points) but crossed 15% at the end in only
+one, and formed no carnivore cluster anywhere, so on this evidence its meat
+is carrion eaten by plant guts, not hunting. Bigger mutation steps gave the
+only carnivore clusters, briefly, in one world. Neither lever meets the
+recovery expectation. Open: whether s2395's rise under the floor is kills.
+s2395 (floor and as is) and s2278 (floor) are running to 800k with kill
+share and predator counts (`regen/branch2.js`).
+
+**How predators are lost: a grazer size sweep** (2026-09-29, 1,764 standing-block
+logs). In s2184 at 1k resolution: at 610k a grazer cluster of size 0.7 (the
+others 0.3) takes over within 5k ticks and keeps growing to 1.8; plant intake
+rises from 17k to 29k per window and plant mass halves; kills fall from 1,500
+to 40 per window, and the hunter cluster (size 2.7, still present) starves out
+by 625k. s2278 and s2395 look the same. Across all worlds, in the 40k ticks
+before predators fall from 30+ to 3 or fewer, mean size rose 40%+ in 42% of
+windows (7% of windows where predators hold) and plant mass fell 30%+ in 67%
+(6%). At 500-tick resolution the size rise and the predator fall land in the
+same few samples, so logs alone do not order them. The mechanism fits the
+physics: damage is weapon x attacker mass^0.75 but hit points are 2 x prey
+mass, so prey that grow buy time on every strike, and bigger grazers also
+crop more of a tall canopy. This is the giant trap of 2026-09-26 arriving
+suddenly in a world that had predators. But it does not explain why none come
+back: at 1M only s2184 is still giant (size 3.3); s2278, s2395 and s2599 are
+back to 0.54–0.68, what prey were while predators thrived. Transplant test
+running (`regen/transplant.js`): 40 of each world's own pre-crash hunters put
+into its collapsed state at 1M, s2184 (giant) and s2278 (normal size). Expected:
+they take hold in s2278 (the path is missing, not the reward) and fail in
+s2184 (size refuge).
+
+s2184, wrong on the refuge: 40 hunters (from 128 meat-fed adults at 605k,
+size 2.7, diet 0.62) put into the giant world take it over. Their line (diet
+> 0.5) goes 37 → 134 animals in 300k; its body size climbs to 6 in the first
+125k (big enough for the giants), then settles at 3 as the prey shrink; prey
+mean size falls from 4.3 to 0.6; meat 6% → 32%, kill share 26%, predators by
+intake 112. Hunting pays in a giant world once a hunter body and brain are
+there. So in both kinds of collapsed world the reward is present and the path
+is missing. The 800k runs (kill share `k`, predators by intake `p`) show what
+the path looks like without help: s2395 as is reaches kill share 10–14% and
+4–14 predators at 450–800k, s2278 with `meatFloor` 0.6 7–12% and 7–23, and
+neither forms a carnivore cluster in 800k. Opportunistic killing comes back
+by itself; a specialist line does not. The valley is between an omnivore
+that kills now and then and a hunter body (size, weapon, diet) and brain,
+which the pre-crash world had built over 600k ticks and loses in one sweep.
+s2278 (normal-size prey): the transplant takes hold too, less completely.
+Meat 15–22% through 300k (one dip to 5% at 125k), kill share 9–18%,
+predators by intake 27–67, a carnivore cluster on and off; as is 6–9%.
+(The s2395 floor branch is being rerun after a container restart.)
+
+Next: `patchy` (60% of the world barren, pasture in about three patches
+joined by corridors), queued as `v1-PA60-3065` and `-3089`, paired with the
+standing blocks. Two local worlds at 200k: meat 31% and 21%.
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925

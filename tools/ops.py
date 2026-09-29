@@ -8,6 +8,7 @@
     python3 tools/ops.py digest             fetch landed results, score them, log to ops/log.md
     python3 tools/ops.py wait               block until a dispatched entry's results land
     python3 tools/ops.py evergreen [JOBS]   top the queue up with standing runs until JOBS jobs are pending
+    python3 tools/ops.py room               worlds that may be dispatched now without passing the cap (CAP)
 
 SEEDS is "a-b" or "a,b,c". SET is the run.js --set string ("" for none; gridN=64 is added).
 A dispatched entry lands on branch results/LABEL. The digest scores it with v1score
@@ -16,6 +17,8 @@ A dispatched entry lands on branch results/LABEL. The digest scores it with v1sc
 import json, os, subprocess, sys, time, datetime
 
 Q = 'ops/queue.json'; LOG = 'ops/log.md'
+CAP = 60   # worlds dispatched and not landed, queued included: 15 jobs of 4, three quarters of the
+           # account's ~20 concurrent jobs (the rest is left for the owner's other simulator, botciv)
 
 def load():
     return json.load(open(Q)) if os.path.exists(Q) else {'entries': []}
@@ -73,8 +76,11 @@ def main():
         for e in E:
             if e['status'] == 'pending' and e['label'].startswith('v1-EG-base-') and e['label'] != base and mine & set(seeds(e['seeds'])):
                 e['status'] = 'dropped'; e['dropped_at'] = now(); print('dropped', e['label'], '(same seeds)')
-        E.append({'label': label, 'seeds': sd, 'ticks': int(ticks), 'set': st, 'baseline': base,
-                  'expect': expect, 'build_ref': a[7] if len(a) > 7 else '', 'status': 'pending', 'added_at': now()})
+        new = {'label': label, 'seeds': sd, 'ticks': int(ticks), 'set': st, 'baseline': base,
+               'expect': expect, 'build_ref': a[7] if len(a) > 7 else '', 'status': 'pending', 'added_at': now()}
+        # designed runs go ahead of pending standing blocks
+        at = next((k for k, e in enumerate(E) if e['status'] == 'pending' and e['label'].startswith('v1-EG-base-')), len(E))
+        E.insert(at, new)
         save(q); print('added', label, len(seeds(sd)), 'jobs')
     elif a[0] == 'digest':
         sh('git fetch -q origin'); lines = []
@@ -109,6 +115,10 @@ def main():
             if done: print('landed:', ' '.join(done)); return
             if not any(e['status'] == 'dispatched' for e in E): print('nothing in flight'); return
             time.sleep(300)
+    elif a[0] == 'room':
+        sh('git fetch -q origin')
+        fl = sum(len(seeds(e['seeds'])) for e in E if e['status'] == 'dispatched' and not landed(e['label']))
+        print('in flight %d worlds, cap %d, room %d' % (fl, CAP, max(0, CAP - fl)))
     elif a[0] == 'evergreen':
         want = int(a[1]) if len(a) > 1 else 36
         pend = lambda: sum(len(seeds(e['seeds'])) for e in E if e['status'] == 'pending')
