@@ -1982,3 +1982,33 @@
     predSp baseline 0.546  arm 0.316   mean diff -0.230  sign test 2+/10-  p 0.039
     learnM baseline 0.879  arm 0.868   mean diff -0.012  sign test 5+/7-  p 0.774
 
+### v1-EG-base-3173 (2026-09-29 11:16)
+
+`defaults`, seeds 3173-3184, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 16.3%, kill 11.7%, carnSp>0 in 2, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 6, exits 10, re-entries 5
+- fruit: gene 0.194 -> 0.314 (up in 8 of 12), div 0.211, fruit 23.3%, carried 40.3%
+
+### v1-PA60-3089 (2026-09-29 11:16)
+
+`patchy=0.6`, seeds 3089-3100, 1000000 ticks. Expected: pasture in patches (patchy 0.6, patchN 8: 60% of the world barren, about three patches joined by corridors), paired with the standing block of the same seeds. Predator lines are lost in one grazer size sweep across the whole map, and a transplant shows hunting still pays afterwards, so the path back is what is missing. Patches should let a sweep miss one patch or reach it later. Expect: predators persisting (predK >= 64%) in more worlds than the block (baseline 17 of 24 over both blocks), fewer exits, fewer animals (40% of the pasture). If persistence does not rise, a sweep crosses corridors as fast as open ground.
+
+- worlds 12, meat 16.9%, kill 12.0%, carnSp>0 in 3, preyCl 1.96, persisting (predK >= 64% of run after bootstrap) 7, exits 7, re-entries 1
+- fruit: gene 0.215 -> 0.143 (up in 1 of 12), div 0.182, fruit 25.3%, carried 18.1%
+- baseline v1-EG-base-3089: worlds 12, meat 20.3%, kill 15.1%, carnSp>0 in 4, preyCl 0.95, persisting (predK >= 64% of run after bootstrap) 9, exits 5, re-entries 0
+    pred   baseline  9  arm  7   (+1 / -3)  McNemar p 0.625
+    carn   baseline  4  arm  3   (+2 / -3)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.203  arm 0.169   mean diff -0.034  sign test 4+/8-  p 0.388
+    kill   baseline 0.151  arm 0.120   mean diff -0.031  sign test 4+/8-  p 0.388
+    animals baseline 1069  arm 468   mean diff -600.764  sign test 0+/12-  p 0.000
+    preyCl baseline 0.949  arm 1.955   mean diff +1.006  sign test 12+/0-  p 0.000
+    predCl baseline 2.703  arm 3.932   mean diff +1.228  sign test 9+/3-  p 0.146
+    diet   baseline 0.105  arm 0.100   mean diff -0.005  sign test 6+/6-  p 1.000
+    polar  baseline 0.032  arm 0.047   mean diff +0.016  sign test 12+/0-  p 0.000
+    align  baseline 0.120  arm 0.040   mean diff -0.080  sign test 3+/9-  p 0.146
+    preySp baseline 0.385  arm 0.323   mean diff -0.061  sign test 4+/8-  p 0.388
+    predSp baseline 0.630  arm 0.417   mean diff -0.213  sign test 3+/9-  p 0.146
+    learnM baseline 0.887  arm 0.869   mean diff -0.018  sign test 5+/7-  p 0.774
+

@@ -1194,8 +1194,10 @@ carnivore species in 0 worlds against 5 (p 0.06), persisting 6 against 9,
 exits 10 against 6. Cutting the pasture cuts the prey base, and predators
 need a large one. A bigger world at the same density was already tested
 (`v1-BG-grid96`, 2026-09-27: no difference), so spatial room does not rescue
-predators either. `patchy` stays an option, off. (`-3089`, the other 12
-pairs, is still running.)
+predators either. `patchy` stays an option, off. The other 12 pairs
+(`-3089`) point the same way, less strongly (meat 16.9% against 20.3%,
+persisting 7 against 9); pooled over 24, persisting 13 against 18, meat
+lower in 19 of 24.
 
 **Gene flow as the barrier?** (local, running). With sex, an omnivore that
 kills now and then breeds with grazer relatives, and recombination may pull
