@@ -1178,8 +1178,14 @@ neither forms a carnivore cluster in 800k. Opportunistic killing comes back
 by itself; a specialist line does not. The valley is between an omnivore
 that kills now and then and a hunter body (size, weapon, diet) and brain,
 which the pre-crash world had built over 600k ticks and loses in one sweep.
-(s2278 transplant and the s2395 floor branch are being rerun after a
-container restart.)
+s2278 (normal-size prey): the transplant takes hold too, less completely.
+Meat 15–22% through 300k (one dip to 5% at 125k), kill share 9–18%,
+predators by intake 27–67, a carnivore cluster on and off; as is 6–9%.
+(The s2395 floor branch is being rerun after a container restart.)
+
+Next: `patchy` (60% of the world barren, pasture in about three patches
+joined by corridors), queued as `v1-PA60-3065` and `-3089`, paired with the
+standing blocks. Two local worlds at 200k: meat 31% and 21%.
 
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
