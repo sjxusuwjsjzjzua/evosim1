@@ -2854,9 +2854,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 09:18",
-   "dispatched_at": "2026-09-29 11:11"
+   "dispatched_at": "2026-09-29 11:11",
+   "scored_at": "2026-09-29 12:59"
   },
   {
    "label": "v1-EG-base-3209",
@@ -2940,8 +2941,9 @@
    "baseline": "v1-EG-base-3137",
    "expect": "plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 12:41"
+   "status": "dispatched",
+   "added_at": "2026-09-29 12:41",
+   "dispatched_at": "2026-09-29 12:59"
   },
   {
    "label": "v1-DX1-3161",
