@@ -2088,9 +2088,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 19:58",
-   "dispatched_at": "2026-09-28 22:14"
+   "dispatched_at": "2026-09-28 22:14",
+   "scored_at": "2026-09-29 00:40"
   },
   {
    "label": "v1-EG-base-2597",
@@ -2198,9 +2199,10 @@
    "baseline": "v1-EG-base-2573",
    "expect": "the old scent lifetime (smellDecay 0.05) against the 0.1 default, paired with the standing block of the same seeds. Unpaired blocks put 0.1 at 69% persistence (199 of 288) against 76% for 0.05 (228 of 300), while five same-seed pairs gave 0.1 44 of 60 against 36. Expect: persistence within 2 of the block per 12 (no cost of 0.1), alignment lower on 0.05 in 8 of 12.",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-28 22:13",
-   "dispatched_at": "2026-09-28 22:14"
+   "dispatched_at": "2026-09-28 22:14",
+   "scored_at": "2026-09-29 00:40"
   },
   {
    "label": "v1-SD05-2585",
@@ -2282,8 +2284,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 23:31"
+   "status": "dispatched",
+   "added_at": "2026-09-28 23:31",
+   "dispatched_at": "2026-09-29 00:40"
   },
   {
    "label": "v1-EG-base-2729",
@@ -2293,8 +2296,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-28 23:31"
+   "status": "dispatched",
+   "added_at": "2026-09-28 23:31",
+   "dispatched_at": "2026-09-29 00:40"
   },
   {
    "label": "v1-EG-base-2741",
@@ -2361,6 +2365,28 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-29 00:39"
+  },
+  {
+   "label": "v1-EG-base-2813",
+   "seeds": "2813-2824",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 00:40"
+  },
+  {
+   "label": "v1-EG-base-2825",
+   "seeds": "2825-2836",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 00:40"
   }
  ]
 }

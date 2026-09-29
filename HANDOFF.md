@@ -1074,7 +1074,9 @@ nine blocks (to seed 2284): 75 of 108 (69%); fourteen (to seed 2344): 119
 of 168 (71%); 24 blocks (to seed 2464): 199 of 288 (69%) against 228 of 300
 (76%) on 0.05, about 1.9 standard errors. The same-seed pairs point the other
 way (0.1 44 of 60, 0.05 36 of 60). More pairs, 0.05 against the 0.1 default,
-running (`v1-SD05-*`).
+running (`v1-SD05-*`). First (`v1-SD05-2573`): predators persisted 10 on 0.1
+against 4 on 0.05 (predator worlds p 0.031), alignment 0.084 against 0.059.
+The block gap looks like seed noise.
 
 **Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
 persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
