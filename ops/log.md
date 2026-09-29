@@ -1517,3 +1517,40 @@
     predSp baseline 0.529  arm 0.591   mean diff +0.061  sign test 7+/5-  p 0.774
     learnM baseline 0.879  arm 0.892   mean diff +0.013  sign test 8+/4-  p 0.388
 
+### v1-EG-base-2537 (2026-09-29 00:07)
+
+`defaults`, seeds 2537-2548, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 19.4%, kill 14.3%, carnSp>0 in 5, preyCl 0.91, persisting (predK >= 64% of run after bootstrap) 9, exits 6, re-entries 1
+- fruit: gene 0.195 -> 0.250 (up in 7 of 12), div 0.204, fruit 25.8%, carried 33.0%
+
+### v1-EG-base-2549 (2026-09-29 00:07)
+
+`defaults`, seeds 2549-2560, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 18.1%, kill 13.5%, carnSp>0 in 3, preyCl 0.84, persisting (predK >= 64% of run after bootstrap) 9, exits 6, re-entries 2
+- fruit: gene 0.195 -> 0.308 (up in 7 of 12), div 0.189, fruit 28.7%, carried 37.7%
+
+### v1-SF-2525 (2026-09-29 00:07)
+
+`smellFruit=1`, seeds 2525-2536, 1000000 ticks. Expected: fruit scent (smellFruit 1) on the smellDecay 0.1 default, paired with the standing block of the same seeds (NI 53 build). seeFruit alone let grazers steer to fruit but did not pay the plants (fruit gene 0.31 against 0.44). Expect: grazers turn toward fruit scent (tools/smell.js), fruit share of plant-eaters' energy up (above the block's in 8 of 12), fruit gene and carried-seed share higher; predators within 2 of the block.
+
+- worlds 12, meat 20.5%, kill 15.8%, carnSp>0 in 6, preyCl 0.85, persisting (predK >= 64% of run after bootstrap) 9, exits 5, re-entries 1
+- fruit: gene 0.195 -> 0.101 (up in 2 of 12), div 0.168, fruit 10.0%, carried 14.7%
+- baseline v1-EG-base-2525: worlds 12, meat 20.8%, kill 15.3%, carnSp>0 in 2, preyCl 0.97, persisting (predK >= 64% of run after bootstrap) 10, exits 5, re-entries 1
+    pred   baseline  9  arm  8   (+1 / -2)  McNemar p 1.000
+    carn   baseline  2  arm  6   (+5 / -1)  McNemar p 0.219
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.208  arm 0.205   mean diff -0.003  sign test 5+/7-  p 0.774
+    kill   baseline 0.153  arm 0.158   mean diff +0.004  sign test 5+/7-  p 0.774
+    animals baseline 1015  arm 904   mean diff -111.622  sign test 3+/9-  p 0.146
+    preyCl baseline 0.975  arm 0.854   mean diff -0.121  sign test 5+/7-  p 0.774
+    predCl baseline 2.573  arm 2.211   mean diff -0.362  sign test 6+/6-  p 1.000
+    diet   baseline 0.104  arm 0.091   mean diff -0.014  sign test 3+/9-  p 0.146
+    polar  baseline 0.032  arm 0.035   mean diff +0.002  sign test 9+/3-  p 0.146
+    align  baseline 0.122  arm 0.097   mean diff -0.025  sign test 4+/8-  p 0.388
+    preySp baseline 0.406  arm 0.312   mean diff -0.094  sign test 2+/10-  p 0.039
+    predSp baseline 0.613  arm 0.606   mean diff -0.007  sign test 5+/7-  p 0.774
+    learnM baseline 0.879  arm 0.870   mean diff -0.009  sign test 5+/7-  p 0.774
+

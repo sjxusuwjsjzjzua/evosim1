@@ -1040,7 +1040,12 @@ per bucket runs 0.3 (p10) to 3 (p90), max 10: fruiting patches smell ten
 times stronger than bare ground. Question: does sensing fruit from afar let
 seed-carrying pay the plants, which fruit sight (seeFruit) did not? Paired
 test `v1-SF-*` against standing blocks of the same seeds on this build.
-First half (`v1-SF-2513`): the opposite of the expectation. Fruit gene 0.19 →
+**Result, 24 pairs (`v1-SF-2513`, `-2525`): fruit scent collapses the
+mutualism.** Fruit gene at 1M 0.10 against 0.29, lower in 22 of 24 (p
+0.00004); fruit's share of plant-eaters' energy 12% against 30% (21 of 24);
+carried seed 14% against 37% (20 of 24). Grazers do steer toward fruit scent
+(toward in 14 of 24, away in 1). `smellFruit` stays off. First half
+(`v1-SF-2513`): the opposite of the expectation. Fruit gene 0.19 →
 0.10 (up in 2 of 12) against 0.33 on the same seeds, fruit's share of
 plant-eaters' energy 14% against 29%, carried seed 13% against 42%, animals
 864 against 1040. A guess, untested: the scent advertises the whole plant, so
