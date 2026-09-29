@@ -2061,3 +2061,26 @@
 - worlds 12, meat 17.0%, kill 12.1%, carnSp>0 in 3, preyCl 0.84, persisting (predK >= 64% of run after bootstrap) 9, exits 8, re-entries 4
 - fruit: gene 0.192 -> 0.358 (up in 9 of 12), div 0.222, fruit 23.7%, carried 44.8%
 
+### v1-DM064-3137 (2026-09-29 14:21)
+
+`dmg=0.64`, seeds 3137-3148, 1000000 ticks. Expected: plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.
+
+- worlds 12, meat 16.5%, kill 11.6%, carnSp>0 in 3, preyCl 0.86, persisting (predK >= 64% of run after bootstrap) 10, exits 8, re-entries 3
+- fruit: gene 0.194 -> 0.245 (up in 6 of 12), div 0.186, fruit 24.1%, carried 32.9%
+- baseline v1-EG-base-3137: worlds 12, meat 17.8%, kill 12.9%, carnSp>0 in 5, preyCl 0.92, persisting (predK >= 64% of run after bootstrap) 10, exits 5, re-entries 2
+    pred   baseline  9  arm  9   (+3 / -3)  McNemar p 1.000
+    carn   baseline  5  arm  3   (+2 / -4)  McNemar p 0.688
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.178  arm 0.165   mean diff -0.013  sign test 4+/8-  p 0.388
+    kill   baseline 0.129  arm 0.116   mean diff -0.013  sign test 5+/7-  p 0.774
+    animals baseline 1005  arm 979   mean diff -26.731  sign test 5+/7-  p 0.774
+    preyCl baseline 0.915  arm 0.862   mean diff -0.053  sign test 4+/8-  p 0.388
+    predCl baseline 2.187  arm 2.829   mean diff +0.642  sign test 7+/5-  p 0.774
+    diet   baseline 0.091  arm 0.102   mean diff +0.011  sign test 7+/5-  p 0.774
+    polar  baseline 0.032  arm 0.033   mean diff +0.002  sign test 8+/4-  p 0.388
+    align  baseline 0.066  arm 0.081   mean diff +0.016  sign test 5+/7-  p 0.774
+    preySp baseline 0.341  arm 0.327   mean diff -0.014  sign test 5+/7-  p 0.774
+    predSp baseline 0.510  arm 0.533   mean diff +0.023  sign test 7+/5-  p 0.774
+    learnM baseline 0.863  arm 0.867   mean diff +0.005  sign test 7+/5-  p 0.774
+
