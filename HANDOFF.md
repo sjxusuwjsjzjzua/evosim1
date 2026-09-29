@@ -1222,6 +1222,17 @@ the hunters: the hunter line survives the sweep (predators above 20 at
 +50k) in 2 or more of 3 with `dmgExp` 1, where as is they fall to near 0,
 and more often than with the control.
 
+Result (one sample per arm: a restored world does not continue exactly as the
+original, since the snapshot stores some state in float32, so each branch is
+a fresh draw). Hunters above 20 at +50k: as is 2 of 3 (s2184 falls to 0 as
+grazers grow to 3.2; s2278 dips to 2 and recovers; s2395 falls from 155 to
+27); `dmg` 0.64 3 of 3 (s2184 no sweep at all, s2278 dips to 3, s2395 to 13);
+`dmgExp` 1 3 of 3 (s2184 no sweep, s2278 dips to 0 and recovers, s2395 holds
+at 141–164). Stronger strikes help hunters through the sweep; scaling is not
+separated from strength. Both go to Actions at 1M, 24 pairs each on the seeds
+of `v1-EG-base-3137` and `-3161` (`v1-DX1-*`, `v1-DM064-*`); `dmgExp` is now
+an engine option (0.75 by default, unchanged).
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925

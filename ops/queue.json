@@ -2920,6 +2920,50 @@
    "dispatched_at": "2026-09-29 12:33"
   },
   {
+   "label": "v1-DX1-3137",
+   "seeds": "3137-3148",
+   "ticks": 1000000,
+   "set": "dmgExp=1",
+   "baseline": "v1-EG-base-3137",
+   "expect": "strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 12:41"
+  },
+  {
+   "label": "v1-DM064-3137",
+   "seeds": "3137-3148",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "v1-EG-base-3137",
+   "expect": "plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 12:41"
+  },
+  {
+   "label": "v1-DX1-3161",
+   "seeds": "3161-3172",
+   "ticks": 1000000,
+   "set": "dmgExp=1",
+   "baseline": "v1-EG-base-3161",
+   "expect": "strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 12:41"
+  },
+  {
+   "label": "v1-DM064-3161",
+   "seeds": "3161-3172",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "v1-EG-base-3161",
+   "expect": "plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 12:41"
+  },
+  {
    "label": "v1-EG-base-3269",
    "seeds": "3269-3280",
    "ticks": 1000000,
