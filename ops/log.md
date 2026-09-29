@@ -2084,3 +2084,72 @@
     predSp baseline 0.510  arm 0.533   mean diff +0.023  sign test 7+/5-  p 0.774
     learnM baseline 0.863  arm 0.867   mean diff +0.005  sign test 7+/5-  p 0.774
 
+### v1-DX1-3137 (2026-09-29 15:14)
+
+`dmgExp=1`, seeds 3137-3148, 1000000 ticks. Expected: strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.
+
+- worlds 12, meat 20.1%, kill 14.9%, carnSp>0 in 4, preyCl 0.94, persisting (predK >= 64% of run after bootstrap) 9, exits 5, re-entries 3
+- fruit: gene 0.198 -> 0.299 (up in 5 of 12), div 0.198, fruit 32.5%, carried 36.7%
+- baseline v1-EG-base-3137: worlds 12, meat 17.8%, kill 12.9%, carnSp>0 in 5, preyCl 0.92, persisting (predK >= 64% of run after bootstrap) 10, exits 5, re-entries 2
+    pred   baseline  9  arm  7   (+2 / -4)  McNemar p 0.688
+    carn   baseline  5  arm  4   (+2 / -3)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.178  arm 0.201   mean diff +0.024  sign test 6+/6-  p 1.000
+    kill   baseline 0.129  arm 0.149   mean diff +0.020  sign test 6+/6-  p 1.000
+    animals baseline 1005  arm 1165   mean diff +159.556  sign test 8+/4-  p 0.388
+    preyCl baseline 0.915  arm 0.937   mean diff +0.022  sign test 6+/6-  p 1.000
+    predCl baseline 2.187  arm 2.742   mean diff +0.555  sign test 7+/5-  p 0.774
+    diet   baseline 0.091  arm 0.096   mean diff +0.005  sign test 7+/5-  p 0.774
+    polar  baseline 0.032  arm 0.029   mean diff -0.002  sign test 4+/8-  p 0.388
+    align  baseline 0.066  arm 0.082   mean diff +0.017  sign test 6+/6-  p 1.000
+    preySp baseline 0.341  arm 0.391   mean diff +0.050  sign test 6+/6-  p 1.000
+    predSp baseline 0.510  arm 0.586   mean diff +0.076  sign test 7+/5-  p 0.774
+    learnM baseline 0.863  arm 0.888   mean diff +0.026  sign test 6+/6-  p 1.000
+
+### v1-DX1-3161 (2026-09-29 15:14)
+
+`dmgExp=1`, seeds 3161-3172, 1000000 ticks. Expected: strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.
+
+- worlds 12, meat 20.8%, kill 15.7%, carnSp>0 in 3, preyCl 0.92, persisting (predK >= 64% of run after bootstrap) 11, exits 6, re-entries 0
+- fruit: gene 0.197 -> 0.304 (up in 7 of 12), div 0.176, fruit 27.1%, carried 38.2%
+- baseline v1-EG-base-3161: worlds 12, meat 17.4%, kill 12.7%, carnSp>0 in 3, preyCl 0.93, persisting (predK >= 64% of run after bootstrap) 9, exits 4, re-entries 1
+    pred   baseline  8  arm 10   (+3 / -1)  McNemar p 0.625
+    carn   baseline  3  arm  3   (+2 / -2)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  1  arm  2   (+2 / -1)  McNemar p 1.000
+    meat   baseline 0.174  arm 0.208   mean diff +0.033  sign test 7+/5-  p 0.774
+    kill   baseline 0.127  arm 0.157   mean diff +0.030  sign test 6+/6-  p 1.000
+    animals baseline 1072  arm 1151   mean diff +79.239  sign test 8+/4-  p 0.388
+    preyCl baseline 0.928  arm 0.917   mean diff -0.011  sign test 5+/7-  p 0.774
+    predCl baseline 2.573  arm 2.297   mean diff -0.276  sign test 5+/7-  p 0.774
+    diet   baseline 0.084  arm 0.093   mean diff +0.009  sign test 9+/3-  p 0.146
+    polar  baseline 0.031  arm 0.029   mean diff -0.002  sign test 2+/10-  p 0.039
+    align  baseline 0.080  arm 0.069   mean diff -0.010  sign test 5+/7-  p 0.774
+    preySp baseline 0.363  arm 0.351   mean diff -0.012  sign test 8+/4-  p 0.388
+    predSp baseline 0.523  arm 0.557   mean diff +0.033  sign test 7+/5-  p 0.774
+    learnM baseline 0.877  arm 0.901   mean diff +0.024  sign test 9+/3-  p 0.146
+
+### v1-DM064-3161 (2026-09-29 15:14)
+
+`dmg=0.64`, seeds 3161-3172, 1000000 ticks. Expected: plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.
+
+- worlds 12, meat 22.2%, kill 17.1%, carnSp>0 in 6, preyCl 0.92, persisting (predK >= 64% of run after bootstrap) 11, exits 6, re-entries 3
+- fruit: gene 0.202 -> 0.235 (up in 3 of 12), div 0.178, fruit 28.3%, carried 31.7%
+- baseline v1-EG-base-3161: worlds 12, meat 17.4%, kill 12.7%, carnSp>0 in 3, preyCl 0.93, persisting (predK >= 64% of run after bootstrap) 9, exits 4, re-entries 1
+    pred   baseline  8  arm 10   (+3 / -1)  McNemar p 0.625
+    carn   baseline  3  arm  6   (+5 / -2)  McNemar p 0.453
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  1  arm  0   (+0 / -1)  McNemar p 1.000
+    meat   baseline 0.174  arm 0.222   mean diff +0.047  sign test 10+/2-  p 0.039
+    kill   baseline 0.127  arm 0.171   mean diff +0.044  sign test 10+/2-  p 0.039
+    animals baseline 1072  arm 1019   mean diff -52.797  sign test 6+/6-  p 1.000
+    preyCl baseline 0.928  arm 0.916   mean diff -0.012  sign test 8+/4-  p 0.388
+    predCl baseline 2.573  arm 2.052   mean diff -0.521  sign test 3+/9-  p 0.146
+    diet   baseline 0.084  arm 0.108   mean diff +0.024  sign test 9+/3-  p 0.146
+    polar  baseline 0.031  arm 0.032   mean diff +0.001  sign test 5+/7-  p 0.774
+    align  baseline 0.080  arm 0.091   mean diff +0.011  sign test 7+/5-  p 0.774
+    preySp baseline 0.363  arm 0.365   mean diff +0.002  sign test 6+/6-  p 1.000
+    predSp baseline 0.523  arm 0.571   mean diff +0.048  sign test 8+/4-  p 0.388
+    learnM baseline 0.877  arm 0.895   mean diff +0.018  sign test 8+/4-  p 0.388
+

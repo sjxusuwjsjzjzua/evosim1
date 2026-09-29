@@ -1249,6 +1249,20 @@ the one draw where s2184's grazers escaped to 3.0 was on `dmg` 0.64). The
 1M-tick runs decide whether either helps over a whole world's life, where
 stronger hunters might also overshoot their prey.
 
+**Neither strike change keeps predators longer at 1M** (`v1-DX1-3137`,
+`-3161`, `v1-DM064-3137`, `-3161`, 24 pairs each against `v1-EG-base-3137`
+and `-3161`). Persisting 20 (`dmgExp` 1) and 21 (`dmg` 0.64) of 24 against
+19; predator worlds 17 and 19 against 17 (McNemar p 1.0, 0.75); exits 11 and
+14 against 9; meat 20.5% and 19.3% against 17.6% (p 0.84, 0.54). Stronger
+strikes carry hunters through the window around a sweep (9 of 12 against 3
+of 12) but not through a world's life: saved from one crash, they are lost
+another way or later. Defaults stay; `dmgExp` stays an option at 0.75.
+
+Where this leaves persistence (pooled standing blocks, about 3 in 4 worlds
+at 1M): every lever tried on it since the smell default (meat floor,
+mutation step, cloning, room, patches, strike strength and scaling) moves it
+by less than the block-to-block spread (6 to 11 of 12 on the same build).
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
