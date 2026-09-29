@@ -243,7 +243,8 @@ var CFG_DEFAULT = {
   upMove: 0.012,        // x mass x speed^2: using it
   sizeMax: 12,          // the body-size gene's upper bound. Giant worlds end when predators reach it
                         // (23 of 32 exits had meat-eaters at size 10 or more)
-  dmg: 0.5,            // damage per tick x weapon x mass^0.75
+  dmg: 0.5,            // damage per tick x weapon x mass^dmgExp
+  dmgExp: 0.75,        // 1: a fight at a given size ratio takes the same time at any size (hit points are 2 x mass)
   atkCost: 0.004,       // energy per attack tick x mass^0.75
   hpPerMass: 2,
   heal: 0.003,          // fraction of max hp regained per tick
@@ -1117,7 +1118,7 @@ function updateAnimal(i){
       S.c.attacks++;
       // a crowd of look-alikes round the target can make the strike miss
       var arm = CFG.armourEff*S.genome[tj*NG+G_ARMOUR];
-      var dmg = CFG.dmg*G[g+G_WEAPON]*m75*(1 - arm)*(0.8 + 0.4*rng());
+      var dmg = CFG.dmg*G[g+G_WEAPON]*(CFG.dmgExp === 0.75 ? m75 : Math.pow(mass, CFG.dmgExp))*(1 - arm)*(0.8 + 0.4*rng());
       S.hp[tj] -= dmg;
       S.hurt[tj] += dmg/(CFG.hpPerMass*S.mass[tj])*10;
       if (S.hp[tj] <= 0){
