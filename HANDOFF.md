@@ -1186,9 +1186,22 @@ s2395 with `meatFloor` 0.6 to 800k: meat peaks at 22.6% (kill share 15.8%,
 carnivore cluster forms. The floor's extra meat at 400k was mostly kills,
 not carrion, but it did not become a specialist line either.
 
-Next: `patchy` (60% of the world barren, pasture in about three patches
-joined by corridors), queued as `v1-PA60-3065` and `-3089`, paired with the
-standing blocks. Two local worlds at 200k: meat 31% and 21%.
+**Pasture in patches hurts predators** (`v1-PA60-3065`, `patchy` 0.6: 60% of
+the world barren, about three patches joined by corridors, 12 pairs at 1M).
+Expected more persistence; wrong. Meat 10.1% against 19.3% (11 of 12 lower,
+p 0.006), kill share 6.4% against 14.4% (p 0.006), animals 354 against 1036,
+carnivore species in 0 worlds against 5 (p 0.06), persisting 6 against 9,
+exits 10 against 6. Cutting the pasture cuts the prey base, and predators
+need a large one. A bigger world at the same density was already tested
+(`v1-BG-grid96`, 2026-09-27: no difference), so spatial room does not rescue
+predators either. `patchy` stays an option, off. (`-3089`, the other 12
+pairs, is still running.)
+
+**Gene flow as the barrier?** (local, running). With sex, an omnivore that
+kills now and then breeds with grazer relatives, and recombination may pull
+its diet and weapon back. The four collapsed worlds branched with `sex` 0
+for 400k (`regen/run3.py`). Expected if gene flow is the barrier: a carnivore
+cluster in 2 or more of 4 (as is: 0 of 4).
 
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
