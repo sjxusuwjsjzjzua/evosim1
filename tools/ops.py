@@ -8,6 +8,7 @@
     python3 tools/ops.py digest             fetch landed results, score them, log to ops/log.md
     python3 tools/ops.py wait               block until a dispatched entry's results land
     python3 tools/ops.py evergreen [JOBS]   top the queue up with standing runs until JOBS jobs are pending
+    python3 tools/ops.py room               worlds that may be dispatched now without passing the cap (CAP)
 
 SEEDS is "a-b" or "a,b,c". SET is the run.js --set string ("" for none; gridN=64 is added).
 A dispatched entry lands on branch results/LABEL. The digest scores it with v1score
@@ -16,6 +17,8 @@ A dispatched entry lands on branch results/LABEL. The digest scores it with v1sc
 import json, os, subprocess, sys, time, datetime
 
 Q = 'ops/queue.json'; LOG = 'ops/log.md'
+CAP = 60   # worlds dispatched and not landed, queued included: 15 jobs of 4, three quarters of the
+           # account's ~20 concurrent jobs (the rest is left for the owner's other simulator, botciv)
 
 def load():
     return json.load(open(Q)) if os.path.exists(Q) else {'entries': []}
@@ -109,6 +112,10 @@ def main():
             if done: print('landed:', ' '.join(done)); return
             if not any(e['status'] == 'dispatched' for e in E): print('nothing in flight'); return
             time.sleep(300)
+    elif a[0] == 'room':
+        sh('git fetch -q origin')
+        fl = sum(len(seeds(e['seeds'])) for e in E if e['status'] == 'dispatched' and not landed(e['label']))
+        print('in flight %d worlds, cap %d, room %d' % (fl, CAP, max(0, CAP - fl)))
     elif a[0] == 'evergreen':
         want = int(a[1]) if len(a) > 1 else 36
         pend = lambda: sum(len(seeds(e['seeds'])) for e in E if e['status'] == 'pending')

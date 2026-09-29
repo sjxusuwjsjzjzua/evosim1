@@ -33,7 +33,7 @@ Read `OPS.md` first (the operating mode and the experiment queue), then
 | `tools/daynight.py` | daily rhythm (`dayTicks`): prey and predator speed at night against day, and the night share of kills. |
 | `tools/timeline.py` | a world's history at a glance: meat share, carnivore clusters, streaming and body sizes per window. |
 | `tools/memory.js` | what memory does in a `--dump`: whether a scare lingers into the next step, and whether memory runs a clock of its own. |
-| `OPS.md`, `ops/queue.json`, `ops/log.md`, `tools/ops.py` | how work keeps running: token modes, the queue of planned runs, the results log, and the queue bookkeeping (status, next, mark, digest, wait, evergreen). |
+| `OPS.md`, `ops/queue.json`, `ops/log.md`, `tools/ops.py` | how work keeps running: token modes, the capacity cap (at most 60 worlds in flight on Actions, leaving a quarter for the owner's other simulator, botciv), the queue of planned runs, the results log, and the queue bookkeeping (status, next, mark, digest, wait, evergreen, room). |
 | `tools/fruit.py` | fruit and plants: fruit gene early against late, plant diversity, fruit share of plant energy, share of new plants from animal-carried seed. |
 | `tools/heredity.js` | checks that nothing learned is inherited: every birth in a learning world against the parents' genomes and learned weights, then a scramble of all learned weights. Run after any change to learning or breeding. |
 | `tools/isolation.py` | reproductive isolation between the clusters of a `--dump`, by the engine's mating rule. |

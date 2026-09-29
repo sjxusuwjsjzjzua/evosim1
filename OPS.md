@@ -9,7 +9,8 @@ scheduled wake-up reads first.
 ## Resources
 
 - **GitHub Actions** (`sim.yml`): the repo is public, so minutes are unlimited.
-  About 20 jobs run at once; the rest queue. A runner has 4 cores, so one job
+  About 20 jobs run at once across the account; the rest queue. Three quarters
+  of that is ours (see the cap below). A runner has 4 cores, so one job
   runs up to 4 worlds side by side (`per_job`, default 4): about 80 worlds at
   once. One world: 400k ticks
   takes 10–25 minutes, 1M takes 25–60, 3M about 2–3 hours (timeout 330 minutes).
@@ -37,11 +38,14 @@ python3 tools/ops.py evergreen 60      # top up with standing replication runs
 Dispatch is one `actions_run_trigger` call per entry (ref = the working
 branch, workflow `sim.yml`), with the inputs `next` prints.
 
-**Saturation rule, all modes:** keep at least 160 worlds dispatched and not
-yet landed (two waves of 80), and at least 96 pending worlds in
-`ops/queue.json`. (`ops.py` counts worlds as "jobs".) Forty was too few:
-on 2026-09-27 48 jobs in flight all finished between two hourly check-ins and
-the runners sat idle. If designed work runs short, `evergreen` adds standing runs:
+**Capacity cap, all modes (owner, 2026-09-29):** use at most three quarters of
+GitHub Actions. The account runs about 20 jobs at once and the owner's other
+simulator (botciv) needs the rest. Keep **at most 60 worlds (15 jobs of 4)
+dispatched and not landed**, queued jobs included: a queued job still takes a
+slot as soon as one frees. `python3 tools/ops.py room` prints how many worlds
+may be dispatched now; dispatch only that many, in whole 12-world blocks, and
+never cancel a run whose world jobs are done (it only waits for its collect
+step). Keep about 24 worlds pending in `ops/queue.json`. If designed work runs short, `evergreen` adds standing runs:
 the default build at 1M ticks on fresh 12-seed blocks. They build up the
 sample on the core outcome (predator persistence) and are never wasted.
 
