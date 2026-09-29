@@ -1,0 +1,6 @@
+label=v1-EG-base-3089
+seeds=3089,3090,3091,3092,3093,3094,3095,3096,3097,3098,3099,3100
+ticks=1000000
+set=gridN=64
+cfg=
+sha=a4fbc0e47ffdc5697edbbdd87e77856db4a79edc
