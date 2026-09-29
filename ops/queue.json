@@ -2751,9 +2751,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 05:52",
-   "dispatched_at": "2026-09-29 09:00"
+   "dispatched_at": "2026-09-29 09:00",
+   "scored_at": "2026-09-29 10:33"
   },
   {
    "label": "v1-EG-base-3149",
@@ -2811,8 +2812,9 @@
    "baseline": "v1-EG-base-3089",
    "expect": "pasture in patches (patchy 0.6, patchN 8: 60% of the world barren, about three patches joined by corridors), paired with the standing block of the same seeds. Predator lines are lost in one grazer size sweep across the whole map, and a transplant shows hunting still pays afterwards, so the path back is what is missing. Patches should let a sweep miss one patch or reach it later. Expect: predators persisting (predK >= 64%) in more worlds than the block (baseline 17 of 24 over both blocks), fewer exits, fewer animals (40% of the pasture). If persistence does not rise, a sweep crosses corridors as fast as open ground.",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 10:13"
+   "status": "dispatched",
+   "added_at": "2026-09-29 10:13",
+   "dispatched_at": "2026-09-29 10:33"
   },
   {
    "label": "v1-EG-base-3185",
