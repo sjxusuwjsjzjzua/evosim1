@@ -2387,9 +2387,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 00:39",
-   "dispatched_at": "2026-09-29 01:58"
+   "dispatched_at": "2026-09-29 01:58",
+   "scored_at": "2026-09-29 05:09"
   },
   {
    "label": "v1-EG-base-2813",
@@ -2411,9 +2412,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 00:40",
-   "dispatched_at": "2026-09-29 02:35"
+   "dispatched_at": "2026-09-29 02:35",
+   "scored_at": "2026-09-29 05:09"
   },
   {
    "label": "v1-EG-base-2837",
@@ -2555,8 +2557,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 03:57"
+   "status": "dispatched",
+   "added_at": "2026-09-29 03:57",
+   "dispatched_at": "2026-09-29 05:10"
   },
   {
    "label": "v1-EG-base-2981",
@@ -2566,8 +2569,9 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 03:57"
+   "status": "dispatched",
+   "added_at": "2026-09-29 03:57",
+   "dispatched_at": "2026-09-29 05:10"
   },
   {
    "label": "v1-EG-base-2993",
@@ -2634,6 +2638,28 @@
    "build_ref": "",
    "status": "pending",
    "added_at": "2026-09-29 04:43"
+  },
+  {
+   "label": "v1-EG-base-3065",
+   "seeds": "3065-3076",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 05:10"
+  },
+  {
+   "label": "v1-EG-base-3077",
+   "seeds": "3077-3088",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 05:10"
   }
  ]
 }
