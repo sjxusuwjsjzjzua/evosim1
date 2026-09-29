@@ -1203,7 +1203,24 @@ lower in 19 of 24.
 kills now and then breeds with grazer relatives, and recombination may pull
 its diet and weapon back. The four collapsed worlds branched with `sex` 0
 for 400k (`regen/run3.py`). Expected if gene flow is the barrier: a carnivore
-cluster in 2 or more of 4 (as is: 0 of 4).
+cluster in 2 or more of 4 (as is: 0 of 4). Result: 0 of 4; meat at 400k
+7.3%, 8.0%, 17.4%, 5.0% (as is 6.6%, 8.2%, 10.2%, 5.6%). Gene flow is not
+the barrier. Ruled out so far: the reward (`meatFloor`), step size (`mutSd`),
+gene flow (`sex` 0), room and patches (`gridN` 96, `patchy`).
+
+**The strike rule makes big bodies a refuge at any size ratio.** Damage is
+weapon x attacker mass^0.75 and hit points 2 x prey mass, so the time to kill
+a prey of mass m by a hunter k times heavier is 4 m^0.25 / (weapon x k^0.75):
+at a fixed ratio, bigger pairs take longer. In the s2184 sweep the hunters
+(2.7) stayed bigger than the grazers (0.3 → 1.8), yet kills fell from 1,500 to
+40 per window. Test (running): replay s2184, s2278 and s2395 to just before
+their crashes and branch through the sweep with damage x attacker mass^1
+(`dmgExp` 1, a source patch in `regen/branch3.js`), so a fight at a given
+ratio takes the same time at any size. Control: plain damage raised by the
+same factor at the hunters' size (`dmg` 0.64, x1.28 at mass 2.7). Expected if the rule is what breaks
+the hunters: the hunter line survives the sweep (predators above 20 at
++50k) in 2 or more of 3 with `dmgExp` 1, where as is they fall to near 0,
+and more often than with the control.
 
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
