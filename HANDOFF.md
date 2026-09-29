@@ -1181,7 +1181,10 @@ which the pre-crash world had built over 600k ticks and loses in one sweep.
 s2278 (normal-size prey): the transplant takes hold too, less completely.
 Meat 15–22% through 300k (one dip to 5% at 125k), kill share 9–18%,
 predators by intake 27–67, a carnivore cluster on and off; as is 6–9%.
-(The s2395 floor branch is being rerun after a container restart.)
+s2395 with `meatFloor` 0.6 to 800k: meat peaks at 22.6% (kill share 15.8%,
+22–33 predators) at 550–650k, then falls back to 14.7% (as is 14.4%), and no
+carnivore cluster forms. The floor's extra meat at 400k was mostly kills,
+not carrion, but it did not become a specialist line either.
 
 Next: `patchy` (60% of the world barren, pasture in about three patches
 joined by corridors), queued as `v1-PA60-3065` and `-3089`, paired with the
