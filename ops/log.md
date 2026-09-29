@@ -1598,3 +1598,56 @@
     predSp baseline 0.603  arm 0.477   mean diff -0.126  sign test 3+/9-  p 0.146
     learnM baseline 0.885  arm 0.881   mean diff -0.004  sign test 5+/7-  p 0.774
 
+### v1-EG-base-2597 (2026-09-29 01:06)
+
+`defaults`, seeds 2597-2608, 1000000 ticks. Expected: standing replication of the default build at 1M ticks: predators persist in about 3 of 4
+
+- worlds 12, meat 18.4%, kill 13.7%, carnSp>0 in 0, preyCl 0.88, persisting (predK >= 64% of run after bootstrap) 8, exits 9, re-entries 5
+- fruit: gene 0.196 -> 0.328 (up in 9 of 12), div 0.201, fruit 26.6%, carried 39.0%
+
+### v1-SD05-2585 (2026-09-29 01:06)
+
+`smellDecay=0.05`, seeds 2585-2596, 1000000 ticks. Expected: the old scent lifetime (smellDecay 0.05) against the 0.1 default, paired with the standing block of the same seeds. Unpaired blocks put 0.1 at 69% persistence (199 of 288) against 76% for 0.05 (228 of 300), while five same-seed pairs gave 0.1 44 of 60 against 36. Expect: persistence within 2 of the block per 12 (no cost of 0.1), alignment lower on 0.05 in 8 of 12.
+
+- worlds 12, meat 16.8%, kill 12.5%, carnSp>0 in 3, preyCl 0.92, persisting (predK >= 64% of run after bootstrap) 7, exits 9, re-entries 4
+- fruit: gene 0.200 -> 0.346 (up in 9 of 12), div 0.220, fruit 23.8%, carried 43.1%
+- baseline v1-EG-base-2585: worlds 12, meat 18.3%, kill 13.6%, carnSp>0 in 4, preyCl 0.90, persisting (predK >= 64% of run after bootstrap) 5, exits 11, re-entries 7
+    pred   baseline  5  arm  6   (+3 / -2)  McNemar p 1.000
+    carn   baseline  3  arm  3   (+2 / -2)  McNemar p 1.000
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.183  arm 0.168   mean diff -0.015  sign test 6+/6-  p 1.000
+    kill   baseline 0.136  arm 0.125   mean diff -0.011  sign test 6+/6-  p 1.000
+    animals baseline 1062  arm 1045   mean diff -16.276  sign test 5+/7-  p 0.774
+    preyCl baseline 0.905  arm 0.916   mean diff +0.012  sign test 6+/6-  p 1.000
+    predCl baseline 2.570  arm 3.217   mean diff +0.647  sign test 5+/7-  p 0.774
+    diet   baseline 0.084  arm 0.084   mean diff +0.000  sign test 6+/6-  p 1.000
+    polar  baseline 0.030  arm 0.031   mean diff +0.001  sign test 8+/4-  p 0.388
+    align  baseline 0.055  arm 0.033   mean diff -0.022  sign test 4+/8-  p 0.388
+    preySp baseline 0.322  arm 0.312   mean diff -0.010  sign test 6+/6-  p 1.000
+    predSp baseline 0.542  arm 0.453   mean diff -0.089  sign test 3+/9-  p 0.146
+    learnM baseline 0.886  arm 0.854   mean diff -0.032  sign test 2+/10-  p 0.039
+
+### v1-SD05-2597 (2026-09-29 01:06)
+
+`smellDecay=0.05`, seeds 2597-2608, 1000000 ticks. Expected: third reverse pair: 0.05 against the 0.1 default on the same seeds, to settle whether 0.1 costs predator persistence (unpaired blocks 69% against 76%; earlier pairs favour 0.1). Expect persistence within 2 of the block.
+
+- worlds 12, meat 21.1%, kill 16.2%, carnSp>0 in 5, preyCl 0.94, persisting (predK >= 64% of run after bootstrap) 10, exits 4, re-entries 1
+- fruit: gene 0.192 -> 0.276 (up in 7 of 12), div 0.200, fruit 29.6%, carried 33.1%
+- baseline v1-EG-base-2597: worlds 12, meat 18.4%, kill 13.7%, carnSp>0 in 0, preyCl 0.88, persisting (predK >= 64% of run after bootstrap) 8, exits 9, re-entries 5
+    pred   baseline  7  arm 10   (+3 / -0)  McNemar p 0.250
+    carn   baseline  0  arm  5   (+5 / -0)  McNemar p 0.062
+    giant  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    dwarf  baseline  0  arm  0   (+0 / -0)  McNemar p 1.000
+    meat   baseline 0.184  arm 0.211   mean diff +0.028  sign test 8+/4-  p 0.388
+    kill   baseline 0.137  arm 0.162   mean diff +0.025  sign test 7+/5-  p 0.774
+    animals baseline 1007  arm 981   mean diff -25.907  sign test 5+/7-  p 0.774
+    preyCl baseline 0.880  arm 0.940   mean diff +0.060  sign test 8+/4-  p 0.388
+    predCl baseline 2.315  arm 2.527   mean diff +0.212  sign test 8+/4-  p 0.388
+    diet   baseline 0.093  arm 0.097   mean diff +0.005  sign test 8+/4-  p 0.388
+    polar  baseline 0.031  arm 0.032   mean diff +0.001  sign test 7+/5-  p 0.774
+    align  baseline 0.069  arm 0.061   mean diff -0.008  sign test 8+/4-  p 0.388
+    preySp baseline 0.355  arm 0.370   mean diff +0.016  sign test 5+/7-  p 0.774
+    predSp baseline 0.508  arm 0.604   mean diff +0.096  sign test 9+/3-  p 0.146
+    learnM baseline 0.857  arm 0.851   mean diff -0.006  sign test 6+/6-  p 1.000
+

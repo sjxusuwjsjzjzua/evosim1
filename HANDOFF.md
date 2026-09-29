@@ -1076,7 +1076,9 @@ of 168 (71%); 24 blocks (to seed 2464): 199 of 288 (69%) against 228 of 300
 way (0.1 44 of 60, 0.05 36 of 60). More pairs, 0.05 against the 0.1 default,
 running (`v1-SD05-*`). First (`v1-SD05-2573`): predators persisted 10 on 0.1
 against 4 on 0.05 (predator worlds p 0.031), alignment 0.084 against 0.059.
-The block gap looks like seed noise.
+The block gap looks like seed noise. All three reverse pairs: persisting 23
+on 0.1 against 21 on 0.05, alignment higher on 0.1 in all three. With the five
+forward pairs: 67 of 96 against 57. Settled: 0.1 stays.
 
 **Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
 persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
