@@ -1143,6 +1143,27 @@ recovery expectation. Open: whether s2395's rise under the floor is kills.
 s2395 (floor and as is) and s2278 (floor) are running to 800k with kill
 share and predator counts (`regen/branch2.js`).
 
+**How predators are lost: a grazer size sweep** (2026-09-29, 1,764 standing-block
+logs). In s2184 at 1k resolution: at 610k a grazer cluster of size 0.7 (the
+others 0.3) takes over within 5k ticks and keeps growing to 1.8; plant intake
+rises from 17k to 29k per window and plant mass halves; kills fall from 1,500
+to 40 per window, and the hunter cluster (size 2.7, still present) starves out
+by 625k. s2278 and s2395 look the same. Across all worlds, in the 40k ticks
+before predators fall from 30+ to 3 or fewer, mean size rose 40%+ in 42% of
+windows (7% of windows where predators hold) and plant mass fell 30%+ in 67%
+(6%). At 500-tick resolution the size rise and the predator fall land in the
+same few samples, so logs alone do not order them. The mechanism fits the
+physics: damage is weapon x attacker mass^0.75 but hit points are 2 x prey
+mass, so prey that grow buy time on every strike, and bigger grazers also
+crop more of a tall canopy. This is the giant trap of 2026-09-26 arriving
+suddenly in a world that had predators. But it does not explain why none come
+back: at 1M only s2184 is still giant (size 3.3); s2278, s2395 and s2599 are
+back to 0.54–0.68, what prey were while predators thrived. Transplant test
+running (`regen/transplant.js`): 40 of each world's own pre-crash hunters put
+into its collapsed state at 1M, s2184 (giant) and s2278 (normal size). Expected:
+they take hold in s2278 (the path is missing, not the reward) and fail in
+s2184 (size refuge).
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
