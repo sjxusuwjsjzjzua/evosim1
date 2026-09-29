@@ -1060,6 +1060,19 @@ plant-eaters' energy 14% against 29%, carried seed 13% against 42%, animals
 864 against 1040. A guess, untested: the scent advertises the whole plant, so
 plant-eaters drawn to it crop its leaves too, and fruiting stops paying.
 
+Archive follow-up (2026-09-29, program audit AA2; medians of the 24 scent
+worlds against their 24 baseline worlds). The first thing to diverge is
+rooted carried seed, from about 30k ticks (681 against 900 per sample; 565
+against 848 at 50k), while fruit eaten, animals, plant cover and the fruit
+gene are still equal; seeds rooted per unit of fruit eaten fall by about 40%
+by 50k. Plant mass and meat share diverge later (50–300k), the fruit gene
+last. Two local diagnostics on seeds 2513 and 2525 (60k ticks, scent off
+against on, scratchpad `seeddrop.js`, `seedlost.js`): seeds are not dropped
+on fuller ground with scent (share dropped on open ground equal or higher),
+and loss to full guts (4 slots, 200 ticks) goes opposite ways in the two
+worlds. Both show fewer seeds dropped with scent at 30–60k. Where the missing
+seeds go is still open; the option is off, so the line stops here.
+
 **Compass on the smell default** (`v1-CP-2321`, `-2333`, `compass` 1, paired
 with the standing blocks of the same seeds, 24 pairs, `smellDecay` 0.1). Prey
 stream in every world: polarisation 0.42 and 0.34 against 0.03, alignment 0.30
