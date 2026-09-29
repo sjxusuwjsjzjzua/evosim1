@@ -1044,7 +1044,16 @@ test `v1-SF-*` against standing blocks of the same seeds on this build.
 mutualism.** Fruit gene at 1M 0.10 against 0.29, lower in 22 of 24 (p
 0.00004); fruit's share of plant-eaters' energy 12% against 30% (21 of 24);
 carried seed 14% against 37% (20 of 24). Grazers do steer toward fruit scent
-(toward in 14 of 24, away in 1). `smellFruit` stays off. First half
+(toward in 14 of 24, away in 1). `smellFruit` stays off. Why, from two local
+diagnostics (seeds 2513, 2525, 150k then 20k ticks, scent off against on):
+not grazing on fruiting plants (high fruiters lose 0.65–0.89 as much leaf as
+other plants per unit standing leaf, less with scent, scratchpad
+`sfgraze.js`), and not seed landing on the wrong ground (seeds take root in
+proportion to open ground in all four: 0.55–0.62 of the open share,
+`sfseed.js`). What differs is open ground itself: 37% against 49% and 9%
+against 16% of cells, with fewer animals (864 against 1040, 904 against 1015)
+to graze it open. The loop (fewer grazers, less open ground, carried seed
+pays less, less fruit) has no located start yet. First half
 (`v1-SF-2513`): the opposite of the expectation. Fruit gene 0.19 →
 0.10 (up in 2 of 12) against 0.33 on the same seeds, fruit's share of
 plant-eaters' energy 14% against 29%, carried seed 13% against 42%, animals
