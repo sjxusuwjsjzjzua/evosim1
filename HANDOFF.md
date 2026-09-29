@@ -1181,11 +1181,109 @@ which the pre-crash world had built over 600k ticks and loses in one sweep.
 s2278 (normal-size prey): the transplant takes hold too, less completely.
 Meat 15–22% through 300k (one dip to 5% at 125k), kill share 9–18%,
 predators by intake 27–67, a carnivore cluster on and off; as is 6–9%.
-(The s2395 floor branch is being rerun after a container restart.)
+s2395 with `meatFloor` 0.6 to 800k: meat peaks at 22.6% (kill share 15.8%,
+22–33 predators) at 550–650k, then falls back to 14.7% (as is 14.4%), and no
+carnivore cluster forms. The floor's extra meat at 400k was mostly kills,
+not carrion, but it did not become a specialist line either.
 
-Next: `patchy` (60% of the world barren, pasture in about three patches
-joined by corridors), queued as `v1-PA60-3065` and `-3089`, paired with the
-standing blocks. Two local worlds at 200k: meat 31% and 21%.
+**Pasture in patches hurts predators** (`v1-PA60-3065`, `patchy` 0.6: 60% of
+the world barren, about three patches joined by corridors, 12 pairs at 1M).
+Expected more persistence; wrong. Meat 10.1% against 19.3% (11 of 12 lower,
+p 0.006), kill share 6.4% against 14.4% (p 0.006), animals 354 against 1036,
+carnivore species in 0 worlds against 5 (p 0.06), persisting 6 against 9,
+exits 10 against 6. Cutting the pasture cuts the prey base, and predators
+need a large one. A bigger world at the same density was already tested
+(`v1-BG-grid96`, 2026-09-27: no difference), so spatial room does not rescue
+predators either. `patchy` stays an option, off. The other 12 pairs
+(`-3089`) point the same way, less strongly (meat 16.9% against 20.3%,
+persisting 7 against 9); pooled over 24, persisting 13 against 18, meat
+lower in 19 of 24.
+
+**Gene flow as the barrier?** (local, running). With sex, an omnivore that
+kills now and then breeds with grazer relatives, and recombination may pull
+its diet and weapon back. The four collapsed worlds branched with `sex` 0
+for 400k (`regen/run3.py`). Expected if gene flow is the barrier: a carnivore
+cluster in 2 or more of 4 (as is: 0 of 4). Result: 0 of 4; meat at 400k
+7.3%, 8.0%, 17.4%, 5.0% (as is 6.6%, 8.2%, 10.2%, 5.6%). Gene flow is not
+the barrier. Ruled out so far: the reward (`meatFloor`), step size (`mutSd`),
+gene flow (`sex` 0), room and patches (`gridN` 96, `patchy`).
+
+**The strike rule makes big bodies a refuge at any size ratio.** Damage is
+weapon x attacker mass^0.75 and hit points 2 x prey mass, so the time to kill
+a prey of mass m by a hunter k times heavier is 4 m^0.25 / (weapon x k^0.75):
+at a fixed ratio, bigger pairs take longer. In the s2184 sweep the hunters
+(2.7) stayed bigger than the grazers (0.3 → 1.8), yet kills fell from 1,500 to
+40 per window. Test (running): replay s2184, s2278 and s2395 to just before
+their crashes and branch through the sweep with damage x attacker mass^1
+(`dmgExp` 1, a source patch in `regen/branch3.js`), so a fight at a given
+ratio takes the same time at any size. Control: plain damage raised by the
+same factor at the hunters' size (`dmg` 0.64, x1.28 at mass 2.7). Expected if the rule is what breaks
+the hunters: the hunter line survives the sweep (predators above 20 at
++50k) in 2 or more of 3 with `dmgExp` 1, where as is they fall to near 0,
+and more often than with the control.
+
+Result (one sample per arm: a restored world does not continue exactly as the
+original, since the snapshot stores some state in float32, so each branch is
+a fresh draw). Hunters above 20 at +50k: as is 2 of 3 (s2184 falls to 0 as
+grazers grow to 3.2; s2278 dips to 2 and recovers; s2395 falls from 155 to
+27); `dmg` 0.64 3 of 3 (s2184 no sweep at all, s2278 dips to 3, s2395 to 13);
+`dmgExp` 1 3 of 3 (s2184 no sweep, s2278 dips to 0 and recovers, s2395 holds
+at 141–164). Stronger strikes help hunters through the sweep; scaling is not
+separated from strength. Both go to Actions at 1M, 24 pairs each on the seeds
+of `v1-EG-base-3137` and `-3161` (`v1-DX1-*`, `v1-DM064-*`); `dmgExp` is now
+an engine option (0.75 by default, unchanged).
+
+Replicated: 3 more draws per world and arm (the random state of each
+snapshot varied), 60k ticks, 12 branches per arm with the first draw:
+
+| arm | hunters never below 20 | above 20 at +50k | grazer sweep (size > 1.5) |
+|---|---|---|---|
+| as is | 3 of 12 | 8 of 12 | 9 of 12 |
+| `dmg` 0.64 | 9 of 12 | 12 of 12 | 3 of 12 (one to 3.0) |
+| `dmgExp` 1 | 9 of 12 | 12 of 12 | 1 of 12 |
+
+Stronger strikes keep the hunter line whole through the window where it
+crashes, and mostly stop the sweep from starting: hunters that keep killing
+keep grazers small. Scaling beats plain strength only on sweeps (1 against 3;
+the one draw where s2184's grazers escaped to 3.0 was on `dmg` 0.64). The
+1M-tick runs decide whether either helps over a whole world's life, where
+stronger hunters might also overshoot their prey.
+
+**Neither strike change keeps predators longer at 1M** (`v1-DX1-3137`,
+`-3161`, `v1-DM064-3137`, `-3161`, 24 pairs each against `v1-EG-base-3137`
+and `-3161`). Persisting 20 (`dmgExp` 1) and 21 (`dmg` 0.64) of 24 against
+19; predator worlds 17 and 19 against 17 (McNemar p 1.0, 0.75); exits 11 and
+14 against 9; meat 20.5% and 19.3% against 17.6% (p 0.84, 0.54). Stronger
+strikes carry hunters through the window around a sweep (9 of 12 against 3
+of 12). Defaults stay; `dmgExp` stays an option at 0.75. (Withdrawn: "saved
+from one crash, they are lost another way or later". The same-seed blocks
+were lucky, 9 exits where their predator time predicts 15.8. Against the
+pooled baseline the two arms together persist in 41 of 48, p 0.018 after the
+fact, a lead now tested with 96 worlds, `v1-DMP-*`; see the program audit
+below.)
+
+Where this leaves persistence (pooled standing blocks, about 3 in 4 worlds
+at 1M): every lever tried on it since the smell default (meat floor,
+mutation step, cloning, room, patches, strike strength and scaling) moves it
+by less than the block-to-block spread (6 to 11 of 12 on the same build).
+
+**Program audit, 2026-09-29** (`AUDIT-HOST-2026-09-29.md`,
+`AUDIT-AUDITOR-2026-09-29.md`, responses in `LEDGER.md`). Verdict: pivot.
+- Same-seed pairing does nothing at 1M: arm and baseline correlate at r =
+  0.02 (meat) over 587 pairs. Arms are now scored against a frozen pooled
+  baseline (`ops/baseline.json`, 1,080 worlds; `tools/pooled.py`).
+- The block spread is binomial noise at n = 12. A 24-world arm needs 22 of
+  24 persisting to reach p < 0.05; arms are now 96 worlds, with the smallest
+  detectable effect stated before dispatch.
+- Predator loss is a flat hazard after the first 100k ticks (about 0.085
+  exits per 100k predator ticks), and carnivore lines re-form at a slow
+  steady rate (about 0.04 per 100k collapsed ticks by the auditor's
+  definition, 98 cases in the standing blocks; mean wait about 2.6M ticks).
+  Re-origination is not a wall; the 4-world replays above could not have
+  seen a doubling (0.6 re-formations expected with no lever).
+- Standing blocks stop (66% of 1M worlds so far); `evergreen` only
+  re-baselines after a default changes.
+- The freed capacity goes to OPS questions 1–3 after `v1-DMP`.
 
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
@@ -1566,12 +1664,13 @@ grazers split into species too.
 
 ## Next
 
-1. **Predators after a collapse never come back.** With the defaults, 9 of 12
-   worlds keep predators for most of a million ticks. The exits seen are a
-   giant-grazer escape (s1109: grazers 0.4 → 5.2 in 50k ticks) and
-   streaming (compass on). After an exit no world has re-evolved predators
-   within the run, although from random brains they appear within
-   20–130k ticks. Worth finding out what blocks the second origin.
+1. **Predator loss and return are two slow rates.** About 7 in 10 worlds
+   keep predators for most of a million ticks. Losses come at a flat hazard
+   (about 0.085 per 100k predator ticks), often through a grazer size sweep;
+   carnivore lines re-form at about 0.04 per 100k collapsed ticks (mean wait
+   about 2.6M ticks), so 1M runs rarely show a return and 3M runs do. The
+   96-world `dmg` 0.64 arm (`v1-DMP-*`) tests whether strike strength cuts
+   the loss rate; if not, the predator program stops (program audit).
 2. **Streaming with predators.** With the compass on, prey stream and
    predation starves over the long run. Is there physics under which
    predators keep up with a stream (e.g. what a moving prey is worth, or

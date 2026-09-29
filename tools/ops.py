@@ -4,15 +4,17 @@
     python3 tools/ops.py status             jobs in flight, pending entries
     python3 tools/ops.py next [N]           the next N pending entries, as dispatch inputs
     python3 tools/ops.py mark LABEL STATE   pending | dispatched | scored | dropped
-    python3 tools/ops.py add LABEL SEEDS TICKS SET BASELINE "EXPECT" [BUILD_REF]
+    python3 tools/ops.py add LABEL SEEDS TICKS SET BASELINE "EXPECT" [BUILD_REF] [GROUP]
     python3 tools/ops.py digest             fetch landed results, score them, log to ops/log.md
     python3 tools/ops.py wait               block until a dispatched entry's results land
-    python3 tools/ops.py evergreen [JOBS]   top the queue up with standing runs until JOBS jobs are pending
+    python3 tools/ops.py evergreen [JOBS]   top the queue up with standing runs (only to re-baseline after a default changes)
     python3 tools/ops.py room               worlds that may be dispatched now without passing the cap (CAP)
 
 SEEDS is "a-b" or "a,b,c". SET is the run.js --set string ("" for none; gridN=64 is added).
 A dispatched entry lands on branch results/LABEL. The digest scores it with v1score
-(means, predator persistence at >= 800k ticks) and, when BASELINE is given, paired.py.
+(means, predator persistence at >= 800k ticks). BASELINE "pooled" scores the entry, with the
+landed entries of its GROUP, against the frozen pooled baseline (tools/pooled.py); any other
+BASELINE label is scored with paired.py (same-seed pairing, which does nothing at 1M ticks).
 """
 import json, os, subprocess, sys, time, datetime
 
@@ -78,6 +80,7 @@ def main():
                 e['status'] = 'dropped'; e['dropped_at'] = now(); print('dropped', e['label'], '(same seeds)')
         new = {'label': label, 'seeds': sd, 'ticks': int(ticks), 'set': st, 'baseline': base,
                'expect': expect, 'build_ref': a[7] if len(a) > 7 else '', 'status': 'pending', 'added_at': now()}
+        if len(a) > 8 and a[8]: new['group'] = a[8]   # blocks of one arm, scored together against the pooled baseline
         # designed runs go ahead of pending standing blocks
         at = next((k for k, e in enumerate(E) if e['status'] == 'pending' and e['label'].startswith('v1-EG-base-')), len(E))
         E.insert(at, new)
@@ -87,14 +90,20 @@ def main():
         for e in E:
             if e['status'] != 'dispatched' or not landed(e['label']): continue
             b = e.get('baseline')
-            if b and not landed(b) and not os.path.isdir('runs/' + b): continue   # score when its baseline has landed too
+            if b and b != 'pooled' and not landed(b) and not os.path.isdir('runs/' + b): continue   # score when its baseline has landed too
             sh('bash tools/fetch-results.sh %s' % e['label'])
             txt = '### %s (%s)\n\n`%s`, seeds %s, %d ticks. Expected: %s\n\n- %s\n' % (
                 e['label'], now(), e['set'] or 'defaults', e['seeds'], e['ticks'], e['expect'], summary(e['label']))
             fr = sh('python3 tools/fruit.py runs/%s/s????.json' % e['label']).strip().splitlines()
             if fr and fr[-1].startswith('mean:') and 'fruit=0' not in e['set']: txt += '- fruit: %s\n' % fr[-1][6:]
             b = e.get('baseline')
-            if b:
+            if b == 'pooled':   # against the frozen pooled baseline (ops/baseline.json), this entry and its landed siblings together
+                grp = e.get('group') or e['label']
+                sib = [x['label'] for x in E if (x.get('group') or x['label']) == grp and (x['status'] == 'scored' or x is e)]
+                p = sh('python3 tools/pooled.py %s' % ' '.join('runs/' + l for l in sib)).splitlines()
+                txt += '- against the pooled baseline (%s, %d of its blocks landed):\n' % (grp, len(sib))
+                txt += ''.join('    ' + l.strip() + '\n' for l in p[1:] if l.strip())
+            elif b:
                 if not os.path.isdir('runs/' + b): sh('bash tools/fetch-results.sh %s' % b)
                 p = sh('python3 tools/paired.py runs/%s runs/%s' % (b, e['label'])).splitlines()[3:]
                 txt += '- baseline %s: %s\n' % (b, summary(b))

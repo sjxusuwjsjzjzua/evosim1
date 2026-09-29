@@ -20,7 +20,8 @@ Read `OPS.md` first (the operating mode and the experiment queue), then
 | `evosim.html` | **the build** (engine 1.x). Single file, no build step, runs on a phone. The `<script id="engine">` block is the whole simulation and never touches the DOM; the second script is the UI. |
 | `run.js` | headless runner: `node run.js --seed 1 --ticks 300000 --every 10000 [--cfg patch.json] [--set k=v,k=v] [--out log.json] [--dump genomes.json] [--build file.html]`. `--set` overrides `--cfg`; `--dump` writes the living genomes (for `seedGenomes`). Runs the engine block of `evosim.html` in a vm, so the file on the phone is the file measured. |
 | `tools/v1score.py` | one row per log, last half of the run: population, meat share, kill share, predators, diet, regime%, clump, carnivore species. `python3 tools/v1score.py runs/*.json` |
-| `tools/paired.py base arm...` | paired comparison of batches on the same seeds, with exact p-values. Change a default only at p < 0.05. |
+| `tools/pooled.py runs/ARM...` | scores an arm against the frozen pooled baseline of the current build (`ops/baseline.json`; `freeze` rebuilds it): exit hazard, carnivore re-formation rate, predator-state share, persistence, with exact p-values and the smallest effect the arm can detect. Change a default only at p < 0.05. |
+| `tools/paired.py base arm...` | same-seed paired comparison. Pairing does nothing at 1M ticks (r = 0.02 over 587 pairs), so use `pooled.py` for new arms. |
 | `tools/fetch-results.sh [prefix]` | pulls `results/*` branches into `runs/<label>/` (gitignored). |
 | `tools/genomes.js` | brain probes of a `--dump`, split at diet 0.3. |
 | `tools/batch.sh` | local batch, 4 worlds at a time, on a frozen copy of the build: `tools/batch.sh <label> "<k=v,...>" <ticks> <seeds...>` → `runs/<label>/`. |

@@ -2738,9 +2738,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 05:36",
-   "dispatched_at": "2026-09-29 09:00"
+   "dispatched_at": "2026-09-29 09:00",
+   "scored_at": "2026-09-29 10:28"
   },
   {
    "label": "v1-EG-base-3137",
@@ -2750,9 +2751,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 05:52",
-   "dispatched_at": "2026-09-29 09:00"
+   "dispatched_at": "2026-09-29 09:00",
+   "scored_at": "2026-09-29 10:33"
   },
   {
    "label": "v1-EG-base-3149",
@@ -2762,9 +2764,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 06:03",
-   "dispatched_at": "2026-09-29 09:07"
+   "dispatched_at": "2026-09-29 09:07",
+   "scored_at": "2026-09-29 11:09"
   },
   {
    "label": "v1-EG-base-3161",
@@ -2774,9 +2777,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 09:00",
-   "dispatched_at": "2026-09-29 09:12"
+   "dispatched_at": "2026-09-29 09:12",
+   "scored_at": "2026-09-29 10:38"
   },
   {
    "label": "v1-EG-base-3173",
@@ -2786,9 +2790,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 09:07",
-   "dispatched_at": "2026-09-29 09:18"
+   "dispatched_at": "2026-09-29 09:18",
+   "scored_at": "2026-09-29 11:16"
   },
   {
    "label": "v1-PA60-3065",
@@ -2798,8 +2803,10 @@
    "baseline": "v1-EG-base-3065",
    "expect": "pasture in patches (patchy 0.6, patchN 8: 60% of the world barren, about three patches joined by corridors), paired with the standing block of the same seeds. Predator lines are lost in one grazer size sweep across the whole map, and a transplant shows hunting still pays afterwards, so the path back is what is missing. Patches should let a sweep miss one patch or reach it later. Expect: predators persisting (predK >= 64%) in more worlds than the block (baseline 17 of 24 over both blocks), fewer exits, fewer animals (40% of the pasture). If persistence does not rise, a sweep crosses corridors as fast as open ground.",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 10:13"
+   "status": "scored",
+   "added_at": "2026-09-29 10:13",
+   "dispatched_at": "2026-09-29 10:28",
+   "scored_at": "2026-09-29 11:09"
   },
   {
    "label": "v1-PA60-3089",
@@ -2809,8 +2816,10 @@
    "baseline": "v1-EG-base-3089",
    "expect": "pasture in patches (patchy 0.6, patchN 8: 60% of the world barren, about three patches joined by corridors), paired with the standing block of the same seeds. Predator lines are lost in one grazer size sweep across the whole map, and a transplant shows hunting still pays afterwards, so the path back is what is missing. Patches should let a sweep miss one patch or reach it later. Expect: predators persisting (predK >= 64%) in more worlds than the block (baseline 17 of 24 over both blocks), fewer exits, fewer animals (40% of the pasture). If persistence does not rise, a sweep crosses corridors as fast as open ground.",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 10:13"
+   "status": "scored",
+   "added_at": "2026-09-29 10:13",
+   "dispatched_at": "2026-09-29 10:33",
+   "scored_at": "2026-09-29 11:16"
   },
   {
    "label": "v1-EG-base-3185",
@@ -2820,8 +2829,22 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 09:12"
+   "status": "scored",
+   "added_at": "2026-09-29 09:12",
+   "dispatched_at": "2026-09-29 10:39",
+   "scored_at": "2026-09-29 12:02"
+  },
+  {
+   "label": "v1-G96-3065",
+   "seeds": "3065-3076",
+   "ticks": 1000000,
+   "set": "gridN=96",
+   "baseline": "v1-EG-base-3065",
+   "expect": "a larger world at the same density (gridN 96, 2.25x the area of the standing blocks' 64), on the seeds of v1-EG-base-3065. Seeds do not pair across grid sizes, so compare counts, not pairs. patchy 0.6 lost predators by cutting food (animals 354 against 1036, meat 10% against 19%); this adds room without cutting density. If a sweep takes a fixed time to cross ground, a bigger world should keep a hunter line somewhere. Expect: predators persisting in 10+ of 12 (block: 9), carnivore species in more worlds (block: 5), animals about 2.2x. MINING had 96x96 worlds predator-dominated 13 of 20, confounded by batch.",
+   "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-29 11:10",
+   "dropped_at": "2026-09-29 11:11"
   },
   {
    "label": "v1-EG-base-3197",
@@ -2831,8 +2854,311 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 09:18",
+   "dispatched_at": "2026-09-29 11:11",
+   "scored_at": "2026-09-29 12:59"
+  },
+  {
+   "label": "v1-EG-base-3209",
+   "seeds": "3209-3220",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 10:39",
+   "dispatched_at": "2026-09-29 11:11",
+   "scored_at": "2026-09-29 12:43"
+  },
+  {
+   "label": "v1-EG-base-3221",
+   "seeds": "3221-3232",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 11:11",
+   "dispatched_at": "2026-09-29 11:17",
+   "scored_at": "2026-09-29 13:19"
+  },
+  {
+   "label": "v1-EG-base-3233",
+   "seeds": "3233-3244",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 11:11",
+   "dispatched_at": "2026-09-29 11:17",
+   "scored_at": "2026-09-29 12:33"
+  },
+  {
+   "label": "v1-EG-base-3245",
+   "seeds": "3245-3256",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 11:17",
+   "dispatched_at": "2026-09-29 12:02",
+   "scored_at": "2026-09-29 13:30"
+  },
+  {
+   "label": "v1-EG-base-3257",
+   "seeds": "3257-3268",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 11:17",
+   "dispatched_at": "2026-09-29 12:33",
+   "scored_at": "2026-09-29 13:51"
+  },
+  {
+   "label": "v1-DX1-3137",
+   "seeds": "3137-3148",
+   "ticks": 1000000,
+   "set": "dmgExp=1",
+   "baseline": "v1-EG-base-3137",
+   "expect": "strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 12:41",
+   "dispatched_at": "2026-09-29 12:43",
+   "scored_at": "2026-09-29 15:14"
+  },
+  {
+   "label": "v1-DM064-3137",
+   "seeds": "3137-3148",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "v1-EG-base-3137",
+   "expect": "plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 12:41",
+   "dispatched_at": "2026-09-29 12:59",
+   "scored_at": "2026-09-29 14:21"
+  },
+  {
+   "label": "v1-DX1-3161",
+   "seeds": "3161-3172",
+   "ticks": 1000000,
+   "set": "dmgExp=1",
+   "baseline": "v1-EG-base-3161",
+   "expect": "strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 12:41",
+   "dispatched_at": "2026-09-29 13:19",
+   "scored_at": "2026-09-29 15:14"
+  },
+  {
+   "label": "v1-DM064-3161",
+   "seeds": "3161-3172",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "v1-EG-base-3161",
+   "expect": "plain strike damage x1.28 (dmg 0.64, default 0.5): the control for dmgExp 1, the same boost at the pre-crash hunters' size 2.7, paired with the standing block of the same seeds. Expect: persistence up with it too if strength is what saves hunters through a size sweep; less than v1-DX1 in giant worlds if scaling matters.",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 12:41",
+   "dispatched_at": "2026-09-29 13:30",
+   "scored_at": "2026-09-29 15:14"
+  },
+  {
+   "label": "v1-EG-base-3269",
+   "seeds": "3269-3280",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 12:02",
+   "dispatched_at": "2026-09-29 13:51",
+   "scored_at": "2026-09-29 15:20"
+  },
+  {
+   "label": "v1-EG-base-3281",
+   "seeds": "3281-3292",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "scored",
+   "added_at": "2026-09-29 12:33",
+   "dispatched_at": "2026-09-29 14:22",
+   "scored_at": "2026-09-29 15:52"
+  },
+  {
+   "label": "v1-EG-base-3293",
+   "seeds": "3293-3304",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 13:51",
+   "dispatched_at": "2026-09-29 15:15"
+  },
+  {
+   "label": "v1-EG-base-3305",
+   "seeds": "3305-3316",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 14:22",
+   "dispatched_at": "2026-09-29 15:15"
+  },
+  {
+   "label": "v1-EG-base-3317",
+   "seeds": "3317-3328",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 15:15",
+   "dispatched_at": "2026-09-29 15:15"
+  },
+  {
+   "label": "v1-EG-base-3329",
+   "seeds": "3329-3340",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-29 15:15",
+   "dropped_at": "2026-09-29 16:00"
+  },
+  {
+   "label": "v1-EG-base-3341",
+   "seeds": "3341-3352",
+   "ticks": 1000000,
+   "set": "",
+   "baseline": "",
+   "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
+   "build_ref": "",
+   "status": "dropped",
+   "added_at": "2026-09-29 15:15",
+   "dropped_at": "2026-09-29 16:00"
+  },
+  {
+   "label": "v1-DMP-3353",
+   "seeds": "3353-3364",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP",
+   "dispatched_at": "2026-09-29 15:54"
+  },
+  {
+   "label": "v1-DMP-3365",
+   "seeds": "3365-3376",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "dispatched",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP",
+   "dispatched_at": "2026-09-29 15:54"
+  },
+  {
+   "label": "v1-DMP-3377",
+   "seeds": "3377-3388",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
    "status": "pending",
-   "added_at": "2026-09-29 09:18"
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3389",
+   "seeds": "3389-3400",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3401",
+   "seeds": "3401-3412",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3413",
+   "seeds": "3413-3424",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3425",
+   "seeds": "3425-3436",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
+  },
+  {
+   "label": "v1-DMP-3437",
+   "seeds": "3437-3448",
+   "ticks": 1000000,
+   "set": "dmg=0.64",
+   "baseline": "pooled",
+   "expect": "plain strike damage x1.28 (dmg 0.64), 96 worlds in 8 blocks (group v1-DMP), scored together against the frozen pooled baseline (ops/baseline.json, 1,080 worlds), not same-seed pairs (pairing does nothing: AUDIT-AUDITOR-2026-09-29.md finding 2). The lead: 24 dmg 0.64 worlds plus 24 dmgExp 1 worlds persisted in 41 of 48 against 69.7% (p 0.018, pooled after the fact), and pre-crash branches kept the hunter line through a grazer size sweep in 9 of 12 against 3 of 12. Endpoint: exits from the predator state per 100k predator ticks (baseline 0.085). Power: about 64 exits expected at the baseline rate; p < 0.05 needs about 48 or fewer (a cut of a quarter). Expect: exits cut by a third or more (43 or fewer), persistence near 80%, predator-state share up. If exits are within a quarter of expected, strike strength does not move the loss rate and the persistence program stops (audit verdict).",
+   "build_ref": "",
+   "status": "pending",
+   "added_at": "2026-09-29 15:54",
+   "group": "v1-DMP"
   }
  ]
 }

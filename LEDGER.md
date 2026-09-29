@@ -9197,3 +9197,24 @@ Verdict: pivot. Predation converged; herding is looping. Responses:
 | A9 | process limit is resolution and target choice (7) | [auditor-only] | **accept.** 24 paired seeds per arm from here. |
 | A10 | herding aimed at the wrong cause (7) | [auditor-only] | **accept, test first.** Herder diagnostic re-run with hits split by attacker diet. |
 | H5 | evolved-start refresh without a hypothesis (5) | [cross-validated] | **accept.** Stopped; seed 42 stays. |
+
+## Program audit, 2026-09-29 (`AUDIT-HOST-2026-09-29.md`, `AUDIT-AUDITOR-2026-09-29.md`)
+
+Question: seven levers in a row left 1M predator persistence where it was. Is
+persistence the right target, and what next? Verdict (auditor): pivot. Stop the
+lever loop and the standing blocks; score arms on rates against a frozen
+pooled baseline; mine the archive; few arms of 96+ worlds. Responses:
+
+| # | finding (confidence) | tag | response |
+|---|---|---|---|
+| A1 | persistence cannot register a plausible lever at 24 worlds (9) | [cross-validated] H1 | **accept.** Arms are 96 worlds or none, and every pre-registration states the smallest effect it can detect (`tools/pooled.py` prints it). |
+| A2 | same-seed pairing does nothing (9) | [auditor-only] | **accept, verified.** Host recomputed over the same 587 pairs: r = 0.021 for last-half meat share, 0.004 for share of samples above 15% meat. Arms are scored against the frozen pooled baseline (`ops/baseline.json`, 1,080 worlds since smellDecay 0.1; `tools/pooled.py`; `ops.py` baseline `pooled`). paired.py stays for old comparisons only. |
+| A3 | re-origination is a slow rate, not a wall (9) | [auditor-only] | **accept.** HANDOFF's "no world has re-evolved predators" is wrong and is corrected. The 4-world replays could not detect a doubling; no more of them. Re-formation is reported as a rate by `tools/pooled.py`. |
+| A4 | standing blocks take most of the compute (8) | [cross-validated] H2 | **accept.** Pending standing blocks dropped; `evergreen` is used only to re-baseline after a default changes. OPS.md's "never wasted" removed. |
+| A5 | loss is a flat hazard; measure rates (8) | [auditor-only] | **accept.** Exit hazard per 100k predator ticks is the primary endpoint for predator levers (baseline 0.085); persistence is a descriptive line. |
+| A6 | strike levers read null against a lucky block (7) | [auditor-only] | **accept as a lead.** 96-world `dmg` 0.64 arm (`v1-DMP-*`) dispatched against the pooled baseline, endpoint exit hazard, pre-registered cut of a third. HANDOFF's "lost another way" sentence is withdrawn. |
+| A7 | flat on the core metric; behaviour discovery falling (7) | [cross-validated] H3 | **accept.** After `v1-DMP` the capacity goes to OPS questions 1–3 (behaviour-unlocking realism, speed, plants), ranked above persistence. |
+| H3 | work drifted to the lowest-ranked questions; speed untouched (8) | [host-only] | **accept.** Self-audit rule 4 of 2026-09-27 ("stay on predators that never come back") is retired: the premise was wrong (A3). Speed work starts locally now. |
+| H4 | 70% persistence may not be a defect (6) | [cross-validated] Q1 | Appendix. The auditor's arithmetic agrees: carnivory is not dominated, the mission holds in most worlds. |
+| AA1 | persistence used as a veto on behaviour (6) | [auditor-only] | Appendix; **noted for the owner.** The compass (streaming) and learning were switched off for costing predators. Whether more behaviour with fewer predators is better is the owner's call. |
+| AA2 | fruit-scent collapse unexplained (6) | [auditor-only] | Appendix; it fits OPS question 3 (plants) and is a candidate for the freed capacity. |
