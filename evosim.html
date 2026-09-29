@@ -102,6 +102,8 @@ var CFG_DEFAULT = {
   gridN: 96,            // plant cells per side
   cellSize: 4,          // world units per plant cell; world side = gridN*cellSize
   fertNoise: 0.6,       // spatial variation in fertility
+  patchy: 0,            // share of the world that is barren (fertility x 0.03), leaving pasture in patches
+  patchN: 8,            // lattice of the barren mask per side: larger, smaller patches
   seasonAmp: 0,         // 0 = no seasons. Seasons force population cycles, so
                         // they are off unless you want them.
   yearTicks: 6000,
@@ -341,11 +343,11 @@ function gauss(){
 function clamp(x, a, b){ return x < a ? a : x > b ? b : x; }
 
 // smooth value noise on the torus, for fertility
-function noiseField(n, octaves){
+function noiseField(n, octaves, base){
   var f = new Float32Array(n*n);
   var amp = 1, tot = 0;
   for (var o = 0; o < octaves; o++){
-    var m = 3 << o, lat = new Float32Array(m*m);
+    var m = (base || 3) << o, lat = new Float32Array(m*m);
     for (var i = 0; i < m*m; i++) lat[i] = rng();
     for (var y = 0; y < n; y++) for (var x = 0; x < n; x++){
       var fx = x/n*m, fy = y/n*m, x0 = fx|0, y0 = fy|0, tx = fx-x0, ty = fy-y0;
@@ -407,6 +409,11 @@ function init(patch){
   for (var j = 0; j < nc; j++){
     var z = (fn[j]-lo)/Math.max(1e-6, hi-lo);
     S.fert[j] = clamp(1 - CFG.fertNoise + CFG.fertNoise*2*z, 0.05, 1.6);
+  }
+  if (CFG.patchy > 0){   // barren ground over that share of the world, so the pasture is a set of patches
+    var fm = noiseField(n, 1, CFG.patchN), srt = Array.from(fm).sort(function(a, b){ return a - b; });
+    var q0 = srt[Math.min(nc-1, (CFG.patchy*nc)|0)], rq = 0.03;
+    for (var j2 = 0; j2 < nc; j2++) S.fert[j2] *= clamp((fm[j2] - q0)/rq + 0.5, 0.03, 1);
   }
   // founding flora: random genomes scattered over a third of the cells
   for (var p = 0; p < nc; p++){
