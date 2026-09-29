@@ -1114,6 +1114,16 @@ is what grazers steer by. Shorter scent (`smellDecay` 0.1) next (`v1-SD10-*`).
 least 64% of the run after bootstrap, 1M ticks): before smell 144 of 192
 worlds (75%), on the smell default 111 of 144 (77%).
 
+**Re-origination levers, replay test (running, 2026-09-29).** Four worlds on
+the smellDecay 0.1 builds that lost their predators by 1M ticks after meat
+24–31% (s2184, s2278, s2395, s2599) are replayed on their own builds to 1M
+and branched for 400k three ways: as is, `meatFloor` 0.6 (carrion pays a
+plant gut more, so scavenging can be the first step that pays alone), and
+`mutSd` 0.12 (bigger body-gene steps). Scratchpad `regen/`. Expected: as is
+stays under 10% meat in all four; `meatFloor` 0.6 recovers above 15% meat in
+2 or more; `mutSd` 0.12 in at most 1. If none recovers, the valley is in the
+brain, not the reward.
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
