@@ -2880,9 +2880,10 @@
    "baseline": "",
    "expect": "standing replication of the default build at 1M ticks: predators persist in about 3 of 4",
    "build_ref": "",
-   "status": "dispatched",
+   "status": "scored",
    "added_at": "2026-09-29 11:11",
-   "dispatched_at": "2026-09-29 11:17"
+   "dispatched_at": "2026-09-29 11:17",
+   "scored_at": "2026-09-29 13:19"
   },
   {
    "label": "v1-EG-base-3233",
@@ -2953,8 +2954,9 @@
    "baseline": "v1-EG-base-3161",
    "expect": "strike damage x attacker mass^1 (dmgExp 1, default 0.75), paired with the standing block of the same seeds. Hit points are 2 x mass, so at 0.75 a fight at a given size ratio lasts longer the bigger the pair, and grazer size sweeps end predator lines. Pre-crash branches (regen/branch3.js): hunters kept above 20 in 3 of 3 against 2 of 3 as is, but the dmg 0.64 control did as well. Expect: predators persisting in more worlds than the block (pooled baseline for the two blocks 19 of 24), fewer exits; kill share up; if dmg 0.64 (v1-DM064) does as well, it is strength, not scaling.",
    "build_ref": "",
-   "status": "pending",
-   "added_at": "2026-09-29 12:41"
+   "status": "dispatched",
+   "added_at": "2026-09-29 12:41",
+   "dispatched_at": "2026-09-29 13:19"
   },
   {
    "label": "v1-DM064-3161",
