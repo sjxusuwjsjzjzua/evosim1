@@ -1233,6 +1233,22 @@ separated from strength. Both go to Actions at 1M, 24 pairs each on the seeds
 of `v1-EG-base-3137` and `-3161` (`v1-DX1-*`, `v1-DM064-*`); `dmgExp` is now
 an engine option (0.75 by default, unchanged).
 
+Replicated: 3 more draws per world and arm (the random state of each
+snapshot varied), 60k ticks, 12 branches per arm with the first draw:
+
+| arm | hunters never below 20 | above 20 at +50k | grazer sweep (size > 1.5) |
+|---|---|---|---|
+| as is | 3 of 12 | 8 of 12 | 9 of 12 |
+| `dmg` 0.64 | 9 of 12 | 12 of 12 | 3 of 12 (one to 3.0) |
+| `dmgExp` 1 | 9 of 12 | 12 of 12 | 1 of 12 |
+
+Stronger strikes keep the hunter line whole through the window where it
+crashes, and mostly stop the sweep from starting: hunters that keep killing
+keep grazers small. Scaling beats plain strength only on sweeps (1 against 3;
+the one draw where s2184's grazers escaped to 3.0 was on `dmg` 0.64). The
+1M-tick runs decide whether either helps over a whole world's life, where
+stronger hunters might also overshoot their prey.
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
