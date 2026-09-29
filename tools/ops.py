@@ -76,8 +76,11 @@ def main():
         for e in E:
             if e['status'] == 'pending' and e['label'].startswith('v1-EG-base-') and e['label'] != base and mine & set(seeds(e['seeds'])):
                 e['status'] = 'dropped'; e['dropped_at'] = now(); print('dropped', e['label'], '(same seeds)')
-        E.append({'label': label, 'seeds': sd, 'ticks': int(ticks), 'set': st, 'baseline': base,
-                  'expect': expect, 'build_ref': a[7] if len(a) > 7 else '', 'status': 'pending', 'added_at': now()})
+        new = {'label': label, 'seeds': sd, 'ticks': int(ticks), 'set': st, 'baseline': base,
+               'expect': expect, 'build_ref': a[7] if len(a) > 7 else '', 'status': 'pending', 'added_at': now()}
+        # designed runs go ahead of pending standing blocks
+        at = next((k for k, e in enumerate(E) if e['status'] == 'pending' and e['label'].startswith('v1-EG-base-')), len(E))
+        E.insert(at, new)
         save(q); print('added', label, len(seeds(sd)), 'jobs')
     elif a[0] == 'digest':
         sh('git fetch -q origin'); lines = []
