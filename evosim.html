@@ -186,6 +186,9 @@ var CFG_DEFAULT = {
                         // the mouth's four urges the output's activity is what it did minus the odds
                         // it had of doing it. 0: m and felt read 0 and brains are fixed
   learnRate: 0.05,
+  smellFruit: 0,        // 1: ripe fruit smells too (a fifth channel, fruitEmit per unit of fruit per
+                        // tick); two more nostril senses read it. 0: they read 0
+  fruitEmit: 3,
   smellK: 5,            // a nostril reads level/(level + smellK); about the level one animal leaves where it stands
 
   // ---- animals: bodies ----
@@ -297,12 +300,12 @@ var BODY = [
 var NB = BODY.length;
 var G_SIZE=0, G_SPEED=1, G_SENSE=2, G_DIET=3, G_WEAPON=4, G_ARMOUR=5, G_DETOX=6,
     G_REPROT=7, G_CHILDE=8, G_TAG=9, G_BIRTH=12, G_CHOOSY=13, G_ATT=14;
-var NI = 51, NH = 8, NO = 10;
+var NI = 53, NH = 8, NO = 10;
 var W1 = NB, W2 = W1 + NI*NH, WD = W2 + NH*NO, NG = WD + NI*NO;
 var INPUT_NAMES = ['bias','energy','health','hurt','plantL','plantC','plantR','plantHere','tasteHere',
   'animal','animalDir','animalNear','animalSize','animalKin','animalWeapon',
   'corpse','corpseDir','corpseNear','crowd','noise','corpseInReach','animalInReach','crowdDir','alarm','alarmDir','gut','crowdSpeed','heard','heardDir','kinDir','animalR','animalG','animalB','compassX','compassY','crowdHeading','light','mem1','mem2','fruitL','fruitR','fruitHere',
-  'smellR','smellG','smellB','smellMeat','smellRDir','smellGDir','smellBDir','smellMeatDir','felt'];
+  'smellR','smellG','smellB','smellMeat','smellRDir','smellGDir','smellBDir','smellMeatDir','felt','smellFruit','smellFruitDir'];
 var OUTPUT_NAMES = ['turn','throttle','eat','meatPref','attack','call','give','mem1','mem2','learn'];
 var NW = NG - NB;   // brain weights per animal, as learned (learn on)
 
@@ -387,7 +390,7 @@ function init(patch){
     cKiller: new Int32Array(M), crad: new Float32Array(M), cE: new Float32Array(M), cNu: new Float64Array(M),
     // spatial hashes
     bSize: 8, bN: 0, aHead: null, aNext: new Int32Array(M), cHead: null, cNext: new Int32Array(M),
-    sm: null, smT: null,   // scent, 4 channels per spatial-hash bucket
+    sm: null, smT: null,   // scent, 5 channels per spatial-hash bucket (three animal, carrion, fruit)
     // learning (learn on): each animal's own weights, and its last think's activity
     lw: CFG.learn ? new Float32Array(M*NW) : null, pIn: CFG.learn ? new Float32Array(M*NI) : null,
     pHid: CFG.learn ? new Float32Array(M*NH) : null, pOut: CFG.learn ? new Float32Array(M*NO) : null,
@@ -397,7 +400,7 @@ function init(patch){
   };
   S.bN = Math.max(1, Math.floor(S.world/S.bSize)); S.bSize = S.world/S.bN;
   S.aHead = new Int32Array(S.bN*S.bN); S.cHead = new Int32Array(S.bN*S.bN);
-  S.sm = new Float32Array(S.bN*S.bN*4); S.smT = new Float32Array(S.bN*S.bN*4);
+  S.sm = new Float32Array(S.bN*S.bN*5); S.smT = new Float32Array(S.bN*S.bN*5);
   var fn = noiseField(n, 4);
   var lo = 1, hi = 0;
   for (var i = 0; i < nc; i++){ if (fn[i] < lo) lo = fn[i]; if (fn[i] > hi) hi = fn[i]; }
@@ -825,14 +828,16 @@ function sense(i){
   if (CFG.smell){   // two nostrils, ahead-left and ahead-right: how strong each scent is, and which side is stronger
     var Wd = S.world, sx = x + Math.cos(h-0.7)*look, sy = y + Math.sin(h-0.7)*look, K = CFG.smellK;
     sniff(sx < 0 ? sx + Wd : sx >= Wd ? sx - Wd : sx, sy < 0 ? sy + Wd : sy >= Wd ? sy - Wd : sy);
-    var L0 = SNIFF[0], L1 = SNIFF[1], L2 = SNIFF[2], L3 = SNIFF[3];
+    var L0 = SNIFF[0], L1 = SNIFF[1], L2 = SNIFF[2], L3 = SNIFF[3], L4 = SNIFF[4];
     sx = x + Math.cos(h+0.7)*look; sy = y + Math.sin(h+0.7)*look;
     sniff(sx < 0 ? sx + Wd : sx >= Wd ? sx - Wd : sx, sy < 0 ? sy + Wd : sy >= Wd ? sy - Wd : sy);
     var m0 = 0.5*(L0 + SNIFF[0]), m1 = 0.5*(L1 + SNIFF[1]), m2 = 0.5*(L2 + SNIFF[2]), m3 = 0.5*(L3 + SNIFF[3]);
     IN[42] = m0/(m0 + K); IN[43] = m1/(m1 + K); IN[44] = m2/(m2 + K); IN[45] = m3/(m3 + K);
     IN[46] = (SNIFF[0] - L0)/(SNIFF[0] + L0 + 1e-9); IN[47] = (SNIFF[1] - L1)/(SNIFF[1] + L1 + 1e-9);
     IN[48] = (SNIFF[2] - L2)/(SNIFF[2] + L2 + 1e-9); IN[49] = (SNIFF[3] - L3)/(SNIFF[3] + L3 + 1e-9);
-  } else { IN[42] = IN[43] = IN[44] = IN[45] = IN[46] = IN[47] = IN[48] = IN[49] = 0; }
+    if (CFG.smellFruit){ var m4 = 0.5*(L4 + SNIFF[4]); IN[51] = m4/(m4 + K); IN[52] = (SNIFF[4] - L4)/(SNIFF[4] + L4 + 1e-9); }
+    else { IN[51] = 0; IN[52] = 0; }
+  } else { IN[42] = IN[43] = IN[44] = IN[45] = IN[46] = IN[47] = IN[48] = IN[49] = IN[51] = IN[52] = 0; }
   S.tgt[i] = nearA; S.tgtId[i] = nearA >= 0 ? S.id[nearA] : -1;
 }
 function sig(x){ return 1/(1 + Math.exp(-clamp(x, -30, 30))); }
@@ -1222,33 +1227,42 @@ function updateSmell(){
   for (var i = 0; i < S.hi; i++){
     if (!S.alive[i]) continue;
     var bx = (S.x[i]*inv)|0, by = (S.y[i]*inv)|0; if (bx >= bN) bx = bN-1; if (by >= bN) by = bN-1;
-    var b = (by*bN + bx)*4, g = i*NG, em = e*S.m75[i];
+    var b = (by*bN + bx)*5, g = i*NG, em = e*S.m75[i];
     M[b] += em*(0.25 + 0.75*G[g+G_TAG]); M[b+1] += em*(0.25 + 0.75*G[g+G_TAG+1]); M[b+2] += em*(0.25 + 0.75*G[g+G_TAG+2]);
   }
   for (var c = 0; c < S.cN; c++){
     var cx = (S.cx[c]*inv)|0, cy = (S.cy[c]*inv)|0; if (cx >= bN) cx = bN-1; if (cy >= bN) cy = bN-1;
-    M[(cy*bN + cx)*4+3] += ec*S.cm[c];
+    M[(cy*bN + cx)*5+3] += ec*S.cm[c];
+  }
+  if (CFG.smellFruit){   // ripe fruit gives off scent from its plant cell
+    var n = CFG.gridN, cs = CFG.cellSize, ef = CFG.fruitEmit*dt, PF = S.pF;
+    for (var pc = 0; pc < n*n; pc++){
+      if (PF[pc] <= 0) continue;
+      var fx = (((pc % n) + 0.5)*cs*inv)|0, fy = ((((pc/n)|0) + 0.5)*cs*inv)|0;
+      if (fx >= bN) fx = bN-1; if (fy >= bN) fy = bN-1;
+      M[(fy*bN + fx)*5+4] += ef*PF[pc];
+    }
   }
   var D = CFG.smellDiff, D4 = D*0.25, keep = Math.max(0, 1 - CFG.smellDecay*dt);
   for (var y = 0; y < bN; y++){
     var up = ((y + bN - 1) % bN)*bN, dn = ((y + 1) % bN)*bN, row = y*bN;
     for (var x = 0; x < bN; x++){
-      var l = (row + (x === 0 ? bN - 1 : x - 1))*4, r = (row + (x === bN - 1 ? 0 : x + 1))*4, u = (up + x)*4, d = (dn + x)*4, o = (row + x)*4;
-      for (var q = 0; q < 4; q++) T[o+q] = keep*(M[o+q]*(1 - D) + D4*(M[l+q] + M[r+q] + M[u+q] + M[d+q]));
+      var l = (row + (x === 0 ? bN - 1 : x - 1))*5, r = (row + (x === bN - 1 ? 0 : x + 1))*5, u = (up + x)*5, d = (dn + x)*5, o = (row + x)*5;
+      for (var q = 0; q < 5; q++) T[o+q] = keep*(M[o+q]*(1 - D) + D4*(M[l+q] + M[r+q] + M[u+q] + M[d+q]));
     }
   }
   S.sm = T; S.smT = M;
 }
-// the scent at a point, bilinear between bucket centres, into SNIFF[0..3]
-var SNIFF = new Float64Array(4);
+// the scent at a point, bilinear between bucket centres, into SNIFF[0..4]
+var SNIFF = new Float64Array(5);
 function sniff(px, py){
   var bN = S.bN, inv = 1/S.bSize, gx = px*inv - 0.5, gy = py*inv - 0.5;
   var x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
   x0 = ((x0 % bN) + bN) % bN; y0 = ((y0 % bN) + bN) % bN;
   var x1 = x0 === bN - 1 ? 0 : x0 + 1, y1 = y0 === bN - 1 ? 0 : y0 + 1, M = S.sm;
-  var a = (y0*bN + x0)*4, b = (y0*bN + x1)*4, c = (y1*bN + x0)*4, d = (y1*bN + x1)*4;
+  var a = (y0*bN + x0)*5, b = (y0*bN + x1)*5, c = (y1*bN + x0)*5, d = (y1*bN + x1)*5;
   var wa = (1-fx)*(1-fy), wb = fx*(1-fy), wc = (1-fx)*fy, wd = fx*fy;
-  for (var q = 0; q < 4; q++) SNIFF[q] = wa*M[a+q] + wb*M[b+q] + wc*M[c+q] + wd*M[d+q];
+  for (var q = 0; q < 5; q++) SNIFF[q] = wa*M[a+q] + wb*M[b+q] + wc*M[c+q] + wd*M[d+q];
 }
 function step(){
   S.tick++;

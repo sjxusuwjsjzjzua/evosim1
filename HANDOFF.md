@@ -1033,13 +1033,61 @@ where it runs low. At `soil0` 48 (`v1-NU-s48`): predator worlds 12 against
 difference at 24 seeds either. Confirming on the smell default (`v1-NU24-1457`, `-1469`,
 paired with the standing blocks of the same seeds) before turning it on.
 
+**Fruit scent** (`smellFruit`, new, 0 until tested; NI 53). Ripe fruit gives
+off scent into a fifth channel (`fruitEmit` 3 per unit of fruit per tick);
+two nostril senses read its level and side. At 20k ticks (seed 3) fruit scent
+per bucket runs 0.3 (p10) to 3 (p90), max 10: fruiting patches smell ten
+times stronger than bare ground. Question: does sensing fruit from afar let
+seed-carrying pay the plants, which fruit sight (seeFruit) did not? Paired
+test `v1-SF-*` against standing blocks of the same seeds on this build.
+**Result, 24 pairs (`v1-SF-2513`, `-2525`): fruit scent collapses the
+mutualism.** Fruit gene at 1M 0.10 against 0.29, lower in 22 of 24 (p
+0.00004); fruit's share of plant-eaters' energy 12% against 30% (21 of 24);
+carried seed 14% against 37% (20 of 24). Grazers do steer toward fruit scent
+(toward in 14 of 24, away in 1). `smellFruit` stays off. Why, from two local
+diagnostics (seeds 2513, 2525, 150k then 20k ticks, scent off against on):
+not grazing on fruiting plants (high fruiters lose 0.65–0.89 as much leaf as
+other plants per unit standing leaf, less with scent, scratchpad
+`sfgraze.js`), and not seed landing on the wrong ground (seeds take root in
+proportion to open ground in all four: 0.55–0.62 of the open share,
+`sfseed.js`). What differs is open ground itself: 37% against 49% and 9%
+against 16% of cells, with fewer animals (864 against 1040, 904 against 1015)
+to graze it open. The loop (fewer grazers, less open ground, carried seed
+pays less, less fruit) has no located start yet. First half
+(`v1-SF-2513`): the opposite of the expectation. Fruit gene 0.19 →
+0.10 (up in 2 of 12) against 0.33 on the same seeds, fruit's share of
+plant-eaters' energy 14% against 29%, carried seed 13% against 42%, animals
+864 against 1040. A guess, untested: the scent advertises the whole plant, so
+plant-eaters drawn to it crop its leaves too, and fruiting stops paying.
+
+**Compass on the smell default** (`v1-CP-2321`, `-2333`, `compass` 1, paired
+with the standing blocks of the same seeds, 24 pairs, `smellDecay` 0.1). Prey
+stream in every world: polarisation 0.42 and 0.34 against 0.03, alignment 0.30
+and 0.23 against 0.07. Predators persist in 13 against 18 (pair one 5 against
+10, p 0.031 for predator worlds; pair two 8 against 8). Before smell it was 10
+against 20 of 24. The compass still costs predators, perhaps less; the
+compass stays off by default.
+
 **Shorter-lived scent is the default** (`v1-SD10-1841`, `-1853`, `-1985`,
 `-2021`, `smellDecay` 0.1 against 0.05, paired with standing blocks of the
 same seeds, 48 pairs): alignment 0.080 against 0.047, higher in 32 of 48
 (p 0.029); predator worlds 33 against 27, carnivore clusters 14 against 11,
 meat 17.7% against 15.5% (n.s.). With 0.02 alignment fell. Scent that fades
 in about 10 ticks marks where others are now, and grazers steer off it.
-`smellDecay` is now 0.1. A fifth pair (`v1-SD10-2129`) is running as a check.
+`smellDecay` is now 0.1. The fifth pair (`v1-SD10-2129`) agreed: alignment
+0.073 against 0.043 (8 of 12), predators 8 against 8; over 60 pairs 40 higher.
+Watch: the first five standing blocks on the 0.1 default (seeds 2177–2236)
+kept predators in 39 of 60 (65%) against 76% on 0.05, about two standard
+errors low, though the same-seed pairs showed no cost (33 against 27). After
+nine blocks (to seed 2284): 75 of 108 (69%); fourteen (to seed 2344): 119
+of 168 (71%); 24 blocks (to seed 2464): 199 of 288 (69%) against 228 of 300
+(76%) on 0.05, about 1.9 standard errors. The same-seed pairs point the other
+way (0.1 44 of 60, 0.05 36 of 60). More pairs, 0.05 against the 0.1 default,
+running (`v1-SD05-*`). First (`v1-SD05-2573`): predators persisted 10 on 0.1
+against 4 on 0.05 (predator worlds p 0.031), alignment 0.084 against 0.059.
+The block gap looks like seed noise. All three reverse pairs: persisting 23
+on 0.1 against 21 on 0.05, alignment higher on 0.1 in all three. With the five
+forward pairs: 67 of 96 against 57. Settled: 0.1 stays.
 
 **Smell over 3M, second block** (`v1-SM-3M-b`, seeds 1901–1912): predators
 persist in 7 of 12, 16 exits and 13 re-entries. Pooled with `v1-SM-3M`: 31
