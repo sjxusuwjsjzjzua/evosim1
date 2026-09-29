@@ -1164,6 +1164,23 @@ into its collapsed state at 1M, s2184 (giant) and s2278 (normal size). Expected:
 they take hold in s2278 (the path is missing, not the reward) and fail in
 s2184 (size refuge).
 
+s2184, wrong on the refuge: 40 hunters (from 128 meat-fed adults at 605k,
+size 2.7, diet 0.62) put into the giant world take it over. Their line (diet
+> 0.5) goes 37 → 134 animals in 300k; its body size climbs to 6 in the first
+125k (big enough for the giants), then settles at 3 as the prey shrink; prey
+mean size falls from 4.3 to 0.6; meat 6% → 32%, kill share 26%, predators by
+intake 112. Hunting pays in a giant world once a hunter body and brain are
+there. So in both kinds of collapsed world the reward is present and the path
+is missing. The 800k runs (kill share `k`, predators by intake `p`) show what
+the path looks like without help: s2395 as is reaches kill share 10–14% and
+4–14 predators at 450–800k, s2278 with `meatFloor` 0.6 7–12% and 7–23, and
+neither forms a carnivore cluster in 800k. Opportunistic killing comes back
+by itself; a specialist line does not. The valley is between an omnivore
+that kills now and then and a hunter body (size, weapon, diet) and brain,
+which the pre-crash world had built over 600k ticks and loses in one sweep.
+(s2278 transplant and the s2395 floor branch are being rerun after a
+container restart.)
+
 **Nutrient loop stays off** (`v1-NU24-1457`, `-1469`, `soil0` 24, smell on,
 against the standing blocks of the same seeds, 24 pairs). Carnivore species 3
 against 12 (p 0.004), kill share 11.0% against 14.0% (p 0.023), animals 925
